@@ -9,9 +9,6 @@ if ($_POST['query']) {
   $result = mysql_query($query);
 ?>
 <link rel="stylesheet" href="style.php?table=1" type="text/css" />
-<style>
-#mainTable tbody td { vertical-align:top; }
-</style>
 <script type="text/javascript" src="js/jquery.js"></script>
 <script type="text/javascript" src="js/tablesorter.js"></script>
 <script type="text/javascript">

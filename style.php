@@ -488,15 +488,15 @@ body.dashboard #attend_datesums h3 { display:none; }
 <?
 } // end IF USING THIS FILE
 
-if ($_GET['jquery']) {
+if (isset($_GET['jquery'])) {
   serve(is_file($path."jquery-ui.css") ? $path."jquery-ui.css" : "css/jquery-ui.css");
   serve(is_file($path."jquery-ui-timepicker.css") ? $path."jquery-ui-timepicker.css" : "css/jquery-ui-timepicker.css");
 }
-if ($_GET['table']) {
+if (isset($_GET['table'])) {
   serve(is_file($path."tablesorter.css") ? $path."tablesorter.css" : "css/tablesorter.css");
   serve(is_file($path."clickmenu4colman.css") ? $path."clickmenu4colman.css" : "css/clickmenu4colman.css");
 }
-if ($_GET['multiselect']) {
+if (isset($_GET['multiselect'])) {
   serve(is_file($path."jquery.multiselect.css") ? $path."jquery.multiselect.css" : "css/jquery.multiselect.css");
   serve(is_file($path."jquery.multiselect.filter.css") ? $path."jquery.multiselect.filter.css" : "css/jquery.multiselect.filter.css");
 }

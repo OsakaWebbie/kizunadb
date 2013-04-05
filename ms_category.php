@@ -70,7 +70,7 @@ function validate() {
         <tr>
           <td nowrap>Category:             <select name="cat_id" size="1">
               <option value="" selected>Select a category...</option>
-              <option value="new">New Category (input name)</option>
+              <? /*<option value="new">New Category (input name)</option>*/ ?>
 <?
 $sql = "SELECT * FROM category ORDER BY Category";
 if (!$result = mysql_query($sql)) {

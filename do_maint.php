@@ -1,7 +1,11 @@
 <?php
 include("functions.php");
 include("accesscontrol.php");
-print_header("Maintenance Processing","#FFFFFF",0);
+header1("Maintenance Processing");
+?>
+<link rel="stylesheet" href="style.php" type="text/css" />
+<?
+header2(1);
 
 if (isset($_POST['confirmed'])) $confirmed = $_POST['confirmed'];
 
@@ -50,7 +54,7 @@ if ($_POST['pc_upd']) {
   } else {
   //already did query for the category's members - now tell the user and ask for confirmation
     echo "<h3 class=\"alert\">"._("Please Confirm Category Delete")."</font></h3>\n<p>";
-    printf(_("The following entries are members of the %s category."),$_POST['category']);
+    printf(_("The following %s entries are members of the %s category."),mysql_num_rows($result),$_POST['category']);
     echo _(" If you are sure you want to delete these category associations, click the button. (If not, just press your browser's Back button.)"); ?>
 </p>
 <form action="<? echo $PHP_SELF; ?>" method="post">
@@ -59,12 +63,13 @@ if ($_POST['pc_upd']) {
   <input type="hidden" name="confirmed" value="1">
   <input type="submit" value="<? echo _("Yes, delete the category"); ?>">
 </form>
-<h3><? echo _("Category Members"); ?>:</h3>
+<h3><? echo _("Category Members"); ?>:</h3><ol id="catmembers">
 <?
     while ($row = mysql_fetch_object($result)) {
-      echo "<p><a href=\"individual.php?pid=".$row->PersonID."\" target=\"_blank\">".
-      readable_name($row->FullName,$row->Furigana)."</a></p>\n";
+      echo "<li><a href=\"individual.php?pid=".$row->PersonID."\" target=\"_blank\">".
+      readable_name($row->FullName,$row->Furigana)."</a></li>\n";
     }
+    echo "</ol>";
     $need_confirmation = 1;
   }
   
@@ -347,5 +352,5 @@ if (!$need_confirmation) {
   echo "</SCRIPT>\n";
   
 }
-print_footer();
+footer(0);
 ?>

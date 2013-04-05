@@ -12,7 +12,7 @@ if (isset($_GET['logout'])) {
 
 if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
 
-  if ($_POST['login_submit']) {      // FORM SUBMITTED, SO CHECK DATABASE
+  if (isset($_POST['login_submit'])) {      // FORM SUBMITTED, SO CHECK DATABASE
     //$sql = "SELECT * FROM login WHERE UserID = '".$_POST['usr'].
     //  "' AND Password = PASSWORD('".$_POST['pwd']."')";
     $sql = "SELECT * FROM login WHERE UserID='".$_POST['usr']."'".
@@ -55,9 +55,9 @@ if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
 ?>
 <html><head><title>Restricted Access</title></head><body onload="document.lform.usr.focus();">
 <center><h1 style="margin-top:100px;">Login Required</h1>
-<? echo $message; ?>
+<? if (isset($message)) echo $message; ?>
 <p>You must log in to access this site.</p>
-<p><form name="lform" method="post" action="<? echo $PHP_SERVER['REQUEST_URI']; ?>">
+<p><form name="lform" method="post" action="<? echo $_SERVER['REQUEST_URI']; ?>">
   User ID: <input type="text" name="usr" size="16"><br>
   Password: <input type="password" name="pwd" size="30"><br>
   <input type="submit" name="login_submit" value="Log in">

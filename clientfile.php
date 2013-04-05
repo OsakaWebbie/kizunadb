@@ -16,7 +16,7 @@ if(!is_file($fullpath)) {  //if there is no client version, check for a default
   }
 }
 $modified = gmdate('D, d M Y H:i:s',filemtime($fullpath)).' GMT';
-if ($_SERVER['HTTP_IF_MODIFIED_SINCE'] && $_SERVER['HTTP_IF_MODIFIED_SINCE']==$modified) {
+if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && $_SERVER['HTTP_IF_MODIFIED_SINCE']==$modified) {
   header('HTTP/1.1 304 Not Modified');
   exit;
 }
