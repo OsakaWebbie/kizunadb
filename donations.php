@@ -2,7 +2,7 @@
 include("functions.php");
 include("accesscontrol.php");
 
-header1(_("Donations & Pledges").($_POST['pid_list']!="" ?
+header1(_("Donations & Pledges").(isset($_POST['pid_list']) ?
 sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($_POST['pid_list'],",")+1) : "")); ?>
 <meta http-equiv="expires" content="0">
 <link rel="stylesheet" href="style.php?jquery=1&multiselect=1" type="text/css" />
@@ -80,14 +80,15 @@ function set_month(subtractor) {
 $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
 $opts = "";
 while ($row = mysql_fetch_object($result)) {
-  $opts .= "    <option value=\"".$row->DonationTypeID."\" style=\"background-color:#".$row->BackgroundColor."\">".
-  $row->DonationType."</option>\n";
+  //$opts .= "    <option value=\"".$row->DonationTypeID."\" style=\"background-color:#".$row->BackgroundColor."\">".
+  //$row->DonationType."</option>\n";
+  $opts .= "    <option value=\"".$row->DonationTypeID."\">".$row->DonationType."</option>\n";
 }
 ?>
 
-<h1 id="title"><? echo _("Donations & Pledges").($_POST['pid_list']!="" ? sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($_POST['pid_list'],",")+1) : ""); ?></h1>
+<h1 id="title"><? echo _("Donations & Pledges").(isset($_POST['pid_list']) ? sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($_POST['pid_list'],",")+1) : ""); ?></h1>
 <form id="dform" method="post" action="blank.html" target="ResultFrame">
-<input type="hidden" name="preselected" value="<? echo $_POST['pid_list']; ?>">
+<input type="hidden" name="preselected" value="<?=isset($_POST['pid_list'])?$_POST['pid_list']:""?>">
 <fieldset><legend><? echo _("Donations"); ?></legend>
   <div id="typefilter">
     <label><? echo _("Donation Types"); ?>: </label>

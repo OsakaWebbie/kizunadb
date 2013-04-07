@@ -2,23 +2,26 @@
 include("functions.php");
 include("accesscontrol.php");
 
-if ($_POST['edit']) {
-  if ($_POST['plid']) {
-    $sql = "UPDATE pledge SET DonationTypeID='".$_POST['dtype']."',PledgeDesc='".$_POST['desc']."',".
+if (isset($_POST['edit'])) {
+  if (isset($_POST['plid'])) {
+    $sql = "UPDATE pledge SET DonationTypeID=".$_POST['dtype'].",PledgeDesc='".$_POST['desc']."',".
     "StartDate='".$_POST['startdate']."',EndDate=".($_POST['enddate']?"'".$_POST['enddate']."'":"NULL").",".
-    "Amount=".ereg_replace(",","",$_POST['amount']).",TimesPerYear=".$_POST['tpy']." ".
+    "Amount=".str_replace(",","",$_POST['amount']).",TimesPerYear=".$_POST['tpy']." ".
     "WHERE PledgeID=".$_POST['plid']." LIMIT 1";
+    $result = sqlquery_checked($sql);
+    $sql = "UPDATE donation SET DonationTypeID=".$_POST['dtype']." WHERE PledgeID=".$_POST['plid'];
+    $result = sqlquery_checked($sql);
   } else {
     $sql = "INSERT INTO pledge (PersonID,DonationTypeID,PledgeDesc,StartDate,EndDate,Amount,TimesPerYear) ".
     "VALUES (".$_POST['pid'].",'".$_POST['dtype']."','".$_POST['desc']."','".$_POST['startdate']."',".
     ($_POST['enddate']?"'".$_POST['enddate']."'":"NULL").",".$_POST['amount'].",".$_POST['tpy'].")";
+    $result = sqlquery_checked($sql);
   }
-  $result = sqlquery_checked($sql);
   echo "<SCRIPT FOR=window EVENT=onload LANGUAGE=\"Javascript\">\n";
   echo "window.location = \"individual.php?pid=".$_POST['pid']."#pledges\";\n";
   echo "</SCRIPT>\n";
   exit;
-} elseif ($_POST['del']) {
+} elseif (isset($_POST['del'])) {
   if (!$_POST['plid']) die("No Pledge ID.");
   $sql = "SELECT DonationID FROM donation WHERE PledgeID=".$_POST['plid'];
   $result = sqlquery_checked($sql);
@@ -36,13 +39,16 @@ if ($_POST['edit']) {
   }
 }
 
-if ($_GET['plid']) {
+if (isset($_GET['plid'])) {
   $sql = "SELECT pledge.*, FullName, Furigana FROM pledge LEFT JOIN person ON person.PersonID=pledge.PersonID ".
       "WHERE PledgeID=".$_GET['plid'];
   $result = sqlquery_checked($sql);
   if (mysql_num_rows($result) == 0) die("<b>Failed to find a record for Pledge ID ".$_GET['plid'].".</b>");
   $old = mysql_fetch_object($result);
-} else if (!$_GET['pid']) {
+  $result = sqlquery_checked("SELECT COUNT(DonationID) count, MIN(DonationDate) first, MAX(DonationDate) last ".
+  "FROM donation WHERE PledgeID=".$_GET['plid']);
+  $donation = mysql_fetch_object($result);
+} else if (!isset($_GET['pid'])) {
   die("You cannot call this page directly.");
   exit;
 } elseif ($_SESSION['donations'] != "yes") {
@@ -79,33 +85,41 @@ function edit_validate() {
   f.edit.disable = true;  //to prevent double submit
 
   if (f.dtype.value == "NULL") {
-    alert("Please choose a Donation Type.");
+    alert("<?=_("Please choose a Donation Type.")?>");
     f.dtype.select();
     return false;
   }
   if (f.startdate.value.length == 0) {
-    alert("Please fill in a Start Date.");
+    alert("<?=_("Please fill in a Start Date.")?>");
     f.startdate.select();
     return false;
   }
 
   if (f.amount.value.length == 0) {
-    alert("Please fill in the Amount.");
+    alert("<?=_("Please fill in the Amount.")?>");
     f.amount.select();
     return false;
   }
 
   if (!date_regexp.test(f.startdate.value)) {
-    alert("Start Date must be in the form of YYYY-MM-DD.");
+    alert("<?=_("Start Date must be in the form of YYYY-MM-DD.")?>");
     f.startdate.select();
     return false;
   }
 
   if (f.enddate.value && !date_regexp.test(f.enddate.value)) {
-    alert("End Date must be in the form of YYYY-MM-DD.");
+    alert("<?=_("End Date must be in the form of YYYY-MM-DD.")?>");
     f.enddate.select();
     return false;
   }
+<? if ($donation->count > 0) { ?>
+  if (f.dtype.value != "<?=$old->DonationTypeID?>") {
+    if (!confirm("<?=sprintf(_("Changing the Donation Type will also change the Donation Type for the %s donations recorded in fulfillment of this pledge (from %s to %s). Okay to do this?"),$donation->count,$donation->first,$donation->last)?>")) {
+      $("#dtype").val(<?=$old->DonationTypeID?>);
+      return false;
+    }
+  }
+<? } ?>
 
   return true;  //everything is cool
 }
@@ -116,15 +130,16 @@ function del_validate() {
 </script>
 <?
 header2(1);
+echo "<pre>".print_r($donation,true)."</pre>";
 if ($message) echo "<h3>$message</h3>\n";
 ?>
-<form name="editform" enctype="multipart/form-data" method="post" action="<? echo ${PHP_SELF}; ?>"
+<form name="editform" enctype="multipart/form-data" method="post" action="<?=$_SERVER['PHP_SELF']?>"
 onsubmit="return edit_validate();"><br>
 <input type="hidden" name="pid" value="<? echo ($_GET['plid'] ? $old->PersonID : $_GET['pid']); ?>">
 <? if ($_GET['plid']) echo "<input type=\"hidden\" name=\"plid\" value=\"".$_GET['plid']."\">"; ?>
 <input type="hidden" name="<? echo ($_GET['plid'] ? "updatepledge" : "insertpledge"); ?> value="yes">
 
-<label class="label-n-input"><?=_("Donation Type")?>: <select name="dtype" size="1"><?
+<label class="label-n-input"><?=_("Donation Type")?>: <select id="dtype" name="dtype" size="1"><?
 if (!$plid) {
   echo "<option value=\"NULL\">Select...</option>\n";
 }
