@@ -49,11 +49,28 @@ ul.nav {
   padding:6px 0px 8px 0px;
   -moz-border-radius: 15px;
   border-radius: 15px;
-  text-align:center;
-  vertical-align:middle;
-  min-height:40px;
+  text-align: center;
+  vertical-align: middle;
+  min-height: 40px;
   clear:both;
 }  
+
+#scrollnav {
+  position: fixed;
+  top: -50px;
+  transition: top 0.2s ease-in-out 0s;
+  width: 100%;
+  z-index: 9999;
+}
+#scrollnav ul.nav {
+  background-color: <?=($navbg?rgba($navbg,"0.7"):rgba("#2C2C2C","0.7"))?>;
+  margin:0;
+  padding:5px;
+  -moz-border-radius: 0;
+  border-radius: 0;
+  min-height: 0;
+}
+#scrollnav.visible { top: 0; }
 
 #content ul.nav {  /*nav bar in footer*/
   margin:10px 0 0 0;
@@ -70,7 +87,7 @@ ul.nav a {
   font-weight: bold;
   white-space:nowrap;
 }
-ul.nav a:hover {
+ul.nav a:hover, ul#scrollnav a:hover {
 color: White;
 }
 
@@ -505,4 +522,15 @@ if (is_file($path."custom.css")) serve($path."custom.css");  // if client wants 
 function serve($source) {
   $stuff = file_get_contents($source);
   echo preg_replace('#url\( *["\']?([^"\'\)]*)["\']? *\)#', 'url("clientfile.php?f=css/$1")', $stuff);
+}
+function rgba($color,$alpha) {
+  if (strtolower(substr($color,0,4)) == "rgba") return preg_replace("/,[0-9\.]+\)$/",",".$alpha.")",$color);
+  elseif (strtolower(substr($color,0,3)) == "rgb") return str_replace("rgb","rgba",preg_replace("/(,[0-9\.]+)\)$/","$1,".$alpha.")",$color));
+  else {
+    if ($color[0] == '#') $color = substr($color,1);
+    if (strlen($color) == 6) list($r,$g,$b) = array($color[0].$color[1],$color[2].$color[3],$color[4].$color[5]);
+    elseif (strlen($color) == 3) list($r,$g,$b) = array($color[0].$color[0],$color[1].$color[1],$color[2].$color[2]);
+    else return false;
+    return "rgba(".hexdec($r).",".hexdec($g).",".hexdec($b).",".$alpha.")";
+  }
 }

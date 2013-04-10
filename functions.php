@@ -25,36 +25,85 @@ function header2($nav=0) {
   echo "</head>\n";
   $fileroot = substr($_SERVER['PHP_SELF'],(strrpos($_SERVER['PHP_SELF'],"/")+1),(strrpos($_SERVER['PHP_SELF'],".")-strrpos($_SERVER['PHP_SELF'],"/")-1));
   echo "<body class=\"".$fileroot.($nav?" full":" simple")."\">\n";
+  
+  $navmarkup = "<ul class=\"nav\">\n";
+  if ($_SESSION['hasdashboard']) {
+    $navmarkup .= "  <li class=\"menu-dashboard\"><a href=\"dashboard.php\" target=\"_top\">"._("Dashboard")."</a></li>\n";
+  }
+  $navmarkup .= "  <li class=\"menu-search\"><a href=\"search.php\" target=\"_top\">"._("Search")."</a></li>\n";
+  $navmarkup .= "  <li class=\"menu-edit\"><a href=\"edit.php\" target=\"_top\">"._("New Person/Org")."</a></li>\n";
+  $navmarkup .= "  <li class=\"menu-multiselect\"><a href=\"multiselect.php\" target=\"_top\">"._("Multi-Select")."</a></li>\n";
+  $navmarkup .= "  <li class=\"menu-contact\"><a href=\"contact.php\" target=\"_top\">"._("Contacts")."</a></li>\n";
+  if ($_SESSION['donations'] == "yes") {
+    $navmarkup .= "  <li class=\"menu-donations\"><a href=\"donations.php\" target=\"_top\">"._("Donations & Pledges")."</a></li>\n";
+  }
+  $navmarkup .= "  <li class=\"menu-eventattend\"><a href=\"event_attend.php\" target=\"_top\">"._("Event Attendance")."</a></li>\n";
+  $navmarkup .= "  <li class=\"menu-birthday\"><a href=\"birthday.php\" target=\"_top\">"._("Birthdays")."</a></li>\n";
+  $navmarkup .= "  <li class=\"menu-maintenance\"><a href=\"maintenance.php\" target=\"_top\">"._("DB Maintenance")."</a></li>\n";
+  if ($_SESSION['admin'] == 1) {
+    $navmarkup .= "  <li class=\"menu-sqlquery\"><a href=\"sqlquery.php\" target=\"_top\">"._("(Freeform SQL)")."</a></li>\n";
+  }
+  $navmarkup .= "  <li class=\"menu-logout\"><a href=\"index.php?logout=1\" target=\"_top\">"._("Log Out")." (".$_SESSION['username'].")</a></li>\n</ul>\n";
+  echo "<div id=\"scrollnav\">\n".$navmarkup."</div>\n";  //navbar that only appears when scrolled
+  
   echo "<div id=\"main-container\">\n";
-  if ($nav) print_nav();
+  echo $navmarkup;  //main navbar
+  ?>
+<script>
+$(function() {
+  $(window).scroll(function() {
+    if ($(this).scrollTop() > 150 && !$('#scrollnav').hasClass('visible')) {
+      $('#scrollnav').addClass('visible');
+    } else if ($(this).scrollTop() <= 150 && $('#scrollnav').hasClass('visible')) {
+      $('#scrollnav').removeClass('visible');
+    }
+  });
+});
+</script>
+<?
   echo "<div id=\"content\">\n";
 }
 
 function print_nav() {
-  echo "<ul class=\"nav\">\n";
+  $navmarkup = "<ul class=\"nav\">\n";
   if ($_SESSION['hasdashboard']) {
-    echo "  <li class=\"menu-dashboard\"><a href=\"dashboard.php\" target=\"_top\">"._("Dashboard")."</a></li>\n";
+    $navmarkup .= "  <li class=\"menu-dashboard\"><a href=\"dashboard.php\" target=\"_top\">"._("Dashboard")."</a></li>\n";
   }
-  echo "  <li class=\"menu-search\"><a href=\"search.php\" target=\"_top\">"._("Search")."</a></li>\n";
-  echo "  <li class=\"menu-edit\"><a href=\"edit.php\" target=\"_top\">"._("New Person/Org")."</a></li>\n";
-  echo "  <li class=\"menu-multiselect\"><a href=\"multiselect.php\" target=\"_top\">"._("Multi-Select")."</a></li>\n";
-  echo "  <li class=\"menu-contact\"><a href=\"contact.php\" target=\"_top\">"._("Contacts")."</a></li>\n";
+  $navmarkup .= "  <li class=\"menu-search\"><a href=\"search.php\" target=\"_top\">"._("Search")."</a></li>\n";
+  $navmarkup .= "  <li class=\"menu-edit\"><a href=\"edit.php\" target=\"_top\">"._("New Person/Org")."</a></li>\n";
+  $navmarkup .= "  <li class=\"menu-multiselect\"><a href=\"multiselect.php\" target=\"_top\">"._("Multi-Select")."</a></li>\n";
+  $navmarkup .= "  <li class=\"menu-contact\"><a href=\"contact.php\" target=\"_top\">"._("Contacts")."</a></li>\n";
   if ($_SESSION['donations'] == "yes") {
-    echo "  <li class=\"menu-donations\"><a href=\"donations.php\" target=\"_top\">"._("Donations & Pledges")."</a></li>\n";
+    $navmarkup .= "  <li class=\"menu-donations\"><a href=\"donations.php\" target=\"_top\">"._("Donations & Pledges")."</a></li>\n";
   }
-  echo "  <li class=\"menu-eventattend\"><a href=\"event_attend.php\" target=\"_top\">"._("Event Attendance")."</a></li>\n";
-  echo "  <li class=\"menu-birthday\"><a href=\"birthday.php\" target=\"_top\">"._("Birthdays")."</a></li>\n";
-  echo "  <li class=\"menu-maintenance\"><a href=\"maintenance.php\" target=\"_top\">"._("DB Maintenance")."</a></li>\n";
+  $navmarkup .= "  <li class=\"menu-eventattend\"><a href=\"event_attend.php\" target=\"_top\">"._("Event Attendance")."</a></li>\n";
+  $navmarkup .= "  <li class=\"menu-birthday\"><a href=\"birthday.php\" target=\"_top\">"._("Birthdays")."</a></li>\n";
+  $navmarkup .= "  <li class=\"menu-maintenance\"><a href=\"maintenance.php\" target=\"_top\">"._("DB Maintenance")."</a></li>\n";
   if ($_SESSION['admin'] == 1) {
-    echo "  <li class=\"menu-sqlquery\"><a href=\"sqlquery.php\" target=\"_top\">"._("(Freeform SQL)")."</a></li>\n";
+    $navmarkup .= "  <li class=\"menu-sqlquery\"><a href=\"sqlquery.php\" target=\"_top\">"._("(Freeform SQL)")."</a></li>\n";
   }
-  echo "  <li class=\"menu-logout\"><a href=\"index.php?logout=1\" target=\"_top\">"._("Log Out")." (".$_SESSION['username'].")</a></li>\n</ul>\n";
+  $navmarkup .= "  <li class=\"menu-logout\"><a href=\"index.php?logout=1\" target=\"_top\">"._("Log Out")." (".$_SESSION['username'].")</a></li>\n</ul>\n";
+  
+  echo $navmarkup."<div id=\"scrollnav\">\n".$navmarkup."</div>\n";
+  ?>
+<script>
+$(function() {
+  $(window).scroll(function() {
+    if ($(this).scrollTop() > 150 && !$('#scrollnav').hasClass('visible')) {
+      $('#scrollnav').addClass('visible');
+    } else if ($(this).scrollTop() <= 150 && $('#scrollnav').hasClass('visible')) {
+      $('#scrollnav').removeClass('visible');
+    }
+  });
+});
+</script>
+<?
 }
 
 // Function print_footer: sends final html
 function footer($nav=0) {
   if ($nav) {
-    print_nav();
+    //print_nav();
   }
   echo "</div>\n"; //end of content div
   echo "</div></body></html>";  //end of main-container div
