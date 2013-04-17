@@ -7,7 +7,7 @@ header1("");
 if ($_POST['newperorg']) {
   $result = sqlquery_checked("SELECT * FROM person WHERE PersonID=".$_POST['orgid']." AND Organization=1");
   if (mysql_num_rows($result) == 0) die("This ID does not point to an organization record. Use Browse if you need help.");
-  $pidarray = split(",",$pid_list);
+  $pidarray = explode(",",$pid_list);
   $added = 0;
   foreach($pidarray as $eachpid) {
     sqlquery_checked("INSERT INTO perorg(PersonID, OrgID, Leader) ".

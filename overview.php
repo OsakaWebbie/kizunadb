@@ -35,7 +35,7 @@ if ($_POST['break']=="line") {
 </style>
 </head><body>
 <?
-$pid_array = split(",",$pid_list);
+$pid_array = explode(",",$pid_list);
 $num_pids = count($pid_array);
 for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
   $sql = "SELECT person.*,NonJapan,Address,Phone,FAX,RomajiAddress,postalcode.* ".

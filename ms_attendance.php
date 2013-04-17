@@ -5,7 +5,7 @@ header1("");
 
 // A REQUEST TO ADD ADDENDANCE RECORD(S)?
 if ($newattendance) {
-  $pidarray = split(",",$pid_list);
+  $pidarray = explode(",",$pid_list);
   //make array of dates (single or range)
   $datearray = array();
   if ($_POST["enddate"] != "") {  //need to do a range of dates

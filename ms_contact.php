@@ -32,7 +32,7 @@ function validate() {
 header2(0);
 
 if ($save_contact) {
-  $pid_array = split(",",$pid_list);
+  $pid_array = explode(",",$pid_list);
   $num_pids = count($pid_array);
   $prev_num = 0;
   $prev_pidlist = "";

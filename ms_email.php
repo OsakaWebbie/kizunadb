@@ -12,8 +12,8 @@ if ($submit) {
   $num_selected = mysql_numrows($result);
   
   while ($row = mysql_fetch_object($result)) {
-    if (($row->Email) && eregi("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$",$row->Email)) {
-      if (eregi("^".$row->Email.";", $addr_list) || strpos(";".$row->Email.";", $addr_list)) {
+    if (($row->Email) && preg_match("/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i",$row->Email)) {
+      if (preg_match("/^".$row->Email.";/i", $addr_list) || strpos(";".$row->Email.";", $addr_list)) {
         $dup_list .= "<br>&nbsp;&nbsp;&nbsp; ".$row->Email;
         $num_dup++;
       } else {

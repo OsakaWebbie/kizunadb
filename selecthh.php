@@ -40,12 +40,12 @@ echo "      e.elements['romajiaddress'].value = form.romaddr.value;\n";
 //"LEFT JOIN postalcode ON household.PostalCode=postalcode.PostalCode ORDER BY score DESC";
 if (preg_match("/^[a-zA-Z]/",$fullname)) {  //name is in English letters
 //echo "I think '$fullname' is in English - parse '$furigana'<br>";
-  $arr = split(" ",$furigana,2);
+  $arr = explode(" ",$furigana,2);
 //echo "Array is '$arr[0]' and '$arr[1]'<br>";
   $lastname = $arr[1];
 } else {  //assuming name is in Japanese
 //echo "I think '$fullname' is in Japanese<br>";
-  $arr = split(" ",$fullname,2);
+  $arr = explode(" ",$fullname,2);
 //echo "Array is '$arr[0]' and '$arr[1]'<br>";
 //currently this doesn't work, nor does mb_split; someday get the 2 ASCII codes for a Japanese space?
   if ($arr[1] != "") {   //i.e. the name really was split into myoji and namae

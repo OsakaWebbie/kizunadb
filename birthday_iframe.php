@@ -70,8 +70,8 @@ while ($row = mysql_fetch_object($result)) {
   if (substr($row->Birthdate,0,4) == "1900") {  // Year born is not known
     echo "<td align=center>????" . substr($row->Birthdate,4) . "</td><td>&nbsp;</td></tr>\n";
   } else {
-    $ba = split("-",$row->Birthdate);
-    $ta = split("-",date("Y-m-d",mktime(0, 0, 0, date("m")+4, date("d"),  date("Y"))));
+    $ba = explode("-",$row->Birthdate);
+    $ta = explode("-",date("Y-m-d",mktime(0, 0, 0, date("m")+4, date("d"),  date("Y"))));
     $age = $ta[0] - $ba[0];
 //    $age = "This=".$ta[0].", Born=".$ba[0];
     if (($ba[1] > $ta[1]) || (($ba[1] == $ta[1]) && ($ba[2] > $ta[2]))) --$age;

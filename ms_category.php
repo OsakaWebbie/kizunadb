@@ -18,7 +18,7 @@ if ($save_cat) {
       exit;
     }
   }
-  $pid_array = split(",",$pid_list);
+  $pid_array = explode(",",$pid_list);
   $num_pids = count($pid_array);
   $num_previous = 0;
   for ($i=0; $i<$num_pids; $i++) {

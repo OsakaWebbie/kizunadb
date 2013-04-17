@@ -16,7 +16,7 @@ $(document).ready(function() {
   $("#mainTable").tablesorter({
 <?
 /*  if ((strtoupper(substr($query,0,6)) == "SELECT") && (mb_eregi(".*order by (.*)",$query,$order))) {
-    $order_split = split(",",$order[0]);
+    $order_split = explode(",",$order[0]);
     for ($i=0; $i<mysql_num_fields($result); $i++) {
       $meta = mysql_fetch_field($result, $i);
       if (mb_strpos($order_split[0],$meta->name)) {

@@ -81,7 +81,7 @@ window.onload = function() {
   <form name="bform" action="birthday_iframe.php" target="ResultFrame" method="GET" onSubmit="make_catlist();">
 <?
 // Create list of months, selecting the current month
-$today_array = split("-",date("Y-m-d",mktime(gmdate("H")+9)));
+$today_array = explode("-",date("Y-m-d",mktime(gmdate("H")+9)));
 for ($index=1; $index<13; $index++) {
   $option_text .= "      <option value=\"" . $index."\"";
   if ($index == $today_array[1])  $option_text .= " selected";

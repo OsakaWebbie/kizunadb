@@ -152,21 +152,21 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
       }  //end of switch statement
       if ($text || $include_empties || $format == "tab") {
         if ($format == "xml") {
-          $text = ereg_replace("&","&amp;",$text);
-          $text = ereg_replace("'","&apos;",$text);
+          $text = str_replace("&","&amp;",$text);
+          $text = str_replace("'","&apos;",$text);
           if (${"field".$i} == "category") {
             echo "<".${"tag".$i}.">".$text."</".${"tag".$i}.">\n";
           } else {
             echo "<".${"field".$i}.">".$text."</".${"field".$i}.">\n";
           }
         } elseif ($format == "tab") {
-          $text = ereg_replace("\r\n|\n|\r","<br>",$text);
+          $text = preg_replace("/\r\n|\n|\r/","<br>",$text);
           echo ($i == 1) ? $text : "\t".$text;
         } else {
           if (${"field".$i} == "photo" && $row->Photo) {
             $text = "<img width=\"150\" src=\"".$text."\" />";
           }
-          $text = ereg_replace("\r\n|\n|\r","<br>\n",$text);
+          $text = preg_replace("/\r\n|\n|\r/","<br>\n",$text);
           echo ${"layout".$i} . $text;
           if (substr(${"layout".$i},-1) == "(")  echo ")";
         }

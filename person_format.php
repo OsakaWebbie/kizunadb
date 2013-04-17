@@ -5,7 +5,7 @@ echo "<html><head>";
 echo "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=".$_SESSION['charset']."\">\n";
 echo "<title>Formatted Individual Data</title>\n";
 
-//$pid_array = split(",",$pid_list);
+//$pid_array = explode(",",$pid_list);
 //$num_pids = count($pid_array);
 
 $sql = "SELECT * FROM outputset LEFT JOIN output ON outputset.Class=output.Class ".
@@ -28,7 +28,7 @@ echo "</head><body>";
 
 //echo $debug;
 
-if (eregi("table",$outputset_name)) {
+if (stripos($outputset_name,"table")!==FALSE) {
   echo "<table border=1 cellspacing=0 cellpadding=2 style=\"empty-cells:show;border:1px black solid\">\n";
 }
 //for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
@@ -54,7 +54,7 @@ while ($per = mysql_fetch_array($result)) {
     echo $per[$index]."\n";
   }
 }
-if (eregi("table",$outputset_name)) {
+if (stripos($outputset_name,"table")!==FALSE) {
   echo "</table>\n";
 }
 

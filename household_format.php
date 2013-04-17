@@ -10,7 +10,7 @@ if ($xml) {
   echo "<style>\n";
 }
 
-//$pid_array = split(",",$pid_list);
+//$pid_array = explode(",",$pid_list);
 //$num_pids = count($pid_array);
 
 /*** GET LAYOUT INFO AND MAKE ARRAYS ***/
@@ -128,7 +128,7 @@ while ($hh = mysql_fetch_array($hhresult)) {
     echo "<household>\n";
   } else {
     echo "<div class=\"nobreak\">\n";
-    if (eregi("table",$household_set)) {
+    if (stripos($household_set,"table")!==FALSE) {
       echo "<table border=1 cellspacing=0 cellpadding=2><tr>\n";
       for ($index = 0; $index < $num_hhclass; $index++) {
         echo $hhclass[$index][2]."\n";
@@ -152,7 +152,7 @@ while ($hh = mysql_fetch_array($hhresult)) {
   for ($index = 1; $index <= $num_hhclass; $index++) {
     if ($xml) {
       echo "<".$hhclass[$index-1][0].">";
-      echo ereg_replace("\n$","",ereg_replace("&","&amp;",ereg_replace("&nbsp;"," ",ereg_replace("<[^<>]+>","",$hh[$index]))));
+      echo preg_replace("/\n$/","",str_replace("&","&amp;",str_replace("&nbsp;"," ",preg_replace("/<[^<>]+>/","",$hh[$index]))));
       echo "</".$hhclass[$index-1][0].">\n";
     } else {
       echo $hh[$index]."\n";
@@ -163,11 +163,11 @@ while ($hh = mysql_fetch_array($hhresult)) {
 
   if ($members) {
     if (!$xml) {
-      if (eregi("comma",$member_set)) {
+      if (stripos($member_set,"comma")!==FALSE) {
         echo "<p><font class = \"".$memclass[0][0]."\"><b>Members: </b>";
       } else {
         echo "<p class = \"".$hhclass[0][0]."\">Members:</p>\n";
-        if (eregi("table",$member_set)) {
+        if (stripos($member_set,"table")!==FALSE) {
           echo "<table border=1 cellspacing=0 cellpadding=2 style=\"page-break-inside:avoid\"><tr>\n";
           for ($index = 0; $index < $num_memclass; $index++) {
             echo $memclass[$index][2]."\n";
@@ -194,19 +194,19 @@ while ($hh = mysql_fetch_array($hhresult)) {
     }
     while ($mem = mysql_fetch_array($result)) {
       for ($index = 0; $index < $num_memclass; $index++) {
-        if (eregi("comma",$member_set) && ($mem_count==$num_mem)) {
+        if (stripos($member_set,"comma")!==FALSE && ($mem_count==$num_mem)) {
           if ($xml) {
-            echo ereg_replace(", $","",$mem[$index]);
+            echo preg_replace("/, $/","",$mem[$index]);
           } else {
-            echo ereg_replace(", $","",$mem[$index])."</font></p>\n";
+            echo preg_replace("/, $/","",$mem[$index])."</font></p>\n";
           }
         } else {
           if ($xml) {
-            if (eregi("comma",$member_set)) {
+            if (stripos($member_set,"comma")!==FALSE) {
               echo $mem[$index];
             } else {
               echo "<".$memclass[$index][0].">";
-              echo ereg_replace("\n$","",ereg_replace("&nbsp;"," ",ereg_replace("<[^<>]+>","",$mem[$index])));
+              echo preg_replace("/\n$/","",str_replace("&nbsp;"," ",preg_replace("/<[^<>]+>/","",$mem[$index])));
               echo "</".$memclass[$index][0].">\n";
             }
           } else {
@@ -219,7 +219,7 @@ while ($hh = mysql_fetch_array($hhresult)) {
     if ($xml) {
       echo "</memberlist>\n";
     } else {
-      if (eregi("table",$member_set)) {
+      if (stripos($hmember_set,"table")!==FALSE) {
         echo "</table>\n";
       }
     }
@@ -233,7 +233,7 @@ while ($hh = mysql_fetch_array($hhresult)) {
 if ($xml) {
   echo "</householdlist>\n";
 } else {
-  if (eregi("table",$household_set) && !$xml) {
+  if (stripos($household_set,"table")!==FALSE && !$xml) {
     echo "</table>\n";
   }
   echo "</div></body></html>";
