@@ -34,7 +34,7 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
           $text = readable_name($row->FullName,$row->Furigana);
           break;
         case "furigana":
-          if (ereg("^[a-zA-Z]",$row->FullName)) {  //name is in English letters
+          if (preg_match("/^[a-zA-Z]/",$row->FullName)) {  //name is in English letters
             $text = $row->Furigana;
           } else {
             $text = $row->Furigana." (".$row->FullName.")";

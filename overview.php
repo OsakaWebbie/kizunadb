@@ -146,7 +146,7 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
         if ($row->Sex) echo $row->Sex;
         echo "</td>\n<td align=center>";
         if ($row->Birthdate && $row->Birthdate != "0000-00-00") {
-          if (ereg("^1900-",$row->Birthdate)) {
+          if (preg_match("/^1900-/",$row->Birthdate)) {
             echo substr($row->Birthdate,5);
           } else {
             echo $row->Birthdate." (".i18n("Age")." ".age($row->Birthdate).")";
@@ -199,8 +199,8 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
       exit;
     }
     if (mysql_num_rows($result) > 0) {
-      echo "<h2 class=\"contitle\">".i18n("Event Attendance")."</h2>\n";
-      echo "<table class=\"contable\">";
+      echo "<h2 class=\"attendtitle\">".i18n("Event Attendance")."</h2>\n";
+      echo "<table class=\"attendtable\">";
       echo "<tr><th>".i18n("Event")."</th>";
       echo "<th>".i18n("Date")."</th>";
       echo "<th>".i18n("Description")."</th></tr>";
@@ -219,17 +219,18 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
 
 /*** DONATIONS & PLEDGES ***/
 
-  if ($_POST['donations']) {
+#### THIS SECTION UNDER CONSTRUCTION ####
+  if ($_POST['donations'] && $_SESSION['donations'] == "yes") {
     $sql = "SELECT pl.PledgeID, pl.DonationTypeID, pl.PledgeDesc, dt.BGColor FROM pledge pl ".
-      "LEFT JOIN donationtype dt ON pl.DonationTypeID=dt.DonationTypeID WHERE PersonID=$pid ".
-      "AND (EndDate IS NULL OR EndDate>CURDATE()) ORDER BY PledgeDesc";
+      "LEFT JOIN donationtype dt ON pl.DonationTypeID=dt.DonationTypeID WHERE PersonID=".$person->PersonID.
+      " AND (EndDate IS NULL OR EndDate>CURDATE()) ORDER BY PledgeDesc";
     if (!$result = mysql_query($sql)) {
       echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b><br>($sql)");
       exit;
     }
     if (mysql_num_rows($result) > 0) {
-      echo "<h2 class=\"contitle\">".i18n("Event Attendance")."</h2>\n";
-      echo "<table class=\"contable\">";
+      echo "<h2 class=\"pledgetitle\">".i18n("Pledges")."</h2>\n";
+      echo "<table class=\"pledgetable\">";
       echo "<tr><th>".i18n("Event")."</th>";
       echo "<th>".i18n("Date")."</th>";
       echo "<th>".i18n("Description")."</th></tr>";
@@ -243,6 +244,7 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
         echo "</td><td>".$row->Remarks."</td></tr>";
       }
       echo "  </table>";
+    }
   } //if donations to be printed
 
   echo "</div>\n"; //person

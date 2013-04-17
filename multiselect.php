@@ -50,7 +50,7 @@ while ($per = mysql_fetch_object($person)) {
   }
   echo "ar[$ar_index][cat] = \"$str\";\n";
   echo "ar[$ar_index][choice] = 0;\n";
-  if (ereg(",".$per->PersonID.",",",".$_REQUEST['preselected'].",")) {
+  if (strpos(",".$_REQUEST['preselected']."," , ",".$per->PersonID.",") !== FALSE) {
     $presel_html .= "<option value=$ar_index>".d2h(readable_name($per->FullName,$per->Furigana))."</option>\n";
     $presel_num++;
     echo "ar[$ar_index][sel] = 1;\n";
@@ -198,8 +198,8 @@ while ($cat = mysql_fetch_object($result)) {
                 border="0" onclick="document.sform.action='ms_household_text.php';document.sform.target='ActionFrame';">
             <input type="submit" name="ms_household_format" value="<? echo _("Household Info (Formatted)"); ?>"
                 border="0" onclick="document.sform.action='ms_household_format.php';document.sform.target='ActionFrame';">
-            <input type="submit" name="ms_overview" value="<? echo _("Overview Pages"); ?>"
-                border="0" onclick="document.sform.action='ms_overview.php';document.sform.target='ActionFrame';">
+<?/*            <input type="submit" name="ms_overview" value="<? echo _("Overview Pages"); ?>"
+                border="0" onclick="document.sform.action='ms_overview.php';document.sform.target='ActionFrame';">*/?>
           </div>
           <div class="buttongroup">
             <h3><?=_("Pre-Filtering Search Pages")?></h3>

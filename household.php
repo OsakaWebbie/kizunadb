@@ -130,7 +130,7 @@ if (mysql_num_rows($result) == 0) {
     echo "<td class=\"sex\">".($row->Sex ? ($row->Sex=="F"?_("Female"):_("Male")) : "")."</td>\n";
     echo "<td class=\"birthdate\">";
     if ($row->Birthdate && $row->Birthdate != "0000-00-00") {
-      if (ereg("^1900-",$row->Birthdate)) {
+      if (preg_match("/^1900-/",$row->Birthdate)) {
         echo substr($row->Birthdate,5);
       } else {
         echo $row->Birthdate."<br />"._("Age")." ".age($row->Birthdate);

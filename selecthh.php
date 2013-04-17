@@ -38,7 +38,7 @@ echo "      e.elements['romajiaddress'].value = form.romaddr.value;\n";
 //$sql = "SELECT HouseholdID,LabelName,household.PostalCode,Prefecture,ShiKuCho,Address,Phone,".
 //"MATCH(LabelName) AGAINST('$fullname') AS score FROM household ".
 //"LEFT JOIN postalcode ON household.PostalCode=postalcode.PostalCode ORDER BY score DESC";
-if (ereg("^[a-zA-Z]",$fullname)) {  //name is in English letters
+if (preg_match("/^[a-zA-Z]/",$fullname)) {  //name is in English letters
 //echo "I think '$fullname' is in English - parse '$furigana'<br>";
   $arr = split(" ",$furigana,2);
 //echo "Array is '$arr[0]' and '$arr[1]'<br>";
