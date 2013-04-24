@@ -1079,14 +1079,16 @@ echo "<h3 class=\"section-title\">"._("Event Attendance")."</h3>\n";
 // FORM FOR ADDING ATTENDANCE
 echo "<form name=\"attendform\" method=\"post\" action=\"${PHP_SELF}?pid=$pid#attendance\" onSubmit=\"return ValidateAttendance()\">\n";
 echo "<input type=\"hidden\" name=\"pid\" value=\"$pid\" />\n";
-$result = sqlquery_checked("SELECT EventID,Event,UseTimes,IF(EventEndDate AND EventEndDate<CURDATE(),'old','active') AS Active FROM event ORDER BY Event");
+$result = sqlquery_checked("SELECT EventID,Event,UseTimes,IF(EventEndDate AND EventEndDate<CURDATE(),'inactive','active') AS Active FROM event ORDER BY Event");
 //echo "<div style=\"display:inline-block\">\n";
 echo "  <label class=\"label-n-input\">"._("Event").": ";
 echo "    <select size=\"1\" id=\"eventid\" name=\"eid\">\n";
 echo "      <option value=\"NULL\" selected>"._("Select...")."</option>\n";
 while ($row = mysql_fetch_object($result)) {
+//  echo "      <option value=\"".$row->EventID."\" class=\"".(($row->UseTimes==1)?"times ":"days ").$row->Active."\"".
+//  ($row->Active=="active"?"":" style=\"display:none\"").">".$row->Event."</option>\n";
   echo "      <option value=\"".$row->EventID."\" class=\"".(($row->UseTimes==1)?"times ":"days ").$row->Active."\"".
-  ($row->Active=="active"?"":" style=\"display:none\"").">".$row->Event."</option>\n";
+  ">".$row->Event."</option>\n";
 }
 echo "    </select>\n  </label><br />\n";
 //echo "<button id=\"activeevents\">"._("Hide Active")."</button><button id=\"oldevents\">"._("Show Old")."</button>\n</div>";
