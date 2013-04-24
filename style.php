@@ -391,39 +391,39 @@ body.donation_list td.subtotal {
  
 /* specific to attendance charts (also used in dashboards, so "body" omitted to allow div also) */
 body.attend_detail.full div#main-container { width:auto; }
-#attend_detail .weekdaydate, #attend_datesums .weekdaydate {
+body.attend_detail .weekdaydate, body.attend_datesums .weekdaydate {
   white-space:nowrap;
   background-color: <?=($weekdaybg?$weekdaybg:"#FFFFD0")?>;
   font-size:0.8em;
   text-align:center;
 }
-#attend_detail .saturdaydate, #attend_datesums .saturdaydate {
+body.attend_detail .saturdaydate, body.attend_datesums .saturdaydate {
   white-space:nowrap;
   background-color: <?=($saturdaybg?$saturdaybg:"#C0C0E0")?>;
   font-size:0.8em;
   text-align:center;
 }
-#attend_detail .sundaydate, #attend_datesums .sundaydate {
+body.attend_detail .sundaydate, body.attend_datesums .sundaydate {
   white-space:nowrap;
   background-color: <?=($sundaybg?$sundaybg:"#FF8080")?>;
   font-size:0.8em;
   text-align:center;
 }
-#attend_detail td.photocell, #attend_detail .photohead {
+body.attend_detail td.photocell, body.attend_detail .photohead {
   text-align:center;
   background-color: <?=($photocellbg?$photocellbg:"#FFFFD0")?>;
 }
-#attend_detail td.namecell, #attend_detail .namehead { white-space:nowrap; background-color: <?=($namecellbg?$namecellbg:"#D0D0F0")?>; }
-#attend_detail .namehead { font-weight:bold; }
-#attend_detail td.attendcell { white-space:nowrap; background: <?=($attendcellbg?$attendcellbg:"#40A060")?> none; text-align:center; }
-#attend_detail td.attendtimecell { white-space:nowrap; background: <?=($attendtimebg?$attendtimebg:"#70E090")?> none; text-align:center; }
-#attend_detail td.ui-selected { background: #808080 url('graphics/delete_icon.png'); }
-#attend_datesums td.datecell { white-space:nowrap; background-color: <?=($datecellbg?$datecellbg:"#FFFFD0")?>; font-size:0.8em; text-align:center; }
-#attend_datesums td.eventcell, #attend_datesums td.eventhead { white-space:nowrap; background-color: <?=($eventcellbg?$eventcellbg:"#D0D0F0")?>; }
-#attend_datesums td.eventhead { font-weight:bold; }
-#attend_datesums td.sumcell { text-align:center }
-#attend_datesums td.sumcell a { font-weight:bold; font-size:1.2em; }
-#attend_datesums td.zerocell { text-align:center; }
+body.attend_detail td.namecell, body.attend_detail .namehead { white-space:nowrap; background-color: <?=($namecellbg?$namecellbg:"#D0D0F0")?>; }
+body.attend_detail .namehead { font-weight:bold; }
+body.attend_detail td.attendcell { white-space:nowrap; background: <?=($attendcellbg?$attendcellbg:"#40A060")?> none; text-align:center; }
+body.attend_detail td.attendtimecell { white-space:nowrap; background: <?=($attendtimebg?$attendtimebg:"#70E090")?> none; text-align:center; }
+body.attend_detail td.ui-selected { background: #808080 url('graphics/delete_icon.png'); }
+body.attend_datesums td.datecell { white-space:nowrap; background-color: <?=($datecellbg?$datecellbg:"#FFFFD0")?>; font-size:0.8em; text-align:center; }
+body.attend_datesums td.eventcell, body.attend_datesums td.eventhead { white-space:nowrap; background-color: <?=($eventcellbg?$eventcellbg:"#D0D0F0")?>; }
+body.attend_datesums td.eventhead { font-weight:bold; }
+body.attend_datesums td.sumcell { text-align:center }
+body.attend_datesums td.sumcell a { font-weight:bold; font-size:1.2em; }
+body.attend_datesums td.zerocell { text-align:center; }
 
 /* specific to maintenance.php */
 body.maintenance form span.input {
