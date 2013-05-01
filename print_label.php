@@ -1,7 +1,6 @@
 <?php
 include("functions.php");
 include("accesscontrol.php");
-mysql_query("set names 'utf8'");
 
 if (!$_POST['pid_list']) {
   die("There were no Person IDs passed.");
@@ -10,155 +9,148 @@ if (!$_POST['label_type']) {
   die("There was no Label Type passed.");
 }
 
-if (!$_POST['confirmed']) {
-  /* CHECK FOR RECORDS WITH NO HOUSEHOLD OR ADDRESS */
-  $sql = "SELECT person.PersonID, FullName, Furigana ".
-      "FROM person LEFT JOIN household ON person.HouseholdID=household.HouseholdID ".
-      "WHERE person.PersonID IN (".$pid_list.") AND (person.HouseholdID IS NULL OR person.HouseholdID=0 ".
-      "OR household.Address IS NULL OR household.Address='') ORDER BY FIND_IN_SET(PersonID,'".$pid_list."')";
-  $result = sqlquery_checked($sql);
-  if ($num = mysql_numrows($result) > 0) {
-    echo "<p>The following people have no address on record.</p>\n";
-    echo "<p>You can click on each link here and edit them to add addresses, and then refresh this window, ";
-    echo "or click 'Print the Rest' and the PDF of the existing addresses will be generated.</p>\n";
-    echo "<form action=\"".$_SERVER['PHP_SELF']."\" method=\"post\" name=\"confirmform\">";
-    echo "<input type=\"hidden\" name=\"pid_list\" value=\"".$_POST['pid_list']."\">";
-    echo "<input type=\"hidden\" name=\"label_type\" value=\"".$_POST['label_type']."\">";
-    echo "<input type=\"hidden\" name=\"name_type\" value=\"".$_POST['name_type']."\">";
-    echo "<input type=\"submit\" name=\"confirmed\" value=\"Print the Rest\"></form>\n";
-    while ($row = mysql_fetch_object($result)) {
-      echo "<br>&nbsp;&nbsp;&nbsp;";
-      echo "<a href=\"individual.php?pid=".$row->PersonID."\" target=\"_BLANK\">";
-      echo readable_name($row->FullName, $row->Furigana)."</a>\n";
-    }
-    exit;
-  }
-}
-
-/* NOW GET THE REAL RECORDS */
-if ($_POST['name_type'] == "label") {
-  $sql = "SELECT DISTINCT person.PersonID, LabelName AS Name, ";
-} else {
-  $sql = "SELECT person.PersonID, IF(NonJapan, CONCAT(Title,' ',FullName), CONCAT(FullName,Title)) AS Name, ";
-}
-$sql .= "NonJapan, postalcode.*, Address FROM person ".
-    "LEFT JOIN household ON person.HouseholdID=household.HouseholdID ".
-    "LEFT JOIN postalcode ON household.PostalCode=postalcode.PostalCode ".
-    "WHERE person.PersonID IN (".$pid_list.") AND person.HouseholdID IS NOT NULL AND person.HouseholdID>0 ".
-    "AND household.Address IS NOT NULL AND household.Address!='' ";
-//$sql .= "ORDER BY FIND_IN_SET(PersonID,'".$pid_list."')";
-$sql .= "ORDER BY PersonID";
-$result = sqlquery_checked($sql);
-
-require('fpdf/mbfpdf.php');
-$pdf = new MBFPDF('P', 'mm', 'A4');
-$pdf->AddMBFont(PGOTHIC,'SJIS');
-$pdf->SetMargins(0,0); 
-$pdf->SetAutoPageBreak(false);
-
+//$sql = "SELECT * FROM labelprint WHERE LabelType='".urldecode($_POST['label_type'])."'";
+//$result = sqlquery_checked($sql);
+//$print = mysql_fetch_object($result);
+$print = new stdClass();
 switch ($_POST['label_type']) {
 case "Askul MA-506TW":
-  $num_rows = 8;
-  $num_cols = 3;
-  $margin_top = 12.7;
-  $margin_left = 0;
-  $label_width = 70;
-  $label_height = 33.9;
-  $address_left = 5.2;
-  $address_right = 5.2;
-  $address_top = 6;
-  $address_fontsize = 10;
-  $address_height = $address_fontsize * 0.4;
-  $name_left = 5.2;
-  $name_right = 5.2;
-  $name_fontsize = 12;
-  $name_height = $name_fontsize * 0.4;
-  $postalcode_wrap = 1;
-  break;
-case "Askul MA-506T":
-  $num_rows = 8;
-  $num_cols = 3;
-  $margin_top = 12.7;
-  $margin_left = 0;
-  $label_width = 70;
-  $label_height = 33.9;
-  $address_left = 5.2;
-  $address_right = 5.2;
-  $address_top = 6;
-  $address_fontsize = 10;
-  $address_height = $address_fontsize * 0.4;
-  $name_left = 5.2;
-  $name_right = 5.2;
-  $name_fontsize = 12;
-  $name_height = $name_fontsize * 0.4;
-  $postalcode_wrap = 0;
-  break;
-case "Kokuyo F7159":
-  $num_rows = 8;
-  $num_cols = 3;
-  $margin_top = 12.9;
-  $margin_left = 6.45;
-  $label_width = 66.5;
-  $label_height = 33.9;
-  $address_left = 3;
-  $address_right = 5.5;
-  $address_top = 4;
-  $address_fontsize = 10;
-  $address_height = $address_fontsize * 0.4;
-  $name_left = 3;
-  $name_right = 5.5;
-  $name_fontsize = 13;
-  $name_height = $name_fontsize * 0.4;
-  $postalcode_wrap = 0;
-  break;
-case "A-One 75312":
-  $num_rows = 6;
-  $num_cols = 2;
-  $margin_top = 21.5;
-  $margin_left = 19.3;
-  $label_width = 87.6;
-  $label_height = 42.3;
-  $address_left = 4;
-  $address_right = 7.8;
-  $address_top = 4;
-  $address_fontsize = 10;
-  $address_height = $address_fontsize * 0.4;
-  $name_left = 4;
-  $name_right = 7.8;
-  $name_fontsize = 13;
-  $name_height = $name_fontsize * 0.4;
-  $postalcode_wrap = 0;
+  $print->PaperSize = "a4";
+  $print->NumRows = 8;
+  $print->NumCols = 3;
+  $print->PageMarginTop = 12.7;
+  $print->PageMarginLeft = 0;
+  $print->LabelWidth = 70;
+  $print->LabelHeight = 33.9;
+  $print->GutterX = 0;
+  $print->GutterY = 0;
+  $print->AddrMarginLeft = 5.2;
+  $print->AddrMarginRight = 5.2;
+  $print->AddrMarginTop = 6;
+  $print->AddrPointSize = $print->NJAddrPointSize = 10;
+  $print->NamePointSize = 12;
+  $print->PostalcodeWrap = 1;
   break;
 default:
-  die("Bad label type.");
+  die("Bad label type: ".$_POST['label_type']);
 }
+/* some simplification */
+$paperwidth = ($print->PaperSize=="letter" ? 215.9 : 210);
+$paperheight = ($print->PaperSize=="letter" ? 279.4 : 297);
+$addrwidth = $print->LabelWidth - $print->AddrMarginLeft - $print->AddrMarginRight;
+$addrheight = $print->LabelHeight - 2*$print->AddrMarginTop;  //assume top and bottom equal (we hope not to hit the bottom anyway)
+$offsetx = $print->LabelWidth + $print->GutterX;
+$offsety = $print->LabelHeight + $print->GutterY;
 
+if ($_POST['name_type'] == "label") {
+  $sql = "SELECT DISTINCT p.PersonID, LabelName AS Name, ";
+} else {
+  $sql = "SELECT p.PersonID, IF(NonJapan, CONCAT(Title,' ',FullName), CONCAT(FullName,Title)) AS Name, ";
+}
+$sql .= "NonJapan, postalcode.*, Address FROM person p ".
+    "LEFT JOIN household h ON p.HouseholdID=h.HouseholdID ".
+    "LEFT JOIN postalcode ON h.PostalCode=postalcode.PostalCode WHERE p.PersonID IN (".$pid_list.") ".
+    "AND p.HouseholdID IS NOT NULL AND p.HouseholdID>0 AND h.Address IS NOT NULL AND h.Address!='' ".
+    "AND (h.NonJapan=1 OR h.PostalCode!='') ORDER BY FIND_IN_SET(PersonID,'".$pid_list."')";
+$result = sqlquery_checked($sql);
+
+$fileroot = "/tmp/label".getmypid();  //the process ID
+
+/* PREPARE ARRAYS FOR SPECIAL CHARACTERS */
+$search_array = array("¡","£","©","®","¸","¿",
+    "À","Á","Â","Ã","Ä","Å","Æ","Ç","È","É","Ê","Ë","Ì","Í","Î","Ï","Ñ",
+    "Ò","Ó","Ô","Õ","Ö","Ø","Ù","Ú","Û","Ü","Ý","ß","à","á","â","ã","ä","å","æ","ç","è","é","ê","ë","ì","í","î","ï","ñ",
+    "ò","ó","ô","õ","ö","ø","ù","ú","û","ü","ý","ÿ");
+$replace_array = array("!`","\\pounds","\\textcopyright","\\textregistered","\\c{}","\\textcopyright",
+    "\\`{A}","\\'{A}","\\^{A}","\\~{A}","\\\"{A}","\\AA{}","\\AE{}","\\c{C}","\\`{E}","\\'{E}","\\^{E}","\\\"{E}",
+    "\\`{I}","\\'{I}","\\^{I}","\\\"{I}","\\~{N}",
+    "\\`{O}","\\'{O}","\\^{O}","\\~{O}","\\\"{O}","\\O","\\`{U}","\\'{U}","\\^{U}","\\\"{U}","\\'{Y}","\\ss{}",
+    "\\`{a}","\\'{a}","\\^{a}","\\~{a}","\\\"{a}","\\aa{}","\\ae{}","\\c{c}","\\`{e}","\\'{e}","\\^{e}","\\\"{e}",
+    "\\`{i}","\\'{i}","\\^{i}","\\\"{i}","\\~{n}",
+    "\\`{o}","\\'{o}","\\^{o}","\\~{o}","\\\"{o}","\\o","\\`{u}","\\'{u}","\\^{u}","\\\"{u}","\\'{y}","\\\"{y}");
+//echo "<pre>".print_r($search_array,TRUE)."\n\n".print_r($replace_array,TRUE)."\n\n";
+//echo str_replace($search_array, $replace_array, "Test")."</pre>";
+//exit;
+/* ALL OUTPUT FROM NOW GOES INTO THE FILE */
+ob_start();
+echo "\xEF\xBB\xBF";  //UTF-8 Byte Order Mark
+?>
+\documentclass[<?=$print->PaperSize?$print->PaperSize:'a4'?>paper]{ujarticle}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+\pagestyle{empty}
+\begin{document}
+\setlength{\unitlength}{1mm}
+\noindent
+\raggedright
+\sffamily
+\gtfamily
+\begin{picture}(<?=$paperwidth?>,<?=$paperheight?>)
+<?
 $count = 0;
 while ($row = mysql_fetch_object($result)) {
-  if ($count == $num_rows*$num_cols) $count = 0;
-  if ($count == 0) {
-    $pdf->AddPage();
+  if ($count == $print->NumRows*$print->NumCols) {
+    $count = 0;
+    echo "\end{picture}\clearpage\n";
   }
+  $posx = $print->PageMarginLeft + ($count%$print->NumCols)*$print->LabelWidth + $print->AddrMarginLeft;
+  $posy = $paperheight - ($print->PageMarginTop + floor($count/$print->NumCols)*$print->LabelHeight + $print->AddrMarginTop);
+?>
+\put(<?=$posx?>,<?=$posy?>){%
+\makebox(<?=$addrwidth?>,<?=$addrheight?>)[lt]{
+\begin{minipage}[t][<?=$addrheight?>]{<?=$addrwidth?>mm}%
+<?
   if ($row->NonJapan == 1) {
-    $text = mb_convert_encoding($row->Name,"SJIS","UTF-8")."\n".trim(mb_convert_encoding($row->Address,"SJIS","UTF-8"));
-    $pdf->SetFont(PGOTHIC, 'B', $address_fontsize);
-    $pdf->SetXY($margin_left + ($count%$num_cols)*$label_width + $address_left, $margin_top + floor($count/$num_cols)*$label_height + $address_top);
-    //$pdf->MultiCell($label_width-$address_left-$address_right, $address_height*(substr_count($text,"\n")+1), $text, 0, "L");
-    $pdf->MultiCell($label_width-$address_left-$address_right, $address_height, $text, 0, "L");
-  } else {
-    $text = mb_convert_encoding("〒","SJIS","UTF-8").$row->PostalCode.($postalcode_wrap?"\n":" ").
-    mb_convert_encoding($row->Prefecture,"SJIS","UTF-8").
-    mb_convert_encoding($row->ShiKuCho,"SJIS","UTF-8")." ".
-    trim(mb_convert_encoding($row->Address,"SJIS","UTF-8"))."\n";
-    $pdf->SetFont(PGOTHIC, '', $address_fontsize);
-    $pdf->SetXY($margin_left + ($count%$num_cols)*$label_width + $address_left, $margin_top + floor($count/$num_cols)*$label_height + $address_top);
-    $pdf->MultiCell($label_width-$address_left-$address_right, $address_height, $text, 0, "L");
-    $pdf->SetFont(PGOTHIC, 'B', $name_fontsize);
-    $pdf->SetX($margin_left + ($count%$num_cols)*$label_width + $name_left);
-    $pdf->MultiCell($label_width-$name_left-$name_right, $name_height, mb_convert_encoding($row->Name,"SJIS","UTF-8"), 0, "L");
-  }
-  
-  $count++;
+?>
+%% NON-JAPAN ADDRESS %%
+\fontsize{<?=$print->NJAddrPointSize?>}{<?=$print->NJAddrPointSize*1.1?>}\selectfont
+<?=preg_replace("\r\n|\r|\n","\n\n\\hangindent=10mm\n",str_replace($search_array,$replace_array,$row->Name))."\n\n"?>
+<?=preg_replace("\r\n|\r|\n","\n\n\\hangindent=10mm\n",str_replace($search_array,$replace_array,$row->Address))."\n"?>
+<?
+  } else {  //Japanese address
+?>
+%% JAPAN ADDRESS %%
+\fontsize{<?=$print->AddrPointSize?>}{<?=$print->AddrPointSize*1.2?>}\selectfont
+\hangindent=10mm
+<?="〒".$row->PostalCode." ".$row->Prefecture.$row->ShiKuCho.preg_replace("\r\n|\r|\n","\n\n\\hangindent=10mm\n",$row->Address)."\n"?>
+
+\vspace{1ex}
+\fontsize{<?=$print->NamePointSize?>}{<?=$print->NamePointSize*1.2?>}\selectfont
+\hangindent=10mm
+<?=preg_replace("\r\n|\r|\n","\n\n\\hangindent=10mm\n",str_replace($search_array,$replace_array,$row->Name))."\n"?>
+<?
+  }  //end Japanese address
+?>
+\end{minipage}}}
+<?
+}  //end while looping through addresses
+?>
+\end{picture}
+\clearpage
+\end{document}
+<?
+file_put_contents($fileroot.".tex",ob_get_contents());
+ob_end_clean();
+
+// RUN TEX COMMANDS TO MAKE PDF
+
+exec("cd /tmp;/usr/local/texlive/2011/bin/x86_64-linux/uplatex -interaction=batchmode --output-directory=/tmp $fileroot", $output, $return);
+//exec("cd /tmp;uplatex -interaction=batchmode --output-directory=/tmp $fileroot", $output, $return);
+if (!is_file("$fileroot.dvi")) {
+  die("Error processing '$fileroot.tex':<br /><br /><pre>".print_r($output,TRUE)."</pre>");
 }
-$pdf->Output();
+//unlink("$fileroot.tex");
+exec("cd /tmp;/usr/local/texlive/2011/bin/x86_64-linux/dvipdfmx $fileroot", $output, $return);
+//unlink("$fileroot.dvi");
+if (!is_file("$fileroot.pdf")) {
+  die("Error processing '$fileroot.dvi':<br /><br /><pre>".print_r($output,TRUE)."</pre>");
+}
+
+// DELIVER PDF CONTENT TO BROWSER
+
+header("Content-Type: application/pdf");
+header('Content-Disposition: attachment; filename="labels_'.date('Y-m-d').'.pdf"');
+header("Content-Transfer-Encoding: binary");
+@readfile("$fileroot.pdf");
 ?>
