@@ -23,8 +23,11 @@ if ($_REQUEST['filter'] == "Organizations") {
   $wheredone = 1;
   $closing = "";
 } elseif ($_REQUEST['filter'] == "OrgsOfPeople") {
-    $sql = "SELECT DISTINCT p1.*, h1.AddressComp, h1.Phone FROM person p1 ".
-    "LEFT JOIN household h1 ON p1.HouseholdID=h1.HouseholdID WHERE p1.PersonID IN (SELECT OrgID FROM perorg po ".
+    $sql = "SELECT DISTINCT p1.*, h1.AddressComp, h1.Phone, GROUP_CONCAT(Category ORDER BY Category SEPARATOR '\\n') AS categories ".
+    "FROM person p1 LEFT JOIN household h1 ON p1.HouseholdID=h1.HouseholdID ".
+    "LEFT JOIN percat ON p1.PersonID=percat.PersonID ".
+    "LEFT JOIN category ON percat.CategoryID=category.CategoryID ".
+    "WHERE p1.PersonID IN (SELECT OrgID FROM perorg po ".
     "INNER JOIN person p2 ON po.PersonID=p2.PersonID ".
     "LEFT JOIN household ON p2.HouseholdID=household.HouseholdID";
   $text .= "<li>"._("Organizations with members who have the following criteria...");
@@ -33,8 +36,11 @@ if ($_REQUEST['filter'] == "Organizations") {
   $grouptable = "p1";
   $closing = ")";
 } elseif ($_REQUEST['filter'] == "PeopleOfOrgs") {
-    $sql = "SELECT DISTINCT p1.*, h1.AddressComp, h1.Phone FROM person p1 ".
-    "LEFT JOIN household h1 ON p1.HouseholdID=h1.HouseholdID WHERE p1.PersonID IN (SELECT po.PersonID FROM perorg po ".
+    $sql = "SELECT DISTINCT p1.*, h1.AddressComp, h1.Phone, GROUP_CONCAT(Category ORDER BY Category SEPARATOR '\\n') AS categories ".
+    "FROM person p1 LEFT JOIN household h1 ON p1.HouseholdID=h1.HouseholdID ".
+    "LEFT JOIN percat ON p1.PersonID=percat.PersonID ".
+    "LEFT JOIN category ON percat.CategoryID=category.CategoryID ".
+    "WHERE p1.PersonID IN (SELECT po.PersonID FROM perorg po ".
     "INNER JOIN person o ON po.OrgID=o.PersonID ".
     "LEFT JOIN household ON o.HouseholdID=household.HouseholdID";
   $text .= "<li>"._("People whose related organizations have the following criteria...");
