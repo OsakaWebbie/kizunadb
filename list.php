@@ -207,7 +207,7 @@ if ($_REQUEST['freesql'] != "") {
 }
 
 if ($_POST['preselected']) {
-  $sql .= " AND $ptable.PersonID IN (".$_POST['preselected'].")";
+  $sql .= " AND $grouptable.PersonID IN (".$_POST['preselected'].")";
   $text .= "<li>".($_POST['preselected']!="" ? sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($_POST['preselected'],",")+1) : "")."</li>\n";
 }
 
