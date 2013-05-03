@@ -1,33 +1,63 @@
 <?php
 include("functions.php");
 include("accesscontrol.php");
-print_header("Multiple Selection","#FFE0E0",0);
-
+header1("");
 ?>
-    <h3><font color="#8b4513">Select options for address labels and click the button...</font></h3>
-    <form action="print_label.php" method="post" name="optionsform" target="_blank">
-      <input type="hidden" name="pid_list" value="<? echo $_POST['pid_list']; ?>">
-      <table width="642" border="0" cellspacing="0" cellpadding="5">
-        <tr>
-          <td width="249"><input type="radio" name="name_type" value="ind" tabindex="1" border="0">Use Individual Names 
-            <br><input type="radio" name="name_type" value="label" border="0" checked>Use Household Label Names
-          </td>
-          <td width="184">
-            <h4>Label Type:<select name="label_type" size="1">
+<link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
+<script type="text/JavaScript" src="js/jquery.js"></script>
+<script type="text/JavaScript" src="js/jquery-ui.js"></script>
 <?
-echo  "                <option value=\"Askul MA-506TW\">Askul MA-506T (24) 郵便番号折</option>\n";
-echo  "                <option value=\"Askul MA-506T\">Askul MA-506T (24) 郵便番号無折</option>\n";
-echo  "                <option value=\"Kokuyo F7159\">Kokuyo F7159 (24)</option>\n";
-echo  "                <option value=\"A-One 75312\">A-One 75312/Askul MA-513T (12)</option>\n";
-foreach ($PDF_Label->_Avery_Labels as $key => $value) {
-  echo  "                <option value=\"".$key."\">".$key."</option>\n";
+header2(0);
+
+/* CHECK FOR RECORDS WITH NO HOUSEHOLD OR ADDRESS */
+$sql = "SELECT p.PersonID, FullName, Furigana ".
+    "FROM person p LEFT JOIN household h ON p.HouseholdID=h.HouseholdID ".
+    "WHERE p.PersonID IN (".$pid_list.") AND (p.HouseholdID=0 OR h.Address IS NULL OR h.Address='' ".
+    "OR (h.NonJapan=0 AND h.PostalCode='')) ORDER BY FIND_IN_SET(PersonID,'".$pid_list."')";
+$result = sqlquery_checked($sql);
+if ($num = mysql_numrows($result) > 0) {
+  echo "<div style=\"float:left;border:2px solid darkred;padding:4px;margin:4px\">"._("The following entries have no address:")."<br />\n";
+  echo "<span style=\"text-size:0.8em\">"._("(They will not be printed unless you click on<br />each to add addresses before continuing.)")."</span>\n";
+  while ($row = mysql_fetch_object($result)) {
+    echo "<br>&nbsp;&nbsp;&nbsp;";
+    echo "<a href=\"individual.php?pid=".$row->PersonID."\" target=\"_blank\">";
+    echo readable_name($row->FullName, $row->Furigana)."</a>\n";
+  }
+  echo "</div>\n";
+}
+/* GET NUMBERS OF ENTRIES THAT WOULD BE PRINTED */
+$sql = "SELECT count(PersonID) FROM person p LEFT JOIN household h ON p.HouseholdID=h.HouseholdID ".
+    "WHERE p.PersonID IN (".$pid_list.") AND NOT (p.HouseholdID=0 OR h.Address IS NULL OR h.Address='' ".
+    "OR (h.NonJapan=0 AND h.PostalCode=''))";
+$result = sqlquery_checked($sql);
+$num_individuals = mysql_result($result,0);
+$sql = "SELECT count(DISTINCT h.HouseholdID) FROM person p LEFT JOIN household h ON p.HouseholdID=h.HouseholdID ".
+    "WHERE p.PersonID IN (".$pid_list.") AND NOT (p.HouseholdID=0 OR h.Address IS NULL OR h.Address='' ".
+    "OR (h.NonJapan=0 AND h.PostalCode=''))";
+$result = sqlquery_checked($sql);
+$num_households = mysql_result($result,0);
+?>
+    <h3><?=_("Select options for label printing and click the button.")?></h3>
+    <form action="print_label.php" method="post" name="optionsform" target="_blank" style="text-align:left">
+      <input type="hidden" name="pid_list" value="<? echo $pid_list; ?>" border="0">
+      <div style="display:inline-block;vertical-align:middle;margin:0 2em">
+        <input type="radio" name="name_type" value="ind" tabindex="1" border="0"><?=_("Individuals")." (".$num_individuals.")"?><br />
+        <input type="radio" name="name_type" value="label" border="0" checked><?=_("Households")." (".$num_households.")"?>
+      </div>
+      <div style="display:inline-block;vertical-align:middle">
+        <label class="label-n-input"><?=_("Label Type")?>: <select name="label_type" size="1">
+<?
+$result = sqlquery_checked("SELECT LabelType FROM labelprint ORDER BY LabelType");
+while ($row = mysql_fetch_object($result)) {
+  echo  "                  <option value=\"".$row->LabelType."\">".$row->LabelType."</option>\n";
 }
 ?>
-              </select></h4>
-          </td>
-          <td><input type="submit" name="submit" value="Make PDF of Labels" border="0"></td>
-        </tr>
-      </table>
+        </select></label><br>
+        <label class="label-n-input"><input type="checkbox" value="yes" name="wrap_pc"><?=_("Japan postal code on its own line")?></label><br>
+        <label class="label-n-input"><input type="checkbox" value="yes" name="nj_separate" checked><?=_("Sort by Japan/foreign")?></label>
+      </div>
+      <input type="submit" name="submit" value="<?=_("Make PDF")?>" border="0">
     </form>
-  <? print_footer();
+  <? footer();
 ?>
+
