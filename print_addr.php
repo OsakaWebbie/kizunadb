@@ -13,26 +13,23 @@ $sql = "SELECT * FROM addrprint WHERE AddrPrintName='".urldecode($_POST['addr_pr
 $result = sqlquery_checked($sql);
 $print = mysql_fetch_object($result);
 
-if ($_POST['name_type'] == "label") {
-  $sql = "SELECT DISTINCT p.PersonID, LabelName AS Name, ";
-} else {
-  $sql = "SELECT p.PersonID, IF(NonJapan, CONCAT(Title,' ',FullName), CONCAT(FullName,Title)) AS Name, ";
-}
-$sql .= "NonJapan, postalcode.*, Address FROM person p ".
-    "LEFT JOIN household h ON p.HouseholdID=h.HouseholdID ".
-    "LEFT JOIN postalcode ON h.PostalCode=postalcode.PostalCode WHERE p.PersonID IN (".$pid_list.") ".
-    "AND p.HouseholdID IS NOT NULL AND p.HouseholdID>0 AND h.Address IS NOT NULL AND h.Address!='' ".
-    "AND (h.NonJapan=1 OR h.PostalCode!='') ORDER BY FIND_IN_SET(PersonID,'".$pid_list."')";
+$sql = "SELECT ".($_POST['name_type']=="label" ? "DISTINCT LabelName" :
+"IF(NonJapan, CONCAT(Title,' ',FullName), CONCAT(FullName,Title))")." AS Name, NonJapan, postalcode.*, Address ".
+"FROM person p LEFT JOIN household h ON p.HouseholdID=h.HouseholdID ".
+"LEFT JOIN postalcode ON h.PostalCode=postalcode.PostalCode WHERE p.PersonID IN (".$pid_list.") ".
+"AND p.HouseholdID IS NOT NULL AND p.HouseholdID>0 AND h.Address IS NOT NULL AND h.Address!='' ".
+"AND (h.NonJapan=1 OR h.PostalCode!='') ORDER BY ".($_POST['nj_separate']=="yes" ? "NonJapan," : "").
+"FIND_IN_SET(PersonID,'".$pid_list."')";
 $result = sqlquery_checked($sql);
 
 $fileroot = "/tmp/addr".getmypid();
 
 /* PREPARE ARRAYS FOR SPECIAL CHARACTERS */
-$search_array = array("¡","£","©","®","¸","¿",
+$search_array = array("&","¡","£","©","®","¸","¿",
     "À","Á","Â","Ã","Ä","Å","Æ","Ç","È","É","Ê","Ë","Ì","Í","Î","Ï","Ñ",
     "Ò","Ó","Ô","Õ","Ö","Ø","Ù","Ú","Û","Ü","Ý","ß","à","á","â","ã","ä","å","æ","ç","è","é","ê","ë","ì","í","î","ï","ñ",
     "ò","ó","ô","õ","ö","ø","ù","ú","û","ü","ý","ÿ");
-$replace_array = array("!`","\\pounds","\\textcopyright","\\textregistered","\\c{}","\\textcopyright",
+$replace_array = array("\\&","!`","\\pounds","\\textcopyright","\\textregistered","\\c{}","\\textcopyright",
     "\\`{A}","\\'{A}","\\^{A}","\\~{A}","\\\"{A}","\\AA{}","\\AE{}","\\c{C}","\\`{E}","\\'{E}","\\^{E}","\\\"{E}",
     "\\`{I}","\\'{I}","\\^{I}","\\\"{I}","\\~{N}",
     "\\`{O}","\\'{O}","\\^{O}","\\~{O}","\\\"{O}","\\O","\\`{U}","\\'{U}","\\^{U}","\\\"{U}","\\'{Y}","\\ss{}",

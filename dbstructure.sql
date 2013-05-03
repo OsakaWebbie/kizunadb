@@ -49,7 +49,7 @@ CREATE TABLE `category` (
   `UseFor` enum('OP','P','O') character set ascii NOT NULL default 'OP' COMMENT 'Whether the category can be used for people, orgs, or both',
   PRIMARY KEY  (`CategoryID`),
   KEY `Category` (`Category`)
-) ENGINE=MyISAM AUTO_INCREMENT=83 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -71,7 +71,7 @@ CREATE TABLE `contact` (
   KEY `ContactDate` (`ContactDate`),
   KEY `PersonID` (`PersonID`),
   KEY `ContactTypeID` (`ContactTypeID`)
-) ENGINE=MyISAM AUTO_INCREMENT=45171 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -81,7 +81,7 @@ CREATE TABLE `contacttype` (
   `BGColor` char(6) character set ascii collate ascii_bin NOT NULL default 'FFFFFF',
   `Template` text NOT NULL,
   PRIMARY KEY  (`ContactTypeID`)
-) ENGINE=MyISAM AUTO_INCREMENT=72 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -108,7 +108,7 @@ CREATE TABLE `donation` (
   KEY `PersonID` (`PersonID`),
   KEY `DonationDate` (`DonationDate`),
   KEY `DonationTypeID` (`DonationTypeID`)
-) ENGINE=MyISAM AUTO_INCREMENT=6184 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -117,7 +117,7 @@ CREATE TABLE `donationtype` (
   `DonationType` varchar(50) NOT NULL default '',
   `BGColor` char(6) character set ascii collate ascii_bin NOT NULL default 'FFFFFF',
   PRIMARY KEY  (`DonationTypeID`)
-) ENGINE=MyISAM AUTO_INCREMENT=26 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -132,7 +132,7 @@ CREATE TABLE `event` (
   PRIMARY KEY  (`EventID`),
   KEY `Event` (`Event`),
   KEY `EventStartDate` (`EventStartDate`)
-) ENGINE=MyISAM AUTO_INCREMENT=85 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -151,7 +151,28 @@ CREATE TABLE `household` (
   `PhotoCaption` varchar(100) NOT NULL default '',
   `UpdDate` date NOT NULL default '0000-00-00',
   PRIMARY KEY  (`HouseholdID`)
-) ENGINE=MyISAM AUTO_INCREMENT=11071 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `labelprint` (
+  `LabelType` varchar(50) NOT NULL default '',
+  `PaperSize` varchar(10) NOT NULL default 'a4' COMMENT 'used in documentclass - values typically "a4" or "letter"',
+  `NumRows` tinyint(4) unsigned NOT NULL default '0' COMMENT 'Number of labels down the page',
+  `NumCols` tinyint(4) unsigned NOT NULL default '0' COMMENT 'Number of labels across the page',
+  `PageMarginTop` tinyint(4) unsigned NOT NULL default '0' COMMENT 'From paper top edge to top labels',
+  `PageMarginLeft` tinyint(4) unsigned NOT NULL default '0' COMMENT 'From paper left edge to left-most labels',
+  `LabelWidth` tinyint(4) NOT NULL default '0' COMMENT 'Width of a whole single label',
+  `LabelHeight` tinyint(4) NOT NULL default '0' COMMENT 'Height of a whole single label',
+  `GutterX` tinyint(4) NOT NULL default '0' COMMENT 'Space between labels, if any',
+  `GutterY` tinyint(4) NOT NULL default '0' COMMENT 'Space between labels, if any',
+  `AddrMarginLeft` tinyint(4) unsigned NOT NULL default '0' COMMENT 'From edge of label to text block',
+  `AddrMarginRight` tinyint(4) unsigned NOT NULL default '0' COMMENT 'From edge of label to text block (where text will wrap)',
+  `AddrPointSize` tinyint(4) unsigned NOT NULL default '0' COMMENT 'Font size for Japan addresses',
+  `NJAddrPointSize` tinyint(4) unsigned NOT NULL default '0' COMMENT 'Font size for non-Japan addresses',
+  `NamePointSize` tinyint(4) unsigned NOT NULL default '0' COMMENT 'For Japan addresses, name can be larger',
+  PRIMARY KEY  (`LabelType`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -244,7 +265,7 @@ CREATE TABLE `person` (
   KEY `FullName` (`FullName`),
   KEY `Email` (`Email`),
   KEY `Organization` (`Organization`,`Furigana`)
-) ENGINE=MyISAM AUTO_INCREMENT=12221 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -278,7 +299,7 @@ CREATE TABLE `pledge` (
   `PledgeDesc` varchar(150) default '',
   PRIMARY KEY  (`PledgeID`),
   KEY `PersonID` (`PersonID`)
-) ENGINE=MyISAM AUTO_INCREMENT=251 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -301,7 +322,7 @@ CREATE TABLE `upload` (
   `Description` varchar(255) NOT NULL default '',
   PRIMARY KEY  (`UploadID`),
   KEY `PersonID` (`PersonID`)
-) ENGINE=MyISAM AUTO_INCREMENT=3394 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
