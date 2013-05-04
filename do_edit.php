@@ -31,7 +31,7 @@ if ($updatehh == "1") {
   }
   if ($_POST['householdid']) {
     $sql = "UPDATE household SET NonJapan=".$_POST['nonjapan'].",PostalCode='".$_POST['postalcode']."',".
-    "Address='".$_POST['address']."',".
+    "Address='".h2d($_POST['address'])."',".
     "AddressComp='".$_POST['postalcode'].$_POST['prefecture'].$_POST['shikucho'].h2d($_POST['address'])."',";
     if ($_SESSION['romajiaddresses']=="yes") {
       $sql .= "RomajiAddress='".h2d($_POST['romajiaddress'])."',RomajiAddressComp='".
