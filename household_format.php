@@ -2,7 +2,9 @@
 include("functions.php");
 include("accesscontrol.php");
 if ($xml) {
-  echo "<?xml version=\"1.0\" encoding=\"".$_SESSION['charset']."\" ?>\n<householdlist>\n";
+  header('Content-Type: text/xml');
+  header('Content-Disposition: attachment; filename="households.xml"');
+  echo "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<householdlist>\n";
 } else {
   echo "<html><head>";
   echo "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=".$_SESSION['charset']."\">\n";
