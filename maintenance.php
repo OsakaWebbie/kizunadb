@@ -262,7 +262,7 @@ function validate(form) {
   <div id="pctext" style="display:none">
     <p class="alert"><? echo _("(The Japanese data here is originally from the Japan post office database, so be sure you are right before disagreeing with them!)"); ?></p>
     <span class="input prefecture"><label for="prefecture"><? echo _("Prefecture"); ?>:<input type="text" id="prefecture" name="prefecture" style="width:4em" maxlength=12></label></span>
-    <span class="input shikucho"><label for="shikucho"><? echo _("City, etc."); ?>:<input type="text" id="shikucho" name="shikucho" style="width:12em" maxlength=54></label></span>
+    <span class="input shikucho"><label for="shikucho"><? echo _("City, etc."); ?>:<input type="text" id="shikucho" name="shikucho" style="width:20em" maxlength=54></label></span>
 <?
 if ($_SESSION['romajiaddresses'] == "yes") {
 ?>
