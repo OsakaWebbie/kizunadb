@@ -118,16 +118,17 @@ for ($i=1; isset($_REQUEST["ctselect".$i]); $i++) {
 for ($i=1; isset($_REQUEST["seqctqual".$i]) && isset($_REQUEST["seqctelim".$i]); $i++) {
   $qualcts = implode(",",$_REQUEST["seqctqual".$i]);
   $elimcts = implode(",",$_REQUEST["seqctelim".$i]);
-  /*$minmax = ($_REQUEST["seqorder".$i]=="AFTER") ? "MAX" : "MIN";
-  $join = " INNER JOIN (SELECT PersonID,ContactTypeID,$minmax(ContactDate) FROM contact".
+  $minmax = ($_REQUEST["seqorder".$i]=="AFTER") ? "MAX" : "MIN";
+  /*$join = " INNER JOIN (SELECT PersonID,ContactTypeID,$minmax(ContactDate) FROM contact".
   " WHERE ContactTypeID IN ($qualcts,$elimcts) GROUP BY PersonID) AS seq ON person.PersonID=seq.PersonID";
   $where .= ($where!=""?" AND":" WHERE")." seq.ContactTypeID IN ($qualcts)";*/
   $operator = ($_REQUEST["seqorder".$i]=="AFTER") ? ">" : "<";
-  $join = " inner join (select pq.PersonID,max(ContactDate) as qualdate from person pq".
+  $join = " inner join (select pq.PersonID,$minmax(ContactDate) as qualdate from person pq".
   " inner join contact cq on pq.PersonID = cq.PersonID where cq.ContactTypeID in ($qualcts) group by pq.PersonID) qual".
-  " on $ptable.PersonID=qual.PersonID left outer join (select pe.personID,max(ContactDate) as elimdate from person pe".
+  " on $ptable.PersonID=qual.PersonID left outer join (select pe.personID,$minmax(ContactDate) as elimdate from person pe".
   " inner join contact ce on pe.PersonID = ce.PersonID where ce.ContactTypeID in ($elimcts) group by pe.PersonID) elim".
-  " on qual.PersonID=elim.PersonID and elim.elimdate is null or qual.qualdate $operator elim.elimdate";
+  " on qual.PersonID=elim.PersonID";
+  $where .= ($where!=""?" AND":" WHERE")." (elim.elimdate is null or qual.qualdate $operator elim.elimdate)";
   $result = sqlquery_checked("SELECT ContactType FROM contacttype WHERE ContactTypeID IN ($qualcts) ORDER BY ContactType");
   $ctqualnames = "";
   while ($row = mysql_fetch_object($result)) {
@@ -138,7 +139,7 @@ for ($i=1; isset($_REQUEST["seqctqual".$i]) && isset($_REQUEST["seqctelim".$i]);
   while ($row = mysql_fetch_object($result)) {
     $ctelimnames .= d2h($row->ContactType).", ";
   }
-  if ($minmax=="MAX") {
+  if ($_REQUEST["seqorder".$i]=="AFTER") {
     $criterialist .= "<li>".sprintf(_("Has at least one contact of type(s) [%s] and none later of type(s) [%s]"),
     mb_substr($ctqualnames,0,mb_strlen($ctqualnames)-2), mb_substr($ctelimnames,0,mb_strlen($ctelimnames)-2))."</li>\n";
   } else {
