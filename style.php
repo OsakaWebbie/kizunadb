@@ -277,6 +277,7 @@ body.individual h3.info-title {
 body.individual div#personal-info div,div#household-info div { margin-bottom:0.3em; }
 body.individual div#nonjapan-address,div#address,div#romaji-address { padding-left:15px; margin:0em; }
 body.individual div#romaji-address { font-style:italic; color:Gray; }
+body.individual div.upddate { font-size:0.8em; color:LightGray; }
 body.individual p#remarks { clear:both; margin-left: 8px; }
 body.individual h2#links { clear:both; text-align:center; padding:20px 0; font-size:1.3em; }
 body.individual h2#links a { margin:0 20px; }

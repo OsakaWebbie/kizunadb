@@ -285,233 +285,6 @@ $tableheads .= "<th></th>\n";  // for the Delete button
 
 <meta http-equiv="expires" content="0">
 <link rel="stylesheet" type="text/css" href="style.php?jquery=1&table=1" />
-<script type="text/JavaScript" src="js/jquery.js"></script>
-<script type="text/JavaScript" src="js/jquery-ui.js"></script>
-<script type="text/JavaScript" src="js/jquery.ui.timepicker.js"></script>
-<script type="text/JavaScript" src="js/jquery.readmore.js"></script>
-<script type="text/JavaScript" src="js/tablesorter.js"></script>
-<script type="text/javascript" src="js/table2CSV.js"></script>
-<script type="text/javascript" src="js/jquery.columnmanager.pack.js"></script>
-<script type="text/javascript" src="js/jquery.clickmenu.js"></script>
-
-<script type="text/JavaScript">
-
-$(document).ready(function(){
-  $(document).ajaxError(function(e, xhr, settings, exception) {
-    alert('Error calling ' + settings.url + ': ' + exception);
-  }); 
-
-  <?
-if($_SESSION['lang']=="ja_JP") {
-  echo "  $.datepicker.setDefaults( $.datepicker.regional[\"ja\"] );\n";
-  echo "  $.timepicker.setDefaults( $.timepicker.regional[\"ja\"] );\n";
-}
-?>
-  $("#orgstartdate").datepicker({ dateFormat: 'yy-mm-dd' });
-  $("#orgenddate").datepicker({ dateFormat: 'yy-mm-dd' });
-  $("#contactdate").datepicker({ dateFormat: 'yy-mm-dd', maxDate: 0 });
-  if ($("#contactdate").val()=="") $("#contactdate").datepicker('setDate', new Date());
-  $("#donationdate").datepicker({ dateFormat: 'yy-mm-dd', maxDate: 0 });
-  if ($("#contactdate").val()=="") $("#donationdate").datepicker('setDate', new Date());
-  $("#attenddate").datepicker({ dateFormat: 'yy-mm-dd' });
-  $("#attendenddate").datepicker({ dateFormat: 'yy-mm-dd' });
-  $("#attendstarttime").timepicker();
-  $("#attendendtime").timepicker();
-
-  $("#contact-table").tablesorter({ sortList:[[0,1]], headers:{3:{sorter:false},4:{sorter:false}} });
-  $("#attend-table").tablesorter({ sortList:[[1,1]], headers:{3:{sorter:false}} });
-  $("#upload-table").tablesorter({ sortList:[[0,1]], headers:{3:{sorter:false}} });
-
-  $("#org-table").tablesorter({ sortList:[[2,0]], headers:{<?=$sorterHeaders?>} });
-  $('#org-table').columnManager({listTargetID:'targetOrg',
-  onClass: 'advon',
-  offClass: 'advoff',
-  hideInList: [<? echo $hideInList; ?>],
-  colsHidden: [<? echo $orgColsHidden; ?>],
-  saveState: false});
-  $('#ulSelectColumnOrg').clickMenu({onClick: function(){}});
-
-  $("#member-table").tablesorter({ sortList:[[2,0]], headers:{<?=$sorterHeaders?>} });
-  $('#member-table').columnManager({listTargetID:'targetMember',
-  onClass: 'advon',
-  offClass: 'advoff',
-  hideInList: [<? echo $hideInList; ?>],
-  colsHidden: [<? echo $memberColsHidden; ?>],
-  saveState: false});
-  $('#ulSelectColumnMember').clickMenu({onClick: function(){}});
-  
-  $("#orgid").keyup(function(){  //display Organization name when applicable ID is typed
-    $("#orgname").load("ajax_request.php",{'req':'OrgName','orgid':$("#orgid").val()});
-  });
-
-  $("#ctype").change(function(){  //insert template text in Contact description when applicable ContactType is selected
-    if (!$.trim($("#contactdesc").val())) {
-      $("#contactdesc").load("ajax_request.php",{'req':'ContactTemplate','ctid':$("#ctype").val()});
-    }
-  });
-
-  $.fn.readmore.defaults.substr_len = <? echo $_SESSION['displaydefault_contactsize']; ?>;
-  $.fn.readmore.defaults.more_link = '<a class="more"><? echo _("[Read more]"); ?></a>';
-  $(".readmore").readmore();
-  
-  $("#activeevents").click(function(){  //show or hide active events
-    if ($("#activeevents").val()=="<?=_("Show Active")?>") {
-      $("#eventid.active").show();
-      $("#activeevents").val("<?=_("Hide Active")?>");
-    } else {
-      $("#eventid.active").hide();
-      $("#activeevents").val("<?=_("Show Active")?>");
-    }
-  });
-  $("#oldevents").click(function(){  //show or hide old events
-    if ($("#oldevents").val()=="<?=_("Show Old")?>") {
-      $("#eventid.old").show();
-      $("#oldevents").val("<?=_("Hide Old")?>");
-    } else {
-      $("#eventid.old").hide();
-      $("#oldevents").val("<?=_("Show Old")?>");
-    }
-  });
-  $("#eventid").change(function(){  //display form stuff based on type of event selected
-    if ($("#eventid option:selected").hasClass('times')) {
-      $("label.times").show();
-      //$("label.date").hide();
-      //$("label.date > input").val("");
-    } else {
-      //$("label.date").show();
-      $("label.times").hide();
-      $("label.times > input").val("");
-    }
-  });
-
-  // AJAX CALLS TO UPDATE DATABASE
-  
-  $("#orgsection").delegate("td.delete button", "click", function() {
-    var row = $(this).closest('tr');
-    row.addClass("delconfirm");
-    if (confirm("<?=_("Are you sure you want to delete this record?")?>")) {
-      row.addClass("delwait");
-      row.removeClass("delconfirm");
-      var parameters = $(this).attr("id").replace(/-/g,"=").replace(/_/g,"&");
-      $.post("ajax_actions.php", parameters, function(data) {
-        //alert(data);
-        if (data.substr(0,1) == "*") {  //my clue that the delete succeeded
-          row.remove();
-        } else {
-          row.addClass("delwait");
-          alert(data);
-        }
-      });
-    } else {
-      row.removeClass("delconfirm");
-    }
-  });
-  
-<? if ($_GET['msg']) echo "  alert('".$_GET['msg']."');\n"; ?>
-});
-
-function ValidateOrg(){
-  if ($('#orgid').val==""){
-    alert('<? echo _("You must fill in an Organization ID or use Search/Browse."); ?>');
-    document.orgform.orgid.focus();
-    return false;
-  }
-  if ($('#orgname').text()=="") {
-    alert('<? echo _("Not a valid Organization ID. If you\'re not sure, try Search/Browse."); ?>');
-    document.orgform.orgid.focus();
-    return false;
-  }
-  return true;
-}
-
-function ValidateContact(){
-  if ($('#contactdate').val() == '') {
-    alert('<? echo _("You must enter a date."); ?>');
-    $('#contactdate').click();
-    return false;
-  }
-  try { $.datepicker.parseDate('yy-mm-dd', $('#contactdate').val()); }
-  catch(error) {
-    alert('<? echo _("Date is invalid."); ?>');
-    return false;
-  }
-  if (document.contactform.ctype.selectedIndex == 0) {
-  alert('<? echo _("You must select a Contact Type."); ?>');
-    return false;
-  }
-  return true;
-}
-
-function ValidateDonation() {
-  if ($('#donationdate').val() == '') {
-    alert('<? echo _("You must enter a date."); ?>');
-    $('#donationdate').click();
-    return false;
-  }
-  try { $.datepicker.parseDate('yy-mm-dd', $('#donationdate').val()); }
-  catch(error) {
-    alert('<? echo _("Date is invalid."); ?>');
-    return false;
-  }
-  if (isDate(document.donationform.date.value,"past")==false){
-    alert('<? echo _("Date cannot be in the future."); ?>');
-    document.donationform.date.focus();
-    return false;
-  }
-  if ((document.donationform.plid.selectedIndex == 0) && (document.donationform.dtype.selectedIndex == 0)) {
-  alert('<? echo _("You must select either a Pledge or a Donation Type."); ?>');
-    return false;
-  }
-  return true;
-}
-
-function ValidateAttendance(){
-  if (document.attendform.eid.selectedIndex == 0) {
-    alert('<? echo _("You must select an event."); ?>');
-    return false;
-  }
-  if ($('#attenddate').val() == '') {
-    alert('<? echo _("You must enter a date."); ?>');
-    $('#attenddate').click();
-    return false;
-  }
-  try { $.datepicker.parseDate('yy-mm-dd', $('#attenddate').val()); }
-  catch(error) {
-    alert('<? echo _("Date is invalid."); ?>');
-    $('#attenddate').click();
-    return false;
-  }
-  try { $.datepicker.parseDate('yy-mm-dd', $('#attendenddate').val()); }
-  catch(error) {
-    alert('<? echo _("Date is invalid."); ?>');
-    $('#attendenddate').click();
-    return false;
-  }
-  return true;
-}
-
-function ValidateUpload(){
-  if ($('#uploadfile').val() == '') {
-    alert('<? echo _("You must select a file."); ?>');
-    return false;
-  }
-  $('#uploadtime').val(Date().getTimezoneOffset()/60);
-  return true;
-}
-
-function SetDtypeSelect() {
-  if (document.donationform.plid.selectedIndex == 0) {
-    document.donationform.dtype.disabled = false;
-  } else {
-    document.donationform.dtype.disabled = true;
-    var dtype = document.donationform.plid.options[document.donationform.plid.selectedIndex].value;
-    dtype = dtype.substr(dtype.indexOf(':')+1);
-    var i = 0;
-    while (document.donationform.dtype.options[i].value != dtype) i++;
-    document.donationform.dtype.selectedIndex = i;
-  }
-}
-</script>
 <? header2(1);
 if ($per->Organization) $break = "<br /><span class=\"smaller\">";
 echo "<h1 id=\"title\">".readable_name($per->FullName,$per->Furigana,$per->PersonID,$per->Organization,$break)."</h1>";
@@ -542,6 +315,7 @@ if ($per->Email) echo "<div id=\"email\">"._("Email").": ".email2link($per->Emai
 if ($per->CellPhone) echo "<div id=\"cellphone\">"._("Cell Phone").": ".$per->CellPhone."</div>\n";
 if ($per->Country) echo "<div id=\"country\">"._("Home Country").": ".$per->Country."</div>\n";
 if ($per->URL) echo "<div id=\"URL\">"._("URL").": ".url2link($per->URL)."</div>\n";
+if ($_SESSION['admin']==1) echo "<div class=\"upddate\">("._("Ind. info or Remarks last edited")." ".$per->UpdDate.")</div>\n";
 
 echo "</div>";
 
@@ -587,6 +361,7 @@ if ($per->HouseholdID) {    // There is a household record, so let's get its dat
       echo "<div id=\"address\">("._("No address listed.").")<br />";
       echo d2h($house->LabelName)."</div>";
     }
+    if ($_SESSION['admin']==1) echo "<div class=\"upddate\">("._("Household info last edited")." ".$house->UpdDate.")</div>\n";
     echo "</div>\n"; //end of address-block
     // *** get names of others in household, print it along with relation
   }
@@ -1197,6 +972,233 @@ echo "</div>";
 echo "<script>\n$(\"#org_preselected\").val(\"".substr($org_pids,1)."\");\n</script>\n";
 if ($per->Organization) echo "<script>\n$(\"#mem_preselected\").val(\"".substr($mem_pids,1)."\");\n</script>\n";
 mysql_free_result($result);
-
-footer(1);
 ?>
+
+<script type="text/JavaScript" src="js/jquery.js"></script>
+<script type="text/JavaScript" src="js/jquery-ui.js"></script>
+<script type="text/JavaScript" src="js/jquery.ui.timepicker.js"></script>
+<script type="text/JavaScript" src="js/jquery.readmore.js"></script>
+<script type="text/JavaScript" src="js/tablesorter.js"></script>
+<script type="text/javascript" src="js/table2CSV.js"></script>
+<script type="text/javascript" src="js/jquery.columnmanager.pack.js"></script>
+<script type="text/javascript" src="js/jquery.clickmenu.js"></script>
+
+<script type="text/JavaScript">
+
+$(document).ready(function(){
+  $(document).ajaxError(function(e, xhr, settings, exception) {
+    alert('Error calling ' + settings.url + ': ' + exception);
+  }); 
+
+  <?
+if($_SESSION['lang']=="ja_JP") {
+  echo "  $.datepicker.setDefaults( $.datepicker.regional[\"ja\"] );\n";
+  echo "  $.timepicker.setDefaults( $.timepicker.regional[\"ja\"] );\n";
+}
+?>
+  $("#orgstartdate").datepicker({ dateFormat: 'yy-mm-dd' });
+  $("#orgenddate").datepicker({ dateFormat: 'yy-mm-dd' });
+  $("#contactdate").datepicker({ dateFormat: 'yy-mm-dd', maxDate: 0 });
+  if ($("#contactdate").val()=="") $("#contactdate").datepicker('setDate', new Date());
+  $("#donationdate").datepicker({ dateFormat: 'yy-mm-dd', maxDate: 0 });
+  if ($("#contactdate").val()=="") $("#donationdate").datepicker('setDate', new Date());
+  $("#attenddate").datepicker({ dateFormat: 'yy-mm-dd' });
+  $("#attendenddate").datepicker({ dateFormat: 'yy-mm-dd' });
+  $("#attendstarttime").timepicker();
+  $("#attendendtime").timepicker();
+
+  $("#contact-table").tablesorter({ sortList:[[0,1]], headers:{3:{sorter:false},4:{sorter:false}} });
+  $("#attend-table").tablesorter({ sortList:[[1,1]], headers:{3:{sorter:false}} });
+  $("#upload-table").tablesorter({ sortList:[[0,1]], headers:{3:{sorter:false}} });
+
+  $("#org-table").tablesorter({ sortList:[[2,0]], headers:{<?=$sorterHeaders?>} });
+  $('#org-table').columnManager({listTargetID:'targetOrg',
+  onClass: 'advon',
+  offClass: 'advoff',
+  hideInList: [<? echo $hideInList; ?>],
+  colsHidden: [<? echo $orgColsHidden; ?>],
+  saveState: false});
+  $('#ulSelectColumnOrg').clickMenu({onClick: function(){}});
+
+  $("#member-table").tablesorter({ sortList:[[2,0]], headers:{<?=$sorterHeaders?>} });
+  $('#member-table').columnManager({listTargetID:'targetMember',
+  onClass: 'advon',
+  offClass: 'advoff',
+  hideInList: [<? echo $hideInList; ?>],
+  colsHidden: [<? echo $memberColsHidden; ?>],
+  saveState: false});
+  $('#ulSelectColumnMember').clickMenu({onClick: function(){}});
+  
+  $("#orgid").keyup(function(){  //display Organization name when applicable ID is typed
+    $("#orgname").load("ajax_request.php",{'req':'OrgName','orgid':$("#orgid").val()});
+  });
+
+  $("#ctype").change(function(){  //insert template text in Contact description when applicable ContactType is selected
+    if (!$.trim($("#contactdesc").val())) {
+      $("#contactdesc").load("ajax_request.php",{'req':'ContactTemplate','ctid':$("#ctype").val()});
+    }
+  });
+
+  $.fn.readmore.defaults.substr_len = <? echo $_SESSION['displaydefault_contactsize']; ?>;
+  $.fn.readmore.defaults.more_link = '<a class="more"><? echo _("[Read more]"); ?></a>';
+  $(".readmore").readmore();
+  
+  $("#activeevents").click(function(){  //show or hide active events
+    if ($("#activeevents").val()=="<?=_("Show Active")?>") {
+      $("#eventid.active").show();
+      $("#activeevents").val("<?=_("Hide Active")?>");
+    } else {
+      $("#eventid.active").hide();
+      $("#activeevents").val("<?=_("Show Active")?>");
+    }
+  });
+  $("#oldevents").click(function(){  //show or hide old events
+    if ($("#oldevents").val()=="<?=_("Show Old")?>") {
+      $("#eventid.old").show();
+      $("#oldevents").val("<?=_("Hide Old")?>");
+    } else {
+      $("#eventid.old").hide();
+      $("#oldevents").val("<?=_("Show Old")?>");
+    }
+  });
+  $("#eventid").change(function(){  //display form stuff based on type of event selected
+    if ($("#eventid option:selected").hasClass('times')) {
+      $("label.times").show();
+      //$("label.date").hide();
+      //$("label.date > input").val("");
+    } else {
+      //$("label.date").show();
+      $("label.times").hide();
+      $("label.times > input").val("");
+    }
+  });
+
+  // AJAX CALLS TO UPDATE DATABASE
+  
+  $("#orgsection").delegate("td.delete button", "click", function() {
+    var row = $(this).closest('tr');
+    row.addClass("delconfirm");
+    if (confirm("<?=_("Are you sure you want to delete this record?")?>")) {
+      row.addClass("delwait");
+      row.removeClass("delconfirm");
+      var parameters = $(this).attr("id").replace(/-/g,"=").replace(/_/g,"&");
+      $.post("ajax_actions.php", parameters, function(data) {
+        //alert(data);
+        if (data.substr(0,1) == "*") {  //my clue that the delete succeeded
+          row.remove();
+        } else {
+          row.addClass("delwait");
+          alert(data);
+        }
+      });
+    } else {
+      row.removeClass("delconfirm");
+    }
+  });
+  
+<? if ($_GET['msg']) echo "  alert('".$_GET['msg']."');\n"; ?>
+});
+
+function ValidateOrg(){
+  if ($('#orgid').val==""){
+    alert('<? echo _("You must fill in an Organization ID or use Search/Browse."); ?>');
+    document.orgform.orgid.focus();
+    return false;
+  }
+  if ($('#orgname').text()=="") {
+    alert('<? echo _("Not a valid Organization ID. If you\'re not sure, try Search/Browse."); ?>');
+    document.orgform.orgid.focus();
+    return false;
+  }
+  return true;
+}
+
+function ValidateContact(){
+  if ($('#contactdate').val() == '') {
+    alert('<? echo _("You must enter a date."); ?>');
+    $('#contactdate').click();
+    return false;
+  }
+  try { $.datepicker.parseDate('yy-mm-dd', $('#contactdate').val()); }
+  catch(error) {
+    alert('<? echo _("Date is invalid."); ?>');
+    return false;
+  }
+  if (document.contactform.ctype.selectedIndex == 0) {
+  alert('<? echo _("You must select a Contact Type."); ?>');
+    return false;
+  }
+  return true;
+}
+
+function ValidateDonation() {
+  if ($('#donationdate').val() == '') {
+    alert('<? echo _("You must enter a date."); ?>');
+    $('#donationdate').click();
+    return false;
+  }
+  try { $.datepicker.parseDate('yy-mm-dd', $('#donationdate').val()); }
+  catch(error) {
+    alert('<? echo _("Date is invalid."); ?>');
+    return false;
+  }
+  if (isDate(document.donationform.date.value,"past")==false){
+    alert('<? echo _("Date cannot be in the future."); ?>');
+    document.donationform.date.focus();
+    return false;
+  }
+  if ((document.donationform.plid.selectedIndex == 0) && (document.donationform.dtype.selectedIndex == 0)) {
+  alert('<? echo _("You must select either a Pledge or a Donation Type."); ?>');
+    return false;
+  }
+  return true;
+}
+
+function ValidateAttendance(){
+  if (document.attendform.eid.selectedIndex == 0) {
+    alert('<? echo _("You must select an event."); ?>');
+    return false;
+  }
+  if ($('#attenddate').val() == '') {
+    alert('<? echo _("You must enter a date."); ?>');
+    $('#attenddate').click();
+    return false;
+  }
+  try { $.datepicker.parseDate('yy-mm-dd', $('#attenddate').val()); }
+  catch(error) {
+    alert('<? echo _("Date is invalid."); ?>');
+    $('#attenddate').click();
+    return false;
+  }
+  try { $.datepicker.parseDate('yy-mm-dd', $('#attendenddate').val()); }
+  catch(error) {
+    alert('<? echo _("Date is invalid."); ?>');
+    $('#attendenddate').click();
+    return false;
+  }
+  return true;
+}
+
+function ValidateUpload(){
+  if ($('#uploadfile').val() == '') {
+    alert('<? echo _("You must select a file."); ?>');
+    return false;
+  }
+  $('#uploadtime').val(Date().getTimezoneOffset()/60);
+  return true;
+}
+
+function SetDtypeSelect() {
+  if (document.donationform.plid.selectedIndex == 0) {
+    document.donationform.dtype.disabled = false;
+  } else {
+    document.donationform.dtype.disabled = true;
+    var dtype = document.donationform.plid.options[document.donationform.plid.selectedIndex].value;
+    dtype = dtype.substr(dtype.indexOf(':')+1);
+    var i = 0;
+    while (document.donationform.dtype.options[i].value != dtype) i++;
+    document.donationform.dtype.selectedIndex = i;
+  }
+}
+</script>
+<? footer(1); ?>
