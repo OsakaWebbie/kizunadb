@@ -33,10 +33,17 @@ echo "var ar = new Array();\n";
 $ar_index = 0;
 $presel_html = "";
 $presel_num = 0;
-if (isset($_SESSION['preselected'])) {
-  $ps = ",".$_SESSION['preselected'].",";
-} else if (isset($_REQUEST['preselected']) && $_REQUEST['preselected']!='') {
-  $ps = ",".$_REQUEST['preselected'].",";
+if (isset($_GET['pspid'])) {
+  $preselected = $_GET['pspid'];
+  $psnum = 1;
+} else if (isset($_GET['ps'])) {
+  list($psid,$psnum) = explode(":",$_GET['ps']);
+  $tempres = sqlquery_checked("SELECT Pids,Client FROM kizuna_common.preselect WHERE PSID='$psid'");
+  $psobj = mysql_fetch_object($tempres);
+  if ($psobj && $_SESSION['client']==$psobj->Client && $psobj->Pids!="") $preselected = $psobj->Pids;
+} else if (isset($_REQUEST['preselected']) && $_REQUEST['preselected']!="") {
+  $preselected = $_REQUEST['preselected'];
+  $psnum = substr_count($preselected,",")+1;
 }
 
 $pc = mysql_fetch_object($percat);  //pull first one to get started
@@ -51,7 +58,7 @@ while ($per = mysql_fetch_object($person)) {
   }
   echo "ar[$ar_index][cat] = \"$str\";\n";
   echo "ar[$ar_index][choice] = 0;\n";
-  if (isset($ps) && strpos($ps,",".$per->PersonID.",")!==FALSE) {
+  if (isset($preselected) && strpos(",".$preselected.",",",".$per->PersonID.",")!==FALSE) {
     $presel_html .= "<option value=$ar_index>".d2h(readable_name($per->FullName,$per->Furigana))."</option>\n";
     $presel_num++;
     echo "ar[$ar_index][sel] = 1;\n";
@@ -60,9 +67,9 @@ while ($per = mysql_fetch_object($person)) {
   }
   $ar_index++;
 }
-echo "</script>\n";
-header2(1);
 ?>
+</script>
+<? header2(1); ?>
 
   <table border="0" cellspacing="0" cellpadding="8">
     <tr>

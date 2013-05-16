@@ -2,18 +2,28 @@
 include("functions.php");
 include("accesscontrol.php");
 
-header1(_("Search").(isset($_POST['pid_list']) ? sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($_POST['pid_list'],",")+1) : "")); ?>
+if (isset($_GET['ps'])) {
+  list($psid,$psnum) = explode(":",$_GET['ps']);
+  $tempres = sqlquery_checked("SELECT Pids,Client FROM kizuna_common.preselect WHERE PSID='$psid'");
+  $psobj = mysql_fetch_object($tempres);
+  if ($psobj && $_SESSION['client']==$psobj->Client && $psobj->Pids!="") $preselected = $psobj->Pids;
+} elseif (isset($_POST['pid_list']) && $_POST['pid_list']!="") {
+  $preselected = $_POST['pid_list'];
+  $psnum = substr_count($preselected,",")+1;
+}
+
+header1(_("Search").(isset($psnum) ? sprintf(_(" (%d People/Orgs Pre-selected)"),$psnum) : "")); ?>
 
 <meta http-equiv="expires" content="0">
 <link rel="stylesheet" type="text/css" href="style.php?page=<?=$_SERVER['PHP_SELF']?>&jquery=1&multiselect=1" />
 <? header2(1); ?>
-<h1 id="title"><? echo $_SESSION['dbtitle'].": "._("Search").(isset($_POST['pid_list']) ? sprintf(_(" (%d People/Orgs Pre-selected)"),
-substr_count($_POST['pid_list'],",")+1) : ""); ?></h1>
+<h1 id="title"><? echo $_SESSION['dbtitle'].": "._("Search").(isset($psnum) ? sprintf(_(" (%d People/Orgs Pre-selected)"),
+$psnum) : ""); ?></h1>
 <? if (isset($text)) echo "<h3 class=\"alert\">".urldecode($text)."</h3>"; ?>
 
-<form id="searchform" action="list.php" method="<?=(isset($_POST['pid_list']) ? "post" : "get")?>">
+<form id="searchform" action="list.php?<?=$_GET['ps']?"?ps=".$_GET['ps']:""?>" method="<?=(isset($_POST['pid_list']) ? "post" : "get")?>">
 <div id="buttonsection">
-  <label class="label-n-input"><input type="checkbox" name="countonly"><?=_("Count Only")?></label>
+  <label class="label-n-input"><input type="checkbox" name="countonly" value="yes"><?=_("Count Only")?></label>
   <button id="search" type="submit"><?=_("Search!")?></button>
 </div>
 <input type="hidden" id="preselected" name="preselected" value="<? echo $_POST['pid_list']; ?>">

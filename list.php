@@ -225,14 +225,18 @@ if ($_REQUEST['freesql'] != "") {
   $criterialist .= "<li>".$_REQUEST['freesql']."</li>\n";
 }
 
-if (isset($_SESSION['preselected'])) {
-  $ps = $_SESSION['preselected'];
-} else if (isset($_REQUEST['preselected']) && $_REQUEST['preselected']!='') {
-  $ps = $_REQUEST['preselected'];
+if (isset($_GET['ps'])) {
+  list($psid,$psnum) = explode(":",$_GET['ps']);
+  $tempres = sqlquery_checked("SELECT Pids,Client FROM kizuna_common.preselect WHERE PSID='$psid'");
+  $psobj = mysql_fetch_object($tempres);
+  if ($psobj && $_SESSION['client']==$psobj->Client && $psobj->Pids!="") $preselected = $psobj->Pids;
+} else if (isset($_REQUEST['preselected']) && $_REQUEST['preselected']!="") {
+  $preselected = $_REQUEST['preselected'];
+  $psnum = substr_count($preselected,",")+1;
 }
-if (isset($ps) && $ps != '') {
-  $where .= ($where!=""?" AND ":" WHERE ")."$grouptable.PersonID IN ($ps)";
-  $criterialist .= "<li>".sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($ps,",")+1)."</li>\n";
+if (isset($preselected) && $preselected != '') {
+  $where .= ($where!=""?" AND ":" WHERE ")."$grouptable.PersonID IN ($preselected)";
+  $criterialist .= "<li>".sprintf(_(" (%d People/Orgs Pre-selected)"),$psnum)."</li>\n";
 }
 
 $sql .= $join . $where . $closing . " GROUP BY $grouptable.PersonID ORDER BY Furigana";
@@ -244,21 +248,20 @@ if (!$result = mysql_query($sql)) {
   header2(1);
   echo $test;
   echo $criterialist;
-  echo "<div style=\"border: 2px solid darkred;background-color:#ffe0e0;color:darkred;padding-left:5px\">$sql</div>";
+  echo "<div style=\"border: 2px solid darkred;background-color:#ffe0e0;color:darkred;padding-left:5px;margin:20px 0;\">$sql</div>";
   echo "<div style=\"font-weight:bold;margin:10px 0\">The query had an error:<br>".mysql_errno().": ".mysql_error()."</div>";
   exit;
 }
 
-//$result = sqlquery_checked($sql);
 if (mysql_num_rows($result) == 0) {
   header("Location: search.php?text=".urlencode(_("Search resulted in no records.".($_SESSION['userid']=="karen"?urlencode("<pre>".$sql."</pre>"):""))));
   exit;
 } elseif (mysql_num_rows($result) == 1) {
-  //$person = mysql_fetch_object($result);
-  //header("Location: individual.php?pid=".$person->PersonID);
-  //exit;
+  $person = mysql_fetch_object($result);
+  header("Location: individual.php?pid=".$person->PersonID);
+  exit;
 }
-header1(_("Search Results").($_POST['preselected']!="" ? sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($_POST['preselected'],",")+1) : ""));
+header1(_("Search Results").($_POST['preselected']!="" ? sprintf(_(" (%d People/Orgs Pre-selected)"),$psnum) : ""));
 
 $cols[] = array("personid",1,"digit");
 $cols[] = array("name-for-csv",0,"text");
@@ -305,10 +308,14 @@ $tableheads .= "</th>\n";
 <link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />
 <?
 header2(1);
-echo "<h3>".sprintf(_("%d results of these criteria:"),mysql_num_rows($result))."</h3>\n";
+echo "<h3>".sprintf(_("%d results of these criteria:"),mysql_num_rows($result)).($_REQUEST['countonly'] ? "&nbsp;&nbsp;&nbsp;<a href=\"".
+str_replace("countonly=yes","countonly=",$_SERVER['REQUEST_URI'])."\">"._("(Show results)")."</a>" : "")."</h3>\n";
 echo $criterialist;
+
+$psid = uniqid();
 ?>
 <div id="actions">
+  <? if ($_SESSION['userid']=="karen") { ?><a href="multiselect.php?ps=<?=$psid.":".mysql_num_rows($result)?>"><?=_("Go to Multi-Select with these entries preselected")?></a> (new method)&nbsp;&nbsp;<? } ?>
   <form action="multiselect.php" method="post" target="_top">
   <input type="hidden" id="preselected" name="preselected" value="">
   <input type="submit" value="<?=_("Go to Multi-Select with these entries preselected")?>">
@@ -359,6 +366,7 @@ if ($_REQUEST['countonly']) {  //if count only, just get pids for multi-select
 }
 echo $_SESSION['userid']=="karen"?"<pre class=\"noprint\">".$sql."</pre>":"";
 echo "<div id=\"pids\" style=\"display:none\">".substr($pid_list,1)."</div>\n";
+sqlquery_checked("INSERT INTO kizuna_common.preselect(PSID,Pids,Client) VALUES('".$psid."','".substr($pid_list,1)."','".$_SESSION['client']."')");
 ?>
 <script type="text/javascript" src="js/jquery.js"></script>
 <script type="text/javascript" src="js/tablesorter.js"></script>
