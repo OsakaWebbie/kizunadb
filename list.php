@@ -6,7 +6,7 @@ $criterialist = "<ul id=\"criteria\">";
 $sql = "SELECT ".($_REQUEST['countonly'] ?
   "person.PersonID " :
   "person.*, household.AddressComp, household.Phone, GROUP_CONCAT(Category ORDER BY Category SEPARATOR '\\n') AS categories ");
-$sql .= "FROM person".($_REQUEST['countonly'] ? "" : " LEFT JOIN household ON person.HouseholdID=household.HouseholdID ".
+$sql .= "FROM person LEFT JOIN household ON person.HouseholdID=household.HouseholdID ".($_REQUEST['countonly'] ? "" : 
     "LEFT JOIN percat ON person.PersonID=percat.PersonID LEFT JOIN category ON percat.CategoryID=category.CategoryID");
 $join = $where = "";
 $ptable = $grouptable = "person";
@@ -198,7 +198,7 @@ for ($i=1; isset($_REQUEST["blanktarget".$i]); $i++) {
   if ($_REQUEST["blanktarget".$i] != "") {
     $target = $_REQUEST["blanktarget".$i];
     $not = ($_REQUEST["blankinout".$i]=="OUT") ? " NOT" : "";
-    $where .= ($where!=""?" AND ":" WHERE ");
+    $where .= ($where!=""?" AND":" WHERE");
     switch($target) {
     case "Birthdate":
       $where .= "$not ($ptable.$target IS NULL OR $ptable.$target='0000-00-00')";
@@ -207,7 +207,7 @@ for ($i=1; isset($_REQUEST["blanktarget".$i]); $i++) {
     case "LabelName":
     case "Phone":
     case "FAX":
-      $where .= "$not ($target = '')";
+      $where .= "$not ($target = '' OR $target IS NULL)";
       break;
     default:
       $where .= "$not ($ptable.$target = '')";
