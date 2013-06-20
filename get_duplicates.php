@@ -42,9 +42,11 @@ if (mysql_numrows($result)==0) {
     echo "    <form action=\"individual.php\" method=\"get\">\n";
     echo "    <input type=\"hidden\" name=\"pid\" value=\"".$row->PersonID."\">\n";
     echo "    <button type=\"submit\">"._("Yes, this is it")."</button></form>\n";
-    echo "    <form action=\"edit.php\" method=\"get\">\n";
+    echo "    <form action=\"edit.php\" method=\"get\" target=\"_blank\">\n";
     echo "    <input type=\"hidden\" name=\"pid\" value=\"".$row->PersonID."\">\n";
-    echo "    <button type=\"submit\">"._("Yes, this is it, but I want to edit it")."</button></form>\n";
+    echo "    <button type=\"submit\">"._("Yes, this is it, but I want to edit it")."</button><br>\n";
+    echo "    <div class=\"comment\" style=\"text-align:right\">".    _("(will open edit page in separate tab)")."</div>\n";
+    echo "    </form>\n";
     echo "  </div>\n</div>";
   }
   echo "  <button type=\"button\" id=\"continue\">"._("No, it's none of these, so please submit the new entry")."</button>";
