@@ -185,50 +185,23 @@ $(document).ready(function(){
     resizable: false,
     modal: true,
     width: "auto",
-    title: "<? echo _("Possible Duplicates"); ?>" });
-  check_nonjapan();
-  $('#postalcode').keyup();
-  $('#address').keyup();
-  $('#romajiaddress').keyup();
-  $('#labelname').keyup();
+    title: "<? echo _("Possible Duplicates"); ?>"
+  });
+  cleanhhview();
   document.editform.fullname.focus();
 });
 
 function newhh() {
-  document.editform.householdid.value="";
-  if(document.editform.nonjapan.checked)
-  {
+  $('#household_section input').val("");
+  $('#household_section textarea').val("");
+  if (document.editform.nonjapan.checked) {
     document.editform.nonjapan.checked=false;
     check_nonjapan();
   }
-  document.editform.postalcode.value="";
-  document.editform.prefecture.value="";
-  document.editform.shikucho.value="";
-  document.editform.romaji.value="";
-  document.editform.address.value="";
-  document.editform.romajiaddress.value="";
-  document.editform.phone.value="";
-  document.editform.fax.value="";
-  document.editform.labelname.value="";
-  document.editform.relation.selectedindex=1;  //sets it to "Main"
+  $('#relation').val("Main");
   document.editform.updateper.value=1;
   document.editform.updatehh.value=0;
-}
-
-function resethh() {
-  document.editform.householdid.value = document.editform.orig_hhid.value;
-  if (document.editform.nonjapan.checked != document.editform.nonjapan.defaultChecked) {
-    document.editform.nonjapan.checked = document.editform.nonjapan.defaultChecked;
-    check_nonjapan();
-  }
-  document.editform.postalcode.value = document.editform.postalcode.defaultValue;
-  fill_prefshi();
-  document.editform.address.value = document.editform.address.defaultValue;
-  document.editform.romajiaddress.value = document.editform.romajiaddress.defaultValue;
-  document.editform.phone.value = document.editform.phone.defaultValue;
-  document.editform.fax.value = document.editform.fax.defaultValue;
-  document.editform.labelname.value = document.editform.labelname.defaultValue;
-  document.editform.updatehh.value = 0;
+  cleanhhview();
 }
 
 function check_nonjapan() {
@@ -247,6 +220,14 @@ function check_nonjapan() {
     $("#address").height("3em");
     $(".nonjapanonly").hide();
   }
+}
+
+function cleanhhview() {
+  check_nonjapan();
+  $('#postalcode').keyup();
+  $('#address').keyup();
+  $('#romajiaddress').keyup();
+  $('#labelname').keyup();
 }
 
 function validate() {
@@ -449,8 +430,6 @@ echo ($_SESSION['furiganaisromaji']=="yes") ? _("(\"Last name, first name\" - do
     if ($rec->HouseholdID) {
       echo "<button id=\"new_hh\" type=\"button\" onclick=\"newhh();\" tabindex=\"0\">".
       _("New Household")."</button>\n";
-      echo "<button id=\"reset_hh\" type=\"button\" onclick=\"resethh();\" tabindex=\"0\">".
-      _("Reset Household")."</button>\n";
     }
     ?>
   </div>
@@ -513,7 +492,7 @@ echo ($_SESSION['furiganaisromaji']=="yes") ? _("(\"Last name, first name\" - do
       type="text" style="width:10em;ime-mode:disabled;" maxlength="20" value="<? echo $rec->FAX; ?>"
       onchange="editform.updatehh.value=1;" /></label>
       <label for="relation" class="label-n-input"><? echo _("This person's relation to household"); ?>: <select
-      name="relation" size="1" onchange="editform.updateper.value=1;"><option
+      name="relation" id="relation" size="1" onchange="editform.updateper.value=1;"><option
       value="Main"<? if ($rec->Relation=="Main") echo " selected"; ?>><? echo _("Main Member"); ?></option><option
       value="Spouse"<? if ($rec->Relation=="Spouse") echo " selected"; ?>><? echo _("Spouse"); ?></option><option
       value="Child"<? if ($rec->Relation=="Child") echo " selected"; ?>><? echo _("Child"); ?></option><option
