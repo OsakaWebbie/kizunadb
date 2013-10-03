@@ -424,7 +424,7 @@ echo ($_SESSION['furiganaisromaji']=="yes") ? _("(\"Last name, first name\" - do
   <div id="household_setup">
     <button id="existing_hh" type="button"
     onclick="window.open('selecthh.php?fullname='+document.editform.fullname.value+
-    '&furigana='+document.editform.fullname.value,'selecthh','scrollbars=yes,width=750,height=600');">
+    '&furigana='+document.editform.furigana.value,'selecthh','scrollbars=yes,width=750,height=600');">
     <? echo _("Select An Existing Household"); ?></button>
     <?
     if ($rec->HouseholdID) {

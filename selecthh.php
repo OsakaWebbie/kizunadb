@@ -4,6 +4,12 @@ include("accesscontrol.php");
 header1("Select Household");
 ?>
 <link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
+<style>
+h2 { margin-bottom:8px; }
+table th, table td { border:1px solid black; padding:2px; }
+table tbody { text-align:left; }
+table tbody tr:nth-child(odd) { background-color:#F0FFF0; }
+</style>
 <script type="text/JavaScript" src="js/jquery.js"></script>
 <script type="text/javascript">
 function finish(form) {
@@ -33,57 +39,40 @@ e = opener.document.forms['editform'];
 
 <?
 header2(0);
-if (preg_match("/^[a-zA-Z]/",$fullname)) {  //name is in English letters
-  $arr = explode(" ",$furigana,2);
-  $lastname = $arr[1];
-} else {  //assuming name is in Japanese
-  $arr = explode(" ",$fullname,2);
-  if ($arr[1] != "") {   //i.e. the name really was split into myoji and namae
-    $lastname = $arr[0];
-  } else {
-    $lastname = substr($fullname,0,4);
-  }
-}
-$sql = "SELECT household.* FROM household";
-$where = " WHERE LabelName LIKE '%".$lastname."%' ORDER BY LabelName";
 
-if (!$result = mysql_query($sql.$where)) {
-  echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b><br>($sql.$where)");
-  exit;
+$sql = "SELECT household.* FROM household";
+if (isset($_GET['getall'])) {
+  echo "<h2>"._("Select a Household: All")."</h2>\n";
+} else {
+  echo "<h2>"._("Select a Household: Possible Matches")."</h2>\n";
+  if (mb_strlen($fullname)*1.25 > strlen($fullname)) {  //name is in Western letters (allowing for 25% European characters)
+    if (strpos($furigana,",")) {
+      $arr = explode(",",$furigana,2);
+    } else {
+      $arr = explode(" ",$furigana,2);
+    }
+    $lastname = $arr[0];
+  } else {  //assuming name is in Japanese
+    $arr = explode(" ",$fullname,2);
+    if ($arr[1] != "") {   //i.e. the name really was split into myoji and namae
+      $lastname = $arr[0];
+    } else {
+      $lastname = substr($fullname,0,4);
+    }
+  }
+  $sql .= " WHERE LabelName LIKE '%".$lastname."%' ORDER BY LabelName";
 }
+$result = sqlquery_checked($sql);
 ?>
-<table border=1 cellspacing=0 cellpadding=2><thead>
+<table><thead>
 <tr><th>&nbsp;</th>
     <th>Label Name</th>
     <th>Address</th>
     <th>Phone</th></tr></thead>
     <tbody>
 <?
-$color = "#FFFFFF";
 while ($row = mysql_fetch_object($result)) {
-  write_row($row,$color);
-  $color = ($color=="#FFFFFF")?"#E0FFE0":"#FFFFFF";
-}
-
-//now get the rest of the households
-$where = " WHERE LabelName NOT LIKE '%".$lastname."%' ORDER BY LabelName";
-if (!$result = mysql_query($sql.$where)) {
-  echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b><br>($sql.$where)");
-  exit;
-}
-?>
-<tr style="background-color:#808080;height:5px;"><td colspan="100%"></td></tr>
-<?
-while ($row = mysql_fetch_object($result)) {
-  write_row($row,$color);
-  $color = ($color=="#FFFFFF")?"#E0FFE0":"#FFFFFF";
-}
-echo "</tbody>\n</table>\n";
-
-print_footer();
-
-function write_row($row,$color) {
-  echo "<tr style=\"background-color:$color;text-align:left\"><td>";
+  echo "<tr><td>";
   echo "<form name=\"hh".$row->HouseholdID."\" onsubmit=\"return false;\">\n";
   echo "<input type=button value=\""._("This One")."\" onclick=\"finish(this.form);\">\n";
   echo "<input type=hidden name=hhid value=\"$row->HouseholdID\">\n";
@@ -99,4 +88,9 @@ function write_row($row,$color) {
   echo "<td>".d2h($row->AddressComp)."</td>\n";
   echo "<td nowrap>$row->Phone</td>\n</tr>\n";
 }
+echo "</tbody>\n</table>\n";
+if (!isset($_GET['getall'])) {
+  echo "<h3><a href=\"".$_SERVER['REQUEST_URI']."&getall=1\">"._("Get All Households")."</a></h3>\n";
+}
+print_footer();
 ?>
