@@ -50,19 +50,6 @@ function header2($nav=0) {
     echo "<div id=\"main-container\">\n";
     echo $navmarkup;  //main navbar
   }
-  ?>
-<script>
-$(function() {
-  $(window).scroll(function() {
-    if ($(this).scrollTop() > 150 && !$('#scrollnav').hasClass('visible')) {
-      $('#scrollnav').addClass('visible');
-    } else if ($(this).scrollTop() <= 150 && $('#scrollnav').hasClass('visible')) {
-      $('#scrollnav').removeClass('visible');
-    }
-  });
-});
-</script>
-<?
   echo "<div id=\"content\">\n";
 }
 
@@ -87,7 +74,16 @@ function print_nav() {
   $navmarkup .= "  <li class=\"menu-logout\"><a href=\"index.php?logout=1\" target=\"_top\">"._("Log Out")." (".$_SESSION['username'].")</a></li>\n</ul>\n";
   
   echo $navmarkup."<div id=\"scrollnav\">\n".$navmarkup."</div>\n";
-  ?>
+}
+
+// Function print_footer: sends final html
+function footer($nav=0) {
+  if ($nav) {
+    //print_nav();
+  }
+  echo "</div>\n"; //end of content div
+  echo "</div>\n"; //end of main-container div
+?>
 <script>
 $(function() {
   $(window).scroll(function() {
@@ -99,16 +95,8 @@ $(function() {
   });
 });
 </script>
+</body></html>
 <?
-}
-
-// Function print_footer: sends final html
-function footer($nav=0) {
-  if ($nav) {
-    //print_nav();
-  }
-  echo "</div>\n"; //end of content div
-  echo "</div></body></html>";  //end of main-container div
 }
 //DEPRECATED
 function print_footer() {
