@@ -1,4 +1,12 @@
 <?php
+/* Things yet to be done:
+    + Handle addresses in normalized forms (perhaps even including putting postalcode in correct field)
+    + Detect Japanese addresses, which would then affect:
+      - NonJapan field
+      - Title field
+      - putting SAMA on end of LabelName
+*/
+
 include("functions.php");
 include("accesscontrol.php");
 
@@ -32,21 +40,6 @@ foreach ($data as $record) {
   if ($_GET['dryrun']) echo "<tr>";
   //die ("<pre>".print_r($record,TRUE)."</pre>");
   
-  if ((isset($_GET['phone']) && $record[$_GET['phone']]!="") ||
-  (isset($_GET['fax']) && $record[$_GET['fax']]!="") || (isset($_GET['address']) && $record[$_GET['address']]!="")) {
-    $sql = "INSERT INTO household (Address,Phone,FAX,LabelName,UpdDate) VALUES ('".h2d($record[$_GET['address']])."',".
-    "'".$record[$_GET['phone']]."','".$record[$_GET['fax']]."','".h2d($record[$_GET['firstname']]." ".$record[$_GET['lastname']])."',CURDATE())";
-    if ($_GET['dryrun']) {
-      echo "<td>".$record[$_GET['address']]."</td><td>".$record[$_GET['phone']]."</td><td>".$record[$_GET['fax']]."</td>\n";
-    } else {
-      $result = sqlquery_checked($sql);
-      $householdid = mysql_insert_id();
-    }
-  } else {
-    $householdid = 0;
-    if ($_GET['dryrun']) echo "<td></td><td></td><td></td>";
-  }
-
   if ($record[$_GET['firstname']]!="" && $record[$_GET['lastname']]!="") {
     $fullname_separator = " ";
     $furigana_separator = ", ";
@@ -60,10 +53,26 @@ foreach ($data as $record) {
     $fullname = $record[$_GET['firstname']].$fullname_separator.$record[$_GET['lastname']];
   }
   $furigana = $record[$_GET['lastname']].$furigana_separator.$record[$_GET['firstname']];
-  $sql = "INSERT INTO person (FullName,Furigana,HouseholdID,CellPhone,".
-  "Email,Birthdate,URL,Remarks,UpdDate) VALUES ('".h2d($fullname)."','".h2d($furigana)."',"."'$householdid','".
-  $record[$_GET['cellphone']]."','".$record[$_GET['email']]."','".$record[$_GET['birthdate']]."',".
-  "'".$record[$_GET['url']]."','".h2d($record[$_GET['remarks']])."',CURDATE())";
+
+  if ((isset($_GET['phone']) && $record[$_GET['phone']]!="") ||
+  (isset($_GET['fax']) && $record[$_GET['fax']]!="") || (isset($_GET['address']) && $record[$_GET['address']]!="")) {
+    $sql = "INSERT INTO household (Address,Phone,FAX,LabelName,UpdDate) VALUES ('".h2d($record[$_GET['address']])."',".
+    "'".h2d($record[$_GET['phone']])."','".h2d($record[$_GET['fax']])."','".h2d($fullname)."',CURDATE())";
+    if ($_GET['dryrun']) {
+      echo "<td>".$record[$_GET['address']]."</td><td>".$record[$_GET['phone']]."</td><td>".$record[$_GET['fax']]."</td>\n";
+    } else {
+      $result = sqlquery_checked($sql);
+      $householdid = mysql_insert_id();
+    }
+  } else {
+    $householdid = 0;
+    if ($_GET['dryrun']) echo "<td></td><td></td><td></td>";
+  }
+
+  $sql = "INSERT INTO person (FullName,Furigana,Title,HouseholdID,CellPhone,".
+  "Email,Birthdate,URL,Remarks,UpdDate) VALUES ('".h2d($fullname)."','".h2d($furigana)."','様',$householdid,'".
+  h2d($record[$_GET['cellphone']])."','".h2d($record[$_GET['email']])."','".h2d($record[$_GET['birthdate']])."',".
+  "'".h2d($record[$_GET['url']])."','".h2d($record[$_GET['remarks']])."',CURDATE())";
   if ($_GET['dryrun']) {
     echo "<td>".$fullname."</td><td>".$furigana."</td>";
     echo "<td>".$record[$_GET['cellphone']]."</td><td>".$record[$_GET['email']]."</td><td>".$record[$_GET['birthdate']]."</td>";
