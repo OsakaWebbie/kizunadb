@@ -2,7 +2,6 @@
 include("functions.php");
 include("accesscontrol.php");
 
-//setlocale(LC_ALL, 'ja_JP.UTF8');
 header1(_("CSV Import"));
 ?> <link rel="stylesheet" type="text/css" href="style.php" /> <?
 header2(1);
@@ -11,7 +10,6 @@ if ($_GET['file']) { //file pre-placed on server
   if (!is_file("/var/www/".$_SESSION['client']."/".$_GET['file'].".csv")) {
     die("File "."/var/www/".$_SESSION['client']."/".$_GET['file'].".csv"." not found.");
   }
-  //$handle = fopen("/var/www/".$_SESSION['client']."/".$_GET['file'].".csv", "r");
   $csv = file_get_contents("/var/www/".$_SESSION['client']."/".$_GET['file'].".csv")
     or die("Failed to read file '/var/www/".$_SESSION['client']."/".$_GET['file'].".csv'.");
 } else {
@@ -30,13 +28,8 @@ if ($_GET['dryrun']) {
   echo "<th>Full Name</th><th>Furigana</th><th>Cell Phone</th><th>Email</th><th>Birthdate</th><th>URL</th><th>Remarks</th></tr>\n";
 }
 
-//while (($line = fgets($handle, 1024)) !== FALSE) {
 foreach ($data as $record) {
   if ($_GET['dryrun']) echo "<tr>";
-/*  $data = mb_split(($_GET['delim']=="tab"?"\t":","),($_GET['shiftjis']?mb_convert_encoding($line,"UTF-8","SJIS"):$line));
-  foreach($record as $key => $value) {
-	  $array[$key] = trim($value,"\"");
-  }*/
   //die ("<pre>".print_r($record,TRUE)."</pre>");
   
   if ((isset($_GET['phone']) && $record[$_GET['phone']]!="") ||
@@ -82,7 +75,6 @@ foreach ($data as $record) {
 }
 if ($_GET['dryrun']) echo "</table>\n";
 
-fclose($handle);
 echo "<h2>In theory, all was completed.</h2>";
 
 footer();
@@ -136,31 +128,5 @@ function parse_csv_field($field) {
     $field = str_replace("\rN", "\n", $field);
     $field = str_replace("\rR", "\r", $field);
     return $field;
-}
-
-//from http://www.php.net/manual/en/function.str-getcsv.php#111665
-
-function alt_parse_csv ($csv_string, $delimiter = ",", $skip_empty_lines = true, $trim_fields = true)
-{
-    return array_map(
-        function ($line) use ($delimiter, $trim_fields) {
-            return array_map(
-                function ($field) {
-                    return str_replace('!!Q!!', '"', utf8_decode(urldecode($field)));
-                },
-                $trim_fields ? array_map('trim', explode($delimiter, $line)) : explode($delimiter, $line)
-            );
-        },
-        preg_split(
-            $skip_empty_lines ? ($trim_fields ? '/( *\R)+/s' : '/\R+/s') : '/\R/s',
-            preg_replace_callback(
-                '/"(.*?)"/s',
-                function ($field) {
-                    return urlencode(utf8_encode($field[1]));
-                },
-                $enc = preg_replace('/(?<!")""/', '!!Q!!', $csv_string)
-            )
-        )
-    );
 }
 ?>
