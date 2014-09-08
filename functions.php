@@ -108,7 +108,7 @@ function print_footer() {
 function sqlquery_checked($sql) {
   $result = mysql_query($sql);
   if ($result === false ){
-     die("<pre style=\"font-size:15px;\"><strong>SQL Error ".mysql_errno()." in file ".$PHP_SELF.": ".mysql_error()."</strong><br>$sql</pre>");
+     die("<pre style=\"font-size:15px;\"><strong>SQL Error ".mysql_errno()." in file ".$_SERVER['PHP_SELF'].": ".mysql_error()."</strong><br>$sql</pre>");
   }
   return $result;
 }
@@ -184,7 +184,9 @@ function readable_name_2line($name,$furigana) {
 
 // Function age: takes birthdate in the form YYYY-MM-DD as argument, returns age
 function age($birthdate) {
+  if ($birthdate=='' || $birthdate=='0000-00-00') return '';
   $ba = explode("-",$birthdate);
+  if ($ba[0]=='1900') return '?';
   $ta = explode("-",date("Y-m-d",mktime(gmdate("H")+9)));
   $age = $ta[0] - $ba[0];
   if (($ba[1] > $ta[1]) || (($ba[1] == $ta[1]) && ($ba[2] > $ta[2]))) --$age;
