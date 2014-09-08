@@ -10,6 +10,7 @@ if ($_POST['query']) {
 ?>
 <link rel="stylesheet" href="style.php?table=1" type="text/css" />
 <script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="js/table2CSV.js"></script>
 <script type="text/javascript" src="js/tablesorter.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
@@ -28,6 +29,9 @@ $(document).ready(function() {
 ?>
   });
 });
+function getCSV() {
+  $('#csvtext').val($('#mainTable').table2CSV({delivery:'value'}));
+}
 </script>
 <?
   header2(1);
@@ -55,6 +59,12 @@ $(document).ready(function() {
     $fields = mysql_num_fields($result);
     $rows = mysql_num_rows($result);
     echo "<p>$rows records returned.</p>";
+?>
+  <form action="download.php" method="post" target="_top">
+    <input type="hidden" id="csvtext" name="csvtext" value="">
+    <input type="submit" id="csvfile" name="csvfile" value="<?=_("Download a CSV file of this table")?>" onclick="getCSV();">
+  </form>
+<?
     echo "<table id=\"mainTable\" class=\"tablesorter\">\n  <thead>\n    <tr>\n";
     for ($i=0; $i<$fields; $i++) {
       echo ("      <th nowrap>".mysql_field_name($result,$i)."</th>\n");
