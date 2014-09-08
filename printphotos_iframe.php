@@ -95,7 +95,7 @@ while ($row = mysql_fetch_object($result)) {
   echo "    <td width=\"{$col_width}\" align=\"center\" valign=\"bottom\">\n";
     
   //some code to calculate max dimensions without distorting the aspect ratio
-  $jpgsize = GetImageSize($path.$photo.".jpg");
+  $jpgsize = GetImageSize($path.(is_file($path.$_GET['f'].".jpg") ? $_GET['f'] : "missing_file").".jpg");
   $jpgwidth = $jpgsize[0];
   $jpgheight = $jpgsize[1];
   $x_ratio = $print->PhotoWidth / $jpgwidth;
