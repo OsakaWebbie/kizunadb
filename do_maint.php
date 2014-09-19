@@ -327,6 +327,8 @@ thru %s."),$attend_num, $attend_first, $attend_last);
           $_SESSION['username'] = $_POST['username'];
           $_SESSION['admin'] = $adm;
           $_SESSION['lang'] = $_POST['language'];
+          $_SESSION['dashboardhead'] = $_POST['dashboardhead'];
+          $_SESSION['dashboardbody'] = $_POST['dashboardbody'];
         }
         $message = _("User information successfully updated.");
       }
