@@ -26,59 +26,156 @@ if ($_GET['file']) { //file pre-placed on server
 }
 
 $data = parse_csv($csv);
+if ($_GET['titlerow']) {
+  $titlerow = array_shift($data);
+  foreach($titlerow as $column => $title) {
+    if (strtolower(substr($title,0,7)) == 'remarks') {
+      $tempremarks = explode(':',$title);
+      $remarkscolumnarray[] = $column . (array_key_exists(1,$tempremarks) ? ":".$tempremarks[1] : '');
+    } else {
+      $_GET[strtolower($title)] = $column;
+    }
+  }
+  //echo("<pre>Remarks Column Array:\n".print_r($remarkscolumnarray,TRUE)."</pre>");
+} else {
+  $remarkscolumnarray = explode(',',$_GET['remarks']);
+}
 
 if ($_GET['dryrun']) {
   echo "<style>\nth,td { border:1px solid gray; padding:2px; margin:0; }\n</style>\n";
-  echo "<table><tr>";
+  echo "<h3>Dry Run - all entries will be ".($_GET['org']?"organizations":"people")."</h3>\n<table><tr>";
   if (isset($_GET['phone']) || isset($_GET['fax']) || isset($_GET['address'])) {
-    echo "<table><tr><th>Address</th><th>Phone</th><th>FAX</th>";
+    echo "<th>PostalCode</th><th>Address</th><th>Phone</th><th>FAX</th>";
   }
-  echo "<th>Full Name</th><th>Furigana</th><th>Cell Phone</th><th>Email</th><th>Birthdate</th><th>URL</th><th>Remarks</th></tr>\n";
+  echo "<th>Full Name</th><th>Furigana</th><th>Cell Phone</th><th>Email</th><th>Birthdate</th>".
+  "<th>Sex</th><th>URL</th><th>Remarks</th></tr>\n";
 }
 
 foreach ($data as $record) {
   if ($_GET['dryrun']) echo "<tr>";
   //die ("<pre>".print_r($record,TRUE)."</pre>");
   
-  if ($record[$_GET['firstname']]!="" && $record[$_GET['lastname']]!="") {
-    $fullname_separator = " ";
-    $furigana_separator = ", ";
+  if (isset($_GET['fullname'])) {
+    //echo "</table><pre>There's a FullName column</pre>\n";
+    $fullname = $record[$_GET['fullname']];
+    mb_ereg("([^ 　]+)[ 　]*(.*)",$fullname,$namearray);  //break on ASCII space or multibyte space
+    //echo "<pre>Namearray:\n".print_r($namearray,TRUE)."</pre>";
+    if (!$namearray[2]) {  //no space in name so can't separate
+      $furigana = $fullname;
+    } else {
+      if (strlen($namearray[1]) > mb_strlen($namearray[1])+2) {  //multibyte name (more than just a couple European characters)
+        $furigana = $namearray[1]." ".$namearray[2];
+      } else {
+        $furigana = $namearray[2].", ".$namearray[1];
+      }
+    }
+    //echo "<pre>Fullname:\n".print_r($fullname,TRUE)."</pre>";
+    //echo "<pre>Furigana:\n".print_r($furigana,TRUE)."</pre>";
+    //exit;
+  } elseif (isset($_GET['firstname']) && isset($_GET['lastname'])) {
+    //echo "</table><pre>There are first and last name columns</pre>\n";
+    if ($record[$_GET['firstname']]!="" && $record[$_GET['lastname']]!="") {
+      $fullname_separator = " ";
+      $furigana_separator = ", ";
+    } else {
+      $fullname_separator = $furigana_separator = "";
+    }
+    if (mb_strlen($record[$_GET['firstname']].$record[$_GET['lastname']],"8bit")>mb_strlen($record[$_GET['firstname']].$record[$_GET['lastname']])) {
+    // there are multi-byte characters in name, so assume last name first
+      $fullname = $record[$_GET['lastname']].$fullname_separator.$record[$_GET['firstname']];
+    } else {
+      $fullname = $record[$_GET['firstname']].$fullname_separator.$record[$_GET['lastname']];
+    }
+    $furigana = $record[$_GET['lastname']].$furigana_separator.$record[$_GET['firstname']];
   } else {
-    $fullname_separator = $furigana_separator = "";
+    echo("</table><div style=\"color:red\">You must specify the column numbers for either 'fullname' or 'firstname' & 'lastname'.</div>\n");
+    echo("<pre>".print_r($_GET,TRUE)."</pre>");
+    exit;
+    }
+  if ($_GET['birthdate']) {
+    $birthdate = str_replace('/','-',$record[$_GET['birthdate']]);
+  } elseif ($_GET['age']) {
+    $birthdate = date("Y")-$record[$_GET['age']].'-01-01';
+  } elseif ($_GET['birthday']) {
+    $birthdate = '1900-'.str_replace('/','-',$record[$_GET['birthday']]);
   }
-  if (mb_strlen($record[$_GET['firstname']].$record[$_GET['lastname']],"8bit")>mb_strlen($record[$_GET['firstname']].$record[$_GET['lastname']])) {
-  // there are multi-byte characters in name, so assume last name first
-    $fullname = $record[$_GET['lastname']].$fullname_separator.$record[$_GET['firstname']];
-  } else {
-    $fullname = $record[$_GET['firstname']].$fullname_separator.$record[$_GET['lastname']];
+  $remarks = "";
+  foreach($remarkscolumnarray as $remarkscolumn) {
+    $remarkscolumnsplit = explode(':',$remarkscolumn);
+    if ($record[$remarkscolumnsplit[0]]) {
+      $remarks .= strlen($remarks)?"\n":"";
+      if (array_key_exists(1,$remarkscolumnsplit)) {
+        $remarks .= $remarkscolumnsplit[1].': ';
+      }
+      $remarks .= $record[$remarkscolumnsplit[0]];
+    }
   }
-  $furigana = $record[$_GET['lastname']].$furigana_separator.$record[$_GET['firstname']];
 
   if ((isset($_GET['phone']) && $record[$_GET['phone']]!="") ||
   (isset($_GET['fax']) && $record[$_GET['fax']]!="") || (isset($_GET['address']) && $record[$_GET['address']]!="")) {
-    $sql = "INSERT INTO household (Address,Phone,FAX,LabelName,UpdDate) VALUES ('".h2d($record[$_GET['address']])."',".
-    "'".h2d($record[$_GET['phone']])."','".h2d($record[$_GET['fax']])."','".h2d($fullname)."',CURDATE())";
+    if (isset($_GET['address'])) {
+      if (isset($_GET['postalcode'])) {
+        $postalcode = $record[$_GET['postalcode']];
+        $address_to_reduce = $record[$_GET['address']];
+      } elseif (mb_ereg('^〒?(\d{3}-\d{4})[ 　]*(.+)$',$record[$_GET['address']],$addr_array)) {
+        $postalcode = $addr_array[1];
+        $address_to_reduce = $addr_array[2];
+      } elseif (mb_ereg('^〒?(\d{7})[ 　]*(.+)$',$record[$_GET['address']],$addr_array)) {
+        $postalcode = substr($addr_array[1],0,3).'-'.substr($addr_array[1],3,4);
+        $address_to_reduce = $addr_array[2];
+      } else {
+        $postalcode = '';
+        $address = $record[$_GET['address']];
+        $address_to_reduce = '';
+      }
+      if ($address_to_reduce) {
+        $addrcheck = sqlquery_checked("SELECT * from postalcode WHERE PostalCode='".$postalcode."'");
+        if (!$pc = mysql_fetch_object($addrcheck)) { //not in client table, so need to check aux
+          $addrcheck = sqlquery_checked("SELECT * from kizuna_common.auxpostalcode WHERE PostalCode='".$postalcode."'");
+          if ($pc = mysql_fetch_object($addrcheck)) { //found in aux, so copy record
+            if (!$_GET['dryrun']) sqlquery_checked("INSERT INTO postalcode(PostalCode,Prefecture,ShiKuCho,Romaji)".
+            " SELECT PostalCode,Prefecture,ShiKuCho,'".($_SESSION['romajiaddresses']=="yes"?"(edit on DB Maint. page)":"").
+            "' FROM kizuna_common.auxpostalcode WHERE PostalCode='".$postalcode."' LIMIT 1");
+          } else { //not in aux either
+            $postalcode = '';
+            $address = '(FIX ME)'.$record[$_GET['address']];
+          }
+        }
+        if ($pc) {
+          if (mb_ereg('^'.$pc->Prefecture.$pc->ShiKuCho.'(.*)',$address_to_reduce,$regex_array)) {
+            $address = $regex_array[1];
+          } else {
+            $address = '(FIX ME)'.$address_to_reduce;
+          }
+        }
+      }
+    }
+      
+    $sql = "INSERT INTO household (PostalCode,Address,Phone,FAX,LabelName,UpdDate) VALUES ('".h2d($postalcode)."',".
+    "'".h2d($address)."','".h2d($record[$_GET['phone']])."','".h2d($record[$_GET['fax']])."','".h2d($fullname)."',CURDATE())";
     if ($_GET['dryrun']) {
-      echo "<td>".$record[$_GET['address']]."</td><td>".$record[$_GET['phone']]."</td><td>".$record[$_GET['fax']]."</td>\n";
+      echo "<td>$postalcode</td><td>".d2h($address)."</td><td>".$record[$_GET['phone']]."</td><td>".$record[$_GET['fax']]."</td>\n";
     } else {
       $result = sqlquery_checked($sql);
       $householdid = mysql_insert_id();
     }
   } else {
     $householdid = 0;
-    if ($_GET['dryrun']) echo "<td></td><td></td><td></td>";
+    //if ($_GET['dryrun']) echo "<td></td><td></td><td></td>";
   }
 
-  $sql = "INSERT INTO person (FullName,Furigana,Title,HouseholdID,CellPhone,".
-  "Email,Birthdate,URL,Remarks,UpdDate) VALUES ('".h2d($fullname)."','".h2d($furigana)."','様',$householdid,'".
-  h2d($record[$_GET['cellphone']])."','".h2d($record[$_GET['email']])."','".h2d($record[$_GET['birthdate']])."',".
-  "'".h2d($record[$_GET['url']])."','".h2d($record[$_GET['remarks']])."',CURDATE())";
+  $sql = "INSERT INTO person (FullName,Furigana,Organization,Title,HouseholdID,CellPhone,".
+  "Email,Birthdate,Sex,URL,Remarks,UpdDate) VALUES ('".h2d($fullname)."','".h2d($furigana)."',".
+  ($_GET['org']?"1":"0").",'様',$householdid,'".
+  h2d($record[$_GET['cellphone']])."','".h2d($record[$_GET['email']])."','".h2d($birthdate)."',".
+  "'".h2d($record[$_GET['sex']])."','".h2d($record[$_GET['url']])."','".h2d($remarks)."',CURDATE())";
   if ($_GET['dryrun']) {
     echo "<td>".$fullname."</td><td>".$furigana."</td>";
-    echo "<td>".$record[$_GET['cellphone']]."</td><td>".$record[$_GET['email']]."</td><td>".$record[$_GET['birthdate']]."</td>";
-    echo "<td>".$record[$_GET['url']]."</td><td>".$record[$_GET['remarks']]."</td></tr>\n";
+    echo "<td>".$record[$_GET['cellphone']]."</td><td>".$record[$_GET['email']]."</td><td>".$birthdate."</td>";
+    echo "<td>".$record[$_GET['sex']]."</td><td>".$record[$_GET['url']]."</td><td>".d2h($remarks)."</td></tr>\n";
   } else {
-    $result = sqlquery_checked($sql);
+    sqlquery_checked($sql);
+    echo $fullname." successfully added.<br />";
   }
   if ($_GET['dryrun']) echo "</tr>\n";
 }
