@@ -5,11 +5,13 @@ include("accesscontrol.php");
 header1(_("Attendance Summary").($_POST['preselected']!="" ?
 sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($_POST['preselected'],",")+1) : ""));
 
-//if ($_POST['preselected']) {
 ?>
 <meta http-equiv="expires" content="0">
 <link rel="stylesheet" href="style.php" type="text/css" />
 <script type="text/JavaScript" src="js/jquery.js"></script>
+<?
+if ($_POST['preselected']) {
+?>
 <script type="text/javascript">
 $(document).ready(function() {
   $(".eventcell>a, .sumcell>a").click(function(ev) {
@@ -21,7 +23,7 @@ $(document).ready(function() {
 });
 </script>
 <?
-//} //end of if there is a preselected list
+} //end of if there is a preselected list
 header2($_GET['nav']);
 //echo "<pre>".print_r($_POST,true)."</pre>";
 if ($_GET['nav']==1) echo "<h1 id=\"title\">"._("Attendance Summary Chart").($_POST['preselected']!="" ?
