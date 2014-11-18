@@ -969,8 +969,6 @@ if (!$result = mysql_query("SELECT *,DATE(UploadTime) AS UploadDate FROM upload 
   echo "  </tbody></table>";
 }
 echo "</div>";
-echo "<script>\n$(\"#org_preselected\").val(\"".substr($org_pids,1)."\");\n</script>\n";
-if ($per->Organization) echo "<script>\n$(\"#mem_preselected\").val(\"".substr($mem_pids,1)."\");\n</script>\n";
 mysql_free_result($result);
 ?>
 
@@ -984,6 +982,8 @@ mysql_free_result($result);
 <script type="text/javascript" src="js/jquery.clickmenu.js"></script>
 
 <script type="text/JavaScript">
+$("#org_preselected").val("<? echo substr($org_pids,1); ?>");
+<? if ($per->Organization) { ?>$("#mem_preselected").val("<? echo substr($mem_pids,1); ?>");<? } ?>
 
 $(document).ready(function(){
   $(document).ajaxError(function(e, xhr, settings, exception) {
@@ -1029,8 +1029,16 @@ if($_SESSION['lang']=="ja_JP") {
   saveState: false});
   $('#ulSelectColumnMember').clickMenu({onClick: function(){}});
   
-  $("#orgid").keyup(function(){  //display Organization name when applicable ID is typed
-    $("#orgname").load("ajax_request.php",{'req':'OrgName','orgid':$("#orgid").val()});
+  $("#orgid").bind('input propertychange', function(e){  //display Organization name when applicable ID is typed
+    if (/\D/g.test(this.value))  {
+      // Filter non-digits from input value.
+      this.value = this.value.replace(/\D/g, '');
+    }
+    if (this.value != '') {
+      $("#orgname").load("ajax_request.php",{'req':'OrgName','orgid':$("#orgid").val()});
+    } else {
+      $("#orgname").empty();
+    }
   });
 
   $("#ctype").change(function(){  //insert template text in Contact description when applicable ContactType is selected
