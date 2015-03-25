@@ -85,7 +85,15 @@ while ($row = mysql_fetch_object($result)) {
 %% JAPAN PAGE %%
 \begin{picture}(<?=$print->PaperWidth?>,<?=$print->PaperHeight?>)(3,3)
 <?
-    if (strlen($row->PostalCode)>7) {
+    if ($_POST['po_stamp']=='yes') {  //Post Office stamp requested
+?>
+\put(<?=$print->PaperLeftMargin?>,<?=$print->PCTopMargin-16?>){%
+\includegraphics[bb=0 0 300 300,width=27mm]{/var/www/kizunadb/codebase/graphics/po_stamp.png}}
+<?
+    }  //end if Post Office stamp requested
+?>
+<?
+    if (strlen($row->PostalCode)>7) {  //PostalCode is complete
 ?>
 \fontsize{<?=$print->PCPointSize?>}{<?=$print->PCPointSize*1.2?>}\selectfont
 \put(<?=$print->PCLeftMargin?>,<?=$print->PCTopMargin?>){<?=$row->PostalCode[0]?>}

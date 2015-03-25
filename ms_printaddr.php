@@ -54,6 +54,7 @@ while ($row = mysql_fetch_object($result)) {
 ?>
         </select></label><br>
         <label class="label-n-input"><input type="checkbox" value="yes" name="nj_separate" checked><?=_("Sort by Japan/foreign")?></label>
+        <label class="label-n-input"><input type="checkbox" value="yes" name="po_stamp"><?=_("Print post office stamp")?></label>
       </div>
       <input type="submit" name="submit" value="<?=_("Make PDF")?>" border="0">
     </form>
