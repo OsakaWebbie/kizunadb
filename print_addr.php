@@ -87,8 +87,8 @@ while ($row = mysql_fetch_object($result)) {
 <?
     if ($_POST['po_stamp']=='yes') {  //Post Office stamp requested
 ?>
-\put(<?=$print->PaperLeftMargin?>,<?=$print->PCTopMargin-16?>){%
-\includegraphics[bb=0 0 300 300,width=27mm]{/var/www/kizunadb/codebase/graphics/po_stamp.png}}
+\put(<?=$print->PaperLeftMargin?>,<?=$print->PCTopMargin-18?>){%
+\includegraphics[bb=0 0 300 300,width=30mm]{/var/www/kizunadb/codebase/graphics/po_stamp.gif}}
 <?
     }  //end if Post Office stamp requested
 ?>
