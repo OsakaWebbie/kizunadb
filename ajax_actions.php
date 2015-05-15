@@ -26,6 +26,11 @@ case "PerOrgDelete":
   if (mysql_affected_rows() == 1) echo "*"._("Delete successful.");
   else echo _("Record to delete was not found.");
   break;
+case "SwitchLang":
+  if (!isset($_GET['lang']) || ($_GET['lang']!='en_US' && $_GET['lang']!='ja_JP')) die("Failed.");
+  $_SESSION['lang'] = $_GET['lang'];
+  setlocale(LC_ALL, $_SESSION['lang'].".utf8");
+  break;
 default:
   die("Programming error: NO ACTION RECOGNIZED");
 }

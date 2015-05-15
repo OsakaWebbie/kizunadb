@@ -7,7 +7,7 @@ if ($_SESSION['userid']== "dev" || $_SESSION['userid']== "karen") {
 }
 
 header1($_SESSION['username']._("'s Dashboard"));
-echo "<link rel=\"stylesheet\" href=\"style.php?jquery=1&table=1\" type=\"text/css\" />\n";
+echo "<link rel=\"stylesheet\" href=\"style.php?jquery=1&amp;table=1\" type=\"text/css\">\n";
 echo "<script type=\"text/JavaScript\" src=\"js/jquery.js\"></script>\n";
 echo "<script type=\"text/JavaScript\" src=\"js/jquery-ui.js\"></script>\n";
 if (!$_SESSION['hasdashboard']) {

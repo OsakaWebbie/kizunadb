@@ -209,16 +209,6 @@ function validate(form) {
       return false;
     }
     break;
-  case "pwd":
-    if (document.pwform.old_pw.value == "") {
-      alert("<? echo _("You must enter your current password for validation."); ?>");
-      return false;
-    }
-    if (document.pwform.new_pw1.value != document.pwform.new_pw2.value) {
-      alert("<? echo _("The two new password entries do not match."); ?>");
-      return false;
-    }
-    break;
   case "pc":
     if (document.pcform.prefecture.value == "" || document.pcform.shikucho == ""
     || (document.pcform.romaji && document.pcform.romaji == "")) {
@@ -382,27 +372,6 @@ while ($row = mysql_fetch_object($result))  echo "    <option class=\"".($row->A
   <label class="label-n-input"><? echo _("Description"); ?>: <textarea id="remarks" name="remarks" rows="3" cols="50"></textarea></label>
   <div class="submits"><input type="submit" id="event_add_upd" name="event_add_upd" value="<? echo _("Add or Update"); ?>">
   <input type="submit" id="event_del" name="event_del" value="<? echo _("Delete"); ?>" disabled></div>
-</fieldset></form>
-
-<!-- USER LANGUAGE -->
-
-<form action="do_maint.php" method="post" name="myuserform" id="myuserform" onsubmit="return validate('user');">
-  <fieldset><legend><? echo _("My User Settings"); ?></legend>
-  <label class="label-n-input"><? echo _("Language for Interface"); ?>: <select id="mylanguage" name="language" size="1">
-    <option value="en_US"<? if($_SESSION['lang']=="en_US") echo " selected"; ?>><? echo _("English"); ?></option>
-    <option value="ja_JP"<? if($_SESSION['lang']=="ja_JP") echo " selected"; ?>><? echo _("Japanese"); ?></option>
-  </select></label>
-  <input type="submit" name="user_upd" value="<? echo _("Save Changes"); ?>"> 
-</fieldset></form>
-
-<!-- PASSWORD -->
-
-<form action="do_maint.php" method="post" name="pwform" autocomplete="off" onsubmit="return validate('pwd');">
-  <fieldset><legend><? echo _("Change My Password"); ?></legend>
-  <label class="label-n-input"><? echo _("Old"); ?>: <input type="password" id="old_pw" name="old_pw" style="width:8em"></label>
-  <label class="label-n-input"><? echo _("New"); ?>: <input type="password" id="new_pw1" name="new_pw1" style="width:8em"></label>
-  <label class="label-n-input"><? echo _("New again"); ?>: <input type="password" id="new_pw2" name="new_pw2" style="width:8em"></label>
-  <input type="submit" id="pw_upd" name="pw_upd" value="<? echo _("Change Password"); ?>"> 
 </fieldset></form>
 
 <?

@@ -9,19 +9,23 @@ function print_header($title,$color,$nav) {
 
 function header1($title) {
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="<? echo $_SESSION['lang']; ?>" lang="<? echo $_SESSION['lang']; ?>" dir="ltr" >
+<? //<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> ?>
+<!DOCTYPE html>
+<? /* <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="<? echo $_SESSION['lang']; ?>" lang="<? echo $_SESSION['lang']; ?>" dir="ltr" > */ ?>
+<html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta http-equiv="Content-Script-Type" content="text/javascript" />
-<link rel="icon" type="image/x-icon" href="/kizunaicon.ico" />
-<link rel="shortcut icon" type="image/x-icon" href="/kizunaicon.ico" />
+<? //<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> ?>
+<meta charset="UTF-8">
+<? //<meta http-equiv="Content-Script-Type" content="text/javascript" /> ?>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/x-icon" href="/kizunaicon.ico">
+<? //<link rel="shortcut icon" type="image/x-icon" href="/kizunaicon.ico" /> ?>
 <?
   echo "<title>{$_SESSION['dbtitle']}: $title</title>\n";
 }
 
 function header2($nav=0) {
-  echo "<link rel=\"stylesheet\" href=\"css/print.css\" type=\"text/css\" media=\"print\" />\n";
+  echo "<link rel=\"stylesheet\" href=\"css/print.css\" type=\"text/css\" media=\"print\">\n";
   echo "</head>\n";
   $fileroot = substr($_SERVER['PHP_SELF'],(strrpos($_SERVER['PHP_SELF'],"/")+1),(strrpos($_SERVER['PHP_SELF'],".")-strrpos($_SERVER['PHP_SELF'],"/")-1));
   echo "<body class=\"".$fileroot.($nav?" full":" simple")."\">\n";
@@ -36,7 +40,7 @@ function header2($nav=0) {
     $navmarkup .= "  <li class=\"menu-multiselect\"><a href=\"multiselect.php\" target=\"_top\">"._("Multi-Select")."</a></li>\n";
     $navmarkup .= "  <li class=\"menu-contact\"><a href=\"contact.php\" target=\"_top\">"._("Contacts")."</a></li>\n";
     if ($_SESSION['donations'] == "yes") {
-      $navmarkup .= "  <li class=\"menu-donations\"><a href=\"donations.php\" target=\"_top\">"._("Donations & Pledges")."</a></li>\n";
+      $navmarkup .= "  <li class=\"menu-donations\"><a href=\"donations.php\" target=\"_top\">"._("Donations &amp; Pledges")."</a></li>\n";
     }
     $navmarkup .= "  <li class=\"menu-eventattend\"><a href=\"event_attend.php\" target=\"_top\">"._("Event Attendance")."</a></li>\n";
     $navmarkup .= "  <li class=\"menu-birthday\"><a href=\"birthday.php\" target=\"_top\">"._("Birthdays")."</a></li>\n";
@@ -44,8 +48,11 @@ function header2($nav=0) {
     if ($_SESSION['admin'] == 1) {
       $navmarkup .= "  <li class=\"menu-sqlquery\"><a href=\"sqlquery.php\" target=\"_top\">"._("(Freeform SQL)")."</a></li>\n";
     }
-    $navmarkup .= "  <li class=\"menu-logout\"><a href=\"index.php?logout=1\" target=\"_top\">"._("Log Out")." (".$_SESSION['username'].")</a></li>\n</ul>\n";
-    echo "<div id=\"scrollnav\">\n".$navmarkup."</div>\n";  //navbar that only appears when scrolled
+    $navmarkup .= "  <li class=\"menu-account\"><a href=\"account.php\" target=\"_top\">"._("Account Settings")."<span style=\"font-weight:normal\"> (".$_SESSION['username'].")</span></a></li>\n";
+    $navmarkup .= "  <li class=\"menu-switchlang\"><a class=\"switchlang\" href=\"#\">".
+    ($_SESSION['lang']=='en_US'?'日本語':'English')."</a></li>\n";
+    $navmarkup .= "  <li class=\"menu-logout\"><a href=\"index.php?logout=1\" target=\"_top\">"._("Log Out")."</a></li>\n</ul>\n";
+    //echo "<div id=\"scrollnav\">\n".$navmarkup."</div>\n";  //navbar that only appears when scrolled
     
     echo "<div id=\"main-container\">\n";
     echo $navmarkup;  //main navbar
@@ -53,38 +60,12 @@ function header2($nav=0) {
   echo "<div id=\"content\">\n";
 }
 
-function print_nav() {
-  $navmarkup = "<ul class=\"nav\">\n";
-  if ($_SESSION['hasdashboard']) {
-    $navmarkup .= "  <li class=\"menu-dashboard\"><a href=\"dashboard.php\" target=\"_top\">"._("Dashboard")."</a></li>\n";
-  }
-  $navmarkup .= "  <li class=\"menu-search\"><a href=\"search.php\" target=\"_top\">"._("Search")."</a></li>\n";
-  $navmarkup .= "  <li class=\"menu-edit\"><a href=\"edit.php\" target=\"_top\">"._("New Person/Org")."</a></li>\n";
-  $navmarkup .= "  <li class=\"menu-multiselect\"><a href=\"multiselect.php\" target=\"_top\">"._("Multi-Select")."</a></li>\n";
-  $navmarkup .= "  <li class=\"menu-contact\"><a href=\"contact.php\" target=\"_top\">"._("Contacts")."</a></li>\n";
-  if ($_SESSION['donations'] == "yes") {
-    $navmarkup .= "  <li class=\"menu-donations\"><a href=\"donations.php\" target=\"_top\">"._("Donations & Pledges")."</a></li>\n";
-  }
-  $navmarkup .= "  <li class=\"menu-eventattend\"><a href=\"event_attend.php\" target=\"_top\">"._("Event Attendance")."</a></li>\n";
-  $navmarkup .= "  <li class=\"menu-birthday\"><a href=\"birthday.php\" target=\"_top\">"._("Birthdays")."</a></li>\n";
-  $navmarkup .= "  <li class=\"menu-maintenance\"><a href=\"maintenance.php\" target=\"_top\">"._("DB Maintenance")."</a></li>\n";
-  if ($_SESSION['admin'] == 1) {
-    $navmarkup .= "  <li class=\"menu-sqlquery\"><a href=\"sqlquery.php\" target=\"_top\">"._("(Freeform SQL)")."</a></li>\n";
-  }
-  $navmarkup .= "  <li class=\"menu-logout\"><a href=\"index.php?logout=1\" target=\"_top\">"._("Log Out")." (".$_SESSION['username'].")</a></li>\n</ul>\n";
-  
-  echo $navmarkup."<div id=\"scrollnav\">\n".$navmarkup."</div>\n";
-}
-
 // Function print_footer: sends final html
 function footer($nav=0) {
-  if ($nav) {
-    //print_nav();
-  }
   echo "</div>\n"; //end of content div
   echo "</div>\n"; //end of main-container div
 ?>
-<script>
+<script type="text/javascript">
 $(function() {
   $(window).scroll(function() {
     if ($(this).scrollTop() > 150 && !$('#scrollnav').hasClass('visible')) {
@@ -93,9 +74,21 @@ $(function() {
       $('#scrollnav').removeClass('visible');
     }
   });
+  $('.switchlang').click(function(event) {
+    event.preventDefault();
+    $.ajax({
+      type: "POST",
+      url: "ajax_actions.php?action=SwitchLang&lang=<? echo $_SESSION['lang']=='en_US'?'ja_JP':'en_US'; ?>",
+      success: function() {
+        location.reload(true);
+      }
+    });
+  });
 });
+
 </script>
-</body></html>
+</body>
+</html>
 <?
 }
 //DEPRECATED
