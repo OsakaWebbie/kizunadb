@@ -3,14 +3,14 @@ include("functions.php");
 include("accesscontrol.php");
 
 header1("Birthdays List");
-?> <link rel="stylesheet" href="style.php" type="text/css" /> <?
-showfile("dates.js");
+?> <link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
+<?
 // Need dummy entry because arrays count from zero
 $month_array = array("dummy","January","February","March","April","May","June","July",
  "August","September","October","November","December");
 ?>
 
-<SCRIPT language="Javascript">
+<script type="text/JavaScript">
 var max_days = new Array(31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
 
 function monthlength(which, index) {
@@ -73,9 +73,8 @@ window.onload = function() {
   monthlength("end", document.bform.endmonth.selectedIndex);
 }
 
-</SCRIPT>
+</script>
 <? header2(1); ?>
-<center>
   <h1 class="title">Birthday List</h1>
   <table border=0 width=100%><tr><td align=center width=30%>
   <form name="bform" action="birthday_iframe.php" target="ResultFrame" method="GET" onSubmit="make_catlist();">
@@ -137,8 +136,9 @@ if (!$result = mysql_query("SELECT * FROM category ORDER BY Category")) {
   </td><td align=center>
   <iframe name="ResultFrame" width="100%" height="400" src="blank.html"></iframe>
 </td></tr></table>
-</center>
 
+<script type="text/JavaScript" src="js/jquery.js"></script>
+<script type="text/JavaScript" src="js/jquery-ui.js"></script>
 <?
 footer(0);
 ?>

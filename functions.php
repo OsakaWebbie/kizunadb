@@ -52,7 +52,7 @@ function header2($nav=0) {
     $navmarkup .= "  <li class=\"menu-switchlang\"><a class=\"switchlang\" href=\"#\">".
     ($_SESSION['lang']=='en_US'?'日本語':'English')."</a></li>\n";
     $navmarkup .= "  <li class=\"menu-logout\"><a href=\"index.php?logout=1\" target=\"_top\">"._("Log Out")."</a></li>\n</ul>\n";
-    //echo "<div id=\"scrollnav\">\n".$navmarkup."</div>\n";  //navbar that only appears when scrolled
+    echo "<div id=\"scrollnav\">\n".$navmarkup."</div>\n";  //navbar that only appears when scrolled
     
     echo "<div id=\"main-container\">\n";
     echo $navmarkup;  //main navbar
@@ -62,8 +62,23 @@ function header2($nav=0) {
 
 // Function print_footer: sends final html
 function footer($nav=0) {
+  echo "  <div style=\"clear:both\"></div>\n";
   echo "</div>\n"; //end of content div
   echo "</div>\n"; //end of main-container div
+
+  // ANNOUNCEMENTS ABOUT NEW FEATURES, ETC., IF ANY
+  if (isset($_SESSION['announcements'])) {
+    echo "<style>\n  div.announcement { border:solid 2px lightgray; padding:5px; margin:5px; }\n";
+    echo "  h4.announcedate,p.announcetext,body.dashboard h4.announcedate,body.dashboard p.announcetext { text-align:left; }\n</style>\n";
+    echo '<div id="announcements" title="'._("Announcements Since Your Last Login")."\">\n";
+    foreach($_SESSION['announcements'] as $announcement) {
+      echo "  <div class=\"announcement\">\n";
+      echo "    <h4 class=\"announcedate\">".substr($announcement->AnnounceTime,0,10)."</h4>\n";
+      echo "    <p class=\"announcetext\">".$announcement->HTML."</p>\n";
+      echo "  </div>\n";
+    }
+    echo "</div>\n";
+  } //end if announcements
 ?>
 <script type="text/javascript">
 $(function() {
@@ -84,6 +99,21 @@ $(function() {
       }
     });
   });
+<? if (isset($_SESSION['announcements'])) { ?>
+  $('#announcements').dialog({
+    modal: true,
+    buttons: [{
+      text: "<? echo _("OK, I got it!"); ?>",
+      click: function() {
+        $( this ).dialog( "close" );
+      }
+    }],
+    width: 460
+  });
+<?
+  unset($_SESSION['announcements']); //now that it's shown, get rid of it
+}
+?>
 });
 
 </script>

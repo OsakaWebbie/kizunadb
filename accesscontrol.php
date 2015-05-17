@@ -35,6 +35,19 @@ if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
       $_SESSION['admin'] = $user->Admin;
       $_SESSION['lang'] = $user->Language;
       $_SESSION['hasdashboard'] = $user->DashboardBody ? 1 : 0;
+
+      //GET ANNOUNCEMENTS IF ANY
+      $result = sqlquery_checked("SELECT MAX(LoginTime) Last FROM login_log WHERE UserID='".$user->UserID."'");
+      $row = mysql_fetch_object($result);
+      $lastlogin = $row->Last;
+      $result = sqlquery_checked("SELECT * from kizuna_common.announcement a WHERE AnnounceTime > '$lastlogin' ORDER BY AnnounceTime ASC");
+      if (mysql_numrows($result) > 0) {
+        $_SESSION['announcements'] = array();
+        while ($row = mysql_fetch_object($result)) {
+          $_SESSION['announcements'][] = $row;
+        }
+      }
+
       $sql = "INSERT INTO login_log(UserID,IPAddress,UserAgent,Languages) VALUES('".
         $user->UserID."','".$_SERVER['REMOTE_ADDR']."','".$_SERVER['HTTP_USER_AGENT']."','".
         $_SERVER['HTTP_ACCEPT_LANGUAGE']."')";
