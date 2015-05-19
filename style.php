@@ -155,28 +155,6 @@ nav#nav-mobile a:hover {
   color: <?=($navlinkhover)?>;
 }
 
-@media screen and (max-width: 900px) {
-  body.full div#main-container {
-    border: none;
-    margin: 0;
-  }
-  body.full div#main-container { background-image:none; }
-  #nav-trigger {
-    display: block; }
-
-  nav#nav-main {
-    display: none; }
-
-  nav#nav-mobile {
-    display: block; }
-
-    ul.nav li.menu-user a { white-space:wrap; }
-}
-@media screen and (orientation:landscape) {
-  #nav-trigger span, nav#nav-mobile a { font-size: 100%; }
-  #nav-trigger img { width:20px; }
-}
-
 /* general purpose typography */
 
 body { font-family:Arial,"ＭＳ Ｐゴシック",sans-serif; }
@@ -280,6 +258,25 @@ span.inlinelabel {
 
 option.active. li.active { background-color:<?=($activeeventbg?$activeeventbg:"White")?>; }
 option.inactive, li.inactive { background-color:<?=($inactiveeventbg?$inactiveeventbg:"#BBBBBB")?>; }
+
+/* MOBILE MEDIA QUERIES */
+
+@media screen and (max-width: 900px) {
+  body.full div#main-container {
+    border: none;
+    margin: 0;
+  }
+  body.full div#main-container { background-image:none; }
+  #nav-trigger { display: block; }
+  nav#nav-main { display: none; }
+  nav#nav-mobile { display: block; }
+  ul.nav li.menu-user a { white-space:wrap; }
+  h1#title { margin:0; }
+}
+@media screen and (orientation:landscape) {
+  #nav-trigger span, nav#nav-mobile a { font-size: 100%; }
+  #nav-trigger img { width:20px; }
+}
 
 /* AJAX related */
 

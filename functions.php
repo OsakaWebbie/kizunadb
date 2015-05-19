@@ -56,7 +56,7 @@ function header2($nav=0) {
     
     echo "<div id=\"main-container\">\n";
     echo "<nav id=\"nav-main\">\n$navmarkup</nav>\n";  //main nav for large screens
-    echo "<div id=\"nav-trigger\"><img src=\"graphics/kizunadb-logo.png\"><span>Menu</span></div>\n";  //button for narrow screens
+    echo "<div id=\"nav-trigger\"><img src=\"graphics/kizunadb-logo.png\" alt=\"Logo\"><span>Menu</span></div>\n";  //button for narrow screens
     echo "<nav id=\"nav-mobile\"></nav>\n";  //vertical menu for narrow screens
   }
   echo "<div id=\"content\">\n";
