@@ -2,7 +2,7 @@
 include("functions.php");
 include("accesscontrol.php");
 
-header1(_("Database Maintenance"));
+header1(_("Database Settings"));
 ?>
 <link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
 <script type="text/javascript" src="jscolor/jscolor.js"></script>
@@ -241,7 +241,7 @@ function validate(form) {
 }
 </script>
 <? header2(1); ?>
-<h1 id="title"><? echo _("Database Maintenance"); ?></h1>
+<h1 id="title"><? echo _("Database Settings"); ?></h1>
 
 <!-- POSTAL CODES -->
 

@@ -350,7 +350,7 @@ if (!$need_confirmation) {
   if ($message) {
     echo "alert(\"".$message."\");\n";
   }
-  echo "window.location = \"".($_GET['page']=='account' ? 'account' : 'maintenance').".php\";\n";
+  echo "window.location = \"".($_GET['page']=='user_settings' ? 'user_settings' : 'db_settings').".php\";\n";
   echo "</SCRIPT>\n";
   
 }

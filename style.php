@@ -40,55 +40,141 @@ body.simple div#main-container {
 div#content {
   margin:0 10px 10px 10px;
   background-color: White;
+  z-index: 1;
 }
 table { background-color: White;}
 
-ul.nav {
-  background-color:<?=($navbg?$navbg:"#2C2C2C")?>;
+/* MAIN MENU (WIDE SCREENS) */
+nav#nav-main {
+}
+nav#nav-main ul {
+  background-color:<?=($navbg)?>;
+  list-style-type: none;
   margin:10px 10px 0 58px;
-  padding:6px 0px 8px 0px;
-  -moz-border-radius: 15px;
+  padding:3px 0 5px 0;
   border-radius: 15px;
   text-align: center;
-  vertical-align: middle;
   min-height: 40px;
-  clear:both;
-}  
-
-#scrollnav {
-  position: fixed;
-  top: -50px;
-  transition: top 0.2s ease-in-out 0s;
-  width: 100%;
-  z-index: 9999;
 }
-#scrollnav ul.nav {
-  background-color: <?=($navbg?rgba($navbg,"0.7"):rgba("#2C2C2C","0.7"))?>;
-  margin:0;
-  padding:5px;
-  -moz-border-radius: 0;
-  border-radius: 0;
-  min-height: 0;
+nav#nav-main li {
+  display: inline-block;
 }
-#scrollnav.visible { top: 0; }
-
-#content ul.nav {  /*nav bar in footer*/
-  margin:10px 0 0 0;
-}
-
-ul.nav li {
-  display:inline;
-}
-ul.nav a {
-  padding: 3px 10px 3px 10px;
+nav#nav-main a {
+  display: block;
+  color: <?=($navlink)?>;
+  padding: 5px 10px;
   margin: 0;
   font-family: arial, helvetica, sans-serif;
-  color: <?=($navlink?$navlink:"LightSteelBlue")?>;
   font-weight: bold;
   white-space:nowrap;
 }
-ul.nav a:hover, ul#scrollnav a:hover {
-color: White;
+nav#nav-main li.menu-usersettings a span { font-weight:normal; white-space:wrap; }
+nav#nav-main a:hover {
+  background-color: <?=($navbghover)?>;
+  color: <?=($navlinkhover)?>;
+}
+
+/* TRIGGER (BUTTON) FOR MOBILE MENU */
+#nav-trigger {
+  display: none;
+  text-align: center;
+  background-color:<?=($navbg)?>;
+}
+#nav-trigger img {
+  float:left;
+  width:24px;
+  padding:3px;
+  background-color:White;
+  border-radius:7px;
+  margin:3px;
+}
+#nav-trigger span {
+  display: inline-block;
+  padding: 10px 30px;
+  color: <?=($navlink)?>;
+  cursor: pointer;
+  font-family: arial, helvetica, sans-serif;
+  font-size: 120%;
+  font-weight: bold;
+}
+#nav-trigger span:after {
+  display: inline-block;
+  box-sizing: border-box;
+  margin-left: 10px;
+  width: 20px;
+  height: 10px;
+  content: "";
+  border-left: solid 10px transparent;
+  border-top: solid 10px <?=($navlink)?>;
+  border-right: solid 10px transparent;
+}
+#nav-trigger.open { background-color: <?=($navbghover)?>; }
+#nav-trigger.open span { color:<?=($navlinkhover)?>; }
+#nav-trigger.open span:after {
+  border-left: solid 10px transparent;
+  border-top: none;
+  border-bottom: solid 10px <?=($navlinkhover)?>;
+  border-right: solid 10px transparent;
+}
+
+/* MOBILE MENU */
+nav#nav-mobile {
+  position: relative;
+  display: none;
+  margin-left:35px;
+}
+nav#nav-mobile ul {
+  display: none;
+  list-style-type: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  background-color: <?=($navbg?$navbg:"#583907")?>;
+}
+nav#nav-mobile li {
+  display: block;
+  padding: 5px 0;
+  margin: 0 5px;
+  border-bottom: solid 1px <?=($primarymedium)?>;
+}
+nav#nav-mobile li:last-child { border-bottom: none; }
+nav#nav-mobile a {
+  display: block;
+  color: <?=($navlink?$navlink:"LightSteelBlue")?>;
+  padding: 8px 0;
+  font-family: arial, helvetica, sans-serif;
+  font-size: 120%;
+  font-weight: bold;
+}
+nav#nav-mobile li.menu-usersettings a span { font-weight:normal; white-space:wrap; }
+nav#nav-mobile a:hover {
+  background-color: <?=($navbghover?$navbghover:"#583907")?>;
+  color: <?=($navlinkhover)?>;
+}
+
+@media screen and (max-width: 900px) {
+  body.full div#main-container {
+    border: none;
+    margin: 0;
+  }
+  body.full div#main-container { background-image:none; }
+  #nav-trigger {
+    display: block; }
+
+  nav#nav-main {
+    display: none; }
+
+  nav#nav-mobile {
+    display: block; }
+
+    ul.nav li.menu-user a { white-space:wrap; }
+}
+@media screen and (orientation:landscape) {
+  #nav-trigger span, nav#nav-mobile a { font-size: 100%; }
+  #nav-trigger img { width:20px; }
 }
 
 /* general purpose typography */
@@ -219,7 +305,10 @@ body.search span.radiogroup, body.search span.inputgroup {
   display:inline-block;
   vertical-align: middle;
 }
-body.search h2 span.radiogroup { border:1px solid <?=($h2?$h2:"SteelBlue")?>; }
+body.search h2 span.radiogroup {
+  border:1px solid <?=($h2?$h2:"SteelBlue")?>;
+  font-size: 0.8em;
+}
 body.search h2 span.radiogroup label { display:inline-block; margin:3px 5px; }
 body.search fieldset span.radiogroup label, body.search fieldset span.inputgroup label { display:block; }
 body.search fieldset span.plus {
@@ -230,18 +319,38 @@ body.search fieldset span.plus {
 body.search #showadvanced,body.search #search { display:block; }
 body.search #buttonsection {
   border: 1px solid Black;
-  padding: 4px 8px;
+  padding: 10px 8px;
   background: white;
   position: fixed;
   top: 100px;
   right: 18px;
   text-align: center;
 }
+body.search #buttonsection label.label-n-input { margin-right:0; }
 body.search #search {
-  margin:10px auto 5px auto;
+  margin:0 auto;
   padding:5px 40px 5px 40px;
   font-size: 1.5em;
   font-weight:bold;
+}
+@media screen and (max-width: 900px) {
+  body.search fieldset {
+    margin: 8px 0;
+  }
+  body.search div.criteria,body.search div.criteria select { line-height: 3em; }
+  body.search div.criteria span.radiogroup label { line-height: 1.5em; }
+  body.search #showadvanced {
+    display:inline-block;
+    margin-bottom: 10px;
+  }
+  body.search #buttonsection {
+    display:inline-block;
+    position: static;
+    margin-bottom: 10px;
+  }
+  body.search #search {
+    display:inline-block;
+  }
 }
 
 /* specific to list.php */

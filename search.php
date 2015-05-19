@@ -22,10 +22,6 @@ $psnum) : ""); ?></h1>
 <? if (isset($text)) echo "<h3 class=\"alert\">".urldecode($text)."</h3>"; ?>
 
 <form id="searchform" action="list.php?<?=$_GET['ps']?"?ps=".$_GET['ps']:""?>" method="<?=(isset($_POST['pid_list']) ? "post" : "get")?>">
-<div id="buttonsection">
-  <label class="label-n-input"><input type="checkbox" name="countonly" value="yes"><?=_("Count Only")?></label>
-  <button id="search" type="submit"><?=_("Search!")?></button>
-</div>
 <input type="hidden" id="preselected" name="preselected" value="<? echo $_POST['pid_list']; ?>">
 <h2 class="simpleonly"><? $txt=_("records"); printf(_("Search for %s that..."),$txt); ?></h2>
 <h2 class="advanced">
@@ -199,6 +195,10 @@ if ($_SESSION['admin'] == 1) {
 } //end of "if admin"
 ?>
 <button class="simpleonly" id="showadvanced" type="button"><? echo _("Advanced Search Options"); ?></button>
+<div id="buttonsection">
+  <label class="label-n-input"><input type="checkbox" name="countonly" value="yes"><?=_("Count Only")?></label>
+  <button id="search" type="submit"><?=_("Search!")?></button>
+</div>
 </form>
 
 <script type="text/JavaScript" src="js/jquery.js"></script>

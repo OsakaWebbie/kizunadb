@@ -33,29 +33,31 @@ function header2($nav=0) {
   if ($nav) {
     $navmarkup = "<ul class=\"nav\">\n";
     if ($_SESSION['hasdashboard']) {
-      $navmarkup .= "  <li class=\"menu-dashboard\"><a href=\"dashboard.php\" target=\"_top\">"._("Dashboard")."</a></li>\n";
+      $navmarkup .= "  <li><a href=\"dashboard.php\" target=\"_top\">"._("Dashboard")."</a></li>\n";
     }
-    $navmarkup .= "  <li class=\"menu-search\"><a href=\"search.php\" target=\"_top\">"._("Search")."</a></li>\n";
-    $navmarkup .= "  <li class=\"menu-edit\"><a href=\"edit.php\" target=\"_top\">"._("New Person/Org")."</a></li>\n";
-    $navmarkup .= "  <li class=\"menu-multiselect\"><a href=\"multiselect.php\" target=\"_top\">"._("Multi-Select")."</a></li>\n";
-    $navmarkup .= "  <li class=\"menu-contact\"><a href=\"contact.php\" target=\"_top\">"._("Contacts")."</a></li>\n";
+    $navmarkup .= "  <li><a href=\"search.php\" target=\"_top\">"._("Search")."</a></li>\n";
+    $navmarkup .= "  <li><a href=\"edit.php\" target=\"_top\">"._("New Person/Org")."</a></li>\n";
+    $navmarkup .= "  <li><a href=\"multiselect.php\" target=\"_top\">"._("Multi-Select")."</a></li>\n";
+    $navmarkup .= "  <li><a href=\"contact.php\" target=\"_top\">"._("Contacts")."</a></li>\n";
     if ($_SESSION['donations'] == "yes") {
-      $navmarkup .= "  <li class=\"menu-donations\"><a href=\"donations.php\" target=\"_top\">"._("Donations &amp; Pledges")."</a></li>\n";
+      $navmarkup .= "  <li><a href=\"donations.php\" target=\"_top\">"._("Donations &amp; Pledges")."</a></li>\n";
     }
-    $navmarkup .= "  <li class=\"menu-eventattend\"><a href=\"event_attend.php\" target=\"_top\">"._("Event Attendance")."</a></li>\n";
-    $navmarkup .= "  <li class=\"menu-birthday\"><a href=\"birthday.php\" target=\"_top\">"._("Birthdays")."</a></li>\n";
-    $navmarkup .= "  <li class=\"menu-maintenance\"><a href=\"maintenance.php\" target=\"_top\">"._("DB Maintenance")."</a></li>\n";
+    $navmarkup .= "  <li><a href=\"event_attend.php\" target=\"_top\">"._("Event Attendance")."</a></li>\n";
+    $navmarkup .= "  <li><a href=\"birthday.php\" target=\"_top\">"._("Birthdays")."</a></li>\n";
+    $navmarkup .= "  <li><a href=\"db_settings.php\" target=\"_top\">"._("DB Settings")."</a></li>\n";
     if ($_SESSION['admin'] == 1) {
-      $navmarkup .= "  <li class=\"menu-sqlquery\"><a href=\"sqlquery.php\" target=\"_top\">"._("(Freeform SQL)")."</a></li>\n";
+      $navmarkup .= "  <li><a href=\"sqlquery.php\" target=\"_top\">"._("(Freeform SQL)")."</a></li>\n";
     }
-    $navmarkup .= "  <li class=\"menu-account\"><a href=\"account.php\" target=\"_top\">"._("Account Settings")."<span style=\"font-weight:normal\"> (".$_SESSION['username'].")</span></a></li>\n";
-    $navmarkup .= "  <li class=\"menu-switchlang\"><a class=\"switchlang\" href=\"#\">".
+    $navmarkup .= "  <li><a class=\"switchlang\" href=\"#\">".
     ($_SESSION['lang']=='en_US'?'日本語':'English')."</a></li>\n";
-    $navmarkup .= "  <li class=\"menu-logout\"><a href=\"index.php?logout=1\" target=\"_top\">"._("Log Out")."</a></li>\n</ul>\n";
-    echo "<div id=\"scrollnav\">\n".$navmarkup."</div>\n";  //navbar that only appears when scrolled
+    $navmarkup .= "  <li class=\"menu-usersettings\"><a href=\"user_settings.php\" target=\"_top\">"._("User Settings")."<span> (".$_SESSION['username'].")</span></a></li>\n";
+    $navmarkup .= "  <li><a href=\"index.php?logout=1\" target=\"_top\">"._("Log Out")."</a></li>\n</ul>\n";
+    //echo "<div id=\"scrollnav\"></div>\n";  //only appears when scrolled
     
     echo "<div id=\"main-container\">\n";
-    echo $navmarkup;  //main navbar
+    echo "<nav id=\"nav-main\">\n$navmarkup</nav>\n";  //main nav for large screens
+    echo "<div id=\"nav-trigger\"><img src=\"graphics/kizunadb-logo.png\"><span>Menu</span></div>\n";  //button for narrow screens
+    echo "<nav id=\"nav-mobile\"></nav>\n";  //vertical menu for narrow screens
   }
   echo "<div id=\"content\">\n";
 }
@@ -89,6 +91,19 @@ $(function() {
       $('#scrollnav').removeClass('visible');
     }
   });
+
+  $("#nav-mobile").html($("#nav-main").html());
+  //$("#scrollnav").html($("#nav-main").html());
+  $("#nav-trigger").click(function(){
+    if ($("nav#nav-mobile ul").hasClass("expanded")) {
+      $("nav#nav-mobile ul.expanded").removeClass("expanded").slideUp(250);
+      $(this).removeClass("open");
+    } else {
+      $("nav#nav-mobile ul").addClass("expanded").slideDown(250);
+      $(this).addClass("open");
+    }
+  });
+
   $('.switchlang').click(function(event) {
     event.preventDefault();
     $.ajax({
