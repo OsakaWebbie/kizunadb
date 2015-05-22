@@ -45,9 +45,9 @@ div#content {
 table { background-color: White;}
 
 /* MAIN MENU (WIDE SCREENS) */
-nav#nav-main {
+#nav-main {
 }
-nav#nav-main ul {
+#nav-main ul, #scrollnav ul {
   background-color:<?=($navbg)?>;
   list-style-type: none;
   margin:10px 10px 0 58px;
@@ -56,10 +56,10 @@ nav#nav-main ul {
   text-align: center;
   min-height: 40px;
 }
-nav#nav-main li {
+#nav-main li, #scrollnav li {
   display: inline-block;
 }
-nav#nav-main a {
+#nav-main a, #scrollnav a {
   display: block;
   color: <?=($navlink)?>;
   padding: 5px 10px;
@@ -68,10 +68,33 @@ nav#nav-main a {
   font-weight: bold;
   white-space:nowrap;
 }
-nav#nav-main li.menu-usersettings a span { font-weight:normal; white-space:wrap; }
-nav#nav-main a:hover {
+#nav-main li.menu-usersettings a span { font-weight:normal; white-space:wrap; }
+#nav-main a:hover {
   background-color: <?=($navbghover)?>;
   color: <?=($navlinkhover)?>;
+}
+
+/* MENU THAT APPEARS WHEN SCROLLING (WIDE SCREENS) */
+#scrollnav {
+  position: fixed;
+  top: -100px;
+  transition: top 0.5s ease-in-out 0s;
+  width: 100%;
+  z-index: 9999;
+}
+#scrollnav ul {
+  background-color: <?=($navbg?rgba($navbg,"0.7"):rgba("#2C2C2C","0.7"))?>;
+  margin:0;
+  padding:5px;
+  -moz-border-radius: 0;
+  border-radius: 0;
+  min-height: 0;
+}
+#scrollnav ul a {
+  padding: 3px 10px 3px 10px;
+}
+#scrollnav.visible {
+  top: 0;
 }
 
 /* TRIGGER (BUTTON) FOR MOBILE MENU */
@@ -118,12 +141,12 @@ nav#nav-main a:hover {
 }
 
 /* MOBILE MENU */
-nav#nav-mobile {
+#nav-mobile {
   position: relative;
   display: none;
   margin-left:35px;
 }
-nav#nav-mobile ul {
+#nav-mobile ul {
   display: none;
   list-style-type: none;
   position: absolute;
@@ -134,7 +157,7 @@ nav#nav-mobile ul {
   text-align: center;
   background-color: <?=($navbg?$navbg:"#583907")?>;
 }
-nav#nav-mobile li {
+#nav-mobile li {
   display: block;
   padding: 5px 0;
   margin: 0 5px;
@@ -270,6 +293,7 @@ option.inactive, li.inactive { background-color:<?=($inactiveeventbg?$inactiveev
   #nav-trigger { display: block; }
   nav#nav-main { display: none; }
   nav#nav-mobile { display: block; }
+  #scrollnav { display: none; }
   ul.nav li.menu-user a { white-space:wrap; }
   h1#title { margin:0; }
 }

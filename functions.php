@@ -52,7 +52,7 @@ function header2($nav=0) {
     ($_SESSION['lang']=='en_US'?'日本語':'English')."</a></li>\n";
     $navmarkup .= "  <li class=\"menu-usersettings\"><a href=\"user_settings.php\" target=\"_top\">"._("User Settings")."<span> (".$_SESSION['username'].")</span></a></li>\n";
     $navmarkup .= "  <li><a href=\"index.php?logout=1\" target=\"_top\">"._("Log Out")."</a></li>\n</ul>\n";
-    //echo "<div id=\"scrollnav\"></div>\n";  //only appears when scrolled
+    echo "<nav id=\"scrollnav\"></nav>\n";  //only appears when scrolled
     
     echo "<div id=\"main-container\">\n";
     echo "<nav id=\"nav-main\">\n$navmarkup</nav>\n";  //main nav for large screens
@@ -93,7 +93,7 @@ $(function() {
   });
 
   $("#nav-mobile").html($("#nav-main").html());
-  //$("#scrollnav").html($("#nav-main").html());
+  $("#scrollnav").html($("#nav-main").html());
   $("#nav-trigger").click(function(){
     if ($("nav#nav-mobile ul").hasClass("expanded")) {
       $("nav#nav-mobile ul.expanded").removeClass("expanded").slideUp(250);
