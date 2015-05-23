@@ -72,7 +72,7 @@ function footer($nav=0) {
   if (isset($_SESSION['announcements'])) {
     echo "<style>\n  div.announcement { border:solid 2px lightgray; padding:5px; margin:5px; }\n";
     echo "  h4.announcedate,p.announcetext,body.dashboard h4.announcedate,body.dashboard p.announcetext { text-align:left; }\n</style>\n";
-    echo '<div id="announcements" title="'._("Announcements Since Your Last Login")."\">\n";
+    echo '<div id="announcements" title="'._("Recent Announcements")."\">\n";
     foreach($_SESSION['announcements'] as $announcement) {
       echo "  <div class=\"announcement\">\n";
       echo "    <h4 class=\"announcedate\">".substr($announcement->AnnounceTime,0,10)."</h4>\n";

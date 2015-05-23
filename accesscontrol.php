@@ -39,12 +39,15 @@ if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
       //GET ANNOUNCEMENTS IF ANY
       $result = sqlquery_checked("SELECT MAX(LoginTime) Last FROM login_log WHERE UserID='".$user->UserID."'");
       $row = mysql_fetch_object($result);
-      $lastlogin = $row->Last;
-      $result = sqlquery_checked("SELECT * from kizuna_common.announcement a WHERE AnnounceTime > '$lastlogin' ORDER BY AnnounceTime ASC");
-      if (mysql_numrows($result) > 0) {
-        $_SESSION['announcements'] = array();
-        while ($row = mysql_fetch_object($result)) {
-          $_SESSION['announcements'][] = $row;
+      if ($row->Last != NULL) { //make sure it's not a brand new user
+        $lastlogin = $row->Last;
+        $result = sqlquery_checked("SELECT * from kizuna_common.announcement WHERE DATEDIFF(NOW(),AnnounceTime)<180".
+        " AND AnnounceTime > '$lastlogin' ORDER BY AnnounceTime ASC");
+        if (mysql_numrows($result) > 0) {
+          $_SESSION['announcements'] = array();
+          while ($row = mysql_fetch_object($result)) {
+            $_SESSION['announcements'][] = $row;
+          }
         }
       }
 
