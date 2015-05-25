@@ -67,8 +67,8 @@ if ($newdonation) {
   }
   $sql = "SELECT * FROM donation WHERE PersonID=".$_POST['pid']." AND DonationTypeID=$dtype ".
     "AND DonationDate='".$_POST['date']."' AND PledgeID".($plid ? "=".$plid : " IS NULL").
-    " AND Amount= ".ereg_replace(",","",$_POST['amount']);
-  $result = sqlquery_checked($sql);
+    " AND Amount=".str_replace(",","",$_POST['amount']." AND Description='".h2d($_POST['desc'])."'");
+    $result = sqlquery_checked($sql);
   if (mysql_num_rows($result) == 0) {  // making sure this isn't an accidental repeat entry
     $sql = "INSERT INTO donation(PersonID,".(plid?"PledgeID,":"")."DonationTypeID, DonationDate,".
     "Amount, Description, Processed) VALUES(".$_POST['pid'].",".($plid?$plid.",":"").$dtype.",".
