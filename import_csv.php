@@ -25,6 +25,9 @@ if ($_GET['file']) { //file pre-placed on server
   echo "I would process an upload here.";
 }
 
+if ($_GET['encoding'] && $_GET['encoding']!="UTF-8") {
+  $csv = mb_convert_encoding($csv,"UTF-8",$_GET['encoding']);
+}
 $data = parse_csv($csv);
 if ($_GET['titlerow']) {
   $titlerow = array_shift($data);
@@ -36,42 +39,49 @@ if ($_GET['titlerow']) {
       $_GET[strtolower($title)] = $column;
     }
   }
-  //echo("<pre>Remarks Column Array:\n".print_r($remarkscolumnarray,TRUE)."</pre>");
+  echo("<pre>Remarks Column Array:\n".print_r($remarkscolumnarray,TRUE)."</pre>");
 } else {
   $remarkscolumnarray = explode(',',$_GET['remarks']);
 }
 
 if ($_GET['dryrun']) {
+  $num = $_GET['titlerow'] ? 1 : 0;
   echo "<style>\nth,td { border:1px solid gray; padding:2px; margin:0; }\n</style>\n";
   echo "<h3>Dry Run - all entries will be ".($_GET['org']?"organizations":"people")."</h3>\n<table><tr>";
   if (isset($_GET['phone']) || isset($_GET['fax']) || isset($_GET['address'])) {
-    echo "<th>PostalCode</th><th>Address</th><th>Phone</th><th>FAX</th>";
+    echo "<th>Row#</th><th>PostalCode</th><th>Address</th><th>Phone</th><th>FAX</th>";
   }
   echo "<th>Full Name</th><th>Furigana</th><th>Cell Phone</th><th>Email</th><th>Birthdate</th>".
   "<th>Sex</th><th>URL</th><th>Remarks</th></tr>\n";
 }
 
 foreach ($data as $record) {
-  if ($_GET['dryrun']) echo "<tr>";
-  //die ("<pre>".print_r($record,TRUE)."</pre>");
+  if ($_GET['dryrun']) {
+    echo "<tr>";
+    $num++;
+    echo "<td>$num</td>";
+    //die ("<pre>".print_r($record,TRUE)."</pre>");
+  }
   
   if (isset($_GET['fullname'])) {
     //echo "</table><pre>There's a FullName column</pre>\n";
     $fullname = $record[$_GET['fullname']];
-    mb_ereg("([^ 　]+)[ 　]*(.*)",$fullname,$namearray);  //break on ASCII space or multibyte space
-    //echo "<pre>Namearray:\n".print_r($namearray,TRUE)."</pre>";
-    if (!$namearray[2]) {  //no space in name so can't separate
-      $furigana = $fullname;
-    } else {
-      if (strlen($namearray[1]) > mb_strlen($namearray[1])+2) {  //multibyte name (more than just a couple European characters)
-        $furigana = $namearray[1]." ".$namearray[2];
+    if (!isset($_GET['furigana'])) {
+      mb_ereg("([^ 　]+)[ 　]*(.*)",$fullname,$namearray);  //break on ASCII space or multibyte space
+      //echo "<pre>Namearray:\n".print_r($namearray,TRUE)."</pre>";
+      if (!$namearray[2]) {  //no space in name so can't separate
+        $furigana = $fullname;
       } else {
-        $furigana = $namearray[2].", ".$namearray[1];
+        if (strlen($namearray[1]) > mb_strlen($namearray[1])+2) {  //multibyte name (more than just a couple European characters)
+          $furigana = $namearray[1]." ".$namearray[2];
+        } else {
+          $furigana = $namearray[2].", ".$namearray[1];
+        }
       }
+      //echo "<pre>Fullname:\n".print_r($fullname,TRUE)."</pre>";
+      //echo "<pre>Furigana:\n".print_r($furigana,TRUE)."</pre>";
+      //exit;
     }
-    //echo "<pre>Fullname:\n".print_r($fullname,TRUE)."</pre>";
-    //echo "<pre>Furigana:\n".print_r($furigana,TRUE)."</pre>";
-    //exit;
   } elseif (isset($_GET['firstname']) && isset($_GET['lastname'])) {
     //echo "</table><pre>There are first and last name columns</pre>\n";
     if ($record[$_GET['firstname']]!="" && $record[$_GET['lastname']]!="") {
@@ -107,12 +117,13 @@ foreach ($data as $record) {
       if (array_key_exists(1,$remarkscolumnsplit)) {
         $remarks .= $remarkscolumnsplit[1].': ';
       }
-      $remarks .= $record[$remarkscolumnsplit[0]];
+      $remarks .= trim($record[$remarkscolumnsplit[0]]);
     }
   }
 
   if ((isset($_GET['phone']) && $record[$_GET['phone']]!="") ||
   (isset($_GET['fax']) && $record[$_GET['fax']]!="") || (isset($_GET['address']) && $record[$_GET['address']]!="")) {
+    //we do need a household record
     if (isset($_GET['address'])) {
       if (isset($_GET['postalcode'])) {
         $postalcode = $record[$_GET['postalcode']];
@@ -161,7 +172,7 @@ foreach ($data as $record) {
     }
   } else {
     $householdid = 0;
-    //if ($_GET['dryrun']) echo "<td></td><td></td><td></td>";
+    if ($_GET['dryrun']) echo "<td></td><td></td><td></td><td></td>";
   }
 
   $sql = "INSERT INTO person (FullName,Furigana,Organization,Title,HouseholdID,CellPhone,".
