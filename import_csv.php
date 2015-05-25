@@ -66,7 +66,9 @@ foreach ($data as $record) {
   if (isset($_GET['fullname'])) {
     //echo "</table><pre>There's a FullName column</pre>\n";
     $fullname = $record[$_GET['fullname']];
-    if (!isset($_GET['furigana'])) {
+    if (isset($_GET['furigana'])) {
+      $furigana = $record[$_GET['furigana']];
+    } else {
       mb_ereg("([^ 　]+)[ 　]*(.*)",$fullname,$namearray);  //break on ASCII space or multibyte space
       //echo "<pre>Namearray:\n".print_r($namearray,TRUE)."</pre>";
       if (!$namearray[2]) {  //no space in name so can't separate
@@ -190,7 +192,18 @@ foreach ($data as $record) {
   }
   if ($_GET['dryrun']) echo "</tr>\n";
 }
-if ($_GET['dryrun']) echo "</table>\n";
+if ($_GET['dryrun']) {
+  echo "</table>\n";
+} else {
+  $sql = "UPDATE household h LEFT JOIN postalcode pc ON h.PostalCode=pc.PostalCode SET h.AddressComp=CONCAT(h.PostalCode,pc.
+Prefecture,pc.ShiKuCho,h.Address)";
+  sqlquery_checked($sql);
+  if ($_SESSION['romajiaddresses']=='yes') {
+    $sql = "UPDATE household h LEFT JOIN postalcode pc ON h.PostalCode=pc.PostalCode SET h.RomajiAddressComp=CONCAT(h.Addr
+ess,' ',pc.Romaji,' ',pc.PostalCode)";
+    sqlquery_checked($sql);
+  }
+}
 
 echo "<h2>In theory, all was completed.</h2>";
 
