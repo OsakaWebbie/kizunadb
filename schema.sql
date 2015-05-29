@@ -15,8 +15,6 @@ CREATE TABLE `addrprint` (
   `AddrHeight` smallint(6) NOT NULL default '0' COMMENT 'Will wrap text lines at this size',
   `AddrPositionX` smallint(6) NOT NULL default '0' COMMENT 'From paper left edge to start of address',
   `AddrPositionY` smallint(6) NOT NULL default '0' COMMENT 'From paper bottom edge to top of address block',
-  `AddrTopMargin` tinyint(4) unsigned NOT NULL default '0',
-  `AddrLeftMargin` tinyint(4) unsigned NOT NULL default '0',
   `NamePointSize` tinyint(4) unsigned NOT NULL default '0',
   `RetAddrContent` text NOT NULL COMMENT 'Any legal LaTeX commands',
   `NJAddrPointSize` tinyint(4) unsigned NOT NULL default '0',
@@ -143,7 +141,7 @@ CREATE TABLE `household` (
   `Address` varchar(200) NOT NULL default '',
   `AddressComp` varchar(400) NOT NULL default '' COMMENT 'Copy of CONCAT(PostalCode,Prefecture,ShiKuCho,Address)',
   `RomajiAddress` varchar(200) NOT NULL default '',
-  `RomajiAddressComp` varchar(400) NOT NULL default '' COMMENT 'Copy of CONCAT(RomajiAddress,'' '',Romaji,'' '',PostalCode)',
+  `RomajiAddressComp` varchar(400) NOT NULL default '' COMMENT 'Copy of CONCAT(RomajiAddress,space,Romaji,space,PostalCode)',
   `Phone` varchar(20) NOT NULL default '',
   `FAX` varchar(20) NOT NULL default '',
   `LabelName` varchar(100) NOT NULL default '',
@@ -160,14 +158,14 @@ CREATE TABLE `labelprint` (
   `PaperSize` varchar(10) NOT NULL default 'a4' COMMENT 'used in documentclass - values typically "a4" or "letter"',
   `NumRows` tinyint(4) unsigned NOT NULL default '0' COMMENT 'Number of labels down the page',
   `NumCols` tinyint(4) unsigned NOT NULL default '0' COMMENT 'Number of labels across the page',
-  `PageMarginTop` tinyint(4) unsigned NOT NULL default '0' COMMENT 'From paper top edge to top labels',
-  `PageMarginLeft` tinyint(4) unsigned NOT NULL default '0' COMMENT 'From paper left edge to left-most labels',
-  `LabelWidth` tinyint(4) NOT NULL default '0' COMMENT 'Width of a whole single label',
-  `LabelHeight` tinyint(4) NOT NULL default '0' COMMENT 'Height of a whole single label',
-  `GutterX` tinyint(4) NOT NULL default '0' COMMENT 'Space between labels, if any',
-  `GutterY` tinyint(4) NOT NULL default '0' COMMENT 'Space between labels, if any',
-  `AddrMarginLeft` tinyint(4) unsigned NOT NULL default '0' COMMENT 'From edge of label to text block',
-  `AddrMarginRight` tinyint(4) unsigned NOT NULL default '0' COMMENT 'From edge of label to text block (where text will wrap)',
+  `PageMarginTop` decimal(4,1) unsigned NOT NULL default '0.0' COMMENT 'From paper top edge to top labels',
+  `PageMarginLeft` decimal(4,1) unsigned NOT NULL default '0.0' COMMENT 'From paper left edge to left-most labels',
+  `LabelWidth` decimal(4,1) unsigned NOT NULL default '0.0' COMMENT 'Width of a whole single label',
+  `LabelHeight` decimal(4,1) unsigned NOT NULL default '0.0' COMMENT 'Height of a whole single label',
+  `GutterX` decimal(4,1) unsigned NOT NULL default '0.0' COMMENT 'Space between labels, if any',
+  `GutterY` decimal(4,1) unsigned NOT NULL default '0.0' COMMENT 'Space between labels, if any',
+  `AddrMarginLeft` decimal(4,1) unsigned NOT NULL default '0.0' COMMENT 'From edge of label to text block',
+  `AddrMarginRight` decimal(4,1) unsigned NOT NULL default '0.0' COMMENT 'From edge of label to text block (where text will wrap)',
   `AddrPointSize` tinyint(4) unsigned NOT NULL default '0' COMMENT 'Font size for Japan addresses',
   `NJAddrPointSize` tinyint(4) unsigned NOT NULL default '0' COMMENT 'Font size for non-Japan addresses',
   `NamePointSize` tinyint(4) unsigned NOT NULL default '0' COMMENT 'For Japan addresses, name can be larger',
@@ -293,7 +291,7 @@ CREATE TABLE `pledge` (
   `PersonID` int(11) unsigned NOT NULL default '0',
   `DonationTypeID` int(11) unsigned NOT NULL default '0',
   `StartDate` date NOT NULL default '0000-00-00',
-  `EndDate` date default NULL,
+  `EndDate` date NOT NULL default '0000-00-00',
   `Amount` decimal(10,2) NOT NULL default '0.00',
   `TimesPerYear` tinyint(4) NOT NULL default '12',
   `PledgeDesc` varchar(150) default '',
@@ -308,8 +306,7 @@ CREATE TABLE `postalcode` (
   `Prefecture` varchar(12) NOT NULL default '',
   `ShiKuCho` varchar(54) NOT NULL default '',
   `Romaji` varchar(200) NOT NULL default '',
-  PRIMARY KEY  (`PostalCode`),
-  KEY `Prefecture` (`Prefecture`)
+  PRIMARY KEY  (`PostalCode`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -327,10 +324,10 @@ CREATE TABLE `upload` (
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `uploadtype` (
-  `Extension` varchar(8) NOT NULL,
-  `MIME` varchar(100) NOT NULL,
-  `BinaryFile` tinyint(1) NOT NULL default '1',
+  `Extension` varchar(8) character set ascii NOT NULL,
+  `MIME` varchar(100) character set ascii NOT NULL,
+  `Binary` tinyint(1) NOT NULL default '1',
   `InBrowser` tinyint(1) NOT NULL default '0',
   PRIMARY KEY  (`Extension`)
-) ENGINE=MyISAM DEFAULT CHARSET=ascii;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
