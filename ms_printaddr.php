@@ -53,8 +53,18 @@ while ($row = mysql_fetch_object($result)) {
 }
 ?>
         </select></label><br>
-        <label class="label-n-input"><input type="checkbox" value="yes" name="nj_separate" checked><?=_("Sort by Japan/foreign")?></label>
-        <label class="label-n-input"><input type="checkbox" value="yes" name="po_stamp"><?=_("Print post office stamp")?></label>
+        <div style="display:inline-block;vertical-align:middle;margin:0 2em">
+          <label class="label-n-input"><input type="checkbox" value="yes" name="nj_separate" checked><?=_("Sort by Japan/foreign")?></label><br />
+          <label class="label-n-input"><input type="checkbox" value="yes" name="kanji_numbers" checked><?=_("Use kanji for numbers")?></label>
+        </div>
+        <div style="display:inline-block;vertical-align:middle;margin:0 2em">
+          <h4><?=_("Post office stamp:")?></h4>
+          <input type="radio" name="po_stamp" value="none" checked><?=_("None")?><br />
+          <input type="radio" name="po_stamp" value="betsunou"><?=_("Standard mail")?><br />
+          <input type="radio" name="po_stamp" value="yuumail_betsunou"><?=_("'Yuu-mail'")?><br />
+          <input type="radio" name="po_stamp" value="kounou"><?=_("Standard mail w/ contract")?><br />
+          <input type="radio" name="po_stamp" value="yuumail_kounou"><?=_("'Yuu-mail' w/ contract")?>
+        </div>
       </div>
       <input type="submit" name="submit" value="<?=_("Make PDF")?>" border="0">
     </form>

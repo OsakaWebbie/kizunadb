@@ -8,6 +8,8 @@ if (!$_POST['pid_list']) {
 if (!$_POST['addr_print_name']) {
   die("There was no layout type passed.");
 }
+//echo "<pre>".print_r($_GET,true)."\n\n\n".print_r($_POST,true)."</pre>";
+//exit;
 
 $sql = "SELECT * FROM addrprint WHERE AddrPrintName='".urldecode($_POST['addr_print_name'])."'";
 $result = sqlquery_checked($sql);
@@ -24,6 +26,9 @@ $result = sqlquery_checked($sql);
 
 $fileroot = "/tmp/addr".getmypid();
 
+/* PREPARE ARRAYS FOR ADDRESS NUMBERS */
+$number_array = array("0","1","2","3","4","5","6","7","8","9","-");
+$kanji_array = array("〇","一","二","三","四","五","六","七","八","九","の");
 /* PREPARE ARRAYS FOR SPECIAL CHARACTERS */
 $search_array = array("&","¡","£","©","®","¸","¿",
     "À","Á","Â","Ã","Ä","Å","Æ","Ç","È","É","Ê","Ë","Ì","Í","Î","Ï","Ñ",
@@ -54,6 +59,7 @@ echo "\xEF\xBB\xBF";  //UTF-8 Byte Order Mark
 \usepackage{textpos}
 \usepackage[dvipdfmx]{graphicx}
 \pagestyle{empty}
+\graphicspath {{<?=getcwd()?>/graphics/}}
 \begin{document}
 \setlength{\unitlength}{1mm}
 \noindent
@@ -85,11 +91,28 @@ while ($row = mysql_fetch_object($result)) {
 %% JAPAN PAGE %%
 \begin{picture}(<?=$print->PaperWidth?>,<?=$print->PaperHeight?>)(3,3)
 <?
-    if ($_POST['po_stamp']=='yes') {  //Post Office stamp requested
+    if ($_POST['po_stamp']!='none') {  //Post Office stamp requested
+      if ($_POST['po_stamp']=='betsunou') {
 ?>
 \put(<?=$print->PaperLeftMargin?>,<?=$print->PCTopMargin-18?>){%
-\includegraphics[bb=0 0 300 300,width=28.5mm]{/var/www/kizunadb/codebase/graphics/po_stamp.png}}
+\includegraphics[bb=0 0 520 452,width=30mm]{po_betsunou.png}}
 <?
+      } elseif ($_POST['po_stamp']=='yuumail_betsunou') {
+?>
+\put(<?=$print->PaperLeftMargin?>,<?=$print->PCTopMargin-22?>){%
+\includegraphics[bb=0 0 520 600,width=30mm]{po_yuumail_betsunou.png}}
+<?
+      } elseif ($_POST['po_stamp']=='kounou') {
+?>
+\put(<?=$print->PaperLeftMargin?>,<?=$print->PCTopMargin-18?>){%
+\includegraphics[bb=0 0 520 452,width=30mm]{po_kounou.png}}
+<?
+      } elseif ($_POST['po_stamp']=='yuumail_kounou') {
+?>
+\put(<?=$print->PaperLeftMargin?>,<?=$print->PCTopMargin-22?>){%
+\includegraphics[bb=0 0 520 600,width=30mm]{po_yuumail_kounou.png}}
+<?
+      }
     }  //end if Post Office stamp requested
 ?>
 <?
@@ -111,13 +134,17 @@ while ($row = mysql_fetch_object($result)) {
 \makebox(<?=$print->AddrPositionX-$print->PaperLeftMargin?>,<?=$print->AddrHeight?>)[rt]{%
 \begin{minipage}<t>[t]{<?=$print->AddrHeight?>mm}
 \fontsize{<?=$print->AddrPointSize?>}{<?=$print->AddrPointSize*1.2?>}\selectfont
-\hangindent=10mm
-<?=preg_replace("\r\n|\r|\n","\n\n\\hangindent=10mm\n",$row->Prefecture.$row->ShiKuCho.$row->Address)."\n"?>
+\hangindent=<?=($print->AddrHeight*0.4)?>mm
+\mbox{<?=$row->Prefecture.$row->ShiKuCho?>}
+\mbox{<?=preg_replace("\r\n|\r|\n","}\n\n\\hangindent=".($print->AddrHeight*0.4)."mm\n\\mbox{",
+($_POST['kanji_numbers']=='yes' ? str_replace($number_array,$kanji_array,$row->Address) : $row->Address))?>}
 
-\vspace{1ex}
+\vspace{1.5ex}
+\addtolength{\leftskip}{<?=($print->AddrHeight*0.1)?>mm}
 \fontsize{<?=$print->NamePointSize?>}{<?=$print->NamePointSize*1.2?>}\selectfont
-\hangindent=10mm
-<?=preg_replace("\r\n|\r|\n","\n\n\\hangindent=10mm\n",str_replace($search_array,$replace_array,$row->Name))."\n"?>
+\hangindent=<?=($print->AddrHeight*0.1)?>mm
+<?=preg_replace("\r\n|\r|\n","\n\n\\hangindent=".($print->AddrHeight*0.1)."mm\n",
+str_replace($search_array,$replace_array,$row->Name))?>
 \end{minipage}}}
 %% Return Address %%
 \put(<?=$print->PaperLeftMargin?>,<?=$print->PaperBottomMargin?>){%
