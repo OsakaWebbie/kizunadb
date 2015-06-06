@@ -69,7 +69,7 @@ pc_regexp = /^\d\d\d-\d\d\d\d$/;
 jpg_regexp = /\.[Jj][Pp][Gg]$/;
 bday_regexp = /^\d{1,2}-\d{1,2}$/;
 bdate_regexp = /^\d\d\d\d-\d{1,2}-\d{1,2}$/;
-phone_regexp = /^[\d-+\(\)Xx ]*$/;
+phone_regexp = /^[\d-+\(\)Xx\* ]*$/;
 
 $(document).ready(function(){
   var oldPostalCode = '';
@@ -306,7 +306,7 @@ function validate() {
   if (f.phone.value && !phone_regexp.test(f.phone.value)) {
     f.phone.value = fixchartypes(f.phone.value);
     if (f.phone.value && !phone_regexp.test(f.phone.value)) {
-      alert("<? echo _("Phone number can only include numbers, -, +, (), and X (for extensions)."); ?>");
+      alert("<? echo _("Phone number can only include numbers, -, +, (), X (extension), and * (for footnote - explain in Remarks)."); ?>");
       f.phone.select();
       return false;
     }
@@ -314,7 +314,7 @@ function validate() {
   if (f.fax.value && !phone_regexp.test(f.fax.value)) {
     f.fax.value = fixchartypes(f.fax.value);
     if (f.fax.value && !phone_regexp.test(f.fax.value)) {
-      alert("<? echo _("FAX number can only include numbers, -, +, (), and X (for extensions)."); ?>");
+      alert("<? echo _("FAX number can only include numbers, -, +, (), X (extension), and * (for footnote - explain in Remarks)."); ?>");
       f.fax.select();
       return false;
     }
