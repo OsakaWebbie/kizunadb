@@ -9,9 +9,9 @@ function print_header($title,$color,$nav) {
 
 function header1($title) {
 ?>
-<? //<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> ?>
+<? /* <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="<? echo $_SESSION['lang']; ?>" lang="<? echo $_SESSION['lang']; ?>" dir="ltr"> */ ?>
 <!DOCTYPE html>
-<? /* <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="<? echo $_SESSION['lang']; ?>" lang="<? echo $_SESSION['lang']; ?>" dir="ltr" > */ ?>
 <html>
 <head>
 <? //<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> ?>
@@ -249,6 +249,13 @@ function url2link($text) {
 
 function email2link($text) {
   return preg_replace('/\b([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4})\b/i', '<a href="mailto:$0">$0</a>', $text);
+}
+
+function showvar($varname) {
+  global $$varname;
+  echo "<h3>&#36;$varname</h3>\n<pre style=\"margin-left:2em\">";
+  var_dump($$varname);
+  echo '</pre>';
 }
 
 // Get client login credentials and connect to client database
