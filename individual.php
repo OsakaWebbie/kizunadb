@@ -443,9 +443,8 @@ echo "</div>";  //end of cats-out
 <? // FORM FOR ADDING ORGS ?>
 <form name="orgform" id="orgform" method="POST" action="<? echo ${PHP_SELF}."?pid=$pid"; ?>" onSubmit="return ValidateOrg()">
 <input type="hidden" name="pid" value="<? echo $pid; ?>" />
-<? echo _("Organization ID"); ?>: <input type="text" name="orgid" id="orgid" style="width:5em;ime-mode:disabled" value="" />
-<span id="orgname" style="color:darkred;font-weight:bold"></span><br />
-(<label for="orgsearchtxt"><? echo _("Search"); ?>: </label><input type="text" name="orgsearchtxt" id="orgsearchtxt" style="width:7em" value="">
+<label class="label-n-input"><? echo _("Organization ID"); ?>: <input type="text" name="orgid" id="orgid" style="width:5em;ime-mode:disabled" value="" /><span id="orgname" style="color:darkred;font-weight:bold"></span></label>
+(<label class="label-n-input"><? echo _("Search"); ?>: <input type="text" name="orgsearchtxt" id="orgsearchtxt" style="width:7em" value=""></label>
 <input type="button" value="<? echo _("Search")."/"._("Browse"); ?>"
 onclick="window.open('selectorg.php?txt='+encodeURIComponent(document.getElementById('orgsearchtxt').value),'selectorg','scrollbars=yes,width=800,height=600');">)
 <br />
@@ -598,28 +597,24 @@ if ($editcontact) {   // A CONTACT IN THE TABLE IS TO BE EDITED
   <form name="contactform" id="contactform" method="post" action="<? echo $PHP_SELF."?pid=$pid"; ?>#contacts" onSubmit="return ValidateContact()">
   <input type="hidden" name="pid" value="<? echo $pid; ?>" />
 <? if ($editcontact) echo "  <input type=\"hidden\" name=\"cid\" value=\"$cid\">\n"; ?>
-  <table><tr><td>
-    <? echo _("Date"); ?>: <input type="text" name="date" id="contactdate" style="width:6em"
-    value="<? echo ($editcontact ? $date : ""); ?>">
-<br />
+  <label class="label-n-input"><? echo _("Date"); ?>: <input type="text" name="date" id="contactdate" style="width:6em"
+    value="<? echo ($editcontact ? $date : ""); ?>"></label>
 <?
 $result = mysql_query("SELECT * FROM contacttype ORDER BY ContactType") or die("SQL Error ".mysql_errno().": ".mysql_error());
-echo "<span style=\"white-space:nowrap\">"._("Type").": <select size=\"1\" id=\"ctype\" name=\"ctype\"><option value=\"NULL\">"._("Select...")."</option>\n";
+echo "<label class=\"label-n-input\">"._("Type").": <select size=\"1\" id=\"ctype\" name=\"ctype\"><option value=\"NULL\">"._("Select...")."</option>\n";
 while ($row = mysql_fetch_object($result)) {
   echo "<option value=\"".$row->ContactTypeID."\"".(($editcontact && $row->ContactTypeID==$ctype)?
         " selected":"")." style=\"background-color:#".$row->BGColor."\">".$row->ContactType."</option>\n";
 }
-echo "</select></span>\n";
-
-if ($editcontact) {
-  echo "<br>\n<input type=\"submit\" value=\""._("Save Changes")."\" name=\"editcontactsave\">";
-} else {
-  echo "<br>\n<input type=\"submit\" value=\""._("Save Contact Entry")."\" name=\"newcontact\">";
-}
 ?>
-</td><td>
-<textarea id="contactdesc" name="desc" wrap="virtual">
-<? if ($editcontact) echo preg_replace("=<br */?>=i", "", $desc); ?></textarea></td></tr></table>
+</select></label>
+<textarea id="contactdesc" name="desc" class="expanding" wrap="virtual">
+<? if ($editcontact) echo preg_replace("=<br */?>=i", "", $desc); ?></textarea>
+<? if ($editcontact) {
+  echo "<input type=\"submit\" value=\""._("Save Changes")."\" name=\"editcontactsave\">";
+} else {
+  echo "<input type=\"submit\" value=\""._("Save Contact Entry")."\" name=\"newcontact\">";
+} ?>
 </form>
 
 <?
@@ -689,7 +684,7 @@ if ($_SESSION['donations'] == "yes") {   // covers both DONATIONS and PLEDGES se
   if ($editdonation) {   // A DONATION IN THE TABLE IS TO BE EDITED
     echo "<font color=\"red\"><b>Edit any fields you want to change, and Press 'SAVE' to save changes</b></font><br>";
   }
-  echo "<form name=\"donationform\" method=\"POST\" action=\"${PHP_SELF}?pid=$pid#donations\" onSubmit=\"return ValidateDonation()\">\n";
+  echo "<form name=\"donationform\" id=\"donationform\" method=\"POST\" action=\"${PHP_SELF}?pid=$pid#donations\" onSubmit=\"return ValidateDonation()\">\n";
   echo "<input type=\"hidden\" name=\"pid\" value=\"$pid\">\n";
   if ($editdonation) echo "<input type=\"hidden\" name=\"did\" value=\"$did\">\n";
   echo "<label class=\"label-n-input\">"._("Date").
@@ -852,7 +847,7 @@ $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
 echo "<h3 class=\"section-title\">"._("Event Attendance")."</h3>\n";
 
 // FORM FOR ADDING ATTENDANCE
-echo "<form name=\"attendform\" method=\"post\" action=\"${PHP_SELF}?pid=$pid#attendance\" onSubmit=\"return ValidateAttendance()\">\n";
+echo "<form name=\"attendform\" id=\"attendform\" method=\"post\" action=\"${PHP_SELF}?pid=$pid#attendance\" onSubmit=\"return ValidateAttendance()\">\n";
 echo "<input type=\"hidden\" name=\"pid\" value=\"$pid\" />\n";
 $result = sqlquery_checked("SELECT EventID,Event,UseTimes,IF(EventEndDate AND EventEndDate<CURDATE(),'inactive','active') AS Active FROM event ORDER BY Event");
 //echo "<div style=\"display:inline-block\">\n";
@@ -980,6 +975,7 @@ mysql_free_result($result);
 <script type="text/javascript" src="js/table2CSV.js"></script>
 <script type="text/javascript" src="js/jquery.columnmanager.pack.js"></script>
 <script type="text/javascript" src="js/jquery.clickmenu.js"></script>
+<script type="text/javascript" src="js/expanding.js"></script>
 
 <script type="text/JavaScript">
 $("#org_preselected").val("<? echo substr($org_pids,1); ?>");

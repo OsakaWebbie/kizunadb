@@ -419,13 +419,13 @@ body.individual div#cats-in {
   border-bottom: 2px solid <?=($sectionborder?$sectionborder:"DarkRed")?>;
 }
 body.individual div#orgsection form.msform { margin-top:15px; }
-body.individual form#orgform { margin:-5px auto 0 60px; padding:5px; border:1px solid LightGray; }
 body.individual tr.leader { background-color:<?=($leaderbg?$leaderbg:"#FFF0C0")?>; }
 body.individual div.section h3 { margin:5px 0 0 0; }
-body.individual form#contactform { margin:-5px 0 5px 60px; }
-body.individual form#contactform table td { padding:0 12px 8px 0; }
-body.individual form#contactform textarea#contactdesc { height:4em; width:400px; }
-body.individual form#attendform { margin:3px 0 10px 0; }
+body.individual form#orgform,
+body.individual form#contactform,
+body.individual form#donationform,
+body.individual form#attendform { margin:0 0 5px 30px; padding:5px; border:1px solid LightGray; }
+body.individual form#contactform textarea { height:2em; }
 body.individual td.categories, body.individual td.events { white-space:nowrap; }
 body.individual #dayofweek, body.individual #attend-apply { display:block; }
 body.individual #dayofweek label, body.individual #attend-apply label { margin-right:0.5em; }
