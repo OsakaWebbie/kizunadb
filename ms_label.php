@@ -53,7 +53,7 @@ while ($row = mysql_fetch_object($result)) {
 }
 ?>
         </select></label><br>
-        <label class="label-n-input"><input type="checkbox" value="yes" name="wrap_pc"><?=_("Japan postal code on its own line")?></label><br>
+        <label class="label-n-input"><input type="checkbox" value="yes" name="wrap_pc" checked><?=_("Japan postal code on its own line")?></label><br>
         <label class="label-n-input"><input type="checkbox" value="yes" name="nj_separate" checked><?=_("Sort by Japan/foreign")?></label>
       </div>
       <input type="submit" name="submit" value="<?=_("Make PDF")?>" border="0">
