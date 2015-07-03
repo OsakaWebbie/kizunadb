@@ -74,7 +74,7 @@ $(document).ready(function(){
   $("#catid").change(function(){
     if ($("#catid").val() == "new") {
       $("#category").val("");
-      $("#catorgs,#catpeople").prop("checked", true);
+      $("#usefor").val("");
       $("#cat_del").prop('disabled', true);
     } else {
       showSpinner($('#catid'));
@@ -83,8 +83,8 @@ $(document).ready(function(){
         if (data.alert === "NOSESSION") {
           alert("<? echo _("Your login has timed out - please refresh the page."); ?>");
         } else {
-          $("#catorgs,#catpeople").prop("checked", false);
           $('#catform').populate(data, {resetForm:false});
+          $('#usefor').val(data.usefor); // I don't know why populate didn't take care of this
           $("#cat_del").prop('disabled', false);
         }
       });
@@ -185,12 +185,12 @@ $(document).ready(function(){
 function validate(form) {
   switch(form) {
   case "cat":
-    if (document.catform.cat_text.value == "") {
+    if (document.catform.category.value == "") {
       alert("<? echo _("Category name cannot be blank."); ?>");
       return false;
     }
-    if (!document.catform.orgs.checked && !document.catform.people.checked) {
-      alert("<? echo _("You must check at least one 'Use For' checkbox."); ?>");
+    if (document.catform.usefor.value == "") {
+      alert("<? echo _("Please choose an application."); ?>");
       return false;
     }
     break;
@@ -280,8 +280,14 @@ while ($row = mysql_fetch_object($result))  echo "    <option value=\"".$row->Ca
   </select>
   <label class="label-n-input"><? echo _("Category Name"); ?>: <input type="text"
   id="category" name="category" style="width:20em" maxlength="45"></label>
-  <label class="label-n-input"><input type="checkbox" id="catorgs" name="catorgs" value="checkboxValue" checked><? echo _("Use for Organizations"); ?></label>
-  <label class="label-n-input"><input type="checkbox" id="catpeople" name="catpeople" value="checkboxValue" checked><? echo _("Use for Individuals"); ?></label>
+  <label class="label-n-input"><? echo _("Application"); ?>:
+    <select id="usefor" name="usefor" size="1">
+      <option value=""><? echo _("Select..."); ?></option>
+      <option value="P"><? echo _("Individuals only"); ?></option>
+      <option value="O"><? echo _("Organizations only"); ?></option>
+      <option value="OP"><? echo _("All records"); ?></option>
+    </select>
+  </label>
   <div class="submits"><input type="submit" id="cat_add_upd" name="cat_add_upd" value="<? echo _("Add or Rename"); ?>">
   <input type="submit" id="cat_del" name="cat_del" value="<? echo _("Delete"); ?>" disabled></div>
 </fieldset></form>

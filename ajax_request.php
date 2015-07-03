@@ -53,9 +53,7 @@ case "Category":
     $result = sqlquery_checked("SELECT * FROM category WHERE CategoryID=".$_REQUEST['catid']);
     if (mysql_numrows($result)>0) {
       $row = mysql_fetch_object($result);
-      $arr = array("catid" => $row->CategoryID, "category" => $row->Category);
-      $arr["catorgs"] = (stripos($row->UseFor,"O") !== FALSE) ? "checkboxValue" : "";
-      $arr["catpeople"] = (stripos($row->UseFor,"P") !== FALSE) ? "checkboxValue" : "";
+      $arr = array("catid" => $row->CategoryID, "category" => $row->Category, "usefor" => $row->UseFor);
       die (json_encode($arr));
     } else {
       die(json_encode(array("alert" => "Record not found.")));

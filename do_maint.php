@@ -23,12 +23,11 @@ if ($_POST['pc_upd']) {
   
 // ********** CATEGORY **********
 } elseif ($_POST['cat_add_upd']) {
-  $usefor = ($_POST['catorgs'] ? "O" : "").($_POST['catpeople'] ? "P" : "");
   if ($_POST['catid']=="new") {
-    sqlquery_checked("INSERT INTO category (Category,UseFor) VALUES ('".h2d($_POST['category'])."','$usefor')");
+    sqlquery_checked("INSERT INTO category (Category,UseFor) VALUES ('".h2d($_POST['category'])."','".$_POST['usefor']."')");
     if (mysql_affected_rows() == 1) $message = _("Category successfully added.");
   } else {
-    sqlquery_checked("UPDATE category SET Category='".h2d($_POST['category'])."',UseFor='$usefor' WHERE CategoryID=".$_POST['catid']);
+    sqlquery_checked("UPDATE category SET Category='".h2d($_POST['category'])."',UseFor='".$_POST['usefor']."' WHERE CategoryID=".$_POST['catid']);
     if (mysql_affected_rows() == 1) $message = _("Category successfully updated.");
   }
   
