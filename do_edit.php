@@ -77,15 +77,15 @@ if ($updateper == "1") {
 
   if ($pid) {
     $sql = "UPDATE person SET FullName='".h2d($fullname)."',Furigana='".h2d($furigana)."',Sex='$sex',HouseholdID='$householdid',".
-    "Relation='$relation',Title='$title',CellPhone='$cellphone',Email='$email',Birthdate='$birthdate',".
-    "Country='$country',URL='$URL',Organization='$organization',Remarks='".h2d($remarks)."',UpdDate=CURDATE() ".
+    "Relation='$relation',Title='".h2d($title)."',CellPhone='".h2d($cellphone)."',Email='".h2d($email)."',Birthdate='$birthdate',".
+    "Country='".h2d($country)."',URL='".h2d($URL)."',Organization='$organization',Remarks='".h2d($remarks)."',UpdDate=CURDATE() ".
     "WHERE PersonID=$pid LIMIT 1";
     $result = sqlquery_checked($sql);
     if (mysql_affected_rows() > 0) echo "The person record was updated<br>\n";
   } else {
     $sql = "INSERT INTO person (FullName,Furigana,Sex,HouseholdID,Relation,Title,CellPhone,".
     "Email,Birthdate,Country,URL,Organization,Remarks,UpdDate) VALUES ('".h2d($fullname)."','".h2d($furigana)."','$sex',".
-    "'$householdid','$relation','$title','$cellphone','$email','$birthdate',".
+    "'$householdid','$relation','".h2d($title)."','".h2d($cellphone)."','".h2d($email)."','$birthdate',".
     "'$country','$URL','$organization','".h2d($remarks)."',CURDATE())";
     if (!$result = mysql_query($sql)) {
       echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b><br>($sql)");
