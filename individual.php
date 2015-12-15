@@ -315,7 +315,7 @@ if ($per->Email) echo "<div id=\"email\">"._("Email").": ".email2link($per->Emai
 if ($per->CellPhone) echo "<div id=\"cellphone\">"._("Cell Phone").": ".$per->CellPhone."</div>\n";
 if ($per->Country) echo "<div id=\"country\">"._("Home Country").": ".$per->Country."</div>\n";
 if ($per->URL) echo "<div id=\"URL\">"._("URL").": ".url2link($per->URL)."</div>\n";
-if ($_SESSION['admin']==1) echo "<div class=\"upddate\">("._("Ind. info or Remarks last edited")." ".$per->UpdDate.")</div>\n";
+echo "<div class=\"upddate\">("._("Ind. info or Remarks last edited")." ".$per->UpdDate.")</div>\n";
 
 echo "</div>";
 
@@ -361,7 +361,7 @@ if ($per->HouseholdID) {    // There is a household record, so let's get its dat
       echo "<div id=\"address\">("._("No address listed.").")<br />";
       echo d2h($house->LabelName)."</div>";
     }
-    if ($_SESSION['admin']==1) echo "<div class=\"upddate\">("._("Household info last edited")." ".$house->UpdDate.")</div>\n";
+    echo "<div class=\"upddate\">("._("Household info last edited")." ".$house->UpdDate.")</div>\n";
     echo "</div>\n"; //end of address-block
     // *** get names of others in household, print it along with relation
   }
@@ -1039,7 +1039,9 @@ if($_SESSION['lang']=="ja_JP") {
 
   $("#ctype").change(function(){  //insert template text in Contact description when applicable ContactType is selected
     if (!$.trim($("#contactdesc").val())) {
-      $("#contactdesc").load("ajax_request.php",{'req':'ContactTemplate','ctid':$("#ctype").val()});
+      $("#contactdesc").load("ajax_request.php",{'req':'ContactTemplate','ctid':$("#ctype").val()}, function() {
+        $(this).change();
+      });
     }
   });
 
