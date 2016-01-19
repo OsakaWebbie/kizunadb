@@ -47,7 +47,7 @@ $num_households = mysql_result($result,0);
       <div style="display:inline-block;vertical-align:middle">
         <label class="label-n-input"><?=_("Envelope/Postcard Format")?>: <select name="addr_print_name" size="1">
 <?
-$result = sqlquery_checked("SELECT AddrPrintName FROM addrprint ORDER BY AddrPrintName");
+$result = sqlquery_checked("SELECT AddrPrintName FROM addrprint ORDER BY ListOrder,AddrPrintName");
 while ($row = mysql_fetch_object($result)) {
   echo  "                  <option value=\"".$row->AddrPrintName."\">".$row->AddrPrintName."</option>\n";
 }

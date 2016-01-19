@@ -8,8 +8,6 @@ if (!$_POST['pid_list']) {
 if (!$_POST['addr_print_name']) {
   die("There was no layout type passed.");
 }
-//echo "<pre>".print_r($_GET,true)."\n\n\n".print_r($_POST,true)."</pre>";
-//exit;
 
 $sql = "SELECT * FROM addrprint WHERE AddrPrintName='".urldecode($_POST['addr_print_name'])."'";
 $result = sqlquery_checked($sql);
@@ -128,24 +126,57 @@ while ($row = mysql_fetch_object($result)) {
 \put(<?=$print->PCLeftMargin+$print->PCExtraSpace+$print->PCSpacing*6?>,<?=$print->PCTopMargin?>){<?=$row->PostalCode[7]?>}
 <?
     }  //end if PostalCode is complete
+    
+    if ($print->Tategaki==1) {
 ?>
-%% Address and Name %%
-\put(<?=$print->PaperLeftMargin?>,<?=$print->AddrPositionY-$print->AddrHeight?>){%
-\makebox(<?=$print->AddrPositionX-$print->PaperLeftMargin?>,<?=$print->AddrHeight?>)[rt]{%
-\begin{minipage}<t>[t]{<?=$print->AddrHeight?>mm}
+%% Address %%
+\put(<?=$print->PaperLeftMargin?>,<?=$print->AddrPositionY-$print->AddrLineLength?>){%
+\makebox(<?=$print->AddrPositionX-$print->PaperLeftMargin?>,<?=$print->AddrLineLength?>)[rt]{%
+\begin{minipage}<t>[t]{<?=$print->AddrLineLength?>mm}
 \fontsize{<?=$print->AddrPointSize?>}{<?=$print->AddrPointSize*1.2?>}\selectfont
-\hangindent=<?=($print->AddrHeight*0.4)?>mm
+\hangindent=<?=($print->AddrLineLength*0.4)?>mm
 \mbox{<?=$row->Prefecture.$row->ShiKuCho?>}
-\mbox{<?=preg_replace("\r\n|\r|\n","}\n\n\\hangindent=".($print->AddrHeight*0.4)."mm\n\\mbox{",
+\mbox{<?=preg_replace("\r\n|\r|\n","}\n\n\\hangindent=".($print->AddrLineLength*0.4)."mm\n\\mbox{",
 ($_POST['kanji_numbers']=='yes' ? str_replace($number_array,$kanji_array,$row->Address) : $row->Address))?>}
+\end{minipage}}}
 
-\vspace{1.5ex}
-\addtolength{\leftskip}{<?=($print->AddrHeight*0.1)?>mm}
+%% Name %%
+\put(<?=$print->NamePositionX-($print->NameWidth/2)?>,<?=$print->NamePositionY-$print->NameLineLength?>){%
+\makebox(<?=$print->NameWidth?>,<?=$print->NameLineLength?>)[ct]{%
+\begin{minipage}<t>[t]{<?=$print->NameLineLength?>mm}
 \fontsize{<?=$print->NamePointSize?>}{<?=$print->NamePointSize*1.2?>}\selectfont
-\hangindent=<?=($print->AddrHeight*0.1)?>mm
-<?=preg_replace("\r\n|\r|\n","\n\n\\hangindent=".($print->AddrHeight*0.1)."mm\n",
+\hangindent=<?=($print->NameLineLength*0.1)?>mm
+<?=preg_replace("\r\n|\r|\n","\n\n\\hangindent=".($print->NameLineLength*0.1)."mm\n",
 str_replace($search_array,$replace_array,$row->Name))?>
 \end{minipage}}}
+<?
+    } else { //yokogaki
+      $addrheight = $print->AddrPositionY-$print->NamePositionX;
+      $nameheight = $print->PaperHeight/2; //arbitrary, just because I need a number
+?>
+%% Address %%
+\put(<?=$print->AddrPositionX?>,<?=$print->AddrPositionY-$addrheight?>){%
+\makebox(<?=$print->AddrLineLength?>,<?=$addrheight?>)[rt]{%
+\begin{minipage}<y>[t]{<?=$print->AddrLineLength?>mm}
+\fontsize{<?=$print->AddrPointSize?>}{<?=$print->AddrPointSize*1.2?>}\selectfont
+\hangindent=<?=($print->AddrLineLength*0.4)?>mm
+\mbox{<?=$row->Prefecture.$row->ShiKuCho?>}
+\mbox{<?=preg_replace("\r\n|\r|\n","}\n\n\\hangindent=".($print->AddrLineLength*0.4)."mm\n\\mbox{",
+($_POST['kanji_numbers']=='yes' ? str_replace($number_array,$kanji_array,$row->Address) : $row->Address))?>}
+\end{minipage}}}
+
+%% Name %%
+\put(<?=$print->NamePositionX?>,<?=$print->NamePositionY-$nameheight?>){%
+\makebox(<?=$print->NameLineLength?>,<?=$nameheight?>)[rt]{%
+\begin{minipage}<y>[t]{<?=$print->NameLineLength?>mm}
+\fontsize{<?=$print->NamePointSize?>}{<?=$print->NamePointSize*1.2?>}\selectfont
+\hangindent=<?=($print->NameLineLength*0.1)?>mm
+<?=preg_replace("\r\n|\r|\n","\n\n\\hangindent=".($print->NameLineLength*0.1)."mm\n",
+str_replace($search_array,$replace_array,$row->Name))?>
+\end{minipage}}}
+<?
+    }
+?>
 %% Return Address %%
 \put(<?=$print->PaperLeftMargin?>,<?=$print->PaperBottomMargin?>){%
 <?=$print->RetAddrContent?>}
