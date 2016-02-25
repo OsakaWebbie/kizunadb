@@ -76,98 +76,42 @@ if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="/kizunaicon.ico">
   <title>KizunaDB Login</title>
+<?php
+$hostarray = explode(".",$_SERVER['HTTP_HOST']);
+$_SESSION['client'] = $hostarray[0];
+?>
+  <link rel="stylesheet" type="text/css" href="style.php?page=<?=$_SERVER['PHP_SELF']?>&jquery=1" />
   <style>
-    body.full {
-      text-align:center;
-      background-color: DarkGrey;
-    }
-    body.full div#main-container {
-      background:White url('graphics/kizunadb-logo.png') no-repeat 3px 3px;
-      text-align:left;
-      width:auto;
-      border: 1px solid Black;
-      margin: 10px;
-    }
-    div#content {
-      margin:0 10px 10px 10px;
-      background-color: White;
-      text-align: center;
-      padding-top: 20px;
-    }
-    nav#nav-main div {
-      background-color:rgb(88,57,7);
-      margin:10px 10px 0 58px;
-      border-radius: 15px;
-      text-align: center;
-      min-height: 40px;
-      color: LightSteelBlue;
-      padding: 5px 10px;
-      font-family: arial, helvetica, sans-serif;
-      font-size: 160%;
-      font-weight: bold;
-    }
-    #nav-trigger {
-      display: none;
-      text-align: center;
-      background-color:rgb(88,57,7);
-    }
-    #nav-trigger img {
-      float:left;
-      width:24px;
-      padding:3px;
-      background-color:White;
-      border-radius:7px;
-      margin:3px;
-    }
-    #nav-trigger span {
-      display: inline-block;
-      padding: 10px 30px;
-      color: LightSteelBlue;
-      cursor: pointer;
-      font-family: arial, helvetica, sans-serif;
-      font-size: 140%;
-      font-weight: bold;
+    #nav-main ul {
+      padding-top:6px;
     }
     form label {
       display: block;
-      font-family: arial, helvetica, sans-serif;
       font-size: 110%;
+      line-height: 1.5em;
       font-weight: bold;
       margin-bottom: 15px;
     }
     form input {
-      font-family: arial, helvetica, sans-serif;
       font-weight: bold;
-      line-height: 1.5em;
     }
     #submit {
       padding:5px 20px;
       margin-bottom:10px;
+      font-size:18px;
     }
-    @media screen and (max-width: 900px) {
-      body.full div#main-container {
-        border: none;
-        margin: 0;
-      }
-      body.full div#main-container { background-image:none; }
-      #nav-trigger { display: block; }
-      nav#nav-main { display: none; }
-    }
-    @media screen and (orientation:landscape) {
-      #nav-trigger span, nav#nav-mobile a { font-size: 100%; }
-      #nav-trigger img { width:20px; }
-    }
+    #nav-trigger span::after { display:none; }
   </style>
   <script type="text/JavaScript" src="js/jquery.js"></script>
 </head>
 <body class="accesscontrol full" onload="document.lform.usr.focus();">
   <div id="main-container">
     <nav id="nav-main">
-      <div>Login Required</div>
+      <ul class="nav"><li><a href="#" style="font-size: 24px; font-weight:bold; text-decoration:none; cursor:default">Login Required</a></li></ul>
     </nav>
-    <div id="nav-trigger"><img src="graphics/kizunadb-logo.png" alt="Logo"><span>Login Required</span>
+    <div id="nav-trigger"><img src="graphics/kizunadb-logo.png" alt="Logo"><span style="cursor:default; font-size:24px">Login Required</span>
     </div>
-    <div id="content">
+    <div id="content" style="text-align:center; padding:20px 5px;">
 <? if (isset($message)) echo $message; ?>
       <form name="lform" method="post" action="<? echo $_SERVER['REQUEST_URI']; ?>">
         <label>User ID: <input type="text" name="usr"></label>
