@@ -992,9 +992,7 @@ if($_SESSION['lang']=="ja_JP") {
   echo "  $.timepicker.setDefaults( $.timepicker.regional[\"ja\"] );\n";
 }
 ?>
-  $("#orgstartdate").datepicker({ dateFormat: 'yy-mm-dd' });
-  $("#orgenddate").datepicker({ dateFormat: 'yy-mm-dd' });
-  $("#contactdate").datepicker({ dateFormat: 'yy-mm-dd', maxDate: 0 });
+  $("#contactdate").datepicker({ dateFormat: 'yy-mm-dd' });
   if ($("#contactdate").val()=="") $("#contactdate").datepicker('setDate', new Date());
   $("#donationdate").datepicker({ dateFormat: 'yy-mm-dd', maxDate: 0 });
   if ($("#contactdate").val()=="") $("#donationdate").datepicker('setDate', new Date());
