@@ -4,30 +4,6 @@ include("accesscontrol.php");
 header1("");
 ?>
 <link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
-<script type="text/JavaScript" src="js/jquery.js"></script>
-<script type="text/JavaScript" src="js/jquery-ui.js"></script>
-<script type="text/JavaScript">
-$(document).ready(function(){
-  $(document).ajaxError(function(e, xhr, settings, exception) {
-    alert('Error calling ' + settings.url + ': ' + exception);
-  }); 
-<?
-if($_SESSION['lang']=="ja_JP") echo "  $.datepicker.setDefaults( $.datepicker.regional[\"ja\"] );\n";
-?>
-  $("#cdate").datepicker({ dateFormat: 'yy-mm-dd', maxDate: 0 });
-  if ($("#cdate").val()=="") $("#cdate").datepicker('setDate', new Date());
-});
-
-function validate() {
-//Make sure a contact type is selected
-  if (document.contactform.ctid.value == "") {
-    alert("<?=_("Please select a Contact Type.")?>");
-    return false;
-  } else {
-    return true;
-  }
-}
-</script>
 <?
 header2(0);
 
@@ -110,5 +86,39 @@ while ($row = mysql_fetch_object($result)) {
     <label class="label-n-input"><?=_("Description")?>: <textarea id="desc" name="desc" style="height:4em;width:30em"></textarea></label>
     <input type="submit" name="save_contact" value="<?=_("Save Contact Info")?>">
   </form>
+
+<script type="text/JavaScript" src="js/jquery.js"></script>
+<script type="text/JavaScript" src="js/jquery-ui.js"></script>
+<script type="text/JavaScript">
+$(document).ready(function(){
+  $(document).ajaxError(function(e, xhr, settings, exception) {
+    alert('Error calling ' + settings.url + ': ' + exception);
+  }); 
+<?
+if($_SESSION['lang']=="ja_JP") echo "  $.datepicker.setDefaults( $.datepicker.regional[\"ja\"] );\n";
+?>
+  $("#cdate").datepicker({ dateFormat: 'yy-mm-dd' });
+  if ($("#cdate").val()=="") $("#cdate").datepicker('setDate', new Date());
+
+  $("#ctid").change(function(){  //insert template text in Contact description when applicable ContactType is selected
+    if (!$.trim($("#desc").val())) {
+      $("#desc").load("ajax_request.php",{'req':'ContactTemplate','ctid':$("#ctid").val()}, function() {
+        $(this).change();
+      });
+    }
+  });
+
+});
+
+function validate() {
+//Make sure a contact type is selected
+  if (document.contactform.ctid.value == "") {
+    alert("<?=_("Please select a Contact Type.")?>");
+    return false;
+  } else {
+    return true;
+  }
+}
+</script>
 <? footer(0);
 ?>
