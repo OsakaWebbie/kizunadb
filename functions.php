@@ -83,54 +83,55 @@ function footer($nav=0) {
   } //end if announcements
 ?>
 <script type="text/javascript">
-$(function() {
-  $(window).scroll(function() {
-    if ($(this).scrollTop() > 150 && !$('#scrollnav').hasClass('visible')) {
-      $('#scrollnav').addClass('visible');
-    } else if ($(this).scrollTop() <= 150 && $('#scrollnav').hasClass('visible')) {
-      $('#scrollnav').removeClass('visible');
-    }
-  });
-
-  $("#nav-mobile").html($("#nav-main").html());
-  $("#scrollnav").html($("#nav-main").html());
-  $("#nav-trigger").click(function(){
-    if ($("nav#nav-mobile ul").hasClass("expanded")) {
-      $("nav#nav-mobile ul.expanded").removeClass("expanded").slideUp(250);
-      $(this).removeClass("open");
-    } else {
-      $("nav#nav-mobile ul").addClass("expanded").slideDown(250);
-      $(this).addClass("open");
-    }
-  });
-
-  $('.switchlang').click(function(event) {
-    event.preventDefault();
-    $.ajax({
-      type: "POST",
-      url: "ajax_actions.php?action=SwitchLang&lang=<? echo $_SESSION['lang']=='en_US'?'ja_JP':'en_US'; ?>",
-      success: function() {
-        location.reload(true);
+if (window.jQuery) { //really simple files that don't have jQuery don't need this stuff either
+  $(function() {
+    $(window).scroll(function() {
+      if ($(this).scrollTop() > 150 && !$('#scrollnav').hasClass('visible')) {
+        $('#scrollnav').addClass('visible');
+      } else if ($(this).scrollTop() <= 150 && $('#scrollnav').hasClass('visible')) {
+        $('#scrollnav').removeClass('visible');
       }
     });
-  });
-<? if (isset($_SESSION['announcements'])) { ?>
-  $('#announcements').dialog({
-    modal: true,
-    buttons: [{
-      text: "<? echo _("OK, I got it!"); ?>",
-      click: function() {
-        $( this ).dialog( "close" );
+
+    $("#nav-mobile").html($("#nav-main").html());
+    $("#scrollnav").html($("#nav-main").html());
+    $("#nav-trigger").click(function(){
+      if ($("nav#nav-mobile ul").hasClass("expanded")) {
+        $("nav#nav-mobile ul.expanded").removeClass("expanded").slideUp(250);
+        $(this).removeClass("open");
+      } else {
+        $("nav#nav-mobile ul").addClass("expanded").slideDown(250);
+        $(this).addClass("open");
       }
-    }],
-    width: 460
-  });
+    });
+
+    $('.switchlang').click(function(event) {
+      event.preventDefault();
+      $.ajax({
+        type: "POST",
+        url: "ajax_actions.php?action=SwitchLang&lang=<? echo $_SESSION['lang']=='en_US'?'ja_JP':'en_US'; ?>",
+        success: function() {
+          location.reload(true);
+        }
+      });
+    });
+<? if (isset($_SESSION['announcements'])) { ?>
+    $('#announcements').dialog({
+      modal: true,
+      buttons: [{
+        text: "<? echo _("OK, I got it!"); ?>",
+        click: function() {
+          $( this ).dialog( "close" );
+        }
+      }],
+      width: 460
+    });
 <?
   unset($_SESSION['announcements']); //now that it's shown, get rid of it
 }
 ?>
-});
-
+  });
+}
 </script>
 </body>
 </html>
