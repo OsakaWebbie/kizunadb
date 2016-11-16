@@ -122,6 +122,8 @@ while ($cat = mysql_fetch_object($result)) {
                 onclick="document.sform.action='ms_contact.php';">
             <input type="submit" name="ms_category" value="<? echo _("Add All to a Category"); ?>" border="0"
                 onclick="document.sform.action='ms_category.php';">
+            <input type="submit" name="ms_cat_remove" value="<? echo _("Remove All from a Category"); ?>" border="0"
+                onclick="document.sform.action='ms_cat_remove.php';">
             <input type="submit" name="ms_organization" value="<? echo _("Connect All to an Organization"); ?>" border="0"
                 onclick="document.sform.action='ms_organization.php';">
           </div>
