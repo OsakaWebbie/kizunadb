@@ -14,7 +14,7 @@ header1(_("Pledge List").
 
 <script type="text/JavaScript">
 </script>
-<?
+<?php
 header2($_GET['nav']);
 
 $sql = "SELECT pl.*, FullName, Furigana, DonationType, SUM(IFNULL(d.Amount,0)) - ".
@@ -49,71 +49,69 @@ if ($_POST['subtotals']=="yes" and (!$_POST['sort'] or $_POST['sort'] == "Donati
   $sql .= " ORDER BY Furigana ".$_POST['desc'];
   $_POST['sort'] = "Furigana";  //for the table heading code to catch
 }
-$href = $PHP_SELF."?closed=".$_POST['closed']."&subtotals=".$_POST['subtotals']."&sort=";
-if (!$result = mysql_query($sql)) {
-  exit("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b><br>($sql)<br>");
-}
+$href = $_SERVER['PHP_SELF']."?closed=".$_POST['closed']."&subtotals=".$_POST['subtotals']."&sort=";
+$result = sqlquery_checked($sql);
 
-$period[1] = i18n("year");
-$period[4] = i18n("quarter");
-$period[12] = i18n("month");
-$periods[1] = i18n("years");
-$periods[4] = i18n("quarters");
-$periods[12] = i18n("months");
+$period[1] = _("year");
+$period[4] = _("quarter");
+$period[12] = _("month");
+$periods[1] = _("years");
+$periods[4] = _("quarters");
+$periods[12] = _("months");
 
-echo "<h2 align=center>".($_POST['closed']=="true" ? i18n("All") : i18n("Open")).i18n(" Pledges as of ").
+echo "<h2 align=center>".($_POST['closed']=="true" ? _("All") : _("Open"))._(" Pledges as of ").
 date("Y-m-d",mktime(gmdate("H")+9))."</h2>";
 echo "<table border=1 cellspacing=0 cellpadding=1 style=\"empty-cells:show\">\n";
 echo "<tr>";
 echo "<th><a href=\"".$href."Furigana";
 if (($_POST['sort'] == "Furigana") && !$_POST['desc']) echo "&desc=desc";
-echo "\">".i18n("Name");
+echo "\">"._("Name");
 if ($_POST['sort'] == "Furigana") echo $_POST['desc'] ? " &#x25bc" : " &#x25b2";
 echo "</a></th>";
 
 echo "<th><a href=\"".$href."DonationType";
 if (($_POST['sort'] == "DonationType") && !$_POST['desc']) echo "&desc=desc";
-echo "\">".i18n("Pledge Type");
+echo "\">"._("Pledge Type");
 if ($_POST['sort'] == "DonationType") echo $_POST['desc'] ? " &#x25bc" : " &#x25b2";
 echo "</a></th>";
 
 echo "<th><a href=\"".$href."pl.Amount";
 if (($_POST['sort'] == "pl.Amount") && !$_POST['desc']) echo "&desc=desc";
-echo "\">".i18n("Amount");
+echo "\">"._("Amount");
 if ($_POST['sort'] == "pl.Amount") echo $_POST['desc'] ? " &#x25bc" : " &#x25b2";
 echo "</a></th>";
 
 echo "<th><a href=\"".$href."StartDate";
 if (($_POST['sort'] == "StartDate") && !$_POST['desc']) echo "&desc=desc";
-echo "\">".i18n("Dates");
+echo "\">"._("Dates");
 if ($_POST['sort'] == "StartDate") echo $_POST['desc'] ? " &#x25bc" : " &#x25b2";
 echo "</a></th>";
 
 echo "<th><a href=\"".$href."Balance";
 if (($_POST['sort'] == "Balance") && !$_POST['desc']) echo "&desc=desc";
-echo "\">".i18n("Balance");
+echo "\">"._("Balance");
 if ($_POST['sort'] == "Balance") echo $_POST['desc'] ? " &#x25bc" : " &#x25b2";
 echo "</a></th>";
 
 echo "<th><a href=\"".$href."Months";
 if (($_POST['sort'] == "Months") && !$_POST['desc']) echo "&desc=desc";
-echo "\">".i18n("Months");
+echo "\">"._("Months");
 if ($_POST['sort'] == "Months") echo $_POST['desc'] ? " &#x25bc" : " &#x25b2";
 echo "</a></th>";
 
 echo "<th><a href=\"".$href."PledgeDesc";
 if (($_POST['sort'] == "PledgeDesc") && !$_POST['desc']) echo "&desc=desc";
-echo "\">".i18n("Remarks");
+echo "\">"._("Remarks");
 if ($_POST['sort'] == "PledgeDesc") echo $_POST['desc'] ? " &#x25bc" : " &#x25b2";
 echo "</a></th>";
 echo "</tr>\n";
 
 $prev_donationtype = "";
 $total = $subtotal = $subnumber = 0;
-while ($row = mysql_fetch_object($result)) {
+while ($row = mysqli_fetch_object($result)) {
   if ($show_subtotals && $prev_donationtype != "" && $row->DonationType != $prev_donationtype) {
-    echo "<tr><td bgcolor=\"#FFFFE0\" valign=middle nowrap style=\"padding:2px 4px 2px 4px;\"><b>".i18n("Subtotal").
-    " (".i18n("number: ").$subnumber.")</b></td>\n";
+    echo "<tr><td bgcolor=\"#FFFFE0\" valign=middle nowrap style=\"padding:2px 4px 2px 4px;\"><b>"._("Subtotal").
+    " ("._("number: ").$subnumber.")</b></td>\n";
     echo "<td bgcolor=\"#FFFFE0\" valign=middle nowrap style=\"padding:2px 4px 2px 4px;\"><b>{$prev_donationtype}</b></td>\n";
     echo "<td bgcolor=\"#FFFFE0\" valign=middle nowrap style=\"padding:2px 4px 2px 4px;\"><b>".$_SESSION['currency_mark']." ".
     number_format($subtotal,$_SESSION['currency_decimals'])."</b></td><td bgcolor=\"#FFFFE0\" colspan=\"4\"></td></tr>\n";
@@ -148,13 +146,13 @@ while ($row = mysql_fetch_object($result)) {
   $total += $row->Amount;
 }
 if ($show_subtotals && $prev_donationtype != "" && $row->DonationType != $prev_donationtype) {
-  echo "<tr><td bgcolor=\"#FFFFE0\" valign=middle nowrap style=\"padding:2px 4px 2px 4px;\"><b>".i18n("Subtotal").
-  " (".i18n("number: ").$subnumber.")</b></td>\n";
+  echo "<tr><td bgcolor=\"#FFFFE0\" valign=middle nowrap style=\"padding:2px 4px 2px 4px;\"><b>"._("Subtotal").
+  " ("._("number: ").$subnumber.")</b></td>\n";
   echo "<td bgcolor=\"#FFFFE0\" valign=middle nowrap style=\"padding:2px 4px 2px 4px;\"><b>{$prev_donationtype}</b></td>\n";
   echo "<td bgcolor=\"#FFFFE0\" valign=middle nowrap style=\"padding:2px 4px 2px 4px;\"><b>".$_SESSION['currency_mark']." ".
   number_format($subtotal,$_SESSION['currency_decimals'])."</b></td><td bgcolor=\"#FFFFE0\" colspan=\"4\"></td></tr>\n";
-  echo "<tr><td bgcolor=\"#F0F0C0\" valign=middle nowrap style=\"padding:2px 4px 2px 4px;\"><b>".i18n("Total").
-  " (".i18n("total number: ").mysql_numrows($result).")</b></td>\n";
+  echo "<tr><td bgcolor=\"#F0F0C0\" valign=middle nowrap style=\"padding:2px 4px 2px 4px;\"><b>"._("Total").
+  " ("._("total number: ").mysqli_num_rows($result).")</b></td>\n";
   echo "<td bgcolor=\"#F0F0C0\"></td>\n";
   echo "<td bgcolor=\"#F0F0C0\" valign=middle nowrap style=\"padding:2px 4px 2px 4px;\"><b>".$_SESSION['currency_mark']." ".
   number_format($total,$_SESSION['currency_decimals'])."</b></td><td bgcolor=\"#F0F0C0\" colspan=\"4\"></td></tr>\n";

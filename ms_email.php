@@ -5,13 +5,10 @@ print_header("Multiple Selection","#FFFFE0",0);
 
 if ($submit) {
   $sql = "SELECT FullName,Furigana,Email FROM person WHERE PersonID IN (".$pid_list.") ORDER BY Furigana";
-  if (!$result = mysql_query($sql)) {
-    echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b><br>($sql)<br>");
-    exit;
-  }
-  $num_selected = mysql_numrows($result);
+  $result = sqlquery_checked($sql);
+  $num_selected = mysqli_num_rows($result);
   
-  while ($row = mysql_fetch_object($result)) {
+  while ($row = mysqli_fetch_object($result)) {
     if (($row->Email) && preg_match("/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i",$row->Email)) {
       if (preg_match("/^".$row->Email.";/i", $addr_list) || strpos(";".$row->Email.";", $addr_list)) {
         $dup_list .= "<br>&nbsp;&nbsp;&nbsp; ".$row->Email;
@@ -57,7 +54,7 @@ if ($submit) {
 
     <center><h3><font color="#8b4513">Select where you want the email addresses and click the button...</font></h3>
     <form action="ms_email.php" method="post" name="optionsform" target="ActionFrame">
-      <input type="hidden" name="pid_list" value="<? echo $pid_list; ?>" border="0">
+      <input type="hidden" name="pid_list" value="<?=$pid_list?>" border="0">
       <table border="0" cellspacing="0" cellpadding="10">
         <tr>
           <td><input type="radio" name="field" value="to" checked tabindex="1" border="0">TO<br> 
@@ -73,6 +70,6 @@ if ($submit) {
         </tr>
       </table>
     </form></center>
-  <? print_footer();
+  <?php print_footer();
 ?>
 

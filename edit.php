@@ -7,39 +7,30 @@ if ($_GET['pid']) {
   $sql = "SELECT p.*, h.*, pc.*, p.Photo AS PPhoto FROM person p LEFT JOIN household h ".
       "ON p.HouseholdID=h.HouseholdID LEFT JOIN postalcode pc ON h.PostalCode=".
       "pc.PostalCode WHERE PersonID=$pid";
-  if (!$result = mysql_query($sql)) {
-    echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b> ($sql)");
-    exit;
-  }
-  if (mysql_num_rows($result) == 0) {
+  $result = sqlquery_checked($sql);
+  if (mysqli_num_rows($result) == 0) {
     printf(_("Failed to find a record for PersonID %s."),$pid);
     exit;
   }
-  $rec = mysql_fetch_object($result);
+  $rec = mysqli_fetch_object($result);
   
 //DETERMINE IF THERE ARE MULTIPLE MEMBERS OF THE HOUSEHOLD
   if ($rec->HouseholdID) {
     $sql = "SELECT count(*) count FROM person WHERE HouseholdID=$rec->HouseholdID";
-    if (!$result = mysql_query($sql)) {
-      echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b> ($sql)");
-      exit;
-    }
-    $hh = mysql_fetch_object($result);
+    $result = sqlquery_checked($sql);
+    $hh = mysqli_fetch_object($result);
   }
 }
 
 if ($_GET['hhid']) {
   $sql = "SELECT h.* FROM household h LEFT JOIN postalcode pc ON h.PostalCode=".
       "pc.PostalCode WHERE HouseholdID=".$_GET['hhid'];
-  if (!$result = mysql_query($sql)) {
-    echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b> ($sql)");
-    exit;
-  }
-  if (mysql_num_rows($result) == 0) {
+  $result = sqlquery_checked($sql);
+  if (mysqli_num_rows($result) == 0) {
     echo("<b>Failed to find a record for HouseholdID ".$_GET['hhid'].".</b>");
     exit;
   }
-  $rec = mysql_fetch_object($result);
+  $rec = mysqli_fetch_object($result);
 }
 
 if ($pid) {
@@ -86,7 +77,7 @@ $(document).ready(function(){
           error: function(x, y, z) { alert("AJAX Error: "+y); $('#postalcode').blur();},
           success: function(data, status, z) {
             if (data.alert === "NOSESSION") {
-              alert("<? echo _("Your session has timed out - please refresh the page."); ?>");
+              alert("<?=_("Your session has timed out - please refresh the page.")?>");
             } else if (data.alert != "PCNOTFOUND")  {
               $('#postalcode_display').text('〒' + $('#postalcode').val());
               $('#pctext_display').text(data.pref + data.shi);
@@ -97,7 +88,7 @@ $(document).ready(function(){
                 $('#labelname').keyup();
               }
               $('#address').focus();
-<? if ($_SESSION['romajiaddresses'] == "yes") { ?>
+<?php if ($_SESSION['romajiaddresses'] == "yes") { ?>
               $('#pcromtext_display').html(d2h(data.rom));
               $('#pcrom_display').text($('#postalcode').val());
               if (data.fromaux) {
@@ -106,7 +97,7 @@ $(document).ready(function(){
                 $('#pctext_display').addClass('highlight');
                 $('#pcromtext').focus();
               }
-<? } ?>
+<?php } ?>
             }
           }
         });
@@ -115,12 +106,12 @@ $(document).ready(function(){
         $('#pctext_display').text('');
         $('#prefecture').val('');
         $('#shikucho').val('');
-<? if ($_SESSION['romajiaddresses'] == "yes") { ?>
+<?php if ($_SESSION['romajiaddresses'] == "yes") { ?>
         $('#pcromtext_display').text('');
         $('#pcrom_display').text('');
         $('#pcromtext_section').hide();
         $('#pcromtext_display').removeClass('highlight');
-<? } ?>
+<?php } ?>
       }
     }
   });
@@ -185,7 +176,7 @@ $(document).ready(function(){
     resizable: false,
     modal: true,
     width: "auto",
-    title: "<? echo _("Possible Duplicates"); ?>"
+    title: "<?=_("Possible Duplicates")?>"
   });
   cleanhhview();
   document.editform.fullname.focus();
@@ -235,17 +226,17 @@ function validate() {
   f.edit.disable = true;  //to prevent double submit
 
   if ((f.updateper.value == 0) && (f.updatehh.value == 0)) {
-    alert("<? echo _("No info was modified.  If you want to exit this page, just use your BACK button."); ?>");
+    alert("<?=_("No info was modified.  If you want to exit this page, just use your BACK button.")?>");
     return false;
   }
   if (f.fullname.value.length == 0) {
-    alert("<? echo _("Please enter the name!"); ?>");
+    alert("<?=_("Please enter the name!")?>");
     f.fullname.select();
     return false;
   }
   
   if (f.furigana.value.length == 0) {
-    alert("<? printf(_("Please fill in %s field.  For non-Japanese names, just repeat the name with last name first."),
+    alert("<?php printf(_("Please fill in %s field.  For non-Japanese names, just repeat the name with last name first."),
     ($_SESSION['furiganaisromaji']=="yes" ? _("Romaji") : _("Furigana"))); ?>");
     f.furigana.select();
     return false;
@@ -262,39 +253,39 @@ function validate() {
 
   if (!document.editform.nonjapan.checked && $('#postalcode').val().length > 0) {
     if (!pc_regexp.test($('#postalcode').val())) {
-      alert("<? echo _("Postal Code must be in the form 999-9999."); ?>");
+      alert("<?=_("Postal Code must be in the form 999-9999.")?>");
       $('#postalcode').focus();
       return false;
     } else if ($('#postalcode_display').text() == "") {
-      alert("<? echo _("Postal code not found in post office database."); ?>");
+      alert("<?=_("Postal code not found in post office database.")?>");
       $('#postalcode').focus();
       return false;
     }
     if ($('#address').val().length == 0) {
-      alert("<? echo _("Please complete the address."); ?>");
+      alert("<?=_("Please complete the address.")?>");
       $('#address').focus();
       return false;
     }
-<? if ($_SESSION['romajiaddresses']=="yes") { ?>
+<?php if ($_SESSION['romajiaddresses']=="yes") { ?>
     if ($('#romajiaddress').val().length == 0) {
-      alert("<? echo _("Please complete the romaji address."); ?>");
+      alert("<?=_("Please complete the romaji address.")?>");
       $('#address').focus();
       return false;
     }
     if ($('#pcromtext_display').text() == '' && $('#pcromtext').text() == '') {
-      alert("<? echo _("Please fill in romaji for the postalcode-related text."); ?>");
+      alert("<?=_("Please fill in romaji for the postalcode-related text.")?>");
       $('#address').focus();
       return false;
     }
-<? } ?>
+<?php } ?>
   }
   if ((f.photofile.value) && (!jpg_regexp.test(f.photofile.value))) {
-    alert("<? echo _("Only JPG files can be accepted for photos."); ?>");
+    alert("<?=_("Only JPG files can be accepted for photos.")?>");
     f.photofile.value = "";
     return false;
   } 
 
-<? if ($hh->count > 1) {
+<?php if ($hh->count > 1) {
   echo "  if ((f.householdid.value) && (f.householdid.value == f.orig_hhid.value) && (f.updatehh.value==1)) {\n";
   echo "    if (!confirm(\"".sprintf(_("There are %s members in this household - changing this info will affect them all."),$hh->count);
   echo _(" Do you want to continue? (If just this person has moved out, cancel and then select New Household.)")."\")) {\n";
@@ -306,7 +297,7 @@ function validate() {
   if (f.phone.value && !phone_regexp.test(f.phone.value)) {
     f.phone.value = fixchartypes(f.phone.value);
     if (f.phone.value && !phone_regexp.test(f.phone.value)) {
-      alert("<? echo _("Phone number can only include numbers, -, +, (), X (extension), and * (for footnote - explain in Remarks)."); ?>");
+      alert("<?=_("Phone number can only include numbers, -, +, (), X (extension), and * (for footnote - explain in Remarks).")?>");
       f.phone.select();
       return false;
     }
@@ -314,7 +305,7 @@ function validate() {
   if (f.fax.value && !phone_regexp.test(f.fax.value)) {
     f.fax.value = fixchartypes(f.fax.value);
     if (f.fax.value && !phone_regexp.test(f.fax.value)) {
-      alert("<? echo _("FAX number can only include numbers, -, +, (), X (extension), and * (for footnote - explain in Remarks)."); ?>");
+      alert("<?=_("FAX number can only include numbers, -, +, (), X (extension), and * (for footnote - explain in Remarks).")?>");
       f.fax.select();
       return false;
     }
@@ -322,7 +313,7 @@ function validate() {
   if (f.cellphone.value && !phone_regexp.test(f.cellphone.value)) {
     f.cellphone.value = fixchartypes(f.cellphone.value);
     if (f.cellphone.value && !phone_regexp.test(f.cellphone.value)) {
-      alert("<? echo _("Cell Phone number can only include numbers, -, +, and ()."); ?>");
+      alert("<?=_("Cell Phone number can only include numbers, -, +, and ().")?>");
       f.cellphone.select();
       return false;
     }
@@ -331,12 +322,12 @@ function validate() {
     if (bday_regexp.test(f.birthdate.value)) {
       f.birthdate.value = "1900-"+f.birthdate.value;
     } else {
-      alert("<? echo _("Birthdate must be in the form of either YYYY-MM-DD or MM-DD."); ?>");
+      alert("<?=_("Birthdate must be in the form of either YYYY-MM-DD or MM-DD.")?>");
       f.birthdate.select();
       return false;
     }
   }
-<? if (!$pid) {  /* if new entry, check for duplicates */ ?>
+<?php if (!$pid) {  /* if new entry, check for duplicates */ ?>
   if ($("#duplicates").html() != $("#fullname").val()+"/"+$("#furigana").val()+"/"+$("#postalcode").val()+"/"+
   $("#cellphone").val()+"/"+$("#email").val()+"/"+"CHECKED") {
     $("#duplicates").load("get_duplicates.php",{
@@ -349,7 +340,7 @@ function validate() {
       switch(status) {
       case "error":
       case "timeout":
-        if (!confirm("<?
+        if (!confirm("<?php
         echo _("There was an error checking for similar existing entries (to avoid duplicates). ".
         "Continue anyway? (To try checking again, click Cancel and then Save Changes again.)");
         ?> ("+xhr.status+" "+xhr.statusText+")")) return false;
@@ -375,58 +366,58 @@ function validate() {
     });
     return false;
   }
-<? } /* end of if not pid */ ?>
+<?php } /* end of if not pid */ ?>
   return true;  //everything is cool
 }
 </script>
-<?
+<?php
 header2(1);
 echo "<h1 id=\"title\">".($pid ? sprintf(_("Edit %s"),$rec->FullName) : _("New Entry"))."</h1>\n";
 ?>
 <div id="duplicates" style="display:none"></div>
 <form name="editform" id="editform" enctype="multipart/form-data" method="post" action="do_edit.php" onsubmit="return validate();">
-<input type="hidden" name="pid" id="pid" value="<? echo $pid; ?>" />
+<input type="hidden" name="pid" id="pid" value="<?=$pid?>" />
 <input type="hidden" name="MAX_FILE_SIZE" value="5000000" />
 <input type="hidden" name="prefecture" id="prefecture" value="" />
 <input type="hidden" name="shikucho" id="shikucho" value="" />
 <input type="hidden" name="updateper" value="0" />
 <input type="hidden" name="updatehh" value="0" />
 <div id="name_section">
-  <span class="label-n-input"><label for="fullname"><? echo _("Full Name"); ?>: </label>
-  <input name="fullname" id="fullname" type="text" style="width:15em" maxlength="100" value="<? echo $rec->FullName; ?>"
+  <span class="label-n-input"><label for="fullname"><?=_("Full Name")?>: </label>
+  <input name="fullname" id="fullname" type="text" style="width:15em" maxlength="100" value="<?=$rec->FullName?>"
   onchange="editform.updateper.value=1;" style="ime-mode:auto;" /></span><br />
   <span class="label-n-input"><input type="checkbox" name="organization" id="organization"
-  <? if ($rec->Organization) echo " checked"; ?> onchange="editform.updateper.value=1;"><label for="organization"><?
+  <?php if ($rec->Organization) echo " checked"; ?> onchange="editform.updateper.value=1;"><label for="organization"><?php
   echo _("Organization (church, company, etc.)"); ?></label></span>
 </div>
 
 <div id="furigana_section">
-  <label class="label-n-input"><? echo ($_SESSION['furiganaisromaji']=="yes" ? _("Romaji") : _("Furigana")); ?>: 
-    <input name="furigana" id="furigana" type="text" style="width:15em;ime-mode:<?
+  <label class="label-n-input"><?=($_SESSION['furiganaisromaji']=="yes" ? _("Romaji") : _("Furigana"))?>:
+    <input name="furigana" id="furigana" type="text" style="width:15em;ime-mode:<?php
     echo ($_SESSION['furiganaisromaji'=="yes"]?"disabled":"auto"); ?>" maxlength="100"
-    value="<? echo $rec->Furigana; ?>" onchange="editform.updateper.value=1;" />
+    value="<?=$rec->Furigana?>" onchange="editform.updateper.value=1;" />
   </label><br />
-  <span class="comment"><?
+  <span class="comment"><?php
 echo ($_SESSION['furiganaisromaji']=="yes") ? _("(\"Last name, first name\" - don't forget the comma!)") : _("(for non-Japanese names: full name with last name first, for sorting)");
 ?></span>
 </div>
 
 <div id="title_section">
-  <label class="label-n-input"><? echo _("Title"); ?>: 
+  <label class="label-n-input"><?=_("Title")?>:
     <input name="title" id="nametitle" type="text" style="width:3em;ime-mode:auto;" maxlength="6"
-    value="<? echo ($rec->Title ? $rec->Title : "様"); ?>" onchange="editform.updateper.value=1;" />
+    value="<?($rec->Title ? $rec->Title : "様")?>" onchange="editform.updateper.value=1;" />
   </label>
 </div>
 
 <div id="household_section">
-  <input type="hidden" name="householdid" value="<? echo $rec->HouseholdID; ?>">
-  <input type="hidden" name="orig_hhid" value="<? echo $rec->HouseholdID; ?>">
+  <input type="hidden" name="householdid" value="<?=$rec->HouseholdID?>">
+  <input type="hidden" name="orig_hhid" value="<?=$rec->HouseholdID?>">
   <div id="household_setup">
     <button id="existing_hh" type="button"
     onclick="window.open('selecthh.php?fullname='+document.editform.fullname.value+
     '&furigana='+document.editform.furigana.value,'selecthh','scrollbars=yes,width=750,height=600');">
-    <? echo _("Select An Existing Household"); ?></button>
-    <?
+    <?=_("Select An Existing Household")?></button>
+    <?php
     if ($rec->HouseholdID) {
       echo "<button id=\"new_hh\" type=\"button\" onclick=\"newhh();\" tabindex=\"0\">".
       _("New Household")."</button>\n";
@@ -442,106 +433,106 @@ echo ($_SESSION['furiganaisromaji']=="yes") ? _("(\"Last name, first name\" - do
         <span class="japanonly"><br />
         <span id="labelname_display"></span></span>
       </div>
-<? if ($_SESSION['romajiaddresses'] == "yes") { ?>
+<?php if ($_SESSION['romajiaddresses'] == "yes") { ?>
       <div id="pcromtext_section" style="display:none">
         <label class="japanonly" for="pcromtext" id="pcromtextlabel">
-          <? echo _("Romaji for PostalCode-related text (<span class=\"highlight\">highlighted</span> above)"); ?>:<br />
+          <?=_("Romaji for PostalCode-related text (<span class=\"highlight\">highlighted</span> above)")?>:<br />
           <textarea name="pcromtext" id="pcromtext" style="height:2.2em;width:300px;ime-mode:disabled;"
-          onchange="editform.updatehh.value=1;"><? echo $rec->Romaji; ?></textarea>
+          onchange="editform.updatehh.value=1;"><?=$rec->Romaji?></textarea>
         </label>
-        <div class="comment"><? echo _("(Community/town name on first line, then ward, city, etc. in reverse order)"); ?></div>
+        <div class="comment"><?=_("(Community/town name on first line, then ward, city, etc. in reverse order)")?></div>
       </div>
       <div id="rom_address_display" class="japanonly">
         <span id="banchirom_display"></span>&nbsp;<span id="pcromtext_display"></span>&nbsp;<span id="pcrom_display"></span>
       </div>
-<? } ?>
+<?php } ?>
     </div>
     <div id="address_input">
       <label for="nonjapan">
         <input type="checkbox" name="nonjapan"
-        <? if ($rec->NonJapan) echo " checked"; ?> onclick="check_nonjapan();" onchange="editform.updatehh.value=1;" tabindex="0" /><? echo _("Non-Japan Address"); ?>
+        <?php if ($rec->NonJapan) echo " checked"; ?> onclick="check_nonjapan();" onchange="editform.updatehh.value=1;" tabindex="0" /><?=_("Non-Japan Address")?>
       </label><br />
-      <label for="postalcode" class="japanonly"><? echo _("Postal Code"); ?>: 
+      <label for="postalcode" class="japanonly"><?=_("Postal Code")?>:
         <input name="postalcode" id="postalcode" type="text" style="width:5em;ime-mode:disabled;" maxlength="8"
-        value="<? echo $rec->PostalCode; ?>" onchange="editform.updatehh.value=1;" />
-        <span class="comment">(<a href="<? echo _("http://yubin.senmon.net/en/index.html"); ?>" target="_blank"><? echo _("Lookup"); ?></a>)</span><br>
+        value="<?=$rec->PostalCode?>" onchange="editform.updatehh.value=1;" />
+        <span class="comment">(<a href="<?=_("http://yubin.senmon.net/en/index.html")?>" target="_blank"><?=_("Lookup")?></a>)</span><br>
       </label>
       <label for="address" id="addresslabel">
-        <span class="japanonly"><? echo _("Rest of Address"); ?></span><span
-        class="nonjapanonly"><? echo _("Address"); ?></span>:<br />
+        <span class="japanonly"><?=_("Rest of Address")?></span><span
+        class="nonjapanonly"><?=_("Address")?></span>:<br />
         <textarea name="address" id="address" style="height:3em;width:300px;ime-mode:auto;"
-        onchange="editform.updatehh.value=1;"><? echo $rec->Address; ?></textarea>
+        onchange="editform.updatehh.value=1;"><?=$rec->Address?></textarea>
       </label>
-      <label for="labelname" id="labelnamelabel"><? echo _("Label Name"); ?>:<br />
+      <label for="labelname" id="labelnamelabel"><?=_("Label Name")?>:<br />
         <textarea name="labelname" id="labelname" style="height:3em;width:300px;ime-mode:auto;"
-        onchange="editform.updatehh.value=1;"><? echo $rec->LabelName; ?></textarea>
+        onchange="editform.updatehh.value=1;"><?=$rec->LabelName?></textarea>
       </label>
-<? if ($_SESSION['romajiaddresses'] == "yes") { ?>
+<?php if ($_SESSION['romajiaddresses'] == "yes") { ?>
       <span id="romajiaddress_section"><label for="romajiaddress" id="romajiaddresslabel" class="japanonly"><?=_("Romaji rest of address")?>:</label><label class="label-n-input japanonly" style="margin-left:2em"><input type="checkbox" name="mirror_address" id="mirror_address"
       <?=((!$pid || $rec->Address==$rec->RomajiAddress)?"checked=\"checked\"":"")?>><?=_("Mirror Japanese address")?></label><br />
       <textarea name="romajiaddress" id="romajiaddress" class="japanonly" style="height:2.2em;width:300px;ime-mode:disabled;"
       onchange="editform.updatehh.value=1;"
       <?=(!$pid || $rec->Address==$rec->RomajiAddress)?" readonly=\"readonly\"":""?>><?=$rec->RomajiAddress?></textarea></span>
-<? } ?>
+<?php } ?>
     </div>
     <div id="householdfinal_section">
-      <label for="phone" class="label-n-input"><? echo _("Landline Phone"); ?>: <input name="phone"
-      type="text" style="width:10em;ime-mode:disabled;" maxlength="20" value="<? echo $rec->Phone; ?>"
+      <label for="phone" class="label-n-input"><?=_("Landline Phone")?>: <input name="phone"
+      type="text" style="width:10em;ime-mode:disabled;" maxlength="20" value="<?=$rec->Phone?>"
       onchange="editform.updatehh.value=1;" /></label>
-      <label for="fax" class="label-n-input"><? echo _("FAX"); ?>: <input name="fax"
-      type="text" style="width:10em;ime-mode:disabled;" maxlength="20" value="<? echo $rec->FAX; ?>"
+      <label for="fax" class="label-n-input"><?=_("FAX")?>: <input name="fax"
+      type="text" style="width:10em;ime-mode:disabled;" maxlength="20" value="<?=$rec->FAX?>"
       onchange="editform.updatehh.value=1;" /></label>
-      <label for="relation" class="label-n-input"><? echo _("This person's relation to household"); ?>: <select
+      <label for="relation" class="label-n-input"><?=_("This person's relation to household")?>: <select
       name="relation" id="relation" size="1" onchange="editform.updateper.value=1;"><option
-      value="Main"<? if ($rec->Relation=="Main") echo " selected"; ?>><? echo _("Main Member"); ?></option><option
-      value="Spouse"<? if ($rec->Relation=="Spouse") echo " selected"; ?>><? echo _("Spouse"); ?></option><option
-      value="Child"<? if ($rec->Relation=="Child") echo " selected"; ?>><? echo _("Child"); ?></option><option
-      value="Parent"<? if ($rec->Relation=="Parent") echo " selected"; ?>><? echo _("Parent"); ?></option><option
-      value="Other"<? if ($rec->Relation=="Other") echo " selected"; ?>><? echo _("Other Member"); ?></option></select></label>
+      value="Main"<?php if ($rec->Relation=="Main") echo " selected"; ?>><?=_("Main Member")?></option><option
+      value="Spouse"<?php if ($rec->Relation=="Spouse") echo " selected"; ?>><?=_("Spouse")?></option><option
+      value="Child"<?php if ($rec->Relation=="Child") echo " selected"; ?>><?=_("Child")?></option><option
+      value="Parent"<?php if ($rec->Relation=="Parent") echo " selected"; ?>><?=_("Parent")?></option><option
+      value="Other"<?php if ($rec->Relation=="Other") echo " selected"; ?>><?=_("Other Member")?></option></select></label>
     </div>
   </div>
 </div>
 
-<label for="cellphone" class="label-n-input"><? echo _("Cell Phone"); ?>: <input id="cellphone" name="cellphone"
-type="text" style="width:10em;ime-mode:disabled;" maxlength="20" value="<? echo $rec->CellPhone; ?>"
+<label for="cellphone" class="label-n-input"><?=_("Cell Phone")?>: <input id="cellphone" name="cellphone"
+type="text" style="width:10em;ime-mode:disabled;" maxlength="20" value="<?=$rec->CellPhone?>"
 onchange="editform.updateper.value=1;" /></label>
 
-<label for="email" class="label-n-input"><? echo _("Email"); ?>: <input id="email" name="email"
-type="text" style="width:25em;ime-mode:disabled;" maxlength="70" value="<? echo $rec->Email; ?>"
+<label for="email" class="label-n-input"><?=_("Email")?>: <input id="email" name="email"
+type="text" style="width:25em;ime-mode:disabled;" maxlength="70" value="<?=$rec->Email?>"
 onchange="editform.updateper.value=1;" /></label>
 
-<label for="sex" class="label-n-input"><? echo _("Sex"); ?>: <select name="sex" size="1"
+<label for="sex" class="label-n-input"><?=_("Sex")?>: <select name="sex" size="1"
 onchange="editform.updateper.value=1;"><option></option><option
-value="F"<? if ($rec->Sex=="F") echo " selected"; ?> ><? echo _("Female"); ?></option><option
-value="M"<? if ($rec->Sex=="M") echo " selected"; ?> ><? echo _("Male"); ?></option></select></label>
+value="F"<?php if ($rec->Sex=="F") echo " selected"; ?> ><?=_("Female")?></option><option
+value="M"<?php if ($rec->Sex=="M") echo " selected"; ?> ><?=_("Male")?></option></select></label>
 
-<label for="birthdate" class="label-n-input"><? echo _("Birthdate"); ?>: <input name="birthdate"
+<label for="birthdate" class="label-n-input"><?=_("Birthdate")?>: <input name="birthdate"
 type="text" style="width:6em;ime-mode:disabled;" maxlength="10"
-value="<? if ($rec->Birthdate != "0000-00-00") echo str_replace("1900-","",$rec->Birthdate); ?>"
+value="<?php if ($rec->Birthdate != "0000-00-00") echo str_replace("1900-","",$rec->Birthdate); ?>"
 onchange="editform.updateper.value=1;" /><span
-class="comment">&lt;--&nbsp;<? echo _("YYYY-MM-DD, or just MM-DD if year unknown"); ?></span></label>
+class="comment">&lt;--&nbsp;<?=_("YYYY-MM-DD, or just MM-DD if year unknown")?></span></label>
 
-<label for="URL" class="label-n-input"><? echo _("URL"); ?>: <input name="URL" type="text"
-style="width:30em;ime-mode:auto;" maxlength="150" value="<? echo $rec->URL; ?>"
+<label for="URL" class="label-n-input"><?=_("URL")?>: <input name="URL" type="text"
+style="width:30em;ime-mode:auto;" maxlength="150" value="<?=$rec->URL?>"
 onchange="editform.updateper.value=1;" /></label>
 
-<label for="country" class="label-n-input"><? echo _("Home Country"); ?>: <input name="country"
-type="text" style="width:10em;ime-mode:auto;" maxlength="30" value="<? echo $rec->Country; ?>"
+<label for="country" class="label-n-input"><?=_("Home Country")?>: <input name="country"
+type="text" style="width:10em;ime-mode:auto;" maxlength="30" value="<?=$rec->Country?>"
 onchange="editform.updateper.value=1;" /></label>
 
-<label for="photofile" class="label-n-input"><? echo _("Upload photo"); ?>: <input name="photofile"
-type="file" style="width:20em" onchange="editform.updateper.value=1;show_local_photo();" /><?
+<label for="photofile" class="label-n-input"><?=_("Upload photo")?>: <input name="photofile"
+type="file" style="width:20em" onchange="editform.updateper.value=1;show_local_photo();" /><?php
 if ($rec->PPhoto) echo "<span class=\"comment\">".
 _("(photo already exists, but you can replace it if you want)")."</span>"; ?></label><br />
 
-<input type="submit" name="edit" id="submit_button" value="<? echo _("Save Changes"); ?>" />
-<label for="remarks" id="remarks_label"><? echo _("Remarks"); ?>: <textarea name="remarks" id="remarks"
-onchange="editform.updateper.value=1;"><? echo $rec->Remarks; ?></textarea></label> 
+<input type="submit" name="edit" id="submit_button" value="<?=_("Save Changes")?>" />
+<label for="remarks" id="remarks_label"><?=_("Remarks")?>: <textarea name="remarks" id="remarks"
+onchange="editform.updateper.value=1;"><?=$rec->Remarks?></textarea></label>
 </form>
 
-<?
+<?php
 if ($pid) {
-mysql_free_result($result);
+mysqli_free_result($result);
 }
 print_footer();
 ?>

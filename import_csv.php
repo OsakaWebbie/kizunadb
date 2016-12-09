@@ -11,7 +11,7 @@ include("functions.php");
 include("accesscontrol.php");
 
 header1(_("CSV Import"));
-?> <link rel="stylesheet" type="text/css" href="style.php" /> <?
+?> <link rel="stylesheet" type="text/css" href="style.php" /> <?php
 header2(1);
 
 if ($_GET['file']) { //file pre-placed on server
@@ -143,9 +143,9 @@ foreach ($data as $record) {
       }
       if ($address_to_reduce) {
         $addrcheck = sqlquery_checked("SELECT * from postalcode WHERE PostalCode='".$postalcode."'");
-        if (!$pc = mysql_fetch_object($addrcheck)) { //not in client table, so need to check aux
+        if (!$pc = mysqli_fetch_object($addrcheck)) { //not in client table, so need to check aux
           $addrcheck = sqlquery_checked("SELECT * from kizuna_common.auxpostalcode WHERE PostalCode='".$postalcode."'");
-          if ($pc = mysql_fetch_object($addrcheck)) { //found in aux, so copy record
+          if ($pc = mysqli_fetch_object($addrcheck)) { //found in aux, so copy record
             if (!$_GET['dryrun']) sqlquery_checked("INSERT INTO postalcode(PostalCode,Prefecture,ShiKuCho,Romaji)".
             " SELECT PostalCode,Prefecture,ShiKuCho,'".($_SESSION['romajiaddresses']=="yes"?"(edit on DB Maint. page)":"").
             "' FROM kizuna_common.auxpostalcode WHERE PostalCode='".$postalcode."' LIMIT 1");
@@ -170,7 +170,7 @@ foreach ($data as $record) {
       echo "<td>$postalcode</td><td>".d2h($address)."</td><td>".$record[$_GET['phone']]."</td><td>".$record[$_GET['fax']]."</td>\n";
     } else {
       $result = sqlquery_checked($sql);
-      $householdid = mysql_insert_id();
+      $householdid = mysqli_insert_id($db);
     }
   } else {
     $householdid = 0;

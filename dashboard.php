@@ -13,13 +13,13 @@ echo "<script type=\"text/JavaScript\" src=\"js/jquery-ui.js\"></script>\n";
 if (!$_SESSION['hasdashboard']) {
   header2(1);
   echo "<h3>"._("You don't have a dashboard yet.  If you would like one, talk to your KizunaDB administrator.")."</h3>\n";
-  footer(0);
+  footer();
 } else {
   $result = sqlquery_checked("SELECT DashboardHead,DashboardBody FROM login WHERE UserID='".$_SESSION['userid']."'");
-  $code = mysql_fetch_object($result);
+  $code = mysqli_fetch_object($result);
   eval($code->DashboardHead);
   header2(1);
   echo "<h1 id=\"title\">".$_SESSION['dbtitle'].": ".$_SESSION['username']._("'s Dashboard")."</h1>\n";
   eval($code->DashboardBody);
-  footer(1);
+  footer();
 }

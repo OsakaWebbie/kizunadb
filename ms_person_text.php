@@ -33,13 +33,13 @@ function check_cats() {
   }
 }
 </script>
-<? header2(0); ?>
+<?php header2(0); ?>
 
 <form action="person_text.php" method="post" name="optionsform" target="_blank" onsubmit="return check_cats();">
-  <input type="hidden" name="pid_list" value="<? echo $pid_list; ?>" border="0">
+  <input type="hidden" name="pid_list" value="<?=$pid_list?>" border="0">
   <table width="639" border="0" cellspacing="0" cellpadding="5">
     <tr><td nowrap align="center" valign="top"><p><b><?=_("Field to Show:")?></b><br>
-<?
+<?php
 for ($i=1; $i<7; $i++) {
   echo "        $i: <select name=\"field$i\" size=\"1\">\n";
   echo "        <option value=\"\"> </option>\n";
@@ -74,8 +74,8 @@ for ($i=1; $i<7; $i++) {
   echo "        <br>\n";
 }
 ?>
-      </td><td nowrap align="center" valign="top"><p><b><? echo _("Where to Place (HTML only):"); ?></b><br>
-<?
+      </td><td nowrap align="center" valign="top"><p><b><?=_("Where to Place (HTML only):")?></b><br>
+<?php
 for ($i=1; $i<7; $i++) {
   echo "        <select name=\"layout$i\" size=\"1\">\n";
   echo "        <option value=\"<br>\">"._("On a new line")."</option>\n";
@@ -88,15 +88,15 @@ for ($i=1; $i<7; $i++) {
 ?>
           </td>
           <td valign="top">
-        <p><b><? echo _("Output Format:"); ?></b><br>
-          <input type="radio" name="format" value="html" checked><? echo _("HTML (regular)"); ?><br>
-          <input type="radio" name="format" value="tab"><? echo _("Tab delimited"); ?><br>
-          <span style="font-size:0.8em;color:red"><? echo _("(Tab: select View Source in browser before copying)"); ?></span><br>
-        <input type="checkbox" name="include_empties"><? echo _("Include Fields Even if Blank"); ?><br>
-        <input type="submit" name="submit" value="<? echo _("Make Page to Copy or Print"); ?>" border="0"></p>
+        <p><b><?=_("Output Format:")?></b><br>
+          <input type="radio" name="format" value="html" checked><?=_("HTML (regular)")?><br>
+          <input type="radio" name="format" value="tab"><?=_("Tab delimited")?><br>
+          <span style="font-size:0.8em;color:red"><?=_("(Tab: select View Source in browser before copying)")?></span><br>
+        <input type="checkbox" name="include_empties"><?=_("Include Fields Even if Blank")?><br>
+        <input type="submit" name="submit" value="<?=_("Make Page to Copy or Print")?>" border="0"></p>
           </td>
         </tr>
       </table>
     </form>
-<? print_footer();
+<?php print_footer();
 ?>

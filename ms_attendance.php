@@ -32,7 +32,7 @@ if ($newattendance) {
         sqlquery_checked("INSERT INTO attendance(PersonID,EventID,AttendDate) ".
         "VALUES($eachpid,{$_POST["eid"]},'$eachdate') ON DUPLICATE KEY UPDATE AttendDate=AttendDate");
       }
-      $affected = mysql_affected_rows();
+      $affected = mysqli_affected_rows($db);
       if ($affected == 2)  $updated++;
       elseif ($affected == 1)  $added++;
     }
@@ -73,7 +73,7 @@ $(document).ready(function(){
     $("#currentevents").show();
   });
   $("a#hidepast").click();
-<?
+<?php
 if($_SESSION['lang']=="ja_JP") {
   echo "  $.datepicker.setDefaults( $.datepicker.regional[\"ja\"] );\n";
   echo "  $.timepicker.setDefaults( $.timepicker.regional[\"ja\"] );\n";
@@ -117,30 +117,30 @@ if($_SESSION['lang']=="ja_JP") {
 
 function ValidateAttendance(){
   if (document.attendform.eid.selectedIndex == 0) {
-    alert('<? echo _("You must select an event."); ?>');
+    alert('<?=_("You must select an event.")?>');
     return false;
   }
   if ($('#attenddate').val() == '') {
-    alert('<? echo _("You must enter a date."); ?>');
+    alert('<?=_("You must enter a date.")?>');
     $('#attenddate').click();
     return false;
   }
   try { $.datepicker.parseDate('yy-mm-dd', $('#attenddate').val()); }
   catch(error) {
-    alert('<? echo _("Date is invalid."); ?>');
+    alert('<?=_("Date is invalid.")?>');
     $('#attenddate').click();
     return false;
   }
   try { $.datepicker.parseDate('yy-mm-dd', $('#attendenddate').val()); }
   catch(error) {
-    alert('<? echo _("Date is invalid."); ?>');
+    alert('<?=_("Date is invalid.")?>');
     $('#attendenddate').click();
     return false;
   }
   return true;
 }
 </script>
-<?
+<?php
 header2(0);
 ?>
 <h3><?=_("Select an event and at least one date, and click the button.")?></h3>
@@ -150,9 +150,9 @@ header2(0);
     <label class="label-n-input"><?=_("Event")?>:
       <select size="1" id="eventid" name="eid">
         <option value="NULL" selected><?=_("Select...")?></option>
-<?
+<?php
 $result = sqlquery_checked("SELECT EventID,Event,UseTimes,IF(EventEndDate AND EventEndDate<CURDATE(),'inactive','active') AS Active FROM event ORDER BY Event");
-while ($row = mysql_fetch_object($result)) {
+while ($row = mysqli_fetch_object($result)) {
   echo "        <option value=\"".$row->EventID."\" class=\"".(($row->UseTimes==1)?"times ":"days ").$row->Active."\">".
       $row->Event."</option>\n";
 }
@@ -188,7 +188,7 @@ while ($row = mysql_fetch_object($result)) {
   </div>
   <input type="submit" value="<?=_("Save Attendance Entries")?>" name="newattendance" />
 </form>
-<?
+<?php
 footer();
 ?>
 

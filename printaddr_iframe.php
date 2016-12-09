@@ -3,11 +3,8 @@ include("functions.php");
 include("accesscontrol.php");
 
 $sql = "SELECT * FROM addrprint WHERE AddrPrintName='".urldecode($addr_print_name)."'";
-if (!$result = mysql_query($sql)) {
-  echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b><br>($sql)<br>");
-  exit;
-}
-$print = mysql_fetch_object($result);
+$result = sqlquery_checked($sql);
+$print = mysqli_fetch_object($result);
 $block_height = $print->PaperHeight - $print->PaperTopMargin - $print->PaperBottomMargin - 2;  //just a touch less
 $block_width = $print->PaperWidth - $print->PaperLeftMargin - $print->PaperRightMargin - 2;  //just a touch less
 echo <<<HEADER
@@ -111,16 +108,13 @@ $sql = "SELECT person.PersonID, FullName, Furigana ".
       "FROM person LEFT JOIN household ON person.HouseholdID=household.HouseholdID ".
       "WHERE person.PersonID IN (".$pid_list.") AND (person.HouseholdID IS NULL OR person.HouseholdID=0 ".
       "OR household.Address IS NULL OR household.Address='') ORDER BY FIND_IN_SET(PersonID,'".$pid_list."')";
-if (!$result = mysql_query($sql)) {
-  echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b><br>($sql)<br>");
-  exit;
-}
-if ($num = mysql_numrows($result) > 0) {
+$result = sqlquery_checked($sql);
+if ($num = mysqli_num_rows($result) > 0) {
   echo "<p>The following people have no address on record.</p>\n";
   echo "<p>You can (a) click on each link here and edit them to add addresses, and then refresh this window, ";
   echo "or (b) close this window, remove the names in Multi-Select and click \"<b>Print Addresses</b>\" again, ";
   echo "or (c) print what you have now (skip the first page when printing).\n";
-  while ($row = mysql_fetch_object($result)) {
+  while ($row = mysqli_fetch_object($result)) {
     echo "<br>&nbsp;&nbsp;&nbsp;";
     echo "<a href=\"individual.php?pid=".$row->PersonID."\" target=_BLANK>";
     echo readable_name($row->FullName, $row->Furigana)."</a>\n";
@@ -140,11 +134,8 @@ $sql .= "NonJapan, postalcode.*, Address FROM person ".
     "LEFT JOIN postalcode ON household.PostalCode=postalcode.PostalCode ".
     "WHERE person.PersonID IN (".$pid_list.") AND person.HouseholdID IS NOT NULL AND person.HouseholdID>0 ".
     "AND household.Address IS NOT NULL AND household.Address!='' ORDER BY FIND_IN_SET(PersonID,'".$pid_list."')";
-if (!$result = mysql_query($sql)) {
-  echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b><br>($sql)<br>");
-  exit;
-}
-while ($row = mysql_fetch_object($result)) {
+$result = sqlquery_checked($sql);
+while ($row = mysqli_fetch_object($result)) {
   if ($row->NonJapan == 1) {
   
     $name = db2table($row->Name);

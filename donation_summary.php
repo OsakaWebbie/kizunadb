@@ -4,7 +4,7 @@
 
 header1(""); ?>
 <link rel="stylesheet" href="style.php" type="text/css" />
-<?
+<?php
 header2(0);
 
 if ($_GET['summarytype'] == "DonationType") {
@@ -26,31 +26,29 @@ if ($_GET['sort']=="Amounts") {
   $sql .= " ORDER BY ".$_GET['summarytype']." ".$_GET['desc'];
   $_GET['sort'] = $_GET['summarytype'];  //just to make sure it has a value, for the table heading code to catch
 }
-$href = $PHP_SELF."?start=".$_GET['start']."&end=".$_GET['end']."&summarytype=".$_GET['summarytype']."&sort=";
+$href = $_SERVER['PHP_SELF']."?start=".$_GET['start']."&end=".$_GET['end']."&summarytype=".$_GET['summarytype']."&sort=";
 
-if (!$result = mysql_query($sql)) {
-  exit("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b><br>($sql)<br>");
-}
+$result = sqlquery_checked($sql);
 
-echo "<h2 align=center>".i18n("Donation Summary").": ".$_GET['start']." to ".$_GET['end']."</h2>";
+echo "<h2 align=center>"._("Donation Summary").": ".$_GET['start']." to ".$_GET['end']."</h2>";
 echo "<div align=center>";
 echo "  <table border=1 cellspacing=0 cellpadding=1 style=\"empty-cells:show;\">\n";
 echo "  <tr>";
 echo "    <th style=\"padding:0 6px 0 6px;\"><a href=\"".$href.$_GET['summarytype'];
 if (($_GET['sort'] == $_GET['summarytype']) && !$_GET['desc']) echo "&desc=desc";
-echo "\">".($_GET['summarytype']=="DonationType"?i18n("Donation Type"):i18n("Name"));
+echo "\">".($_GET['summarytype']=="DonationType"?_("Donation Type"):_("Name"));
 if ($_GET['sort'] == $_GET['summarytype']) echo $_GET['desc'] ? " &#x25bc" : " &#x25b2";
 echo "</a></th>";
 
 echo "    <th style=\"padding:0 6px 0 6px;\"><a href=\"".$href."Amounts";
 if (($_GET['sort'] == "Amounts") && !$_GET['desc']) echo "&desc=desc";
-echo "\">".i18n("Amount");
+echo "\">"._("Amount");
 if ($_GET['sort'] == "Amounts") echo $_GET['desc'] ? " &#x25bc" : " &#x25b2";
 echo "</a></th>";
 echo "  </tr>\n";
 
 $total = 0;
-while ($row = mysql_fetch_object($result)) {
+while ($row = mysqli_fetch_object($result)) {
   echo "    <td valign=middle nowrap style=\"padding:6px;\">";
   if ($_GET['summarytype']=="DonationType") {
     echo $row->DonationType;

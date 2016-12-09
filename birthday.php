@@ -4,7 +4,7 @@ include("accesscontrol.php");
 
 header1("Birthdays List");
 ?> <link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
-<?
+<?php
 // Need dummy entry because arrays count from zero
 $month_array = array("dummy","January","February","March","April","May","June","July",
  "August","September","October","November","December");
@@ -74,11 +74,11 @@ window.onload = function() {
 }
 
 </script>
-<? header2(1); ?>
+<?php header2(1); ?>
   <h1 class="title">Birthday List</h1>
   <table border=0 width=100%><tr><td align=center width=30%>
   <form name="bform" action="birthday_iframe.php" target="ResultFrame" method="GET" onSubmit="make_catlist();">
-<?
+<?php
 // Create list of months, selecting the current month
 $today_array = explode("-",date("Y-m-d",mktime(gmdate("H")+9)));
 for ($index=1; $index<13; $index++) {
@@ -118,15 +118,12 @@ echo "</table>\n";
 echo "<hr>\n";
 
 // Create selection box for selecting a specific category if desired
-if (!$result = mysql_query("SELECT * FROM category ORDER BY Category")) {
-  echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b>");
-} else {
-  echo "Optional: To restrict to certain category(s), select them in the list below.";
-  echo " &nbsp;Use the Ctrl key while clicking to select more than one.<br>\n";
-  echo "    <select size=6 name=cat multiple>\n";
-  while ($row = mysql_fetch_object($result)) {
-    echo "      <option value=" . $row->CategoryID . ">" . $row->Category . "</option>\n";
-  }
+$result = sqlquery_checked("SELECT * FROM category ORDER BY Category");
+echo "Optional: To restrict to certain category(s), select them in the list below.";
+echo " &nbsp;Use the Ctrl key while clicking to select more than one.<br>\n";
+echo "    <select size=6 name=cat multiple>\n";
+while ($row = mysqli_fetch_object($result)) {
+  echo "      <option value=" . $row->CategoryID . ">" . $row->Category . "</option>\n";
 }
 ?>
     </select><hr>
@@ -139,6 +136,6 @@ if (!$result = mysql_query("SELECT * FROM category ORDER BY Category")) {
 
 <script type="text/JavaScript" src="js/jquery.js"></script>
 <script type="text/JavaScript" src="js/jquery-ui.js"></script>
-<?
-footer(0);
+<?php
+footer();
 ?>

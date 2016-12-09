@@ -11,7 +11,7 @@ if (!$_POST['addr_print_name']) {
 
 $sql = "SELECT * FROM addrprint WHERE AddrPrintName='".urldecode($_POST['addr_print_name'])."'";
 $result = sqlquery_checked($sql);
-$print = mysql_fetch_object($result);
+$print = mysqli_fetch_object($result);
 
 $sql = "SELECT ".($_POST['name_type']=="label" ? "DISTINCT LabelName" :
 "IF(NonJapan, CONCAT(Title,' ',FullName), CONCAT(FullName,Title))")." AS Name, NonJapan, postalcode.*, Address ".
@@ -64,8 +64,8 @@ echo "\xEF\xBB\xBF";  //UTF-8 Byte Order Mark
 \raggedright
 \sffamily
 \gtfamily
-<?
-while ($row = mysql_fetch_object($result)) {
+<?php
+while ($row = mysqli_fetch_object($result)) {
   if ($row->NonJapan == 1) {
 ?>
 %% NON-JAPAN PAGE %%
@@ -83,37 +83,37 @@ while ($row = mysql_fetch_object($result)) {
 \end{minipage}}}
 \end{picture}
 \clearpage  
-<?
+<?php
   } else {  //Japanese address
 ?>
 %% JAPAN PAGE %%
 \begin{picture}(<?=$print->PaperWidth?>,<?=$print->PaperHeight?>)(3,3)
-<?
+<?php
     if ($_POST['po_stamp']!='none') {  //Post Office stamp requested
       if ($_POST['po_stamp']=='betsunou') {
 ?>
 \put(<?=$print->PaperLeftMargin?>,<?=$print->PCTopMargin-18?>){%
 \includegraphics[bb=0 0 520 452,width=30mm]{po_betsunou.png}}
-<?
+<?php
       } elseif ($_POST['po_stamp']=='yuumail_betsunou') {
 ?>
 \put(<?=$print->PaperLeftMargin?>,<?=$print->PCTopMargin-22?>){%
 \includegraphics[bb=0 0 520 600,width=30mm]{po_yuumail_betsunou.png}}
-<?
+<?php
       } elseif ($_POST['po_stamp']=='kounou') {
 ?>
 \put(<?=$print->PaperLeftMargin?>,<?=$print->PCTopMargin-18?>){%
 \includegraphics[bb=0 0 520 452,width=30mm]{po_kounou.png}}
-<?
+<?php
       } elseif ($_POST['po_stamp']=='yuumail_kounou') {
 ?>
 \put(<?=$print->PaperLeftMargin?>,<?=$print->PCTopMargin-22?>){%
 \includegraphics[bb=0 0 520 600,width=30mm]{po_yuumail_kounou.png}}
-<?
+<?php
       }
     }  //end if Post Office stamp requested
 ?>
-<?
+<?php
     if (strlen($row->PostalCode)>7) {  //PostalCode is complete
 ?>
 \fontsize{<?=$print->PCPointSize?>}{<?=$print->PCPointSize*1.2?>}\selectfont
@@ -124,7 +124,7 @@ while ($row = mysql_fetch_object($result)) {
 \put(<?=$print->PCLeftMargin+$print->PCExtraSpace+$print->PCSpacing*4?>,<?=$print->PCTopMargin?>){<?=$row->PostalCode[5]?>}
 \put(<?=$print->PCLeftMargin+$print->PCExtraSpace+$print->PCSpacing*5?>,<?=$print->PCTopMargin?>){<?=$row->PostalCode[6]?>}
 \put(<?=$print->PCLeftMargin+$print->PCExtraSpace+$print->PCSpacing*6?>,<?=$print->PCTopMargin?>){<?=$row->PostalCode[7]?>}
-<?
+<?php
     }  //end if PostalCode is complete
     
     if ($print->Tategaki==1) {
@@ -149,7 +149,7 @@ while ($row = mysql_fetch_object($result)) {
 <?=preg_replace("\r\n|\r|\n","\n\n\\hangindent=".($print->NameLineLength*0.1)."mm\n",
 str_replace($search_array,$replace_array,$row->Name))?>
 \end{minipage}}}
-<?
+<?php
     } else { //yokogaki
       $addrheight = $print->AddrPositionY-$print->NamePositionX;
       $nameheight = $print->PaperHeight/2; //arbitrary, just because I need a number
@@ -174,7 +174,7 @@ str_replace($search_array,$replace_array,$row->Name))?>
 <?=preg_replace("\r\n|\r|\n","\n\n\\hangindent=".($print->NameLineLength*0.1)."mm\n",
 str_replace($search_array,$replace_array,$row->Name))?>
 \end{minipage}}}
-<?
+<?php
     }
 ?>
 %% Return Address %%
@@ -182,12 +182,12 @@ str_replace($search_array,$replace_array,$row->Name))?>
 <?=$print->RetAddrContent?>}
 \end{picture}
 \clearpage
-<?
+<?php
   }  //end Japanese address
 }  //end while looping through addresses
 ?>
 \end{document}
-<?
+<?php
 file_put_contents($fileroot.".tex",ob_get_contents());
 ob_end_clean();
 

@@ -21,7 +21,7 @@ table.maininfo td.photocell img { border:2px solid black; }
 span.romajiaddr { font-style:italic; }
 p.cat { font-size:11pt; }
 span.label { font-weight:bold; }
-<?
+<?php
 if ($_POST['break']=="line") {
   echo "div.personbreak { font-size:2px; line-height:2px; border-bottom:3px solid black;";
   echo " margin:10px 0 12px 0; }\n";
@@ -34,7 +34,7 @@ if ($_POST['break']=="line") {
 ?>
 </style>
 </head><body>
-<?
+<?php
 $pid_array = explode(",",$pid_list);
 $num_pids = count($pid_array);
 for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
@@ -42,11 +42,8 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
     "FROM person LEFT JOIN household ON person.HouseholdID=household.HouseholdID ".
     "LEFT JOIN postalcode ON household.PostalCode=postalcode.PostalCode ".
     "WHERE PersonID=$pid_array[$pid_index] ORDER BY Furigana";
-  if (!$result_per = mysql_query($sql)) {
-    echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b><br>($sql)");
-    exit;
-  }
-  $person = mysql_fetch_object($result_per);
+  $result_per = sqlquery_checked($sql);
+  $person = mysqli_fetch_object($result_per);
 
   echo "<div class=\"person\">\n";
   echo "<table class=\"maininfo\"><tr>";
@@ -57,23 +54,23 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
   echo "<h1 class=\"name\">".readable_name($person->FullName,$person->Furigana)."</h1>\n";
   $text = "";
   if ($person->Sex) {
-    $text .= (($person->Sex=="F")?i18n("Female"):i18n("Male"));
+    $text .= (($person->Sex=="F")?_("Female"):_("Male"));
   }
   if ($person->Birthdate && (substr($person->Birthdate,0,4) != "0000")) {
     if (substr($person->Birthdate,0,4) == "1900") {
-      $text .= ($text?", ":"") . "<span class=\"label\">".i18n("Birthday").":</span> ".substr($person->Birthdate,5);
+      $text .= ($text?", ":"") . "<span class=\"label\">"._("Birthday").":</span> ".substr($person->Birthdate,5);
     } else {
-      $text .= ($text?", ":"") . "<span class=\"label\">".i18n("Age").":</span> ".age($person->Birthdate)." (".i18n("born")." ".$person->Birthdate.")";
+      $text .= ($text?", ":"") . "<span class=\"label\">"._("Age").":</span> ".age($person->Birthdate)." ("._("born")." ".$person->Birthdate.")";
     }
   }
-  if ($person->Country) $text .= ($text?", ":"") . "<span class=\"label\">".i18n("Home Country").":</span> ".$person->Country;
-  if ($person->URL) $text .= ($text?", ":"") . "<span class=\"label\">".i18n("URL").":</span> ".$person->URL;
+  if ($person->Country) $text .= ($text?", ":"") . "<span class=\"label\">"._("Home Country").":</span> ".$person->Country;
+  if ($person->URL) $text .= ($text?", ":"") . "<span class=\"label\">"._("URL").":</span> ".$person->URL;
   if ($text) {
     echo $text . "<br />\n";
     $text = "";
   }
-  if ($person->CellPhone) $text .= "<span class=\"label\">".i18n("Cell Phone").":</span> ".$person->CellPhone;
-  if ($person->Email) $text .= ($text?", ":"") . "<span class=\"label\">".i18n("Email").":</span> ".$person->Email;
+  if ($person->CellPhone) $text .= "<span class=\"label\">"._("Cell Phone").":</span> ".$person->CellPhone;
+  if ($person->Email) $text .= ($text?", ":"") . "<span class=\"label\">"._("Email").":</span> ".$person->Email;
   if ($text) {
     echo $text . "<br />\n";
     $text = "";
@@ -87,12 +84,12 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
     echo $text . "<br />\n";
     $text = "";
   }
-  if ($person->Phone) $text .= "<span class=\"label\">".i18n("Phone").":</span> ".$person->Phone;
-  if ($person->FAX) $text .= ($text?", ":"") . "<span class=\"label\">".i18n("FAX").":</span> ".$person->FAX;
+  if ($person->Phone) $text .= "<span class=\"label\">"._("Phone").":</span> ".$person->Phone;
+  if ($person->FAX) $text .= ($text?", ":"") . "<span class=\"label\">"._("FAX").":</span> ".$person->FAX;
   echo "</td></tr></table>\n";
   if ($person->Remarks) {
     echo "<table class=\"maininfo\"><tr>";
-    echo "<td><span class=\"label\">".i18n("Remarks").":</span>&nbsp;</td>\n";
+    echo "<td><span class=\"label\">"._("Remarks").":</span>&nbsp;</td>\n";
     echo "<td>".db2table($person->Remarks)."</td></tr>\n";
     echo "</table>\n";
   }
@@ -102,16 +99,13 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
   if ($_POST['categories']) {
     $sql = "SELECT Category FROM percat JOIN category ON percat.CategoryID=category.CategoryID "
     ."WHERE PersonID=".$person->PersonID." ORDER BY Category";
-    if (!$result = mysql_query($sql)) {
-      echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b><br>($sql)");
-      exit;
-    }
-    echo "<p class=\"cat\"><span class=\"label\">".i18n("Categories").":</span> ";
-    if (mysql_num_rows($result) == 0) {
+    $result = sqlquery_checked($sql);
+    echo "<p class=\"cat\"><span class=\"label\">"._("Categories").":</span> ";
+    if (mysqli_num_rows($result) == 0) {
       echo "none</p>\n";
     } else {
       $text = "";
-      while ($row = mysql_fetch_object($result)) {
+      while ($row = mysqli_fetch_object($result)) {
         $text .= ($text?" / </span>":"") . "<span nowrap>".$row->Category;
       }
       echo $text."</span></p>\n";
@@ -124,19 +118,16 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
     $sql = "SELECT * FROM person WHERE HouseholdID = ".$person->HouseholdID
     ." AND PersonID != ".$person->PersonID
     ." ORDER BY FIELD(Relation,'Child','Spouse','Main') DESC, Birthdate";
-    if (!$result = mysql_query($sql)) {
-      echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b><br>($sql)");
-      exit;
-    }
-    if (mysql_num_rows($result) > 0) {
-      echo "<h2 class=\"hhtitle\">".i18n("Other Members of Household")."</h2>\n";
+    $result = sqlquery_checked($sql);
+    if (mysqli_num_rows($result) > 0) {
+      echo "<h2 class=\"hhtitle\">"._("Other Members of Household")."</h2>\n";
       echo "<table class=\"hhtable\">";
-      echo "<tr><th>".i18n("Name")."</th>";
-      echo "<th>".i18n("Photo")."</th>";
-      echo "<th>".i18n("Household")." ".i18n("Relation")."</th>";
-      echo "<th>".i18n("Sex")."</th>";
-      echo "<th>".i18n("Birthday")." (".i18n("Age").")</th></tr>";
-      while ($row = mysql_fetch_object($result)) {
+      echo "<tr><th>"._("Name")."</th>";
+      echo "<th>"._("Photo")."</th>";
+      echo "<th>"._("Household")." "._("Relation")."</th>";
+      echo "<th>"._("Sex")."</th>";
+      echo "<th>"._("Birthday")." ("._("Age").")</th></tr>";
+      while ($row = mysqli_fetch_object($result)) {
         echo "<tr><td nowrap>".readable_name($row->FullName,$row->Furigana);
         echo "</td>\n<td align=center>";
         if ($row->Photo == 1) echo "<img border=0 src=\"photos/p".$row->PersonID.".jpg\" width=40>";
@@ -149,7 +140,7 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
           if (preg_match("/^1900-/",$row->Birthdate)) {
             echo substr($row->Birthdate,5);
           } else {
-            echo $row->Birthdate." (".i18n("Age")." ".age($row->Birthdate).")";
+            echo $row->Birthdate." ("._("Age")." ".age($row->Birthdate).")";
           }
         }
         echo "</td>\n</tr>";
@@ -164,19 +155,16 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
     $sql = "SELECT contact.*, contacttype.ContactType, contacttype.BGColor FROM contact"
     ." JOIN contacttype ON contact.ContactTypeID=contacttype.ContactTypeID"
     ." WHERE contact.PersonID=".$person->PersonID." ORDER BY contact.ContactDate DESC";
-    if (!$result = mysql_query($sql)) {
-      echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b><br>($sql)");
-      exit;
-    }
-    if (($numrows = mysql_num_rows($result)) > 0) {
-      echo "<h2 class=\"contitle\">".i18n("Contacts");
-      if ($_POST['contact_types']!="all") echo " (".i18n("first, last, and key contacts").")</h2>\n";
+    $result = sqlquery_checked($sql);
+    if (($numrows = mysqli_num_rows($result)) > 0) {
+      echo "<h2 class=\"contitle\">"._("Contacts");
+      if ($_POST['contact_types']!="all") echo " ("._("first, last, and key contacts").")</h2>\n";
       echo "<table class=\"contable\">";
-      echo "<tr><th>".i18n("Date")."</th>";
-      echo "<th>".i18n("Type")."</th>";
-      echo "<th>".i18n("Description")."</th></tr>";
+      echo "<tr><th>"._("Date")."</th>";
+      echo "<th>"._("Type")."</th>";
+      echo "<th>"._("Description")."</th></tr>";
       $rownum = 1;
-      while ($row = mysql_fetch_object($result)) {
+      while ($row = mysqli_fetch_object($result)) {
         if (($_POST['contact_types']=="all") || ($rownum==1) || ($rownum==$numrows) || ($row->BGColor!="FFFFFF")) {
           echo "<tr><td align=center style=\"background-color:#".$row->BGColor."\">".$row->ContactDate."</td>\n";
           echo "<td align=center style=\"background-color:#".$row->BGColor."\">".$row->ContactType."</td>\n";
@@ -194,17 +182,14 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
     $sql = "SELECT e.Event, min(a.AttendDate) AS first, max(a.AttendDate) AS last,".
     " COUNT(a.AttendDate) AS times, e.Remarks FROM event e, attendance a WHERE e.EventID = a.EventID".
     " AND a.PersonID = ".$person->PersonID." GROUP BY e.Event ORDER BY last";
-    if (!$result = mysql_query($sql)) {
-      echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b><br>($sql)");
-      exit;
-    }
-    if (mysql_num_rows($result) > 0) {
-      echo "<h2 class=\"attendtitle\">".i18n("Event Attendance")."</h2>\n";
+    $result = sqlquery_checked($sql);
+    if (mysqli_num_rows($result) > 0) {
+      echo "<h2 class=\"attendtitle\">"._("Event Attendance")."</h2>\n";
       echo "<table class=\"attendtable\">";
-      echo "<tr><th>".i18n("Event")."</th>";
-      echo "<th>".i18n("Date")."</th>";
-      echo "<th>".i18n("Description")."</th></tr>";
-      while ($row = mysql_fetch_object($result)) {
+      echo "<tr><th>"._("Event")."</th>";
+      echo "<th>"._("Date")."</th>";
+      echo "<th>"._("Description")."</th></tr>";
+      while ($row = mysqli_fetch_object($result)) {
         echo "<tr><td nowrap>".$row->Event."</td><td nowrap>";
         if ($row->first == $row->last) {
           echo $row->first;
@@ -224,17 +209,14 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
     $sql = "SELECT pl.PledgeID, pl.DonationTypeID, pl.PledgeDesc, dt.BGColor FROM pledge pl ".
       "LEFT JOIN donationtype dt ON pl.DonationTypeID=dt.DonationTypeID WHERE PersonID=".$person->PersonID.
       " AND (EndDate IS NULL OR EndDate>CURDATE()) ORDER BY PledgeDesc";
-    if (!$result = mysql_query($sql)) {
-      echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b><br>($sql)");
-      exit;
-    }
-    if (mysql_num_rows($result) > 0) {
-      echo "<h2 class=\"pledgetitle\">".i18n("Pledges")."</h2>\n";
+    $result = sqlquery_checked($sql);
+    if (mysqli_num_rows($result) > 0) {
+      echo "<h2 class=\"pledgetitle\">"._("Pledges")."</h2>\n";
       echo "<table class=\"pledgetable\">";
-      echo "<tr><th>".i18n("Event")."</th>";
-      echo "<th>".i18n("Date")."</th>";
-      echo "<th>".i18n("Description")."</th></tr>";
-      while ($row = mysql_fetch_object($result)) {
+      echo "<tr><th>"._("Event")."</th>";
+      echo "<th>"._("Date")."</th>";
+      echo "<th>"._("Description")."</th></tr>";
+      while ($row = mysqli_fetch_object($result)) {
         echo "<tr><td nowrap>".$row->Event."</td><td nowrap>";
         if ($row->first == $row->last) {
           echo $row->first;

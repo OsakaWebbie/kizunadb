@@ -16,15 +16,15 @@ if ($_POST["enddate"]) $sql .= " AND AttendDate <= '".$_POST["enddate"]."'";
 if ($pidfilter) $sql .= " AND attendance.PersonID IN ($pidfilter)";
 $sql .= " ORDER BY Furigana";
 $result = sqlquery_checked($sql);
-if (mysql_numrows($result) == 0) {
+if (mysqli_num_rows($result) == 0) {
   header1(_("Attendance Detail Chart"));
   header2($_REQUEST['nav']);
   echo _("There are no records matching your criteria.");
-  footer(0);
+  footer();
   exit;
 }
 $num_people = $num_photos = 0;
-while ($row = mysql_fetch_object($result)) {
+while ($row = mysqli_fetch_object($result)) {
   $parray[] = $row;
   $num_people++;
   $num_photos += $row->Photo;
@@ -63,18 +63,18 @@ $(document).ready(function(){
       IDs.push($(this).attr('id'));
     });
     if (IDs.length > 0) {
-      var text = '<? echo _("Are you sure you want to delete these %d attendance records?"); ?>';
+      var text = '<?=_("Are you sure you want to delete these %d attendance records?")?>';
       if (confirm(text.replace('%d',IDs.length))) {
         $.ajax({
           type: "POST",
           url: "attend_del.php",
-          data: "action=AttendDelete&ids="+IDs+"&eid=<? echo $eid; ?>",
+          data: "action=AttendDelete&ids="+IDs+"&eid=<?=$eid?>",
           dataType: "text",
           success: function(deleted) {
             if (deleted.substring(0,1) == "#") {  //indication of success
               $(deleted).removeClass('attendcell attendtimecell ui-selected');
               $(deleted).text('');
-              alert("<? echo _("Attendance records successfully deleted."); ?>");
+              alert("<?=_("Attendance records successfully deleted.")?>");
             } else {
               alert("Delete failed: "+deleted);
             }
@@ -82,13 +82,13 @@ $(document).ready(function(){
         });
       }
     } else {
-      alert('<? echo _("No cells have been selected for deletion."); ?>');
+      alert('<?=_("No cells have been selected for deletion.")?>');
     }
   });
 });
 
 </script>
-<?
+<?php
 header2($_REQUEST['nav']);
 //echo "<pre>";
 //print_r($_POST);
@@ -96,7 +96,7 @@ header2($_REQUEST['nav']);
 if ($_REQUEST['nav']==1) echo "<h1 id=\"title\">"._("Attendance Detail Chart").$pstext."</h1>\n";
 //get the description of the event
 $result = sqlquery_checked("SELECT Event,UseTimes,Remarks from event WHERE EventID = $eid");
-$event = mysql_fetch_object($result);
+$event = mysqli_fetch_object($result);
 echo "<h3>".sprintf(_("Event: \"%s\" (%s)"),$event->Event,$event->Remarks);
 if ($_POST["startdate"] && $_POST["enddate"]) printf(_(", between %s and %s"),$_POST["startdate"],$_POST["enddate"]);
 elseif ($_POST["startdate"]) printf(_(", on or after %s"),$_POST["startdate"]);
@@ -110,7 +110,7 @@ if ($_POST['empties']==1) {
   if ($_POST["startdate"]) $sql .= " AND AttendDate >= '".$_POST["startdate"]."'";
   if ($_POST["enddate"]) $sql .= " AND AttendDate <= '".$_POST["enddate"]."'";
   $result = sqlquery_checked($sql);
-  $row = mysql_fetch_object($result);
+  $row = mysqli_fetch_object($result);
   for($step = $row->first; $step != $row->last; $step = date('Y-m-d', strtotime("$step +1 day"))) {
     $darray[] = $step;
   }
@@ -121,7 +121,7 @@ if ($_POST['empties']==1) {
   if ($_POST["enddate"]) $sql .= " AND AttendDate <= '".$_POST["enddate"]."'";
   $sql .= " ORDER BY AttendDate";
   $result = sqlquery_checked($sql);
-  while ($row = mysql_fetch_object($result)) {
+  while ($row = mysqli_fetch_object($result)) {
     $darray[] = $row->AttendDate;
   }
   //only need the emptiesform if range is not consecutive
@@ -151,7 +151,7 @@ if (isset($_POST['rangeall'])) {  //user requested whole range
 }
 
 if ($showemptiesform == 1) {
-  echo "<form id=\"emptiesform\" action=\"".$PHP_SELF."\" method=\"post\" target=\"_self\">\n";
+  echo "<form id=\"emptiesform\" action=\"".$_SERVER['PHP_SELF']."\" method=\"post\" target=\"_self\">\n";
   foreach ($_REQUEST as $key => $val) {
     if ($key != "empties")  echo "<input type=\"hidden\" name=\"".$key."\" value=\"".$val."\">\n";
   }
@@ -173,7 +173,7 @@ echo "<p>"._("To delete entries, drag, click, and/or Ctrl-click one or more cell
 echo "<button id=\"deleteSelected\">"._("Delete Selected Cells")."</button>\n";
 
 if ($rangefirst > 0 || $rangelast < $num_dates-1) {
-  echo "<form id=\"rangeform\" action=\"".$PHP_SELF."\" method=\"post\" target=\"_self\">\n";
+  echo "<form id=\"rangeform\" action=\"".$_SERVER['PHP_SELF']."\" method=\"post\" target=\"_self\">\n";
   foreach ($_REQUEST as $key => $val) {
     if (substr($key,0,5)!="range")  echo "<input type=\"hidden\" name=\"".$key."\" value=\"".$val."\">\n";
   }
@@ -227,7 +227,7 @@ for ($r=0; $r<$num_people; $r++) {
   $sql .= " AND AttendDate >= '".$darray[$rangefirst]."' AND AttendDate <= '".$darray[$rangelast]."'";
   $sql .= " ORDER BY AttendDate";
   $result = sqlquery_checked($sql);
-  $row = mysql_fetch_object($result);
+  $row = mysqli_fetch_object($result);
   $done = 0;
 
   // put photo in first column if any are present
@@ -253,7 +253,7 @@ for ($r=0; $r<$num_people; $r++) {
       if ($event->UseTimes && $row->StartTime) echo "attendtimecell\">".substr($row->StartTime,0,5)."~<br />".substr($row->EndTime,0,5);
       else echo "attendcell\">*";
       echo "</td>\n";
-      if (!$row = mysql_fetch_object($result)) $done = 1;
+      if (!$row = mysqli_fetch_object($result)) $done = 1;
     } else {
       echo "<td></td>\n";
     }

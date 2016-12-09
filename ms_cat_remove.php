@@ -7,7 +7,7 @@ if ($remove_cat) {
   
   $sql = "DELETE FROM percat WHERE CategoryID=".$_POST['cat_id']." AND PersonID IN ($pid_list)";
   sqlquery_checked($sql);
-  $num_affected = mysql_affected_rows();
+  $num_affected = mysqli_affected_rows($db);
   $num_unaffected = substr_count($pid_list,",") + 1 - $num_affected;
   echo "<h3><font color=\"#993333\">".($num_affected)." records removed from category '".$_POST['category']."'.</font></h3>";
   if ($num_unaffected > 0) {
@@ -34,14 +34,14 @@ function validate() {
 </SCRIPT>
 
   <div align="center">
-    <form action="<? echo $PHP_SELF; ?>" method="post" name="catform" target="_self" onsubmit="return validate();">
-      <input type="hidden" name="pid_list" value="<? echo $pid_list; ?>">
+    <form action="<?=$_SERVER['PHP_SELF']?>" method="post" name="catform" target="_self" onsubmit="return validate();">
+      <input type="hidden" name="pid_list" value="<?=$pid_list?>">
       <input type="hidden" name="category" value="">
       <p>Category: <select name="cat_id" size="1">
         <option value="" selected>Select category...</option>
-<?
+<?php
 $result = sqlquery_checked("SELECT * FROM category ORDER BY Category");
-while ($row = mysql_fetch_object($result)) {
+while ($row = mysqli_fetch_object($result)) {
   echo "        <option value=\"".$row->CategoryID."\">$row->Category</option>\n";
 }
 ?>
@@ -49,5 +49,5 @@ while ($row = mysql_fetch_object($result)) {
       <p><input type="submit" name="remove_cat" value="Remove From This Category"></p>
     </form>
   </div>
-<? print_footer();
+<?php print_footer();
 ?>

@@ -82,7 +82,7 @@ for ($i=1; isset($_REQUEST["catselect".$i]); $i++) {
   $where .= ($where!=""?" AND":" WHERE")." $not ($ptable.PersonID IN (SELECT PersonID FROM percat WHERE CategoryID IN ($cats)))";
   $result = sqlquery_checked("SELECT Category FROM category WHERE CategoryID IN ($cats) ORDER BY Category");
   $catnames = "";
-  while ($row = mysql_fetch_object($result)) {
+  while ($row = mysqli_fetch_object($result)) {
     $catnames .= d2h($row->Category).", ";
   }
   if ($not) {
@@ -101,7 +101,7 @@ for ($i=1; isset($_REQUEST["ctselect".$i]); $i++) {
   $where .= "))";
   $result = sqlquery_checked("SELECT ContactType FROM contacttype WHERE ContactTypeID IN ($cts) ORDER BY ContactType");
   $ctnames = "";
-  while ($row = mysql_fetch_object($result)) {
+  while ($row = mysqli_fetch_object($result)) {
     $ctnames .= d2h($row->ContactType).", ";
   }
   if ($not) {
@@ -131,12 +131,12 @@ for ($i=1; isset($_REQUEST["seqctqual".$i]) && isset($_REQUEST["seqctelim".$i]);
   $where .= ($where!=""?" AND":" WHERE")." (elim.elimdate is null or qual.qualdate $operator elim.elimdate)";
   $result = sqlquery_checked("SELECT ContactType FROM contacttype WHERE ContactTypeID IN ($qualcts) ORDER BY ContactType");
   $ctqualnames = "";
-  while ($row = mysql_fetch_object($result)) {
+  while ($row = mysqli_fetch_object($result)) {
     $ctqualnames .= d2h($row->ContactType).", ";
   }
   $result = sqlquery_checked("SELECT ContactType FROM contacttype WHERE ContactTypeID IN ($elimcts) ORDER BY ContactType");
   $ctelimnames = "";
-  while ($row = mysql_fetch_object($result)) {
+  while ($row = mysqli_fetch_object($result)) {
     $ctelimnames .= d2h($row->ContactType).", ";
   }
   if ($_REQUEST["seqorder".$i]=="AFTER") {
@@ -157,7 +157,7 @@ for ($i=1; isset($_REQUEST["dtselect".$i]); $i++) {
   $where .= "))";
   $result = sqlquery_checked("SELECT DonationType FROM donationtype WHERE DonationTypeID IN ($dts) ORDER BY DonationType");
   $dtnames = "";
-  while ($row = mysql_fetch_object($result)) {
+  while ($row = mysqli_fetch_object($result)) {
     $ctnames .= d2h($row->DonationType).", ";
   }
   if ($not) {
@@ -180,7 +180,7 @@ for ($i=1; isset($_REQUEST["eventselect".$i]); $i++) {
   $where .= "))";
   $result = sqlquery_checked("SELECT Event FROM event WHERE EventID IN ($events) ORDER BY Event");
   $eventnames = "";
-  while ($row = mysql_fetch_object($result)) {
+  while ($row = mysqli_fetch_object($result)) {
     $eventnames .= d2h($row->Event).", ";
   }
   if ($not) {
@@ -228,7 +228,7 @@ if ($_REQUEST['freesql'] != "") {
 if (isset($_GET['ps'])) {
   list($psid,$psnum) = explode(":",$_GET['ps']);
   $tempres = sqlquery_checked("SELECT Pids,Client FROM kizuna_common.preselect WHERE PSID='$psid'");
-  $psobj = mysql_fetch_object($tempres);
+  $psobj = mysqli_fetch_object($tempres);
   if ($psobj && $_SESSION['client']==$psobj->Client && $psobj->Pids!="") $preselected = $psobj->Pids;
 } else if (isset($_REQUEST['preselected']) && $_REQUEST['preselected']!="") {
   $preselected = $_REQUEST['preselected'];
@@ -242,22 +242,22 @@ if (isset($preselected) && $preselected != '') {
 $sql .= $join . $where . $closing . " GROUP BY $grouptable.PersonID ORDER BY Furigana";
 $criterialist .= "</ul>";
 
-if (!$result = mysql_query($sql)) {
+if (!$result = mysqli_query($db, $sql)) {
   header1(_("Error"));
   echo '<link rel="stylesheet" href="style.php" type="text/css" />';
   header2(1);
   echo $test;
   echo $criterialist;
   echo "<div style=\"border: 2px solid darkred;background-color:#ffe0e0;color:darkred;padding-left:5px;margin:20px 0;\">$sql</div>";
-  echo "<div style=\"font-weight:bold;margin:10px 0\">The query had an error:<br>".mysql_errno().": ".mysql_error()."</div>";
+  echo "<div style=\"font-weight:bold;margin:10px 0\">The query had an error:<br>".mysql_errno($db).": ".mysqli_error($db)."</div>";
   exit;
 }
 
-if (mysql_num_rows($result) == 0) {
+if (mysqli_num_rows($result) == 0) {
   header("Location: search.php?text=".urlencode(_("Search resulted in no records.".($_SESSION['userid']=="karen"?urlencode("<pre>".$sql."</pre>"):""))));
   exit;
-} elseif (mysql_num_rows($result) == 1) {
-  $person = mysql_fetch_object($result);
+} elseif (mysqli_num_rows($result) == 1) {
+  $person = mysqli_fetch_object($result);
   header("Location: individual.php?pid=".$person->PersonID);
   exit;
 }
@@ -306,36 +306,36 @@ $tableheads .= "<ul id=\"ulSelectColumn\"><li><img src=\"graphics/selectcol.png\
 $tableheads .= "</th>\n";
 ?>
 <link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />
-<?
+<?php
 header2(1);
-echo "<h3>".sprintf(_("%d results of these criteria:"),mysql_num_rows($result)).($_REQUEST['countonly'] ? "&nbsp;&nbsp;&nbsp;<a href=\"".
+echo "<h3>".sprintf(_("%d results of these criteria:"),mysqli_num_rows($result)).($_REQUEST['countonly'] ? "&nbsp;&nbsp;&nbsp;<a href=\"".
 str_replace("countonly=yes","countonly=",$_SERVER['REQUEST_URI'])."\">"._("(Show results)")."</a>" : "")."</h3>\n";
 echo $criterialist;
 
 $psid = uniqid();
 ?>
 <div id="actions">
-  <? if ($_SESSION['userid']=="karen") { ?><a href="multiselect.php?ps=<?=$psid.":".mysql_num_rows($result)?>"><?=_("Go to Multi-Select with these entries preselected")?></a> (new method)&nbsp;&nbsp;<? } ?>
+  <?php if ($_SESSION['userid']=="karen") { ?><a href="multiselect.php?ps=<?=$psid.":".mysqli_num_rows($result)?>"><?=_("Go to Multi-Select with these entries preselected")?></a> (new method)&nbsp;&nbsp;<?php } ?>
   <form action="multiselect.php" method="post" target="_top">
   <input type="hidden" id="preselected" name="preselected" value="">
   <input type="submit" value="<?=_("Go to Multi-Select with these entries preselected")?>">
   </form>
-<? if (!$_REQUEST['countonly']) {  //can't do CSV if there is no table ?>
+<?php if (!$_REQUEST['countonly']) {  //can't do CSV if there is no table ?>
   <form action="download.php" method="post" target="_top">
   <input type="hidden" id="csvtext" name="csvtext" value="">
   <input type="submit" id="csvfile" name="csvfile" value="<?=_("Download a CSV file of this table")?>" onclick="getCSV();">
   </form>
-<? } //end if not count only ?>
+<?php } //end if not count only ?>
 </div>
-<?
+<?php
 if ($_REQUEST['countonly']) {  //if count only, just get pids for multi-select
-  while ($row = mysql_fetch_object($result)) $pid_list .= ",".$row->PersonID;
+  while ($row = mysqli_fetch_object($result)) $pid_list .= ",".$row->PersonID;
 } else {  //if not count only, build the whole table
   echo "<table id=\"mainTable\" class=\"tablesorter\"><thead>";
   echo "<tr>";
   echo $tableheads;
   echo "</tr></thead><tbody>\n";
-  while ($row = mysql_fetch_object($result)) {
+  while ($row = mysqli_fetch_object($result)) {
     $pid_list .= ",".$row->PersonID;
     echo "<tr>";
     echo "<td class=\"personid\">".$row->PersonID."</td>\n";
@@ -384,8 +384,8 @@ $(document).ready(function() {
   $('#mainTable').columnManager({listTargetID:'targetall',
   onClass: 'advon',
   offClass: 'advoff',
-  hideInList: [<? echo $hideInList; ?>],
-  colsHidden: [<? echo $colsHidden; ?>],
+  hideInList: [<?=$hideInList?>],
+  colsHidden: [<?=$colsHidden?>],
   saveState: false});
   $('#ulSelectColumn').clickMenu({onClick: function(){}});
   
@@ -406,5 +406,5 @@ function getCSV() {
   $(".name-for-display, .selectcol").show();
 }
 </script>
-<?
-footer(1);
+<?php
+footer();

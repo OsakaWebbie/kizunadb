@@ -31,7 +31,7 @@ window.close();
 }
 </script>
 
-<?
+<?php
 if ($selected_from_list) {   // *** User just finishing clicking on one of a multiple list ***
   process_selection($_POST['pc'], $_POST['pref'], $_POST['shi'], "", $maindb);
   exit;
@@ -58,25 +58,20 @@ if ($_GET['pc']) {
   exit;
 }
 
-// ***** Check for local auxpostalcode table *****
-if (mysql_query("SELECT 1 FROM auxpostalcode LIMIT 0",$maindb)) {
-  $auxpcdb = $maindb;  // *** auxpostalcode table exists locally so use that one ***
-} else {
-  if (!$auxpcdb = mysql_connect("oicjapan.org","oicja3","Eph219")) {
-    echo("<body onload=\"window.focus();\"><b>SQL Error: "
-    .mysql_errno().": ".mysql_error()."</b><br>(attempting to connect to OIC Databasel)</body></html>");
-    exit;
-  }
-  mysql_select_db("oicja3", $auxpcdb);
+// ***** Connect to common database for auxpostalcode table *****
+if (!$commondb = mysqli_connect("localhost", "kz_".$client, $pass, "kizuna_common")) {
+  echo("<body onload=\"window.focus();\"><b>SQL Error: "
+    .mysql_errno($db).": ".mysqli_error($db)."</b><br>(attempting to connect to kizuna_common databasel)</body></html>");
+  exit;
 }
 $sql = "SELECT * FROM auxpostalcode $where";
-if (!$aux = mysql_query($sql,$auxpcdb)) {
+if (!$aux = mysqli_query($commondb, $sql)) {
   echo("<body onload=\"window.focus();\"><b>SQL Error: "
-  .mysql_errno().": ".mysql_error()."</b><br>($sql)</body></html>");
+  .mysql_errno($db).": ".mysqli_error($db)."</b><br>($sql)</body></html>");
   exit;
 }
 
-if (mysql_num_rows($aux) == 0) {
+if (mysqli_num_rows($aux) == 0) {
 
   echo "<script type=\"text/javascript\">\n";
   echo "function nomatch()\n";
@@ -92,9 +87,9 @@ if (mysql_num_rows($aux) == 0) {
   echo "</script>\n";
   echo "<body onload=\"nomatch();\"></body></html>";
   
-} elseif (mysql_num_rows($aux) == 1) {   // *** unique record found ***
+} elseif (mysqli_num_rows($aux) == 1) {   // *** unique record found ***
 
-  $rec = mysql_fetch_object($aux);
+  $rec = mysqli_fetch_object($aux);
   process_selection($rec->PostalCode, $rec->Prefecture, $rec->ShiKuCho,"", $maindb);
     
 } else {   // *** found multiple records; ask user to select ***
@@ -107,7 +102,7 @@ if (mysql_num_rows($aux) == 0) {
   echo "<tr><td bgcolor=#E0E0FF align=center>&nbsp;</td><td bgcolor=#E0E0FF align=center>Postal Code</td>\n";
   echo "<td bgcolor=#E0E0FF align=center>Pref.</td><td bgcolor=#E0E0FF align=center>City etc.</td></tr>\n";
 
-  while ($row = mysql_fetch_object($aux)) {
+  while ($row = mysqli_fetch_object($aux)) {
     echo "<tr><td>";
     echo "<form method=POST action=\"${PHP_SELF}\">\n";
     echo "<input type=hidden name=pc value=\"$row->PostalCode\">\n";
@@ -126,13 +121,13 @@ function process_selection($pc, $pref, $shi, $rom, $maindb) {
 
   // ***** CHECK POSTALCODE TABLE FOR ENTRY *****
   $sql = "SELECT * FROM postalcode WHERE PostalCode='".$pc."'";
-  if (!$main = mysql_query($sql,$maindb)) {
+  if (!$main = mysqli_query($db, $sql)) {
     echo("<body onload=\"window.focus();\"><b>SQL Error: "
-    .mysql_errno().": ".mysql_error()."</b><br>($sql)</body></html>");
+    .mysql_errno($db).": ".mysqli_error($db)."</b><br>($sql)</body></html>");
     exit;
   }
 
-  if (mysql_num_rows($main) == 0) {  // *** NO PREVIOUS ENTRY IN POSTALCODE TABLE ***
+  if (mysqli_num_rows($main) == 0) {  // *** NO PREVIOUS ENTRY IN POSTALCODE TABLE ***
   
     // ***** IF ROMAJI NEEDED, BUILD ROMAJI REQUEST FORM AND EXIT *****
     if (($rom == "") && ($_SESSION['romajiaddresses'] == "yes")) {
@@ -149,7 +144,7 @@ if (romajitext == '') {
 <body onload="window.focus();document.forms['romajiform'].elements['romajitext'].select();"><div align=center>
 <b>To maintain a romaji version of addresses, please<br>
 fill in appropriate romaji for $pref$shi :</b><br>
-<form name=romajiform method=POST action="${PHP_SELF}" onsubmit="validate();">
+<form name=romajiform method=POST action="{$_SERVER['PHP_SELF']}" onsubmit="validate();">
 <input type=hidden name=pc value="$pc">
 <input type=hidden name=pref value="$pref">
 <input type=hidden name=shi value="$shi">
@@ -169,14 +164,14 @@ ECHOEND;
     } else {  // NO NEED FOR ROMAJI, BUT MUST INSERT NEW RECORD
       $sql = "INSERT INTO postalcode(PostalCode,Prefecture,ShiKuCho,Romaji)".
       " VALUES('$pc','$pref','$shi','$rom')";
-      if (!$aux = mysql_query($sql,$maindb)) {
+      if (!$aux = mysqli_query($db, $sql)) {
         echo("<body onload=\"window.focus();\"><b>SQL Error: "
-        .mysql_errno().": ".mysql_error()."</b><br>($sql)</body></html>");
+        .mysql_errno($db).": ".mysqli_error($db)."</b><br>($sql)</body></html>");
         exit;
       }
     }
   } else {  // *** Record was found in postalcode table, so grab its romaji
-    $rec = mysql_fetch_object($main);
+    $rec = mysqli_fetch_object($main);
     $rom = $rec->Romaji;
   }
   // ***** FINALLY, BUILD JAVASCRIPT CALL TO FILL IN PARENT FIELDS *****

@@ -21,14 +21,13 @@ if ($_REQUEST['cellphone'] != "") {
 if ($_REQUEST['email'] != "") {
   $sql .= " OR (LOWER(person.Email)=LOWER('".$_REQUEST['email']."'))";
 }
-$result = mysql_query($sql);
-//$result = sqlquery_checked($sql);
-if (mysql_numrows($result)==0) {
+$result = sqlquery_checked($sql);
+if (mysqli_num_rows($result)==0) {
   die("NODUPS");
 } else {
   echo "<h3>"._("Is one of these existing entries the same<br />as the new one you are entering?")."</h3>";
   echo "<p class=\"comment\">"._("(click on a name to see details in a new window/tab)")."</p>";
-  while ($row = mysql_fetch_object($result)) {
+  while ($row = mysqli_fetch_object($result)) {
     echo "<div class=\"dup\">\n";
     echo "  <div class=\"name\"><a href=\"individual.php?pid=".$row->PersonID."\" target=\"_blank\">".
     readable_name($row->FullName,$row->Furigana)."</a></div>\n";

@@ -10,13 +10,10 @@ echo "<title>Formatted Individual Data</title>\n";
 
 $sql = "SELECT * FROM outputset LEFT JOIN output ON outputset.Class=output.Class ".
  "WHERE SetName='$outputset_name' AND ForHousehold=0 ORDER BY OrderNum";
-if (!$result = mysql_query($sql)) {
-  echo("<b>SQL Error ".mysql_errno().": ".code_display(mysql_error())."</b><br>SQL:<br>".code_display($sql));
-  exit;
-}
+$result = sqlquery_checked($sql);
 $num_items = 0;
 echo "<style>\n";
-while ($row = mysql_fetch_object($result)) {
+while ($row = mysqli_fetch_object($result)) {
   $class[$num_items][0] = $row->Class;
   $class[$num_items][1] = $row->OutputSQL;
   echo ".".$row->Class." { ".$row->CSS." }\n";
@@ -43,13 +40,10 @@ if (stripos($outputset_name,"table")!==FALSE) {
   $sql .= " FROM person LEFT JOIN household ON person.HouseholdID=household.HouseholdID ".
   "LEFT JOIN postalcode ON household.PostalCode=postalcode.PostalCode ".
   "WHERE PersonID IN (".$pid_list.") ORDER BY ".$orderby;
-  if (!$result = mysql_query($sql)) {
-    echo("<b>SQL Error ".mysql_errno().": ".code_display(mysql_error())."</b><br>SQL:<br>".code_display($sql));
-    exit;
-  }
-//echo "Numrows? (should be one): ".mysql_num_rows($result)."<br>";
-while ($per = mysql_fetch_array($result)) {
-//  $per = mysql_fetch_array($result);
+  $result = sqlquery_checked($sql);
+//echo "Numrows? (should be one): ".mysqli_num_rows($result)."<br>";
+while ($per = mysqli_fetch_array($result)) {
+//  $per = mysqli_fetch_array($result);
   for ($index = 0; $index < $num_items; $index++) {
     echo $per[$index]."\n";
   }

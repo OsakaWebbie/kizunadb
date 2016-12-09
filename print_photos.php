@@ -1,53 +1,124 @@
 <?php
 include("functions.php");
 include("accesscontrol.php");
-print_header("Photo Printing","#FFFFE0",0);
 
-$sql = "SELECT * FROM photoprint WHERE PhotoPrintName='$photo_print_name'";
-if (!$result = mysql_query($sql)) {
-  echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b><br>($sql)<br>");
+$sql = "SELECT * FROM photoprint WHERE PhotoPrintName='".urldecode($_GET['photo_print_name'])."'";
+$result = sqlquery_checked($sql);
+$print = mysqli_fetch_object($result);
+$table_width = floor(($print->PaperWidth - $print->PaperLeftMargin - $print->PaperRightMargin) * 96 / 25.4);  // assuming 96 dpi
+$num_col = floor(($table_width) / ($print->PhotoWidth + $print->Gutter));
+$col_width = floor($table_width / $num_col);
+$cell_padding = floor($print->Gutter / 2);
+$path = "/var/www/".$_SESSION['client']."/photos/";
+?>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html;charset=<?=$_SESSION['charset']?>">
+<title></title>
+<style>
+table {
+    page-break-inside:avoid;
+}
+.caption {
+    font-family: "<?=$print->Font?>";
+    font-size: <?=$print->PointSize?>pt;
+}
+</style>
+</head>
+<body>
+<?php
+
+$list_no_hh = "";
+$list_no_photo = "";
+$num_no_hh = 0;
+$num_no_photo = 0;
+
+if (!$pid_list || $pid_list == "") {
+  echo "No list of Person ID's passed from previous screen.";
   exit;
 }
-$row = mysql_fetch_object($result);
-?>
+if ($_GET['data_type'] == "household") {
+  $sql = "SELECT DISTINCT person.HouseholdID, household.Photo, PhotoCaption, LabelName ".
+      "from person LEFT JOIN household ON person.HouseholdID=household.HouseholdID ".
+      "WHERE person.PersonID IN (".$pid_list.") ORDER BY FIND_IN_SET(PersonID,'".$pid_list."')";
+} else {
+  $sql = "SELECT PersonID, FullName, Furigana, person.Photo FROM person LEFT JOIN household ".
+      "ON person.HouseholdID=household.HouseholdID WHERE person.PersonID IN (".$pid_list.") ORDER BY Furigana";
+}
+$result = sqlquery_checked($sql);
+$col=1;
+$in_table = 0;
+while ($row = mysqli_fetch_object($result)) {
+  if ($row->Photo == 0) {
+    if (($_GET['data_type'] == "household") && ($row->Members == 1)) {    //only one member, so use individual photo and info
+      $sql = "SELECT PersonID,FullName,Furigana,Photo FROM person WHERE HouseholdID=".$row->HouseholdID;
+      $result = sqlquery_checked($sql);
+      $member = mysqli_fetch_object($result);
+      if ($member->Photo == 1) {
+        $photo = "p{$member->PersonID}";
+        $caption = readable_name($member->FullName, $member->Furigana);
+      } else if ($_GET['show_blanks']) {
+        $photo = "no_photo";
+        $caption = $row->LabelName;
+      } else {
+        continue;
+      }
+    } else if ($_GET['show_blanks']) {
+      $photo = "no_photo";
+      $caption = ($_GET['data_type'] == "household" ? $row->LabelName : readable_name($row->FullName, $row->Furigana));
+    } else {
+      continue;
+    }
+  } else {
+    if ($_GET['data_type'] == "household") {
+      $photo = "h{$row->HouseholdID}";
+      $caption = $row->PhotoCaption;
+    } else {
+      $photo = "p{$row->PersonID}";
+      $caption = readable_name($row->FullName, $row->Furigana);
+    }
+  }
+  if ($col == 1) {
+    echo "<table width=\"{$table_width}\" border=\"0\" cellpadding=\"0\" cellpadding=\"{$cellpadding}\">\n  <tr>\n";
+    $in_table = 1;
+  }
+  echo "    <td width=\"{$col_width}\" align=\"center\" valign=\"bottom\">\n";
 
-<!-- MeadCo ScriptX Control -->
-<object id="factory" style="display:none" viewastext
-classid="clsid:1663ed61-23eb-11d2-b92f-008048fdd814"
-codebase="smsx.cab#Version=6,2,433,14">
-</object>
+  //some code to calculate max dimensions without distorting the aspect ratio
+  $jpgsize = GetImageSize($path.(is_file($path.$_GET['f'].".jpg") ? $_GET['f'] : "missing_file").".jpg");
+  $jpgwidth = $jpgsize[0];
+  $jpgheight = $jpgsize[1];
+  $x_ratio = $print->PhotoWidth / $jpgwidth;
+  $y_ratio = $print->PhotoHeight / $jpgheight;
+  if( ($jpgwidth <= $print->PhotoWidth) && ($jpgheight <= $print->PhotoHeight) ) {
+    $imgwidth = $jpgwidth;
+    $imgheight = $jpgheight;
+  } elseif (($x_ratio * $jpgheight) < $print->PhotoHeight) {
+    $imgheight = ceil($x_ratio * $jpgheight);
+    $imgwidth = $print->PhotoWidth;
+  } else {
+    $imgwidth = ceil($y_ratio * $jpgwidth);
+    $imgheight = $print->PhotoHeight;
+  }
 
-<script defer>
-function window.onload() {
-  factory.printing.header = "";
-  factory.printing.footer = "";
-  factory.printing.portrait = <? echo (($row->PaperHeight>$row->PaperWidth)?"true":"false"); ?>;
-  factory.printing.topMargin = <? echo $row->PaperTopMargin; ?>;
-  factory.printing.bottomMargin = <? echo $row->PaperBottomMargin; ?>;
-  factory.printing.leftMargin = <? echo $row->PaperLeftMargin; ?>;
-  factory.printing.rightMargin = <? echo $row->PaperRightMargin; ?>;
-
-  // enable print button
-  if (factory.printing.IsTemplateSupported()) {
-   document.controlform.print.disabled = false;
+  echo "      <img src=\"photo.php?f={$photo}\" height=\"{$imgheight}\" width=\"{$imgwidth}\" alt=\"Photo\"><br>\n";
+  echo "      <font class=caption>{$caption}</font>\n    </td>\n";
+  if ($col == $num_col) {
+    echo "  </tr>\n</table>\n";
+    $col = 1;
+    $in_table = 0;
+  } else {
+    $col++;
   }
 }
-</script>
+if ($in_table) {
+  while ($col <= $num_col) {
+    echo "    <td width=\"{$col_width}\">&nbsp;</td>\n";
+    $col++;
+  }
+  echo "  </tr>\n</table>\n";
+}
 
-<body><div align="center">
-  <h2><font color="#8b0000">Ready to Print</font></h2>
-</div>
-<p>If the content in the frame below looks good, click the Print button (not the menu item), and when the
- print dialog comes up, go to the settings and change the paper size to <font 
- color="red"><b>&quot;<? echo $row->PaperSizeName."&quot; (".$row->PaperHeight."mm x ".$row->PaperWidth."mm)";
- ?></b></font>, and don't change anything else. &nbsp;
- Close the window when you are done printing. <font color=blue><i>(If the print button doesn't become available after a few seconds, your computer may not have the proper plugin installed.  If there is a message about an ActiveX plugin at the top of your IE window, you can click on it to install the Meadco ScriptX plugin, or ask your system administrator.  Unfortunately, this feature only works with Internet Explorer.)</i></font></p>
-<div align="center">
-<form name="controlform">
-<input disabled type="button" width=150 name="print" value="   Print   " onclick="factory.printing.Print(true, ContentFrame)">
-<input type=button width=150 name="close" value="Close Window" onclick="window.close();">
-</div>
-<iframe name="ContentFrame" width="100%" height="400" src="printphotos_iframe.php?pid_list=<? echo $pid_list.
-"&data_type=".$data_type."&show_blanks=".$show_blanks."&photo_print_name=".urlencode($photo_print_name); ?>">
-</iframe>
-<? print_footer(); ?>
+?>
+</body>
+</html>

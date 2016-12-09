@@ -83,7 +83,7 @@ function getCSV() {
   $(".name-for-display, .selectcol").show();
 }
 </script>
-<?
+<?php
 header2($_GET['nav']);
 if ($_GET['nav']==1) echo "<h1 id=\"title\">"._("Contact List").($_POST['preselected']!="" ?
 sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($_POST['preselected'],",")+1) : "")."</h1>\n";
@@ -96,13 +96,13 @@ if ($_POST['preselected']) $where .= ($where?" AND":" WHERE")." c.PersonID IN ("
 
 $sql = "SELECT DISTINCT PersonID FROM contact c".$where." ORDER BY PersonID";
 $result = sqlquery_checked($sql);
-if (mysql_numrows($result) == 0) {
+if (mysqli_num_rows($result) == 0) {
   echo "<h3>"._("There are no records matching your criteria.")."</h3>";
   footer();
   exit;
 }
 $pidarray = array();
-while ($row = mysql_fetch_object($result)) {
+while ($row = mysqli_fetch_object($result)) {
   $pidarray[] = $row->PersonID;
 }
 $pids = implode(",",$pidarray);
@@ -111,16 +111,16 @@ $pids = implode(",",$pidarray);
 <div id="actions">
   <form action="multiselect.php" method="post" target="_top">
     <input type="hidden" id="preselected" name="preselected" value="<?=$pids?>">
-    <input type="submit" value="<? echo _("Go to Multi-Select with these entries preselected"); ?>">
+    <input type="submit" value="<?=_("Go to Multi-Select with these entries preselected")?>">
   </form>
-<? if ($_POST['listtype'] == "Normal") { ?>
+<?php if ($_POST['listtype'] == "Normal") { ?>
   <form action="download.php" method="post" target="_top">
     <input type="hidden" id="csvtext" name="csvtext" value="">
     <input type="submit" id="csvfile" name="csvfile" value="<?=_("Download a CSV file of this table")?>" onclick="getCSV();">
   </form>
-<? } // if listtype=Normal ?>
+<?php } // if listtype=Normal ?>
 </div>
-<?
+<?php
 if ($_POST['listtype'] == "Normal") {
   $tablestart = "<table id=\"ctable\" class=\"tablesorter\">\n";
 } else {
@@ -142,7 +142,7 @@ if ($_POST['listtype'] == "ContactType") {
   $sql .= " ORDER BY Furigana,PersonID,ContactDate DESC";
 }
 $result = sqlquery_checked($sql);
-while ($row = mysql_fetch_object($result)) {
+while ($row = mysqli_fetch_object($result)) {
   if ($_POST['listtype']!="Normal" && $prev_groupfieldvalue!="" && $row->$_POST['listtype']!=$prev_groupfieldvalue) {  //change of section
     echo "</tbody></table>\n";
     echo "<h3>".($_POST['listtype']=="PersonID"?"<a href=\"individual.php?pid=".$row->PersonID.
@@ -182,7 +182,6 @@ while ($row = mysql_fetch_object($result)) {
     echo "<td class=\"ctype\" style=\"background-color:".$row->BGColor."\">".$row->ContactType."</td>\n";
   }
   echo "<td class=\"desc\">".$row->Description."</td>\n";
-  ($row->Processed ? " checked" : "")."></td>\n";
   if ($_POST['listtype'] == "Normal") echo "<td class=\"selectcol\">-</td>\n";
   echo "</tr>\n";
   if ($_POST['listtype']!="Normal") {
@@ -193,41 +192,5 @@ while ($row = mysql_fetch_object($result)) {
 echo "</tbody></table>\n";
 echo $_SESSION['userid']=="karen"?"<pre class=\"noprint\">".$sql."</pre>":"";
 
-/*
-echo "<table border=1 cellspacing=0 cellpadding=1 style=\"empty-cells:show\">\n";
-echo "<tr><th>Name</th><th>Photo</th><th>Date and Description</th></tr>\n";
-
-$sql = "SELECT contact.PersonID,FullName,Furigana,Photo,ContactDate,Description,ContactType,BGColor".
-" FROM contact LEFT JOIN person ON person.PersonID=contact.PersonID".
-" LEFT JOIN contacttype ON contact.ContactTypeID=contacttype.ContactTypeID".$where;
-$sql .= " ORDER BY Furigana,contact.PersonID,ContactDate";
-if (!$result = mysql_query($sql)) {
-  exit("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b><br>($sql)<br>");
-}
-$prev_pid = 0;
-while ($row = mysql_fetch_object($result)) {
-  if ($row->PersonID != $prev_pid) {
-    if ($prev_pid != 0) {  // Not first one, so need to close table and row
-      echo "</table>\n</td></tr>\n";
-    }
-    echo "<tr><td valign=middle nowrap><a href=\"individual.php?pid=".$row->PersonID."\" target=\"_blank\">";
-    echo readable_name_2line($row->FullName, $row->Furigana)."</a></td>\n";
-    if ($row->Photo == 1) {
-      echo "<td align=center><img border=0 src=\"photos/p".$row->PersonID.".jpg\" width=50></td>\n";
-    } else {
-      echo "<td></td>\n";
-    }
-    echo "<td><table border=0 cellspacing=0 cellpadding=1>\n";
-    $prev_pid = $row->PersonID;
-  }
-  echo "<tr><td valign=middle nowrap>{$row->ContactDate}&nbsp;&nbsp;</td>\n";
-  if ($_POST['ctype']) {
-    echo "<td>{$row->Description}</td></tr>\n";
-  } else {
-    echo "<td bgcolor=\"{$row->BGColor}\">[{$row->ContactType}] {$row->Description}</td></tr>\n";
-  }
-}
-echo "</table>\n</td></tr></table>\n";
-*/
 footer();
 ?>

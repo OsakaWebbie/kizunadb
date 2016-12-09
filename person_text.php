@@ -18,11 +18,8 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
     "FROM person LEFT JOIN household ON person.HouseholdID=household.HouseholdID ".
     "LEFT JOIN postalcode ON household.PostalCode=postalcode.PostalCode ".
     "WHERE PersonID=$pid_array[$pid_index] ORDER BY Furigana";
-  if (!$result = mysql_query($sql)) {
-    echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b><br>($sql)");
-    exit;
-  }
-  $row = mysql_fetch_object($result);
+  $result = sqlquery_checked($sql);
+  $row = mysqli_fetch_object($result);
   if ($xml) {
     echo "<person>\n";
   }
@@ -136,11 +133,8 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
             if ($array[1] == "OR")  $where = "(".$where.")";
           }
           $sql = "SELECT * from percat WHERE PersonID=".$pid_array[$pid_index]." AND " . $where;
-          if (!$result = mysql_query($sql)) {
-            echo("<b>SQL Error: ".mysql_errno().": ".mysql_error()."</b><br>($sql)");
-            exit;
-          }
-          if (mysql_num_rows($result) > 0) {
+          $result = sqlquery_checked($sql);
+          if (mysqli_num_rows($result) > 0) {
             $text = ${"mark".$i};
           }
           break;

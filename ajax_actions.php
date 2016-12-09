@@ -23,7 +23,7 @@ case "AttendDelete":
 case "PerOrgDelete":
   if (!isset($_POST['memid']) || $_POST['orgid']=="") die("Failed.");
   sqlquery_checked("DELETE FROM perorg WHERE PersonID=".$_POST['memid']." AND OrgID=".$_POST['orgid']);
-  if (mysql_affected_rows() == 1) echo "*"._("Delete successful.");
+  if (mysqli_affected_rows($db) == 1) echo "*"._("Delete successful.");
   else echo _("Record to delete was not found.");
   break;
 case "SwitchLang":

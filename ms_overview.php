@@ -6,7 +6,7 @@ print_header("Multiple Selection","#FFFFE0",0);
 ?>
     <h3><font color="#8b4513">Besides basic info, include:</font></h3>
     <form action="overview.php" method="post" name="overviewform" target="_blank">
-      <input type="hidden" name="pid_list" value="<? echo $pid_list; ?>">
+      <input type="hidden" name="pid_list" value="<?=$pid_list?>">
       <table width="642" border="0" cellspacing="0" cellpadding="5">
         <tr>
           <td>
@@ -16,7 +16,7 @@ print_header("Multiple Selection","#FFFFE0",0);
             &nbsp;<input type="radio" name="contact_types" value="key" checked>only first, last, & key (colored) ones, or
             <input type="radio" name="contact_types" value="all">all contacts
             <br><input type="checkbox" name="attendance" checked>Event attendance
-<? if ($_SESSION['donations'] == "yes") echo "            <br><input type=\"checkbox\" name=\"donations\" checked>Donations & Pledges\n"; ?>
+<?php if ($_SESSION['donations'] == "yes") echo "            <br><input type=\"checkbox\" name=\"donations\" checked>Donations & Pledges\n"; ?>
             <br>Between each person: <input type="radio" name="break" value="page" checked>page break
             <input type="radio" name="break" value="line">just a line
           </td>
@@ -24,6 +24,6 @@ print_header("Multiple Selection","#FFFFE0",0);
         </tr>
       </table>
     </form>
-  <? print_footer();
+  <?php print_footer();
 ?>
 

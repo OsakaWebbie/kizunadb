@@ -9,7 +9,7 @@ sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($_POST['preselected'],"
 <meta http-equiv="expires" content="0">
 <link rel="stylesheet" href="style.php" type="text/css" />
 <script type="text/JavaScript" src="js/jquery.js"></script>
-<?
+<?php
 if ($_POST['preselected']) {
 ?>
 <script type="text/javascript">
@@ -22,7 +22,7 @@ $(document).ready(function() {
   }); 
 });
 </script>
-<?
+<?php
 } //end of if there is a preselected list
 header2($_GET['nav']);
 //echo "<pre>".print_r($_POST,true)."</pre>";
@@ -36,7 +36,7 @@ $eids = implode(",", $_REQUEST['emultiple']);
 //get the event info (row headings for table and event names for top of page)
 $earray = array();
 $result = sqlquery_checked("SELECT EventID,Event,UseTimes,Remarks FROM event WHERE EventID IN ($eids) ORDER BY Event");
-while ($row = mysql_fetch_object($result)) {
+while ($row = mysqli_fetch_object($result)) {
   $events .= ", \"".$row->Event."\"";
   $earray[] = $row;
 }
@@ -55,12 +55,12 @@ if ($_REQUEST["startdate"]) $sql .= " AND AttendDate >= '".$_REQUEST["startdate"
 if ($_REQUEST["enddate"]) $sql .= " AND AttendDate <= '".$_REQUEST["enddate"]."'";
 $sql .= " ORDER BY AttendDate";
 $result = sqlquery_checked($sql);
-if (mysql_numrows($result) == 0) {
+if (mysqli_num_rows($result) == 0) {
   echo "<p>"._("There are no attendance records matching your criteria.")."</p>";
   footer();
   exit;
 }
-while ($darray[] = mysql_fetch_row($result));
+while ($darray[] = mysqli_fetch_row($result));
 
 if ($_POST['preselected']) {
   echo "<form id=\"filterform\" method=\"post\" action=\"\" target=\"_blank\">";
@@ -101,7 +101,7 @@ for ($r=0; $r<(count($earray)); $r++) {
   if ($_POST['preselected']) $sql .= " AND PersonID IN (".$_POST['preselected'].")";
   $sql .= " GROUP BY AttendDate ORDER BY AttendDate";
   $result = sqlquery_checked($sql); 
-  $row = mysql_fetch_object($result);
+  $row = mysqli_fetch_object($result);
   $done = 0;
 
   // loop for cells in this row
@@ -117,7 +117,7 @@ for ($r=0; $r<(count($earray)); $r++) {
       "&astartdate1=".$darray[$c][0]."&aenddate1=".$darray[$c][0]."\" target=\"_blank\">".$row->count."</a>";
       if ($earray[$r]->UseTimes) echo "<br />[".(($row->minutes-$row->minutes%60)/60).":".sprintf("%02d",$row->minutes%60)."]";
       echo "</td>\n";
-      if (!$row = mysql_fetch_object($result)) $done = 1;
+      if (!$row = mysqli_fetch_object($result)) $done = 1;
     } else {
       echo "<td class=\"zerocell\">0</td>";
     }

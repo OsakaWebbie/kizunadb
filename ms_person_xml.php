@@ -84,18 +84,18 @@ $(document).ready(function(){
 
 function validate() {
   if (!$("input[name*=tag").val().match('/^(?!XML)[a-z][\w0-9-]*/i')) {
-    alert("<? echo _("Invalid XML tag name (no spaces or Japanese characters allowed)."); ?>");
+    alert("<?=_("Invalid XML tag name (no spaces or Japanese characters allowed).")?>");
     $('#postalcode').focus();
     return false;
   }
   return true;  //everything is cool*/
 }
 </script>
-<? header2(0); ?>
+<?php header2(0); ?>
 
   <form action="person_xml.php" method="post" name="optionsform" target="_blank" onsubmit="return validate();">
     <input type="hidden" name="pid_list" value="<?=$pid_list?>">
-<?
+<?php
 for ($i=0; $i<4; $i++) {
   $s = sprintf("%02d",$i);
 ?>
@@ -111,9 +111,9 @@ for ($i=0; $i<4; $i++) {
         <option value="Furigana-Name"><?=sprintf("%s (Name if Japanese)",($_SESSION['furiganaisromaji']=="yes"?_("Romaji"):_("Furigana")))?></option>
         <option value="PersonID"><?=_("ID")?></option>
         <option value="Address"><?=_("Address")?></option>
-<? if ($_SESSION['romajiaddresses'] == "yes"): ?>
+<?php if ($_SESSION['romajiaddresses'] == "yes"): ?>
         <option value="RomajiAddress"><?=_("Romaji Address")?></option>
-<? endif; ?>
+<?php endif; ?>
         <option value="PostalCode"><?=_("Postal Code Only")?></option>
         <option value="LabelName"><?=_("Label Name")?></option>
         <option value="Phone-Cell"><?=_("Landline and/or Cell Phone")?></option>
@@ -139,9 +139,9 @@ for ($i=0; $i<4; $i++) {
       <span id="catspan<?=$s?>" style="display:none">
         <span class="label-n-input"><label for="cat<?=$s?>"><?=_("Categories")?>: </label>
         <select name="cat<?=$s?>[]" id="cat<?=$s?>" size="3" multiple="multiple">
-<?
+<?php
   $result = sqlquery_checked("SELECT * FROM category ORDER BY Category");
-  while ($row = mysql_fetch_object($result)) {
+  while ($row = mysqli_fetch_object($result)) {
     echo "          <option value=\"".$row->CategoryID."\">".d2h($row->Category)."</option>\n";
   }
 ?>
@@ -152,9 +152,9 @@ for ($i=0; $i<4; $i++) {
         <label for="catcombine<?=$s?>"><?=_("Combine in one element"); ?></label></span>
         <span id="catcombineoptions<?=$s?>" class="radiogroup" style="display:none">
           <span class="label-n-input"><input name="catstyle<?=$s?>" id="catstyle<?=$s?>-cat" value="cat" type="radio" checked>
-          <label for="catstyle<?=$s?>-type"><? echo _("Category names"); ?></label></span>
+          <label for="catstyle<?=$s?>-type"><?=_("Category names")?></label></span>
           <span class="label-n-input"><input name="catstyle<?=$s?>" id="catstyle<?=$s?>-custom" value="custom" type="radio">
-          <label for="catstyle<?=$s?>-custom"><? echo _("Custom value text"); ?>: </label>
+          <label for="catstyle<?=$s?>-custom"><?=("Custom value text"); ?>: </label>
           <input type="text" name="cattext<?=$s?>" id="cattext<?=$s?>" style="width:3em;ime-mode:auto;" /></span>
         </span>
       </span>
@@ -163,9 +163,9 @@ for ($i=0; $i<4; $i++) {
       <span id="contactspan<?=$s?>" style="display:none">
         <span class="label-n-input"><label for="contact<?=$s?>"><?=_("Contact Types")?>: </label>
         <select name="contact<?=$s?>[]" id="contact<?=$s?>" size="3" multiple="multiple">
-<?
+<?php
   $result = sqlquery_checked("SELECT * FROM contacttype ORDER BY ContactType");
-  while ($row = mysql_fetch_object($result)) {
+  while ($row = mysqli_fetch_object($result)) {
     echo "          <option value=\"".$row->ContactTypeID."\">".d2h($row->ContactType)."</option>\n";
   }
 ?>
@@ -176,13 +176,13 @@ for ($i=0; $i<4; $i++) {
         <label for="ctcombine<?=$s?>"><?=_("Combine in one element"); ?></label></span>
         <span class="radiogroup">
           <span class="label-n-input"><input name="contactstyle<?=$s?>" id="contactstyle<?=$s?>-all" value="all" type="radio" checked>
-          <label for="contactstyle<?=$s?>-all"><? echo _("All data in XML sub-elements"); ?></label></span>
+          <label for="contactstyle<?=$s?>-all"><?=_("All data in XML sub-elements")?></label></span>
           <span class="label-n-input"><input name="contactstyle<?=$s?>" id="contactstyle<?=$s?>-type" value="type" type="radio">
-          <label for="contactstyle<?=$s?>-type"><? echo _("Contact type names only"); ?></label></span>
+          <label for="contactstyle<?=$s?>-type"><?=_("Contact type names only")?></label></span>
           <span class="label-n-input"><input name="contactstyle<?=$s?>" id="contactstyle<?=$s?>-desc" value="desc" type="radio">
-          <label for="contactstyle<?=$s?>-desc"><? echo _("Descriptions only"); ?></label></span>
+          <label for="contactstyle<?=$s?>-desc"><?=_("Descriptions only")?></label></span>
           <span class="label-n-input"><input name="contactstyle<?=$s?>" id="contactstyle<?=$s?>-custom" value="custom" type="radio">
-          <label for="contactstyle<?=$s?>-custom"><? echo _("Custom value text"); ?>: </label>
+          <label for="contactstyle<?=$s?>-custom"><?=_("Custom value text")?>: </label>
           <input type="text" name="contacttext<?=$s?>" id="contacttext<?=$s?>" style="width:3em;ime-mode:auto;" /></span>
         </span>
       </span>
@@ -191,9 +191,9 @@ for ($i=0; $i<4; $i++) {
       <span id="attendspan<?=$s?>" style="display:none">
         <span class="label-n-input"><label for="attend<?=$s?>"><?=_("Events")?>: </label>
         <select name="attend<?=$s?>[]" id="attend<?=$s?>" size="3" multiple="multiple">
-<?
+<?php
   $result = sqlquery_checked("SELECT * FROM event ORDER BY Event");
-  while ($row = mysql_fetch_object($result)) {
+  while ($row = mysqli_fetch_object($result)) {
     echo "          <option value=\"".$row->EventID."\">".d2h($row->Event)."</option>\n";
   }
 ?>
@@ -214,9 +214,9 @@ for ($i=0; $i<4; $i++) {
           <option value="Furigana-Name"><?=sprintf("%s (Name if Japanese)",($_SESSION['furiganaisromaji']=="yes"?_("Romaji"):_("Furigana")))?></option>
           <option value="PersonID"><?=_("ID")?></option>
           <option value="Address"><?=_("Address")?></option>
-<? if ($_SESSION['romajiaddresses'] == "yes"): ?>
+<?php if ($_SESSION['romajiaddresses'] == "yes"): ?>
           <option value="RomajiAddress"><?=_("Romaji Address")?></option>
-<? endif; ?>
+<?php endif; ?>
           <option value="PostalCode"><?=_("Postal Code Only")?></option>
           <option value="LabelName"><?=_("Label Name")?></option>
           <option value="Phone-Cell"><?=_("Landline and/or Cell Phone")?></option>
@@ -244,9 +244,9 @@ for ($i=0; $i<4; $i++) {
           <option value="Furigana-Name"><?=sprintf("%s (Name if Japanese)",($_SESSION['furiganaisromaji']=="yes"?_("Romaji"):_("Furigana")))?></option>
           <option value="PersonID"><?=_("ID")?></option>
           <option value="Address"><?=_("Address")?></option>
-<? if ($_SESSION['romajiaddresses'] == "yes"): ?>
+<?php if ($_SESSION['romajiaddresses'] == "yes"): ?>
           <option value="RomajiAddress"><?=_("Romaji Address")?></option>
-<? endif; ?>
+<?php endif; ?>
           <option value="PostalCode"><?=_("Postal Code Only")?></option>
           <option value="LabelName"><?=_("Label Name")?></option>
           <option value="Phone-Cell"><?=_("Landline and/or Cell Phone")?></option>
@@ -259,10 +259,10 @@ for ($i=0; $i<4; $i++) {
         </select></span>
       </span>
     </fieldset>
-<?
+<?php
 } //end of for loop
 ?>
-    <button type="button" id="fielddup"><? echo _("Add another..."); ?></button>
+    <button type="button" id="fielddup"><?=_("Add another...")?></button>
     <div id="general">
       <span class="label-n-input"><label for="orderby"><?=_("Order By")?>: </label>
       <select name="orderby" id="orderby" size="1">
@@ -279,6 +279,6 @@ for ($i=0; $i<4; $i++) {
       <button type="submit" name="submit"><?=_("Make XML File")?></button>
     </div>
   </form>
-<?
-footer(0);
+<?php
+footer();
 ?>

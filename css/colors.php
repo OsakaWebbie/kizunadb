@@ -1,4 +1,4 @@
-<?
+<?php
 //theme definitions
 $primarylight = "LightSteelBlue";
 $primarymedium = "SteelBlue";

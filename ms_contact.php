@@ -4,7 +4,7 @@ include("accesscontrol.php");
 header1("");
 ?>
 <link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
-<?
+<?php
 header2(0);
 
 if ($save_contact) {
@@ -19,15 +19,12 @@ if ($save_contact) {
       $sql = "SELECT contact.*,FullName FROM contact LEFT JOIN person on contact.PersonID=".
       "person.PersonID WHERE contact.PersonID=".$pid_array[$i].
       " AND contact.ContactTypeID=$ctid AND ContactDate='$cdate'";
-      if (!$result = mysql_query($sql)) {
-        echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b><br>($sql)");
-        exit;
-      }
-      if (mysql_num_rows($result) > 0) {
+      $result = sqlquery_checked($sql);
+      if (mysqli_num_rows($result) > 0) {
         $has_prev = 1;
         $prev_num++;
         $prev_pidlist .= ",".$pid_array[$i];
-        while ($row = mysql_fetch_object($result)) {
+        while ($row = mysqli_fetch_object($result)) {
           $prev_info .= "<tr><td><a href=\"individual.php?pid=$pid_array[$i]\" ".
           "target=\"_blank\">$row->FullName</a></td><td>".
           ((strlen($row->Description) > 100)?(substr($row->Description,0,97)."..."):($row->Description)).
@@ -38,28 +35,22 @@ if ($save_contact) {
     if (!$has_prev) {
       $sql = "INSERT INTO contact (PersonID,ContactTypeID,ContactDate,Description) VALUES (".
            $pid_array[$i].",$ctid,'$cdate','$desc')";
-      if (!$result = mysql_query($sql)) {
-        echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b><br>($sql)");
-        exit;
-      }
+      $result = sqlquery_checked($sql);
     }
   }
   echo "<h3>".sprintf(_("%s new records successfully added."),$num_pids-$prev_num)."</h3>\n";
   if ($prev_num > 0) {
     $prev_pidlist = substr($prev_pidlist,1);  //remove the leading comma
     $sql = "SELECT ContactType FROM contacttype WHERE ContactTypeID=$ctid";
-    if (!$tempresult = mysql_query($sql)) {
-      echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b><br>($sql)<br>");
-      exit;
-    }
-    $temprow = mysql_fetch_object($tempresult);
+    $tempresult = sqlquery_checked($sql);
+    $temprow = mysqli_fetch_object($tempresult);
 ?>
-<form action="$PHP_SELF" method="post" name="confirmform" target="_self">
+<form action="<?=$_SERVER['PHP_SELF']?>" method="post" name="confirmform" target="_self">
 <input type="hidden" name="pid_list" value="$prev_pidlist">
 <input type="hidden" name="ctid" value="$ctid">
 <input type="hidden" name="cdate" value="$cdate">
 <input type="hidden" name="desc" value="$desc">
-<?
+<?php
     echo sprintf(_("However, the following %s people already had a contact of type \"%s\" on %s."),
     $prev_num,$temprow->ContactType,$cdate)."<br />\n";
     echo _("Do you still want the additional records added?");
@@ -71,13 +62,13 @@ if ($save_contact) {
 }
 ?>
   <h3><?=_("Choose contact type and date, and fill in a description if desired:")?></h3>
-  <form action="<? echo $PHP_SELF; ?>" method="post" name="contactform" target="_self" onsubmit="return validate();">
-    <input type="hidden" name="pid_list" value="<? echo $pid_list; ?>">
+  <form action="<?=$_SERVER['PHP_SELF']?>" method="post" name="contactform" target="_self" onsubmit="return validate();">
+    <input type="hidden" name="pid_list" value="<?=$pid_list?>">
     <label class="label-n-input"><?=_("Contact Type")?>: <select id="ctid" name="ctid" size="1">
       <option value="" selected>Please select...</option>
-<?
+<?php
 $result = sqlquery_checked("SELECT * FROM contacttype ORDER BY ContactType");
-while ($row = mysql_fetch_object($result)) {
+while ($row = mysqli_fetch_object($result)) {
   echo "      <option value=\"".$row->ContactTypeID."\">".$row->ContactType."</option>\n";
 }
 ?>
@@ -94,7 +85,7 @@ $(document).ready(function(){
   $(document).ajaxError(function(e, xhr, settings, exception) {
     alert('Error calling ' + settings.url + ': ' + exception);
   }); 
-<?
+<?php
 if($_SESSION['lang']=="ja_JP") echo "  $.datepicker.setDefaults( $.datepicker.regional[\"ja\"] );\n";
 ?>
   $("#cdate").datepicker({ dateFormat: 'yy-mm-dd' });
@@ -120,5 +111,5 @@ function validate() {
   }
 }
 </script>
-<? footer(0);
+<?php footer();
 ?>

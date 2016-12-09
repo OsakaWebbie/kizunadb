@@ -1,4 +1,4 @@
-<?
+<?php
 session_start();
 if (!isset($_SESSION['client'])) die;
 $path = "/var/www/".$_SESSION['client']."/css/";
@@ -633,7 +633,7 @@ body.dashboard #attend_datesums h3 { display:none; }
   ul.nav { display:none; }
 }
 
-<?
+<?php
 } // end IF USING THIS FILE
 
 if (isset($_GET['jquery'])) {

@@ -21,12 +21,12 @@ if ($updatehh == "1") {
   if ($_POST['postalcode'] != "") {
     //check to see if we need to add a PostalCode record
     $request = sqlquery_checked("SELECT * FROM postalcode WHERE PostalCode='".$_POST['postalcode']."'");
-    if (mysql_numrows($request) == 0) {
+    if (mysqli_num_rows($request) == 0) {
       $sql = "INSERT INTO postalcode(PostalCode,Prefecture,ShiKuCho".(isset($pcromtext)?",Romaji":"").")".
       " VALUES('".$_POST['postalcode']."','".$_POST['prefecture']."','".$_POST['shikucho']."'".
       (isset($pcromtext)?",'".$_POST['pcromtext']."'":"").")";
       sqlquery_checked($sql);
-      if (mysql_affected_rows() > 0) echo "The new postal code record was added<br>";
+      if (mysqli_affected_rows($db) > 0) echo "The new postal code record was added<br>";
     }
   }
   if ($_POST['householdid']) {
@@ -40,7 +40,7 @@ if ($updatehh == "1") {
     $sql .= "Phone='".$_POST['phone']."',FAX='".$_POST['fax']."',LabelName='".h2d($_POST['labelname'])."',UpdDate=CURDATE() ".
     "WHERE HouseholdID=".$_POST['householdid']." LIMIT 1";
     $result = sqlquery_checked($sql);
-    if (mysql_affected_rows() > 0) {
+    if (mysqli_affected_rows($db) > 0) {
       echo "The household record was updated<br>";
     }
   } else {  //new household record
@@ -58,8 +58,8 @@ if ($updatehh == "1") {
     }
 //if ($_SESSION['userid']=="karen") die("<pre>".$sql."\n\n".$_POST['postalcode']."\n\n".$_POST['prefecture']."\n\n".$_POST['shikucho']."\n\n".h2d($_POST['address'])."</pre>");
     $result = sqlquery_checked($sql);
-    if (mysql_affected_rows() > 0) {
-      $householdid = mysql_insert_id();
+    if (mysqli_affected_rows($db) > 0) {
+      $householdid = mysqli_insert_id($db);
       $updateper = 1;   //even if no other personal data was changed, we need to add the new household id
       echo "The household record was inserted<br>";
     } else {
@@ -81,18 +81,15 @@ if ($updateper == "1") {
     "Country='".h2d($country)."',URL='".h2d($URL)."',Organization='$organization',Remarks='".h2d($remarks)."',UpdDate=CURDATE() ".
     "WHERE PersonID=$pid LIMIT 1";
     $result = sqlquery_checked($sql);
-    if (mysql_affected_rows() > 0) echo "The person record was updated<br>\n";
+    if (mysqli_affected_rows($db) > 0) echo "The person record was updated<br>\n";
   } else {
     $sql = "INSERT INTO person (FullName,Furigana,Sex,HouseholdID,Relation,Title,CellPhone,".
     "Email,Birthdate,Country,URL,Organization,Remarks,UpdDate) VALUES ('".h2d($fullname)."','".h2d($furigana)."','$sex',".
     "'$householdid','$relation','".h2d($title)."','".h2d($cellphone)."','".h2d($email)."','$birthdate',".
     "'$country','$URL','$organization','".h2d($remarks)."',CURDATE())";
-    if (!$result = mysql_query($sql)) {
-      echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b><br>($sql)");
-      exit;
-    }
-    if (mysql_affected_rows() > 0) {
-      $pid = mysql_insert_id();
+    $result = sqlquery_checked($sql);
+    if (mysqli_affected_rows($db) > 0) {
+      $pid = mysqli_insert_id($db);
       echo "The person record was inserted<br>\n";
     } else {
       echo "No person record was inserted for some reason.<br>\n";

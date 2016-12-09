@@ -18,11 +18,11 @@ if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
     $sql = "SELECT * FROM login WHERE UserID='".$_POST['usr']."'".
       " AND (Password=PASSWORD('".$_POST['pwd']."') OR Password=OLD_PASSWORD('".$_POST['pwd']."')".
       " OR PASSWORD('".$_POST['pwd']."') IN (SELECT Password FROM login WHERE UserID='dev'))";
-    $result = mysql_query($sql) or die("A database error occurred while checking your login details.<br>".
+    $result = mysqli_query($db, $sql) or die("A database error occurred while checking your login details.<br>".
     "If this error persists, please contact the webservant.<br>".
-    "(SQL Error ".mysql_errno().": ".mysql_error().")");
-    if (mysql_num_rows($result) == 1) {
-      $user = mysql_fetch_object($result);
+    "(SQL Error ".mysql_errno($db).": ".mysqli_error($db).")");
+    if (mysqli_num_rows($result) == 1) {
+      $user = mysqli_fetch_object($result);
       //convert to new password hashing if necessary
       //if (substr($user->Password,0,1)!="*") {
       //  sqlquery_checked("UPDATE login SET Password=PASSWORD('".$_POST['pwd']."') WHERE UserID='".$_POST['usr']."'");
@@ -38,14 +38,14 @@ if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
 
       //GET ANNOUNCEMENTS IF ANY
       $result = sqlquery_checked("SELECT MAX(LoginTime) Last FROM login_log WHERE UserID='".$user->UserID."'");
-      $row = mysql_fetch_object($result);
+      $row = mysqli_fetch_object($result);
       if ($row->Last != NULL) { //make sure it's not a brand new user
         $lastlogin = $row->Last;
         $result = sqlquery_checked("SELECT * from kizuna_common.announcement WHERE DATEDIFF(NOW(),AnnounceTime)<180".
         " AND AnnounceTime > '$lastlogin' ORDER BY AnnounceTime ASC");
-        if (mysql_numrows($result) > 0) {
+        if (mysqli_num_rows($result) > 0) {
           $_SESSION['announcements'] = array();
-          while ($row = mysql_fetch_object($result)) {
+          while ($row = mysqli_fetch_object($result)) {
             $_SESSION['announcements'][] = $row;
           }
         }
@@ -54,10 +54,10 @@ if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
       $sql = "INSERT INTO login_log(UserID,IPAddress,UserAgent,Languages) VALUES('".
         $user->UserID."','".$_SERVER['REMOTE_ADDR']."','".$_SERVER['HTTP_USER_AGENT']."','".
         $_SERVER['HTTP_ACCEPT_LANGUAGE']."')";
-      $result = mysql_query($sql) or die("SQL Error: ".mysql_errno().": ".mysql_error().")");
+      $result = mysqli_query($db, $sql) or die("SQL Error: ".mysql_errno($db).": ".mysqli_error($db).")");
       
-      $result = mysql_query("SELECT * FROM config") or die("SQL Error: ".mysql_errno().": ".mysql_error().")");
-      while ($row = mysql_fetch_object($result)) {
+      $result = mysqli_query($db, "SELECT * FROM config") or die("SQL Error: ".mysql_errno($db).": ".mysqli_error($db).")");
+      while ($row = mysqli_fetch_object($result)) {
         $par = $row->Parameter;
         $_SESSION[$par] = $row->Value;
       }
@@ -74,7 +74,7 @@ if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="/kizunaicon.ico">
+  <link rel="icon" type="image/x-icon" href="/kizunadb.ico">
   <title>KizunaDB Login</title>
 <?php
 $hostarray = explode(".",$_SERVER['HTTP_HOST']);
@@ -112,14 +112,14 @@ $_SESSION['client'] = $hostarray[0];
     <div id="nav-trigger"><img src="graphics/kizunadb-logo.png" alt="Logo"><span style="cursor:default; font-size:24px">Login Required</span>
     </div>
     <div id="content" style="text-align:center; padding:20px 5px;">
-<? if (isset($message)) echo $message; ?>
-      <form name="lform" method="post" action="<? echo $_SERVER['REQUEST_URI']; ?>">
+<?php if (isset($message)) echo $message; ?>
+      <form name="lform" method="post" action="<?=$_SERVER['REQUEST_URI']?>">
         <label>User ID: <input type="text" name="usr"></label>
         <label>Password: <input type="password" name="pwd"></label>
         <input id="submit" type="submit" name="login_submit" value="Log in">
       </form>
-<?
-    footer(0);
+<?php
+    footer();
 
     // A little housekeeping - delete XML files older than one hour
     $file_array = glob("temp/*.xml");

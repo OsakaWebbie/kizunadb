@@ -16,14 +16,14 @@ sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($_POST['pid_list'],",")
 
 $(document).ready(function(){
   $("#dtselect").multiselect({
-    noneSelectedText: '<? echo _("Select..."); ?>',
-    selectedText: '<? echo _("# selected"); ?>',
-    checkAllText: '<? echo _("Check all"); ?>',
-    uncheckAllText: '<? echo _("Uncheck all"); ?>'
+    noneSelectedText: '<?=_("Select...")?>',
+    selectedText: '<?=_("# selected")?>',
+    checkAllText: '<?=_("Check all")?>',
+    uncheckAllText: '<?=_("Uncheck all")?>'
 //   }).multiselectfilter({
-//    label: '<? echo _("Search:"); ?>'
+//    label: '<?=_("Search:")?>'
    });
-<? if($_SESSION['lang']=="ja_JP") echo "  $.datepicker.setDefaults( $.datepicker.regional[\"ja\"] );\n"; ?>
+<?php if($_SESSION['lang']=="ja_JP") echo "  $.datepicker.setDefaults( $.datepicker.regional[\"ja\"] );\n"; ?>
   $("#startdate").datepicker({ dateFormat: 'yy-mm-dd' });
   $("#enddate").datepicker({ dateFormat: 'yy-mm-dd' });
 
@@ -75,38 +75,38 @@ function set_month(subtractor) {
 }
 
 </script>
-<? header2(1);
+<?php header2(1);
 // Build option list from donationtype table contents
 $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
 $opts = "";
-while ($row = mysql_fetch_object($result)) {
+while ($row = mysqli_fetch_object($result)) {
   //$opts .= "    <option value=\"".$row->DonationTypeID."\" style=\"background-color:#".$row->BackgroundColor."\">".
   //$row->DonationType."</option>\n";
   $opts .= "    <option value=\"".$row->DonationTypeID."\">".$row->DonationType."</option>\n";
 }
 ?>
 
-<h1 id="title"><? echo _("Donations & Pledges").(isset($_POST['pid_list']) ? sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($_POST['pid_list'],",")+1) : ""); ?></h1>
+<h1 id="title"><?=_("Donations & Pledges").(isset($_POST['pid_list']) ? sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($_POST['pid_list'],",")+1) : "")?></h1>
 <form id="dform" method="post" action="blank.html" target="ResultFrame">
 <input type="hidden" name="preselected" value="<?=isset($_POST['pid_list'])?$_POST['pid_list']:""?>">
-<fieldset><legend><? echo _("Donations"); ?></legend>
+<fieldset><legend><?=_("Donations")?></legend>
   <div id="typefilter">
-    <label><? echo _("Donation Types"); ?>: </label>
+    <label><?=_("Donation Types")?>: </label>
     <select id="dtselect" name="dtype[]" multiple="multiple" size="1">
-    <? echo $opts; ?>
+    <?=$opts?>
     </select>
   </div>
   <div id="datefilter">
     <div id="dates">
-    <? printf(_("Optional Dates: after %s and/or before %s"),
+    <?php printf(_("Optional Dates: after %s and/or before %s"),
        "<input type=\"text\" name=\"start\" id=\"startdate\" style=\"width:6em\" />",
        "<input type=\"text\" name=\"end\" id=\"enddate\" style=\"width:6em\" />"); ?>
     </div>
     <div id="datefillers">
-      <button type="button" onclick="set_month(1);"><? echo _("Last Month"); ?></button>
-      <button type="button" onclick="set_month(0);"><? echo _("This Month-to-Date"); ?></button>
-      <button type="button" onclick="set_year(1);"><? echo _("Last Year"); ?></button>
-      <button type="button" onclick="set_year(0);"><? echo _("This Year-to-Date"); ?></button>
+      <button type="button" onclick="set_month(1);"><?=_("Last Month")?></button>
+      <button type="button" onclick="set_month(0);"><?=_("This Month-to-Date")?></button>
+      <button type="button" onclick="set_year(1);"><?=_("Last Year")?></button>
+      <button type="button" onclick="set_year(0);"><?=_("This Year-to-Date")?></button>
     </div>
   </div>
   <div id="searchbox">
@@ -121,39 +121,39 @@ while ($row = mysql_fetch_object($result)) {
   </div>
   <div class="actions">
     <span class="actiontypes">
-      <label class="proctype"><input type="radio" name="proc" value="" checked><? echo _("All donations"); ?></label>
-      <label class="proctype"><input type="radio" name="proc" value="proc"><? echo _("Processed only"); ?></label>
-      <label class="proctype"><input type="radio" name="proc" value="unproc"><? echo _("Unprocessed only"); ?></label>
+      <label class="proctype"><input type="radio" name="proc" value="" checked><?=_("All donations")?></label>
+      <label class="proctype"><input type="radio" name="proc" value="proc"><?=_("Processed only")?></label>
+      <label class="proctype"><input type="radio" name="proc" value="unproc"><?=_("Unprocessed only")?></label>
     </span>
     <span class="actiontypes">
-      <label class="actiontype"><input type="radio" name="listtype" value="Normal" checked><? echo _("Continuous List (can sort freely)"); ?></label>
-      <label class="actiontype"><input type="radio" name="listtype" value="DonationType"><? echo _("Group by Donation Type w/ subtotals"); ?></label>
-      <label class="actiontype"><input type="radio" name="listtype" value="PersonID"><? echo _("Group by Person/Org w/ subtotals"); ?></label>
+      <label class="actiontype"><input type="radio" name="listtype" value="Normal" checked><?=_("Continuous List (can sort freely)")?></label>
+      <label class="actiontype"><input type="radio" name="listtype" value="DonationType"><?=_("Group by Donation Type w/ subtotals")?></label>
+      <label class="actiontype"><input type="radio" name="listtype" value="PersonID"><?=_("Group by Person/Org w/ subtotals")?></label>
       <label class="actiontype" style="margin-left:3em"><input type="checkbox" name="subtotalsort"><?=_("Order groups by subtotal")?></label>
     </span>
-    <input type="submit" id="show_list" name="show_list" value="<? echo _("Donation List"); ?>" />
+    <input type="submit" id="show_list" name="show_list" value="<?=_("Donation List")?>" />
   </div>
   <div class="actions">
     <span class="actiontypes">
-      <label class="actiontype"><input type="radio" name="summarytype" value="DonationType" checked><? echo _("By Donation Type"); ?></label>
+      <label class="actiontype"><input type="radio" name="summarytype" value="DonationType" checked><?=_("By Donation Type")?></label>
       <span style="display:block"><label class="actiontype" style="display:inline"><input type="radio"
-      name="summarytype" value="PersonID"><? echo _("By Person/Org"); ?></label>
+      name="summarytype" value="PersonID"><?=_("By Person/Org")?></label>
       <label style="display:inline;margin-left:1em"><?=sprintf(_("(top %s donors)"),"<input type=\"text\" name=\"limit\"".
       " style=\"width:2em\">")?></label></span>
     </span>
-    <input type="submit" id="show_summary" name="show_summary" value="<? echo _("Donation Summary"); ?>">
+    <input type="submit" id="show_summary" name="show_summary" value="<?=_("Donation Summary")?>">
   </div>
 </fieldset>
-<fieldset><legend><? echo _("Pledges"); ?></legend>
-  <label class="label-n-input"><input type="checkbox" name="closed" value="yes"><? echo _("Include closed pledges"); ?></label>
-  <label class="label-n-input"><input type="checkbox" name="psubtotals" value="yes"><? echo _("Donation-Type Subtotals"); ?></label>
-  <input type="submit" id="show_pledges" name="show_p" value="<? echo _("Pledge List"); ?>">
+<fieldset><legend><?=_("Pledges")?></legend>
+  <label class="label-n-input"><input type="checkbox" name="closed" value="yes"><?=_("Include closed pledges")?></label>
+  <label class="label-n-input"><input type="checkbox" name="psubtotals" value="yes"><?=_("Donation-Type Subtotals")?></label>
+  <input type="submit" id="show_pledges" name="show_p" value="<?=_("Pledge List")?>">
 </fieldset>
-<p><? echo sprintf(_("Show in: %sframe below&nbsp; %snew window"),
+<p><?=sprintf(_("Show in: %sframe below&nbsp; %snew window"),
 "<input type=\"radio\" id=\"radio_frame\" name=\"ftarget\" value=\"ResultFrame\" checked>",
-"<input type=\"radio\" id=\"radio_window\" name=\"ftarget\" value=\"_blank\">"); ?></p>
+"<input type=\"radio\" id=\"radio_window\" name=\"ftarget\" value=\"_blank\">")?></p>
 </form>
 <iframe name="ResultFrame" width="100%" height="320" src="blank.html"></iframe>
-<?
+<?php
 footer();
 ?>

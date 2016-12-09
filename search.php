@@ -5,7 +5,7 @@ include("accesscontrol.php");
 if (isset($_GET['ps'])) {
   list($psid,$psnum) = explode(":",$_GET['ps']);
   $tempres = sqlquery_checked("SELECT Pids,Client FROM kizuna_common.preselect WHERE PSID='$psid'");
-  $psobj = mysql_fetch_object($tempres);
+  $psobj = mysqli_fetch_object($tempres);
   if ($psobj && $_SESSION['client']==$psobj->Client && $psobj->Pids!="") $preselected = $psobj->Pids;
 } elseif (isset($_POST['pid_list']) && $_POST['pid_list']!="") {
   $preselected = $_POST['pid_list'];
@@ -16,16 +16,16 @@ header1(_("Search").(isset($psnum) ? sprintf(_(" (%d People/Orgs Pre-selected)")
 
 <meta http-equiv="expires" content="0">
 <link rel="stylesheet" type="text/css" href="style.php?page=<?=$_SERVER['PHP_SELF']?>&jquery=1&multiselect=1" />
-<? header2(1); ?>
-<h1 id="title"><? echo $_SESSION['dbtitle'].": "._("Search").(isset($psnum) ? sprintf(_(" (%d People/Orgs Pre-selected)"),
-$psnum) : ""); ?></h1>
-<? if (isset($text)) echo "<h3 class=\"alert\">".urldecode($text)."</h3>"; ?>
+<?php header2(1); ?>
+<h1 id="title"><?=$_SESSION['dbtitle'].": "._("Search").(isset($psnum) ? sprintf(_(" (%d People/Orgs Pre-selected)"),
+$psnum) : "")?></h1>
+<?php if (isset($text)) echo "<h3 class=\"alert\">".urldecode($text)."</h3>"; ?>
 
 <form id="searchform" action="list.php?<?=$_GET['ps']?"?ps=".$_GET['ps']:""?>" method="<?=(isset($_POST['pid_list']) ? "post" : "get")?>">
-<input type="hidden" id="preselected" name="preselected" value="<? echo $_POST['pid_list']; ?>">
-<h2 class="simpleonly"><? $txt=_("records"); printf(_("Search for %s that..."),$txt); ?></h2>
+<input type="hidden" id="preselected" name="preselected" value="<?=$_POST['pid_list']?>">
+<h2 class="simpleonly"><?php $txt=_("records"); printf(_("Search for %s that..."),$txt); ?></h2>
 <h2 class="advanced">
-<? $txt="<span class=\"radiogroup\">".
+<?php $txt="<span class=\"radiogroup\">".
 "<label><input type=\"radio\" name=\"filter\" value=\"Records\" checked class=\"OP\" />"._("All Records")."</label>".
 "<label><input type=\"radio\" name=\"filter\" value=\"People\" class=\"P\" />"._("Only People")."</label>".
 "<label><input type=\"radio\" name=\"filter\" value=\"Organizations\" class=\"O\" />"._("Only Organizations")."</label><br />".
@@ -35,7 +35,7 @@ printf(_("Search for %s that..."),$txt);
 ?></h2>
 <fieldset class="simple">
   <div id="text1" class="criteria">
-<?
+<?php
 $in = "<span class=\"advanced\"><span class=\"radiogroup\"><label><input type=\"radio\" name=\"textinout1\" value=\"IN\" checked />";
 $out = "</label><label><input type=\"radio\" name=\"textinout1\" value=\"OUT\" />";
 $inoutfinish = "</label></span></span><span class=\"simpleonly\">"._("...have")."</span>\n";
@@ -53,31 +53,31 @@ $target .= "</select>\n";
 printf(_("%s...have%s...don't have%s%s in %s"), $in, $out, $inoutfinish, $text, $target);
 ?>
   </div>
-  <button type="button" id="textdup" class="dup advanced"><? echo _("Add another..."); ?></button>
+  <button type="button" id="textdup" class="dup advanced"><?=_("Add another...")?></button>
 </fieldset>
 
 <fieldset class="advanced"><legend><?=_("Categories")?></legend>
   <div id="cat1" class="criteria">
-<?
+<?php
 $in = "<span class=\"radiogroup\"><label><input type=\"radio\" name=\"catinout1\" value=\"IN\" checked />";
 $out = "</label><label><input type=\"radio\" name=\"catinout1\" value=\"OUT\" />";
 $inoutfinish = "</label></span>\n";
 $catselect = "<select name=\"catselect1[]\" id=\"catselect1\" size=\"3\" multiple=\"multiple\">\n";
 $result = sqlquery_checked("SELECT * FROM category ORDER BY Category");
-while ($row = mysql_fetch_object($result)) {
+while ($row = mysqli_fetch_object($result)) {
   $catselect .= "    <option value=\"".$row->CategoryID."\" class=\"usefor".$row->UseFor."\">".d2h($row->Category)."</option>\n";
 }
 $catselect .= "</select>\n";
 printf(_("%s...are in%s...are not in%s one of these categories:%s"), $in, $out, $inoutfinish, $catselect);
 ?>
   </div>
-  <button type="button" id="catdup" class="dup advanced"><? echo _("Add another..."); ?></button>
+  <button type="button" id="catdup" class="dup advanced"><?=_("Add another...")?></button>
 </fieldset>
 
-<? //ContactType list used three times in the next two sections
+<?php //ContactType list used three times in the next two sections
 $ctselect = "<select size=\"3\" id=\"#ID#1\" name=\"#ID#1[]\" multiple=\"multiple\">\n";
 $result = sqlquery_checked("SELECT * FROM contacttype ORDER BY ContactType");
-while ($row = mysql_fetch_object($result)) {
+while ($row = mysqli_fetch_object($result)) {
   $ctselect .= "    <option value=\"".$row->ContactTypeID."\">".d2h($row->ContactType)."</option>";
 }
 $ctselect .= "</select>\n";
@@ -85,7 +85,7 @@ $ctselect .= "</select>\n";
 
 <fieldset class="advanced"><legend><?=_("Contacts")?></legend>
   <div id="contact1" class="criteria">
-<?
+<?php
 $in = "<span class=\"radiogroup\"><label><input type=\"radio\" name=\"contactinout1\" value=\"IN\" checked />";
 $out = "</label><label><input type=\"radio\" name=\"contactinout1\" value=\"OUT\" />";
 $inoutfinish = "</label></span>\n";
@@ -96,12 +96,12 @@ printf(_("%s...have%s...don't have%s contacts of one of these types:%s ".
 $in, $out, $inoutfinish, str_replace("#ID#","ctselect",$ctselect), $ctstartdate, $ctenddate);
 ?>
   </div>
-  <button type="button" id="contactdup" class="dup advanced"><? echo _("Add another..."); ?></button>
+  <button type="button" id="contactdup" class="dup advanced"><?=_("Add another...")?></button>
 </fieldset>
 
 <fieldset class="advanced"><legend><?=_("Contact Sequence")?></legend>
   <div id="seq1" class="criteria">
-<?
+<?php
 $after = "<span class=\"radiogroup\"><label><input type=\"radio\" name=\"seqorder1\" value=\"AFTER\" checked />";
 $before = "</label><label><input type=\"radio\" name=\"seqorder1\" value=\"BEFORE\" />";
 $finish = "</label></span>\n";
@@ -109,19 +109,19 @@ printf(_("...have one of these contact types:%s without any of these %slater%sea
 str_replace("#ID#","seqctqual",$ctselect), $after, $before, $finish, str_replace("#ID#","seqctelim",$ctselect));
 ?>
   </div>
-  <button type="button" id="seqdup" class="dup advanced"><? echo _("Add another..."); ?></button>
+  <button type="button" id="seqdup" class="dup advanced"><?=_("Add another...")?></button>
 </fieldset>
 
-<? if ($_SESSION['donations']) { ?>
+<?php if ($_SESSION['donations']) { ?>
 <fieldset class="advanced"><legend><?=_("Donations")?></legend>
   <div id="donation1" class="criteria">
-  <?
+  <?php
   $in = "<span class=\"radiogroup\"><label><input type=\"radio\" name=\"donationinout1\" value=\"IN\" checked />";
   $out = "</label><label><input type=\"radio\" name=\"donationinout1\" value=\"OUT\" />";
   $inoutfinish = "</label></span>\n";
   $dtselect = "<select size=\"3\" id=\"dtselect1\" name=\"dtselect1[]\" multiple=\"multiple\">\n";
   $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
-  while ($row = mysql_fetch_object($result)) {
+  while ($row = mysqli_fetch_object($result)) {
     $dtselect .= "    <option value=\"".$row->DonationTypeID."\">".d2h($row->DonationType)."</option>";
   }
   $dtselect .= "</select>\n";
@@ -132,19 +132,19 @@ str_replace("#ID#","seqctqual",$ctselect), $after, $before, $finish, str_replace
   $in, $out, $inoutfinish, $dtselect, $dtstartdate, $dtenddate);
   ?>
   </div>
-  <button type="button" id="donationdup" class="dup advanced"><? echo _("Add another..."); ?></button>
+  <button type="button" id="donationdup" class="dup advanced"><?=_("Add another...")?></button>
 </fieldset>
-<? } // end of if donations ?>
+<?php } // end of if donations ?>
 
 <fieldset class="advanced"><legend><?=_("Attendance")?></legend>
   <div id="attend1" class="criteria">
-<?
+<?php
 $in = "<span class=\"radiogroup\"><label><input type=\"radio\" name=\"attendinout1\" value=\"IN\" checked />";
 $out = "</label><label><input type=\"radio\" name=\"attendinout1\" value=\"OUT\" />";
 $inoutfinish = "</label></span>\n";
 $eventselect = "<select size=\"3\" id=\"eventselect1\" name=\"eventselect1[]\" multiple=\"multiple\">\n";
 $result = sqlquery_checked("SELECT * FROM event ORDER BY Event");
-while ($row = mysql_fetch_object($result)) {
+while ($row = mysqli_fetch_object($result)) {
   $eventselect .= "    <option value=\"".$row->EventID."\">".d2h($row->Event)."</option>";
 }
 $eventselect .= "</select>\n";
@@ -155,12 +155,12 @@ printf(_("%s...did%s...did not%s attend one of these events:%s ".
 $in, $out, $inoutfinish, $eventselect, $astartdate, $aenddate);
 ?>
   </div>
-  <button type="button" id="attenddup" class="dup advanced"><? echo _("Add another..."); ?></button>
+  <button type="button" id="attenddup" class="dup advanced"><?=_("Add another...")?></button>
 </fieldset>
 
 <fieldset class="advanced"><legend><?=_("Blanks")?></legend>
   <div id="text1" class="criteria">
-<?
+<?php
 $in = "<span class=\"radiogroup\"><label><input type=\"radio\" name=\"blankinout1\" value=\"IN\" checked />";
 $out = "</label><label><input type=\"radio\" name=\"blankinout1\" value=\"OUT\" />";
 $inoutfinish = "</label></span>\n";
@@ -181,20 +181,20 @@ $target .= "</select>\n";
 printf(_("...%s%sis%sis not%s<em>blank</em>"), $target, $in, $out, $inoutfinish);
 ?>
   </div>
-  <button type="button" id="blankdup" class="dup advanced"><? echo _("Add another..."); ?></button>
+  <button type="button" id="blankdup" class="dup advanced"><?=_("Add another...")?></button>
 </fieldset>
 
-<?
+<?php
 if ($_SESSION['admin'] == 1) {
 ?>
 <fieldset class="advanced admin">
-  <p><? echo _("Freeform SQL"); ?> ...WHERE:</p>
+  <p><?=_("Freeform SQL")?> ...WHERE:</p>
   <textarea name="freesql" style="width:100%;height:3em"></textarea>
 </fieldset>
-<?
+<?php
 } //end of "if admin"
 ?>
-<button class="simpleonly" id="showadvanced" type="button"><? echo _("Advanced Search Options"); ?></button>
+<button class="simpleonly" id="showadvanced" type="button"><?=_("Advanced Search Options")?></button>
 <div id="buttonsection">
   <label class="label-n-input"><input type="checkbox" name="countonly" value="yes"><?=_("Count Only")?></label>
   <button id="search" type="submit"><?=_("Search!")?></button>
@@ -216,13 +216,13 @@ $(document).ready(function(){
   $("#aenddate1").datepicker({ dateFormat: 'yy-mm-dd' });
 
   $("#catselect1,#ctselect1,#seqctqual1,#seqctelim1,#dtselect1,#eventselect1").multiselect({
-    noneSelectedText: '<? echo _("Select..."); ?>',
-    selectedText: '<? echo _("# selected"); ?>',
-    checkAllText: '<? echo _("Check all"); ?>',
-    uncheckAllText: '<? echo _("Uncheck all"); ?>',
+    noneSelectedText: '<?=_("Select...")?>',
+    selectedText: '<?=_("# selected")?>',
+    checkAllText: '<?=_("Check all")?>',
+    uncheckAllText: '<?=_("Uncheck all")?>',
     /*close: function(){ alert("Select closed!"); }, PART OF MY FUTURE AJAX COUNT FEATURE */
   }).multiselectfilter({
-    label: '<? echo _("Search:"); ?>'
+    label: '<?=_("Search:")?>'
   });
 
   $("button.dup").click(function(){  //add a new instance of the same type of search option
@@ -249,7 +249,7 @@ $(document).ready(function(){
             checkAllText: 'Check all',
             uncheckAllText: 'Uncheck all'
           }).multiselectfilter({
-            label: '<? echo _("Search:"); ?>'
+            label: '<?=_("Search:")?>'
           });
         }
       }
@@ -292,6 +292,6 @@ alert("preselected = #"+$('#preselected')+value+"#");
   document.getElementById("textinput1").focus();
 });
 </script>
-<?
+<?php
 footer();
 ?>

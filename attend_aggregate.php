@@ -10,7 +10,7 @@ $eids = implode(",", $_POST['emultiple']);
 $result = sqlquery_checked("SELECT EventID,Event,UseTimes FROM event WHERE EventID IN ($eids) ORDER BY Event");
 $event_names = "";
 $usetimes = 0;
-while ($row = mysql_fetch_object($result)) {
+while ($row = mysqli_fetch_object($result)) {
   $earray[] = $row;
   $event_names .= ", ".$row->Event;
   if ($row->UseTimes) $usetimes = 1;
@@ -92,8 +92,8 @@ $(document).ready(function() {
   $('#mainTable').columnManager({listTargetID:'targetall',
   onClass: 'advon',
   offClass: 'advoff',
-  hideInList: [<? echo $hideInList; ?>],
-  colsHidden: [<? echo $colsHidden; ?>],
+  hideInList: [<?=$hideInList?>],
+  colsHidden: [<?=$colsHidden?>],
   saveState: false});
   $('#ulSelectColumn').clickMenu({onClick: function(){}});
   
@@ -114,7 +114,7 @@ function getCSV() {
   $(".name-for-display, .selectcol").show();
 }
 </script>
-<?
+<?php
 header2($_GET['nav']);
 echo "<h3>Aggregate Data for Events: ".$event_names;
 if ($_POST["startdate"] && $_POST["enddate"]) printf(_(", between %s and %s"),$_POST["startdate"],$_POST["enddate"]);
@@ -136,7 +136,7 @@ if ($_POST["min"]) $sql .= " AND attendnum >= ".$_POST["min"];
 if ($_POST['preselected']) $sql .= " AND a.PersonID IN (".$_POST['preselected'].")";
 $sql .= " GROUP BY a.PersonID,a.EventID ORDER BY p.Furigana, e.Event";
 $result = sqlquery_checked($sql);
-if (mysql_numrows($result) == 0) {
+if (mysqli_num_rows($result) == 0) {
   echo "<p>"._("There are no attendance records matching your criteria.")."</p>";
   footer();
   exit;
@@ -152,7 +152,7 @@ if (mysql_numrows($result) == 0) {
 <input type="submit" id="csvfile" name="csvfile" value="<?=_("Download a CSV file of this table")?>" onclick="getCSV();">
 </form>
 </div>
-<?
+<?php
 echo "<table id=\"mainTable\" class=\"tablesorter\"><thead>";
 echo "<tr>";
 echo $tableheads;
@@ -161,7 +161,7 @@ echo "</tr></thead>\n";
 $prev_pid = $pidnum = 0;
 $pid_list = "";
 $tbody = "<tbody>";
-while ($row = mysql_fetch_object($result)) {
+while ($row = mysqli_fetch_object($result)) {
   if ($row->PersonID != $prev_pid) {
     $prev_pid = $row->PersonID;
     $pid_list .= ",".$row->PersonID;

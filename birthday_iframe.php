@@ -25,13 +25,10 @@ if (!$catlist) {
   . "WHERE p.PersonID=c.PersonID AND c.CategoryID IN ({$catlist}) AND ";
   // List categories by name for use in header
   $sql2 = "SELECT * FROM category WHERE CategoryID IN ({$catlist}) ORDER BY Category";
-  if (!$result = mysql_query($sql2)) {
-    echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b> [$sql2]");
-    exit;
-  }
-  $row = mysql_fetch_object($result);  // Get the first one; no preceding comma
+  $result = sqlquery_checked($sql2);
+  $row = mysqli_fetch_object($result);  // Get the first one; no preceding comma
   $cat_names = $row->Category;
-  while ($row = mysql_fetch_object($result)) {
+  while ($row = mysqli_fetch_object($result)) {
     $cat_names .= ", " . $row->Category;
   }
   echo "<b>Birthdays between {$startmonth}/{$startday} and {$endmonth}/{$endday} ".
@@ -52,17 +49,14 @@ if (($startmonth>$endmonth) || ($startmonth==$endmonth && $startday>$endday)) {
 }
 
 $sql .= " ORDER BY month(Birthdate), dayofmonth(Birthdate)";
-if (!$result = mysql_query($sql)) {
-  echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b>  [$sql]");
-  exit;
-}
+$result = sqlquery_checked($sql);
 echo "<form action=\"multiselect.php\" method=GET target=\"_top\">\n";
 echo "<center><input type=submit value=\"Go to Multi-Select with This List Preselected\"><br></center>";
 
 // Create table
 echo "<table border=1 cellspacing=0 cellpadding=2><thead><tr><th>Name</th><th>Photo</th>";
 echo "<th>Birthdate</th><th>Age after<br>Birthday</th>\n</thead><tbody>\n";
-while ($row = mysql_fetch_object($result)) {
+while ($row = mysqli_fetch_object($result)) {
   echo "<tr><td nowrap><a href=\"individual.php?pid=".$row->PersonID."\" target=\"_blank\">";
   echo readable_name($row->FullName, $row->Furigana)."</a></td><td align=center>";
   echo ($row->Photo == 1) ? "<img border=0 src=\"photos/p".$row->PersonID.".jpg\" width=50>" : "&nbsp;";

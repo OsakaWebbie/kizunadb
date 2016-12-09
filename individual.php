@@ -11,7 +11,7 @@ sqlquery_checked("SET time_zone='+09:00'");
 // A REQUEST TO ADD A PERORG RECORD?
 if ($_POST['newperorg']) {
   $result = sqlquery_checked("SELECT * FROM person WHERE PersonID=".$_POST['orgid']." AND Organization=1");
-  if (mysql_num_rows($result) == 0) {  // either no record with that ID or Organization is FALSE
+  if (mysqli_num_rows($result) == 0) {  // either no record with that ID or Organization is FALSE
     $msg = "This ID does not point to an organization record. Use Browse if you need help.";
   } else {
     sqlquery_checked("REPLACE INTO perorg(PersonID, OrgID, Leader)".
@@ -25,35 +25,26 @@ if ($_POST['newperorg']) {
 if ($newcontact) {
   $result = sqlquery_checked("SELECT * FROM contact WHERE PersonID=${pid} AND ContactTypeID=${ctype} ".
     "AND ContactDate='${date}' AND Description= '".h2d($desc)."'");
-  if (mysql_num_rows($result) == 0) {  // making sure this isn't an accidental repeat entry
-    if (!$result = mysql_query("INSERT INTO contact(PersonID, ContactTypeID, ContactDate, Description) ".
-        "VALUES($pid, $ctype, '$date', '".h2d($desc)."')")) {
-      echo "<b>SQL Error ".mysql_errno()." while inserting Contact record: ".mysql_error()."</b>";
-    } else {
-      header("Location: individual.php?pid=".$_POST['pid']."#contacts");
-      exit;
-    }
+  if (mysqli_num_rows($result) == 0) {  // making sure this isn't an accidental repeat entry
+    $result = sqlquery_checked("INSERT INTO contact(PersonID, ContactTypeID, ContactDate, Description) ".
+        "VALUES($pid, $ctype, '$date', '".h2d($desc)."')");
+    header("Location: individual.php?pid=".$_POST['pid']."#contacts");
+    exit;
   }
 }
 
 // A REQUEST TO DELETE A CONTACT RECORD?
 if ($delcontact) {
-  if (!$result = mysql_query("DELETE FROM contact WHERE ContactID=$cid")) {
-    echo "<b>SQL Error ".mysql_errno()." while deleting Contact record: ".mysql_error()."</b>";
-  } else {
-    header("Location: individual.php?pid=".$_POST['pid']."#contacts");
-  }
+  $result = sqlquery_checked("DELETE FROM contact WHERE ContactID=$cid");
+  header("Location: individual.php?pid=".$_POST['pid']."#contacts");
   exit;
 }
 
 // A REQUEST TO UPDATE A CONTACT RECORD?
 if ($editcontactsave) {
-  if (!$result = mysql_query("UPDATE contact SET ContactTypeID=$ctype, ContactDate='$date', ".
-    "Description='".h2d($desc)."' WHERE ContactID=$cid")) {
-    echo "<b>SQL Error ".mysql_errno()." while updating Contact record: ".mysql_error()."</b>";
-  } else {
-    header("Location: individual.php?pid=".$_POST['pid']."#contacts");
-  }
+  $result = sqlquery_checked("UPDATE contact SET ContactTypeID=$ctype, ContactDate='$date', ".
+    "Description='".h2d($desc)."' WHERE ContactID=$cid");
+  header("Location: individual.php?pid=".$_POST['pid']."#contacts");
   exit;
 }
 
@@ -68,16 +59,13 @@ if ($newdonation) {
   $sql = "SELECT * FROM donation WHERE PersonID=".$_POST['pid']." AND DonationTypeID=$dtype ".
     "AND DonationDate='".$_POST['date']."' AND PledgeID".($plid ? "=".$plid : " IS NULL").
     " AND Amount=".str_replace(",","",$_POST['amount']." AND Description='".h2d($_POST['desc'])."'");
-    $result = sqlquery_checked($sql);
-  if (mysql_num_rows($result) == 0) {  // making sure this isn't an accidental repeat entry
+  $result = sqlquery_checked($sql);
+  if (mysqli_num_rows($result) == 0) {  // making sure this isn't an accidental repeat entry
     $sql = "INSERT INTO donation(PersonID,".(plid?"PledgeID,":"")."DonationTypeID, DonationDate,".
     "Amount, Description, Processed) VALUES(".$_POST['pid'].",".($plid?$plid.",":"").$dtype.",".
     "'".$_POST['date']."',".ereg_replace(",","",$_POST['amount']).",'".h2d($_POST['desc'])."',".($_POST['proc']?"1":"0").")";
-    if (!$result = mysql_query($sql)) {
-      echo "<b>SQL Error ".mysql_errno()." while inserting Donation record: ".mysql_error()."</b><br>($sql)";
-    } else {
-      header("Location: individual.php?pid=".$_POST['pid']."#donations");
-    }
+    $result = sqlquery_checked($sql);
+    header("Location: individual.php?pid=".$_POST['pid']."#donations");
   } else {
       echo "<SCRIPT FOR=window EVENT=onload LANGUAGE=\"Javascript\">\n";
       echo "alert('A donation on that date for that purpose and amount has already been recorded.')\n";
@@ -89,11 +77,8 @@ if ($newdonation) {
 
 // A REQUEST TO DELETE A DONATION RECORD?
 if ($deldonation) {
-  if (!$result = mysql_query("DELETE FROM donation WHERE DonationID=$did")) {
-    echo "<b>SQL Error ".mysql_errno()." while deleting Donation record: ".mysql_error()."</b>";
-  } else {
-    header("Location: individual.php?pid=".$_POST['pid']."#donations");
-  }
+  $result = sqlquery_checked("DELETE FROM donation WHERE DonationID=$did");
+  header("Location: individual.php?pid=".$_POST['pid']."#donations");
   exit;
 }
 
@@ -109,12 +94,8 @@ if ($editdonationsave) {
       ",DonationTypeID=".$dtype.",DonationDate='".$_POST['date']."',".
       "Amount=".ereg_replace(",","",$_POST['amount']).",Description='".h2d($_POST['desc'])."',".
       "Processed=".($_POST['proc']?"1":"0")." WHERE DonationID=$did";
-  if (!$result = mysql_query($sql)) {
-    echo "<b>SQL Error ".mysql_errno()." while updating Donation record: ".
-    mysql_error()."</b><br>$sql";
-  } else {
-    header("Location: individual.php?pid=".$_POST['pid']."#donations");
-  }
+  $result = sqlquery_checked($sql);
+  header("Location: individual.php?pid=".$_POST['pid']."#donations");
   exit;
 }
 
@@ -125,7 +106,7 @@ if ($newattendance) {
   if (!$_POST["apply"] || !(strpos($_POST["apply"],"org")===false)) $pidarray[] = $_POST['pid'];
   if (!(strpos($_POST["apply"],"mem")===false)) {
     $result = sqlquery_checked("SELECT PersonID from perorg where OrgID=".$_POST['pid']);
-    while ($row = mysql_fetch_object($result)) $pidarray[] = $row->PersonID;
+    while ($row = mysqli_fetch_object($result)) $pidarray[] = $row->PersonID;
   }
   //make array of dates (single or range)
   $datearray = array();
@@ -169,11 +150,11 @@ if ($newupload) {
   if (is_uploaded_file($_FILES['uploadfile']['tmp_name'])) {
     $ext = strtolower(pathinfo($_FILES['uploadfile']['name'], PATHINFO_EXTENSION));
     $result = sqlquery_checked("SELECT Extension FROM uploadtype WHERE Extension='$ext'");
-    if (mysql_num_rows($result) == 0) {
+    if (mysqli_num_rows($result) == 0) {
       $msg = "This file type is not approved for uploads.";
     } else {
       sqlquery_checked("INSERT INTO upload(PersonID,UploadTime,FileName,Description)"."VALUES($pid,NOW(),'".h2d($_FILES['uploadfile']['name'])."','".h2d($_POST['uploaddesc'])."')");
-      $uid = mysql_insert_id();
+      $uid = mysqli_insert_id($db);
       if (!move_uploaded_file($_FILES['uploadfile']['tmp_name'], "/var/www/".$_SESSION['client']."/uploads/u$uid.$ext")) {
         sqlquery_checked("DELETE FROM upload WHERE UploadID=$uid");
         echo "File upload failed.  Here's some debugging info:\n<pre>";
@@ -220,11 +201,11 @@ if (!$pid) {
   exit;
 }
 $result = sqlquery_checked("SELECT * FROM person WHERE PersonID=$pid");
-if (mysql_num_rows($result) == 0) {
+if (mysqli_num_rows($result) == 0) {
   echo("<b>Failed to find a record for PersonID $pid.</b>");
   exit;
 }
-$per = mysql_fetch_object($result);
+$per = mysqli_fetch_object($result);
 header1("$per->FullName");
 
 //array of column id, whether to hide in column picker, and whether to disable in sorter
@@ -285,7 +266,7 @@ $tableheads .= "<th></th>\n";  // for the Delete button
 
 <meta http-equiv="expires" content="0">
 <link rel="stylesheet" type="text/css" href="style.php?jquery=1&table=1" />
-<? header2(1);
+<?php header2(1);
 if ($per->Organization) $break = "<br /><span class=\"smaller\">";
 echo "<h1 id=\"title\">".readable_name($per->FullName,$per->Furigana,$per->PersonID,$per->Organization,$break)."</h1>";
 if ($per->Photo) echo "<div id=\"photo\"><img src=\"photo.php?f=p".$pid."\" width=\"150\" /></div>\n";
@@ -323,12 +304,12 @@ echo "</div>";
 
 echo "\n\n<!-- Household Information Section -->\n\n<div id=\"household-info\">";
 if ($per->HouseholdID) {    // There is a household record, so let's get its data
-  $result = mysql_query("SELECT * FROM household WHERE HouseholdID=$per->HouseholdID") or die("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b>");
-  if (mysql_num_rows($result) == 0) {
+  $result = sqlquery_checked("SELECT * FROM household WHERE HouseholdID=$per->HouseholdID");
+  if (mysqli_num_rows($result) == 0) {
     printf(_("Failed to find a record for HouseholdID %s."),$per->HouseholdID);
   } else {    // Query is okay, so fetch and display info
     echo "<h3 class=\"info-title\">"._("Household Information")."</h3>";
-    $house = mysql_fetch_object($result);
+    $house = mysqli_fetch_object($result);
     if ($house->Phone) echo "<div id=\"phone\">"._("Landline Phone").": ".$house->Phone."</div>\n";
     if ($house->FAX) echo "<div id=\"fax\">"._("FAX").": ".$house->FAX."</div>\n";
 //    if ($house->Phone or $house->FAX) echo "&nbsp;<br>";
@@ -339,10 +320,10 @@ if ($per->HouseholdID) {    // There is a household record, so let's get its dat
       if ($house->PostalCode) {
         $result = sqlquery_checked("SELECT CONCAT(Prefecture,ShiKuCho) as text, Romaji FROM postalcode".
             " WHERE PostalCode = '".$house->PostalCode."'");
-        if (mysql_num_rows($result) == 0) {
+        if (mysqli_num_rows($result) == 0) {
           echo("<strong>".sprintf(_("Missing record for Postal Code %s"),$house->PostalCode).".</strong>");
         } else {
-          $postal = mysql_fetch_object($result);
+          $postal = mysqli_fetch_object($result);
           echo "<div id=\"address\">".$house->PostalCode." ".$postal->text." ".d2h($house->Address)."<br />";
           echo d2h($house->LabelName)."</div>";
           if ($_SESSION['romajiaddresses'] == "yes") {
@@ -383,31 +364,24 @@ echo "</h2>";
 <!-- Categories Section -->
 
 <div class="section">
-<h3 class="section-title"><? echo _("Categories"); ?></h3>
-<form action="<? echo $PHP_SELF."?pid=$pid"; ?>" method="post">
+<h3 class="section-title"><?=_("Categories")?></h3>
+<form action="<?=$_SERVER['PHP_SELF']."?pid=$pid"?>" method="post">
 <div id="cats-button">
-<input type="submit" value="<? echo _("Save Category Changes"); ?>" name="newcategory" />
-<input type="hidden" name="pid" value="<? echo $pid; ?>"></div>
-<?
+<input type="submit" value="<?=_("Save Category Changes")?>" name="newcategory" />
+<input type="hidden" name="pid" value="<?=$pid?>"></div>
+<?php
 // Coming from changing categories?
 if ($newcategory) {
-$msg .= "category change<br>";
-  if (!$result = mysql_query("SELECT c.CategoryID, c.Category, p.PersonID ".
+  $msg .= "category change<br>";
+  $result = sqlquery_checked("SELECT c.CategoryID, c.Category, p.PersonID ".
       "FROM category c LEFT JOIN percat p ON c.CategoryID=p.CategoryID and p.PersonID=$pid ".
-      "ORDER BY case when p.PersonID is null then 1 else 0 end, c.Category")) {
-    echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b>");
-  } else {
-    while ($row = mysql_fetch_object($result)) {
-      $catid = $row->CategoryID;
-      if ($row->PersonID && !($_POST[$catid])) {
-        if (!mysql_query("DELETE from percat WHERE CategoryID=$catid and PersonID=$pid")) {
-          echo("<b>SQL Error ".mysql_errno()." during DELETE FROM percat: ".mysql_error()."</b>");
-        }
-      } elseif (!$row->PersonID && $_POST[$catid]) {
-        if (!mysql_query("INSERT INTO percat(CategoryID,PersonID) VALUES($catid,$pid)")) {
-          echo("<b>SQL Error ".mysql_errno()." during INSERT INTO percat: ".mysql_error()."</b>");
-        }
-      }
+      "ORDER BY case when p.PersonID is null then 1 else 0 end, c.Category");
+  while ($row = mysqli_fetch_object($result)) {
+    $catid = $row->CategoryID;
+    if ($row->PersonID && !($_POST[$catid])) {
+      sqlquery_checked("DELETE from percat WHERE CategoryID=$catid and PersonID=$pid");
+    } elseif (!$row->PersonID && $_POST[$catid]) {
+      sqlquery_checked("INSERT INTO percat(CategoryID,PersonID) VALUES($catid,$pid)");
     }
   }
 }
@@ -417,7 +391,7 @@ $result = sqlquery_checked("SELECT c.CategoryID, c.Category, p.PersonID ".
     "WHERE c.UseFor LIKE '%".($per->Organization ? "O" : "P")."%' ".
     "ORDER BY case when p.PersonID is null then 1 else 0 end, c.Category");
 echo "<div id=\"cats-in\">";
-while ($row = mysql_fetch_object($result)) {
+while ($row = mysqli_fetch_object($result)) {
   if (!($row->PersonID)) {
     echo "</div><div id=\"cats-out\">";
     echo "<label for=\"".$row->CategoryID."\" class=\"label-n-input\"><input type=\"checkbox\" name=\"".$row->CategoryID."\">".$row->Category."</label>\n";
@@ -425,7 +399,7 @@ while ($row = mysql_fetch_object($result)) {
   }
   echo "<label for=\"".$row->CategoryID."\" class=\"label-n-input\"><input type=\"checkbox\" name=\"".$row->CategoryID."\" checked>".$row->Category."</label>\n";
 }
-while ($row = mysql_fetch_object($result)) {
+while ($row = mysqli_fetch_object($result)) {
   echo "<label for=\"".$row->CategoryID."\" class=\"label-n-input\"><input type=\"checkbox\" name=\"".$row->CategoryID."\">".$row->Category."</label>\n";
 }
 echo "</div>";  //end of cats-out
@@ -434,25 +408,25 @@ echo "</div>";  //end of cats-out
 </div>
 
 <!-- Organization Section -->
-<? //if ($per->Organization==0) { ?>
+<?php //if ($per->Organization==0) { ?>
 
 <a name="org"></a>
 <div class="section" id="orgsection">
-<h3 class="section-title"><? echo _("Related Organizations"); ?></h3>
+<h3 class="section-title"><?=_("Related Organizations")?></h3>
 
-<? // FORM FOR ADDING ORGS ?>
-<form name="orgform" id="orgform" method="POST" action="<? echo ${PHP_SELF}."?pid=$pid"; ?>" onSubmit="return ValidateOrg()">
-<input type="hidden" name="pid" value="<? echo $pid; ?>" />
-<label class="label-n-input"><? echo _("Organization ID"); ?>: <input type="text" name="orgid" id="orgid" style="width:5em;ime-mode:disabled" value="" /><span id="orgname" style="color:darkred;font-weight:bold"></span></label>
-(<label class="label-n-input"><? echo _("Search"); ?>: <input type="text" name="orgsearchtxt" id="orgsearchtxt" style="width:7em" value=""></label>
-<input type="button" value="<? echo _("Search")."/"._("Browse"); ?>"
+<?php // FORM FOR ADDING ORGS ?>
+<form name="orgform" id="orgform" method="POST" action="<?=${PHP_SELF}."?pid=$pid"?>" onSubmit="return ValidateOrg()">
+<input type="hidden" name="pid" value="<?=$pid?>" />
+<label class="label-n-input"><?=_("Organization ID")?>: <input type="text" name="orgid" id="orgid" style="width:5em;ime-mode:disabled" value="" /><span id="orgname" style="color:darkred;font-weight:bold"></span></label>
+(<label class="label-n-input"><?=_("Search")?>: <input type="text" name="orgsearchtxt" id="orgsearchtxt" style="width:7em" value=""></label>
+<input type="button" value="<?=_("Search")."/"._("Browse")?>"
 onclick="window.open('selectorg.php?txt='+encodeURIComponent(document.getElementById('orgsearchtxt').value),'selectorg','scrollbars=yes,width=800,height=600');">)
 <br />
 <label class="label-n-input"><input type="checkbox" name="leader"><?=_("Leader")?></label>
-<input type="submit" value="<? echo _("Save Organization Assignment"); ?>" name="newperorg">
+<input type="submit" value="<?=_("Save Organization Assignment")?>" name="newperorg">
 </form>
 
-<?
+<?php
 // TABLE OF ORGANIZATIONS
 $sql = "SELECT person.*,perorg.Leader,household.Address,postalcode.*,".
     "ca.Categories, e.Events".
@@ -470,19 +444,19 @@ $sql = "SELECT person.*,perorg.Leader,household.Address,postalcode.*,".
     " WHERE perorg.PersonID=".$pid." ORDER BY person.Furigana";
 //echo "<pre>$sql</pre>";
 $result = sqlquery_checked($sql);
-if (mysql_num_rows($result) == 0) {
+if (mysqli_num_rows($result) == 0) {
   echo "<h3>"._("Current Organizations")."</h3>";
   echo "<p>"._("No organization associations. (You can add them here or in Multi-Select.)")."</p>";
 } else {
   echo "<form class=\"msform\" action=\"multiselect.php\" method=\"post\" target=\"_top\">\n";
-  echo "<h3 style=\"display:inline;margin-right:20px;\">"._("Current Organizations")." (".mysql_num_rows($result).")</h3>";
+  echo "<h3 style=\"display:inline;margin-right:20px;\">"._("Current Organizations")." (".mysqli_num_rows($result).")</h3>";
   echo "  <input type=\"hidden\" id=\"org_preselected\" name=\"preselected\" value=\"\">\n";
   echo "  <input type=\"submit\" value=\""._("Go to Multi-Select with these entries preselected")."\">\n";
   echo "</form>\n";
   echo "<table id=\"org-table\" class=\"tablesorter\" width=\"100%\" border=\"1\">";
   echo "<thead><tr>".str_replace("target","targetOrg",
   str_replace("ulSelectColumn","ulSelectColumnOrg",$tableheads))."</tr></thead>\n<tbody>";
-  while ($row = mysql_fetch_object($result)) {
+  while ($row = mysqli_fetch_object($result)) {
     $org_pids .= ",".$row->PersonID;
     echo "<tr".($row->Leader ? " class=\"leader\"" : "").">";
     echo "<td class=\"personid\">".$row->PersonID."</td>\n";
@@ -532,19 +506,19 @@ if ($per->Organization) {
   " WHERE perorg.OrgID=".$pid." ORDER BY person.Furigana";
 //echo "<pre>$sql</pre>";
   $result = sqlquery_checked($sql);
-  if (mysql_num_rows($result) == 0) {
+  if (mysqli_num_rows($result) == 0) {
     echo "<h3>"._("Current Members")."</h3>";
     echo "<p>"._("No members. (Add them on a member's personal page or in Multi-Select.)")."</p>";
   } else {
     echo "<form class=\"msform\" action=\"multiselect.php\" method=\"post\" target=\"_top\">\n";
-    echo "  <h3 style=\"display:inline;margin-right:20px;\">"._("Current Members")." (".mysql_num_rows($result).")</h3>";
+    echo "  <h3 style=\"display:inline;margin-right:20px;\">"._("Current Members")." (".mysqli_num_rows($result).")</h3>";
     echo "  <input type=\"hidden\" id=\"mem_preselected\" name=\"preselected\" value=\"\">\n";
     echo "  <input type=\"submit\" value=\""._("Go to Multi-Select with these entries preselected")."\">\n";
     echo "</form>\n";
     echo "<table id=\"member-table\" class=\"tablesorter\" width=\"100%\" border=\"1\">";
     echo "<thead><tr>".str_replace("target","targetMember",
     str_replace("ulSelectColumn","ulSelectColumnMember",$tableheads))."</tr></thead>\n<tbody>";
-    while ($row = mysql_fetch_object($result)) {
+    while ($row = mysqli_fetch_object($result)) {
       $mem_pids .= ",".$row->PersonID;
       echo "<tr".($row->Leader ? " class=\"leader\"" : "").">";
       echo "<td class=\"personid\">".$row->PersonID."</td>\n";
@@ -586,7 +560,7 @@ echo "</div>";
 
 <a name="contacts"></a>
 <div class="section">
-<?
+<?php
 echo "<h3 class=\"section-title\">"._("Contacts")."</h3>\n";
 
   // FORM FOR ADD OR EDIT OF A CONTACT
@@ -594,42 +568,42 @@ if ($editcontact) {   // A CONTACT IN THE TABLE IS TO BE EDITED
   echo "<p class=\"alert\">"._("Edit fields as needed and press 'Save Contact Entry'")."</h3>";
 }
 ?>
-  <form name="contactform" id="contactform" method="post" action="<? echo $PHP_SELF."?pid=$pid"; ?>#contacts" onSubmit="return ValidateContact()">
-  <input type="hidden" name="pid" value="<? echo $pid; ?>" />
-<? if ($editcontact) echo "  <input type=\"hidden\" name=\"cid\" value=\"$cid\">\n"; ?>
-  <label class="label-n-input"><? echo _("Date"); ?>: <input type="text" name="date" id="contactdate" style="width:6em"
-    value="<? echo ($editcontact ? $date : ""); ?>"></label>
-<?
-$result = mysql_query("SELECT * FROM contacttype ORDER BY ContactType") or die("SQL Error ".mysql_errno().": ".mysql_error());
+  <form name="contactform" id="contactform" method="post" action="<?=$_SERVER['PHP_SELF']."?pid=$pid"?>#contacts" onSubmit="return ValidateContact()">
+  <input type="hidden" name="pid" value="<?=$pid?>" />
+<?php if ($editcontact) echo "  <input type=\"hidden\" name=\"cid\" value=\"$cid\">\n"; ?>
+  <label class="label-n-input"><?=_("Date")?>: <input type="text" name="date" id="contactdate" style="width:6em"
+    value="<?=($editcontact ? $date : "")?>"></label>
+<?php
+$result = sqlquery_checked("SELECT * FROM contacttype ORDER BY ContactType");
 echo "<label class=\"label-n-input\">"._("Type").": <select size=\"1\" id=\"ctype\" name=\"ctype\"><option value=\"NULL\">"._("Select...")."</option>\n";
-while ($row = mysql_fetch_object($result)) {
+while ($row = mysqli_fetch_object($result)) {
   echo "<option value=\"".$row->ContactTypeID."\"".(($editcontact && $row->ContactTypeID==$ctype)?
         " selected":"")." style=\"background-color:#".$row->BGColor."\">".$row->ContactType."</option>\n";
 }
 ?>
 </select></label>
 <textarea id="contactdesc" name="desc" class="expanding" wrap="virtual">
-<? if ($editcontact) echo preg_replace("=<br */?>=i", "", $desc); ?></textarea>
-<? if ($editcontact) {
+<?php if ($editcontact) echo preg_replace("=<br */?>=i", "", $desc); ?></textarea>
+<?php if ($editcontact) {
   echo "<input type=\"submit\" value=\""._("Save Changes")."\" name=\"editcontactsave\">";
 } else {
   echo "<input type=\"submit\" value=\""._("Save Contact Entry")."\" name=\"newcontact\">";
 } ?>
 </form>
 
-<?
+<?php
 // TABLE OF CONTACT HISTORY
 $result = sqlquery_checked("SELECT c.ContactID,c.ContactTypeID,t.ContactType,ContactDate,".
     "c.Description,t.BGColor FROM contact c,contacttype t WHERE c.ContactTypeID=t.ContactTypeID ".
     "AND c.PersonID=$pid ORDER BY c.ContactDate DESC, ContactID DESC");
-if (mysql_num_rows($result) == 0) {
+if (mysqli_num_rows($result) == 0) {
   echo("<p>No previous contacts recorded.</p>");
 } else {
   echo "<table id=\"contact-table\" class=\"tablesorter\" width=\"100%\" border=\"1\"><thead><tr>";
   echo "<th>"._("Date")."</th><th>"._("Contact Type")."</th><th>"._("Description")."</th><th></th><th></th>\n";
   echo "</tr></thead><tbody>\n";
   $rownum = 0;
-  while ($row = mysql_fetch_object($result)) {
+  while ($row = mysqli_fetch_object($result)) {
     $rownum++;
     if ($editcontact && ($row->ContactID==$cid)) {
       $fcstart = "<span style=\"color:#FFFFFF\">";
@@ -661,7 +635,7 @@ if (mysql_num_rows($result) == 0) {
     echo "</td>\n</form></tr>\n";
   }
   echo "</tbody></table>";
-  if (mysql_num_rows($result) > $_SESSION['displaydefault_contactnum']) {
+  if (mysqli_num_rows($result) > $_SESSION['displaydefault_contactnum']) {
     echo "<div style=\"text-align:left\">";
     echo "<button id=\"oldcontact_show\" onclick=\"$('#oldcontact_show').hide();$('.oldcontact').show();\">"._("Show Older Records Also")."</button>";
     echo "<button class=\"oldcontact\" onclick=\"$('.oldcontact').hide();$('#oldcontact_show').show();\" style=\"display:none\">"._("Hide Older Records")."</button>";
@@ -677,7 +651,7 @@ if ($_SESSION['donations'] == "yes") {   // covers both DONATIONS and PLEDGES se
 
 <a name="donations"></a>
 <div class="section">
-<?
+<?php
   echo "<h3 class=\"section-title\">"._("Donations")."</h3>\n";
 
   // FORM FOR ADD OR EDIT OF A DONATION
@@ -697,7 +671,7 @@ if ($_SESSION['donations'] == "yes") {   // covers both DONATIONS and PLEDGES se
   echo "<label class=\"label-n-input\" class=\"pledges\">"._("Pledge").": ";
   echo "<select size=\"1\" name=\"plid\" onChange=\"SetDtypeSelect();\">";
   echo "<option value=\"NULL\">Select if pledge...</option>";
-  while ($row = mysql_fetch_object($result)) {
+  while ($row = mysqli_fetch_object($result)) {
     echo "<option value=\"".$row->PledgeID.":".$row->DonationTypeID."\"".(($editdonation && $row->PledgeID==$plid)?
         " selected":"")." style=\"background-color:#".$row->BGColor."\">$row->PledgeDesc</option>";
   }
@@ -706,7 +680,7 @@ $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
   echo "<label class=\"label-n-input\">"._("Donation Type").": ";
   echo "<select size=\"1\" name=\"dtype\"".(($editdonation && $plid>0)?" disabled":"").">";
   echo "<option value=\"NULL\">Select if not pledge...</option>";
-  while ($row = mysql_fetch_object($result)) {
+  while ($row = mysqli_fetch_object($result)) {
     echo "<option value=\"".$row->DonationTypeID."\"".(($editdonation && $row->DonationTypeID==$dtype)?
         " selected":"")." style=\"background-color:#".$row->BGColor."\">$row->DonationType</option>";
   }
@@ -728,16 +702,15 @@ $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
   $sql = "SELECT d.*, dt.*, pl.PledgeDesc FROM donation d LEFT JOIN donationtype dt ".
       "ON d.DonationTypeID=dt.DonationTypeID LEFT JOIN pledge pl ON d.PledgeID=pl.PledgeID ".
       "WHERE d.PersonID=$pid ORDER BY d.DonationDate DESC, d.DonationTypeID";
-  if (!$result = mysql_query($sql)) {
-    echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b><br>($sql)");
-  } elseif (mysql_num_rows($result) == 0) {
+  $result = sqlquery_checked($sql);
+  if (mysqli_num_rows($result) == 0) {
     echo("<p>No previous donations recorded.</p>");
   } else {
     echo "<table id=\"donation-table\" class=\"tablesorter\" width=\"100%\" border=\"1\"><thead>";
     echo "<tr><th>"._("Date")."</th><th>"._("Pledge or Donation Type")."</th><th>"._("Amount")."</th><th>"._("Description").
     "</th><th>"._("Proc.")."</th><th></th><th></th></tr>\n</thead><tbody>\n";
     $row_index = 0;
-    while ($row = mysql_fetch_object($result)) {
+    while ($row = mysqli_fetch_object($result)) {
       if ($editdonation && ($row->DonationID==$did)) {
         $fcstart = "<font color=#FFFFFF>";
         $fcend = "</font>";
@@ -779,7 +752,7 @@ $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
       }
     }
     echo "</tbody></table>";
-    if (mysql_num_rows($result) > $recent) {
+    if (mysqli_num_rows($result) > $recent) {
       if ($_GET['showalldonations']) {
         echo "<div align=\"center\"><a href=\"individual.php?pid=".$pid."#donations\">Show Only Recent Donations</a></div>";
       } else {
@@ -801,7 +774,7 @@ $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
 
 <a name="pledges"></a>
 <div class="section">
-<?
+<?php
   echo "<h3 class=\"section-title\">"._("Pledges")."</h3>\n";
 
   $sql = "SELECT pl.*, dt.DonationType, SUM(IFNULL(d.Amount,0)) - (pl.Amount * (IF(pl.TimesPerYear=0,".
@@ -811,15 +784,14 @@ $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
       "LEFT JOIN donation d ON pl.PledgeID=d.PledgeID ".
       "WHERE pl.PersonID=$pid GROUP BY pl.PledgeID ".
       "ORDER BY pl.StartDate DESC";
-  if (!$result = mysql_query($sql)) {
-      echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b><br>($sql)");
-  } elseif (mysql_num_rows($result) == 0) {
+  $result = sqlquery_checked($sql);
+  if (mysqli_num_rows($result) == 0) {
     echo("<p align=\"center\">No pledges. &nbsp; &nbsp; &nbsp;<a href=\"edit_pledge.php?pid=$pid\">Create New Pledge</a></p>");
   } else {
     echo "<table width=\"100%\" border=\"1\"><thead>\n";
     echo "<tr><th>"._("Type")."</th><th>"._("Description")."</th><th>"._("Amount")."</th><th>"._("Dates")."</th>";
     echo "<th>Balance</th><th></th></tr>\n</thead><tbody>\n";
-    while ($row = mysql_fetch_object($result)) {
+    while ($row = mysqli_fetch_object($result)) {
       echo "<tr>\n";
       echo "<td align=\"center\">".$row->DonationType."</td>\n";
       echo "<td align=\"center\">".db2table($row->PledgeDesc)."</td>\n";
@@ -843,7 +815,7 @@ $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
 
 <a name="attendance"></a>
 <div class="section">
-<?
+<?php
 echo "<h3 class=\"section-title\">"._("Event Attendance")."</h3>\n";
 
 // FORM FOR ADDING ATTENDANCE
@@ -854,7 +826,7 @@ $result = sqlquery_checked("SELECT EventID,Event,UseTimes,IF(EventEndDate AND Ev
 echo "  <label class=\"label-n-input\">"._("Event").": ";
 echo "    <select size=\"1\" id=\"eventid\" name=\"eid\">\n";
 echo "      <option value=\"NULL\" selected>"._("Select...")."</option>\n";
-while ($row = mysql_fetch_object($result)) {
+while ($row = mysqli_fetch_object($result)) {
 //  echo "      <option value=\"".$row->EventID."\" class=\"".(($row->UseTimes==1)?"times ":"days ").$row->Active."\"".
 //  ($row->Active=="active"?"":" style=\"display:none\"").">".$row->Event."</option>\n";
   echo "      <option value=\"".$row->EventID."\" class=\"".(($row->UseTimes==1)?"times ":"days ").$row->Active."\"".
@@ -892,13 +864,13 @@ echo "</form>\n";
 $result = sqlquery_checked("SELECT e.Event, e.EventID, e.Remarks, min(a.AttendDate) AS first, max(a.AttendDate) AS last,".
 " COUNT(a.AttendDate) AS times, IF(e.UseTimes=1,SUM(TIME_TO_SEC(SUBTIME(a.EndTime,a.StartTime))) DIV 60,-1) AS minutes".
 " FROM event e, attendance a WHERE e.EventID=a.EventID AND a.PersonID=".$pid." GROUP BY e.EventID ORDER BY first DESC");
-if (mysql_num_rows($result) == 0) {
+if (mysqli_num_rows($result) == 0) {
   echo "<p>No attendance records. (You can add records here or in Multi-Select.)</p>";
 } else {
   echo "<table id=\"attend-table\" class=\"tablesorter\" width=\"100%\"><thead><tr>";
   echo "<th>"._("Event")."</th><th>"._("Dates")."</th><th>"._("Event Description")."</th><th></th>\n";
   echo "</tr></thead><tbody>\n";
-  while ($row = mysql_fetch_object($result)) {
+  while ($row = mysqli_fetch_object($result)) {
     echo "<tr><td nowrap><a href=\"attend_detail.php?nav=1&pidlist=$pid&eid=".$row->EventID."\">".d2h($row->Event)."</a></td>";
     if ($row->first == $row->last) {
       echo "<td nowrap>".$row->first;
@@ -926,7 +898,7 @@ if (mysql_num_rows($result) == 0) {
 <!-- Uploads Section -->
 <a name="uploads"></a>
 <div class="section">
-<?
+<?php
 echo "<h3 class=\"section-title\">"._("Uploaded Files")."</h3>\n";
 
 // FORM FOR UPLOADING FILES
@@ -942,14 +914,13 @@ echo "</form>\n";
 
 // TABLE OF UPLOADED FILES
 echo "<h3>"._("Uploaded Files")."</h3>\n";
-if (!$result = mysql_query("SELECT *,DATE(UploadTime) AS UploadDate FROM upload WHERE PersonID = ".$pid." ORDER BY UploadTime DESC")) {
-  echo "<b>SQL Error ".mysql_errno().": ".mysql_error()."</b>";
-} elseif (mysql_num_rows($result) == 0) {
+$result = sqlquery_checked("SELECT *,DATE(UploadTime) AS UploadDate FROM upload WHERE PersonID = ".$pid." ORDER BY UploadTime DESC");
+if (mysqli_num_rows($result) == 0) {
   echo "<p>"._("No uploaded files")."</p>";
 } else {
   echo "<table id=\"upload-table\" class=\"tablesorter\" width=\"100%\" border=\"1\">";
   echo "<thead><tr><th>"._("Upload Date")."</th><th>"._("File Name")."</th><th>"._("Description")."</th><th>&nbsp;</th></tr></thead>\n<tbody>";
-  while ($row = mysql_fetch_object($result)) {
+  while ($row = mysqli_fetch_object($result)) {
     echo "<tr><td nowrap><span style=\"display:none\">".$row->UploadTime."</span>".$row->UploadDate."</td>\n";
     echo "<td><a href=\"download.php?uid=".$row->UploadID."\">".$row->FileName."</a></td>\n";
     echo "<td>".$row->Description."</td>\n";
@@ -964,7 +935,7 @@ if (!$result = mysql_query("SELECT *,DATE(UploadTime) AS UploadDate FROM upload 
   echo "  </tbody></table>";
 }
 echo "</div>";
-mysql_free_result($result);
+mysqli_free_result($result);
 ?>
 
 <script type="text/JavaScript" src="js/jquery.js"></script>
@@ -978,15 +949,15 @@ mysql_free_result($result);
 <script type="text/javascript" src="js/expanding.js"></script>
 
 <script type="text/JavaScript">
-$("#org_preselected").val("<? echo substr($org_pids,1); ?>");
-<? if ($per->Organization) { ?>$("#mem_preselected").val("<? echo substr($mem_pids,1); ?>");<? } ?>
+$("#org_preselected").val("<?=substr($org_pids,1)?>");
+<?php if ($per->Organization) { ?>$("#mem_preselected").val("<?=substr($mem_pids,1)?>");<?php } ?>
 
 $(document).ready(function(){
   $(document).ajaxError(function(e, xhr, settings, exception) {
     alert('Error calling ' + settings.url + ': ' + exception);
   }); 
 
-  <?
+  <?php
 if($_SESSION['lang']=="ja_JP") {
   echo "  $.datepicker.setDefaults( $.datepicker.regional[\"ja\"] );\n";
   echo "  $.timepicker.setDefaults( $.timepicker.regional[\"ja\"] );\n";
@@ -1009,8 +980,8 @@ if($_SESSION['lang']=="ja_JP") {
   $('#org-table').columnManager({listTargetID:'targetOrg',
   onClass: 'advon',
   offClass: 'advoff',
-  hideInList: [<? echo $hideInList; ?>],
-  colsHidden: [<? echo $orgColsHidden; ?>],
+  hideInList: [<?=$hideInList?>],
+  colsHidden: [<?=$orgColsHidden?>],
   saveState: false});
   $('#ulSelectColumnOrg').clickMenu({onClick: function(){}});
 
@@ -1018,8 +989,8 @@ if($_SESSION['lang']=="ja_JP") {
   $('#member-table').columnManager({listTargetID:'targetMember',
   onClass: 'advon',
   offClass: 'advoff',
-  hideInList: [<? echo $hideInList; ?>],
-  colsHidden: [<? echo $memberColsHidden; ?>],
+  hideInList: [<?=$hideInList?>],
+  colsHidden: [<?=$memberColsHidden?>],
   saveState: false});
   $('#ulSelectColumnMember').clickMenu({onClick: function(){}});
   
@@ -1043,8 +1014,8 @@ if($_SESSION['lang']=="ja_JP") {
     }
   });
 
-  $.fn.readmore.defaults.substr_len = <? echo $_SESSION['displaydefault_contactsize']; ?>;
-  $.fn.readmore.defaults.more_link = '<a class="more"><? echo _("[Read more]"); ?></a>';
+  $.fn.readmore.defaults.substr_len = <?=$_SESSION['displaydefault_contactsize'] ?>;
+  $.fn.readmore.defaults.more_link = '<a class="more"><?=_("[Read more]")?></a>';
   $(".readmore").readmore();
   
   $("#activeevents").click(function(){  //show or hide active events
@@ -1100,17 +1071,17 @@ if($_SESSION['lang']=="ja_JP") {
     }
   });
   
-<? if ($_GET['msg']) echo "  alert('".$_GET['msg']."');\n"; ?>
+<?php if ($_GET['msg']) echo "  alert('".$_GET['msg']."');\n"; ?>
 });
 
 function ValidateOrg(){
   if ($('#orgid').val==""){
-    alert('<? echo _("You must fill in an Organization ID or use Search/Browse."); ?>');
+    alert('<?=_("You must fill in an Organization ID or use Search/Browse.")?>');
     document.orgform.orgid.focus();
     return false;
   }
   if ($('#orgname').text()=="") {
-    alert('<? echo _("Not a valid Organization ID. If you\'re not sure, try Search/Browse."); ?>');
+    alert('<?=_("Not a valid Organization ID. If you\'re not sure, try Search/Browse.")?>');
     document.orgform.orgid.focus();
     return false;
   }
@@ -1119,17 +1090,17 @@ function ValidateOrg(){
 
 function ValidateContact(){
   if ($('#contactdate').val() == '') {
-    alert('<? echo _("You must enter a date."); ?>');
+    alert('<?=_("You must enter a date.")?>');
     $('#contactdate').click();
     return false;
   }
   try { $.datepicker.parseDate('yy-mm-dd', $('#contactdate').val()); }
   catch(error) {
-    alert('<? echo _("Date is invalid."); ?>');
+    alert('<?=_("Date is invalid.")?>');
     return false;
   }
   if (document.contactform.ctype.selectedIndex == 0) {
-  alert('<? echo _("You must select a Contact Type."); ?>');
+  alert('<?=_("You must select a Contact Type.")?>');
     return false;
   }
   return true;
@@ -1137,22 +1108,22 @@ function ValidateContact(){
 
 function ValidateDonation() {
   if ($('#donationdate').val() == '') {
-    alert('<? echo _("You must enter a date."); ?>');
+    alert('<?=_("You must enter a date.")?>');
     $('#donationdate').click();
     return false;
   }
   try { $.datepicker.parseDate('yy-mm-dd', $('#donationdate').val()); }
   catch(error) {
-    alert('<? echo _("Date is invalid."); ?>');
+    alert('<?=_("Date is invalid.")?>');
     return false;
   }
   if (isDate(document.donationform.date.value,"past")==false){
-    alert('<? echo _("Date cannot be in the future."); ?>');
+    alert('<?=_("Date cannot be in the future.")?>');
     document.donationform.date.focus();
     return false;
   }
   if ((document.donationform.plid.selectedIndex == 0) && (document.donationform.dtype.selectedIndex == 0)) {
-  alert('<? echo _("You must select either a Pledge or a Donation Type."); ?>');
+  alert('<?=_("You must select either a Pledge or a Donation Type.")?>');
     return false;
   }
   return true;
@@ -1160,23 +1131,23 @@ function ValidateDonation() {
 
 function ValidateAttendance(){
   if (document.attendform.eid.selectedIndex == 0) {
-    alert('<? echo _("You must select an event."); ?>');
+    alert('<?=_("You must select an event.")?>');
     return false;
   }
   if ($('#attenddate').val() == '') {
-    alert('<? echo _("You must enter a date."); ?>');
+    alert('<?=_("You must enter a date.")?>');
     $('#attenddate').click();
     return false;
   }
   try { $.datepicker.parseDate('yy-mm-dd', $('#attenddate').val()); }
   catch(error) {
-    alert('<? echo _("Date is invalid."); ?>');
+    alert('<?=_("Date is invalid.")?>');
     $('#attenddate').click();
     return false;
   }
   try { $.datepicker.parseDate('yy-mm-dd', $('#attendenddate').val()); }
   catch(error) {
-    alert('<? echo _("Date is invalid."); ?>');
+    alert('<?=_("Date is invalid.")?>');
     $('#attendenddate').click();
     return false;
   }
@@ -1185,7 +1156,7 @@ function ValidateAttendance(){
 
 function ValidateUpload(){
   if ($('#uploadfile').val() == '') {
-    alert('<? echo _("You must select a file."); ?>');
+    alert('<?=_("You must select a file.")?>');
     return false;
   }
   $('#uploadtime').val(Date().getTimezoneOffset()/60);
@@ -1205,4 +1176,4 @@ function SetDtypeSelect() {
   }
 }
 </script>
-<? footer(1); ?>
+<?php footer(); ?>

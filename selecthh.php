@@ -23,9 +23,9 @@ e = opener.document.forms['editform'];
     e.elements['nonjapan'].checked = false;
     opener.check_nonjapan();
     e.elements['postalcode'].value = form.pc.value;
-<? if ($_SESSION['romajiaddresses'] == "yes") { ?>
+<?php if ($_SESSION['romajiaddresses'] == "yes") { ?>
       e.elements['romajiaddress'].value = form.romaddr.value;
-<? } ?>
+<?php } ?>
   }
   e.elements['labelname'].value = form.ln.value;
   e.elements['phone'].value = form.phone.value;
@@ -37,7 +37,7 @@ e = opener.document.forms['editform'];
 }
 </script>
 
-<?
+<?php
 header2(0);
 
 $sql = "SELECT household.* FROM household";
@@ -70,8 +70,8 @@ $result = sqlquery_checked($sql);
     <th>Address</th>
     <th>Phone</th></tr></thead>
     <tbody>
-<?
-while ($row = mysql_fetch_object($result)) {
+<?php
+while ($row = mysqli_fetch_object($result)) {
   echo "<tr><td>";
   echo "<form name=\"hh".$row->HouseholdID."\" onsubmit=\"return false;\">\n";
   echo "<input type=button value=\""._("This One")."\" onclick=\"finish(this.form);\">\n";

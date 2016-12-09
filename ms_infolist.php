@@ -7,13 +7,10 @@ showfile("dates.js");
 //get data from event table and build master array
 
 $sql = "SELECT * FROM event ORDER BY IF(EventEndDate>NOW(),0,1), Event";
-if (!$result = mysql_query($sql)) {
-  echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b><br>($sql)<br>");
-  exit;
-}
+$result = sqlquery_checked($sql);
 echo "var ar = new Array();\n";
 $ar_index = 0;
-while ($row = mysql_fetch_object($result)) {
+while ($row = mysqli_fetch_object($result)) {
   echo "ar[$ar_index] = new Array();\n";
   echo "ar[$ar_index][eid] = \"$row->EventID\";\n";
   echo "ar[$ar_index][event] = \"".escape_quotes($row->Event)."\";\n";
@@ -127,8 +124,8 @@ function validate() {
   <div align="center">
     <font color="#663399" size=4><b>Choose existing event and enter date,
         or fill in information for a new event:</b></font>
-    <form action="<? echo $PHP_SELF; ?>" method="post" name="attendform" target="_self">
-      <input type="hidden" name="pid_list" value="<? echo $pid_list; ?>" border="0">
+    <form action="<?=$_SERVER['PHP_SELF']?>" method="post" name="attendform" target="_self">
+      <input type="hidden" name="pid_list" value="<?=$pid_list?>" border="0">
       <input type="hidden" name="event_id" value="" border="0">
       <table border="1" cellspacing="0" cellpadding="4">
         <tr>
@@ -156,5 +153,5 @@ function validate() {
       </table>
     </form>
   </div>
-    <? print_footer();
+    <?php print_footer();
 ?>

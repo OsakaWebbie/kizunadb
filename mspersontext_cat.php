@@ -35,13 +35,10 @@ alert("For now, you'll need to hit the submit button again in the other window a
 <h3>Please specify preferences for category fields:</h3>
 <form name="catform" onsubmit="return false;">
 
-<?
+<?php
 $sql = "SELECT * from category ORDER BY Category";
-if (!$result = mysql_query($sql)) {
-  echo("<b>SQL Error: ".mysql_errno().": ".mysql_error()."</b><br>($sql)");
-  exit;
-}
-while ($row = mysql_fetch_object($result)) {
+$result = sqlquery_checked($sql);
+while ($row = mysqli_fetch_object($result)) {
   $option_text .= "<option value=\"".$row->CategoryID."\">".$row->Category."</option>\n";
 }
 
@@ -68,4 +65,4 @@ for ($str_index=0; $str_index<strlen($fields); $str_index++) {
   <p>&nbsp;&nbsp;<button name="go" type="button" onclick="fill_parent();">Submit These Choices</button>
   &nbsp;&nbsp;&nbsp;<button name="cancel" type="button" onclick="window.close();">Cancel</button></p>
 </form>
-<? print_footer(); ?>
+<?php print_footer(); ?>

@@ -19,7 +19,7 @@ function validate() {
   }
 }
 </script>
-<? header2(1);
+<?php header2(1);
 
 if (!$hhid) {
   echo "HouseholdID not passed.  You cannot call this page directly.";
@@ -42,10 +42,7 @@ if ($newphoto) {
         echo "Photo was resized to ".$_SESSION['hphoto_targetwidth']." x $targetheight.<br />";
       }
       $sql = "UPDATE household SET Photo=1 WHERE HouseholdID=$hhid LIMIT 1";
-      if (!$result = mysql_query($sql)) {
-        echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b><br>($sql)");
-        exit;
-      }
+      $result = sqlquery_checked($sql);
     } else {
       echo "File upload failed.  Here's some debugging info:\n";
       print_r($_FILES);
@@ -53,24 +50,18 @@ if ($newphoto) {
     }
   }
   $sql = "UPDATE household SET PhotoCaption='".$caption."' WHERE HouseholdID=$hhid LIMIT 1";
-  if (!$result = mysql_query($sql)) {
-    echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b><br>($sql)");
-    exit;
-  }
+  $result = sqlquery_checked($sql);
   echo "<script type=\"text/javascript\">\nwindow.location=\"household.php?hhid=".$hhid."\";\n</script>\n";
   exit;
 }
 
-if (!$result = mysql_query("SELECT household.*, postalcode.* FROM household LEFT JOIN postalcode "
-."ON household.PostalCode=postalcode.PostalCode WHERE HouseholdID=$hhid")) {
-  echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b>");
-  exit;
-}
-if (mysql_num_rows($result) == 0) {
+$result = sqlquery_checked("SELECT household.*, postalcode.* FROM household LEFT JOIN postalcode "
+."ON household.PostalCode=postalcode.PostalCode WHERE HouseholdID=$hhid");
+if (mysqli_num_rows($result) == 0) {
   echo("<b>Failed to find a record for HouseholdID $hhid.</b>");
   exit;
 }
-$hh = mysql_fetch_object($result);
+$hh = mysqli_fetch_object($result);
 
 echo "<h1 id=\"title\">"._("Household Information")."</h1>\n";
 echo "<table border=\"0\" cellpadding=\"5\" cellspacing=\"0\"><tr><td align=center valign=middle>\n";
@@ -112,16 +103,13 @@ echo "<div class=\"section\"><h3 class=\"section-title\">"._("Household Members"
 
 $sql = "SELECT * FROM person WHERE HouseholdID=$hhid "
 ."ORDER BY FIELD(Relation,'Child','Spouse','Main') DESC, Birthdate";
-if (!$result = mysql_query($sql)) {
-  echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b><br>($sql)");
-  exit;
-}
-if (mysql_num_rows($result) == 0) {
+$result = sqlquery_checked($sql);
+if (mysqli_num_rows($result) == 0) {
   echo _("This household has no members!");
 } else {
   echo "<table id=\"member-table\" class=\"tablesorter\">\n";
   echo "<thead><tr><th>"._("Name")."</th><th>"._("Photo")."</th><th>"._("Relation in<br />Household")."</th><th>"._("Sex")."</th><th>"._("Birthdate")."</th><th>"._("Cell Phone")."</th><th>"._("Email")."</th></tr></thead>\n<tbody>";
-  while ($row = mysql_fetch_object($result)) {
+  while ($row = mysqli_fetch_object($result)) {
     echo "<tr><td class=\"name-for-display\"><span style=\"display:none\">".$row->Furigana."</span>";
     echo "<a href=\"individual.php?pid=".$row->PersonID."\">".
       readable_name($row->FullName,$row->Furigana,0,0,"<br />")."</a></td>\n";
@@ -145,5 +133,5 @@ if (mysql_num_rows($result) == 0) {
   echo "</div>";
 }
 
-footer(1);
+footer();
 ?>

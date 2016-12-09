@@ -18,7 +18,7 @@ function finish(form) {
   window.close();
 }
 </script>
-<?
+<?php
 header2();
 
 $sql = "SELECT FullName,Furigana,PersonID,household.PostalCode,Address,Prefecture,ShiKuCho FROM person ".
@@ -27,18 +27,18 @@ $sql = "SELECT FullName,Furigana,PersonID,household.PostalCode,Address,Prefectur
 if ($_GET['txt']!="") $sql .= " AND (person.FullName LIKE '%".$_GET['txt']."%' OR person.Furigana LIKE '%".$_GET['txt']."%')";
 $sql .= " ORDER BY Furigana";
 
-$result = mysql_query($sql.$where) or die("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b><br>($sql)");
+$result = sqlquery_checked($sql.$where);
 ?>
 <table id="mainTable" class="tablesorter" valign="middle">
   <thead><tr>
     <th align="center">&nbsp;</th>
-    <th align="center"><? echo _("ID"); ?></th>
-    <th><? echo _("Name"); ?></th>
-    <th><? echo ($_SESSION['furiganaisromaji']=="yes"?_("Romaji"):_("Furigana")); ?></th>
-    <th><? echo _("Address"); ?></th>
+    <th align="center"><?=_("ID")?></th>
+    <th><?=_("Name")?></th>
+    <th><?=($_SESSION['furiganaisromaji']=="yes"?_("Romaji"):_("Furigana"))?></th>
+    <th><?=_("Address")?></th>
   </tr></thead><tbody>
-<?
-while ($row = mysql_fetch_object($result)) {
+<?php
+while ($row = mysqli_fetch_object($result)) {
   echo "<tr><td class=\"button-in-table\"><form name=\"org".$row->PersonID."\" onsubmit=\"return false;\">\n";
   echo "<input type=button value=\"This One\" onclick=\"finish(this.form);\">\n";
   echo "<input type=hidden name=id value=\"".$row->PersonID."\">\n";

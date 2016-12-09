@@ -11,7 +11,7 @@ if (!$_POST['label_type']) {
 
 $sql = "SELECT * FROM labelprint WHERE LabelType='".urldecode($_POST['label_type'])."'";
 $result = sqlquery_checked($sql);
-$print = mysql_fetch_object($result);
+$print = mysqli_fetch_object($result);
 
 /* some simplification */
 $paperwidth = ($print->PaperSize=="letter" ? 215.9 : 210);
@@ -63,9 +63,9 @@ echo "\xEF\xBB\xBF";  //UTF-8 Byte Order Mark
 \raggedright
 \sffamily
 \gtfamily
-<?
+<?php
 $count = 0;
-while ($row = mysql_fetch_object($result)) {
+while ($row = mysqli_fetch_object($result)) {
   if ($count == $print->NumRows*$print->NumCols) {
     $count = 0;
     echo "\end{picture}\clearpage\n";
@@ -74,14 +74,14 @@ while ($row = mysql_fetch_object($result)) {
   $posy = floor($count/$print->NumCols)*$print->LabelHeight + $print->LabelHeight/2;
 ?>
 \begin{textblock}{<?=$addrwidth?>}[0,0.5](<?=$posx?>,<?=$posy?>)
-<?
+<?php
   if ($row->NonJapan == 1) {
 ?>
 %% NON-JAPAN ADDRESS %%
 \fontsize{<?=$print->NJAddrPointSize?>}{<?=$print->NJAddrPointSize*1.1?>}\selectfont
 <?=preg_replace("\r\n|\r|\n","\n\n\\hangindent=".$hanging."mm\n",str_replace($search_array,$replace_array,$row->Name))."\n\n"?>
 <?=preg_replace("\r\n|\r|\n","\n\n\\hangindent=".$hanging."mm\n",str_replace($search_array,$replace_array,$row->Address))."\n"?>
-<?
+<?php
   } else {  //Japanese address
 ?>
 %% JAPAN ADDRESS %%
@@ -93,17 +93,17 @@ while ($row = mysql_fetch_object($result)) {
 \fontsize{<?=$print->NamePointSize?>}{<?=$print->NamePointSize*1.2?>}\selectfont
 \hangindent=<?=$hanging?>mm
 <?=preg_replace("\r\n|\r|\n","\n\n\\hangindent=".$hanging."mm\n",str_replace($search_array,$replace_array,$row->Name))."\n"?>
-<?
+<?php
   }  //end Japanese address
 ?>
 \end{textblock}
-<?
+<?php
   $count++;
 }  //end while looping through addresses
 ?>
 \null\newpage
 \end{document}
-<?
+<?php
 file_put_contents($fileroot.".tex",ob_get_contents());
 ob_end_clean();
 

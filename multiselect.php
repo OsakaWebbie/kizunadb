@@ -16,18 +16,14 @@ var name = 1;
 var cat = 2;
 var choice = 3;
 var sel = 4;
-<?
+<?php
 //get data from person and percat tables and build master array
 
 $sql = "SELECT PersonID, FullName, Furigana FROM person ORDER BY Furigana, PersonID";
-if (!$person = mysql_query($sql)) {
-  exit("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b> ($sql)");
-}
+$person = sqlquery_checked($sql);
 $sql = "SELECT percat.PersonID, CategoryID, Furigana FROM percat, person".
 " WHERE percat.PersonID = person.PersonID ORDER BY Furigana, percat.PersonID, CategoryID";
-if (!$percat = mysql_query($sql)) {
-  exit("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b> ($sql)");
-}
+$percat = sqlquery_checked($sql);
 
 echo "var ar = new Array();\n";
 $ar_index = 0;
@@ -39,22 +35,22 @@ if (isset($_GET['pspid'])) {
 } else if (isset($_GET['ps'])) {
   list($psid,$psnum) = explode(":",$_GET['ps']);
   $tempres = sqlquery_checked("SELECT Pids,Client FROM kizuna_common.preselect WHERE PSID='$psid'");
-  $psobj = mysql_fetch_object($tempres);
+  $psobj = mysqli_fetch_object($tempres);
   if ($psobj && $_SESSION['client']==$psobj->Client && $psobj->Pids!="") $preselected = $psobj->Pids;
 } else if (isset($_REQUEST['preselected']) && $_REQUEST['preselected']!="") {
   $preselected = $_REQUEST['preselected'];
   $psnum = substr_count($preselected,",")+1;
 }
 
-$pc = mysql_fetch_object($percat);  //pull first one to get started
-while ($per = mysql_fetch_object($person)) {
+$pc = mysqli_fetch_object($percat);  //pull first one to get started
+while ($per = mysqli_fetch_object($person)) {
   echo "ar[$ar_index] = new Array();\n";
   echo "ar[$ar_index][pid] = \"$per->PersonID\";\n";
   echo "ar[$ar_index][name] = \"".d2h(readable_name($per->FullName,$per->Furigana))."\";\n";
   $str = ",";
   while ($pc && ($pc->PersonID == $per->PersonID)) {
     $str = $str.$pc->CategoryID.",";
-    $pc = mysql_fetch_object($percat);
+    $pc = mysqli_fetch_object($percat);
   }
   echo "ar[$ar_index][cat] = \"$str\";\n";
   echo "ar[$ar_index][choice] = 0;\n";
@@ -69,7 +65,7 @@ while ($per = mysql_fetch_object($person)) {
 }
 ?>
 </script>
-<? header2(1); ?>
+<?php header2(1); ?>
 
   <table border="0" cellspacing="0" cellpadding="8">
     <tr>
@@ -78,21 +74,18 @@ while ($per = mysql_fetch_object($person)) {
           <table width="187" border="0" cellspacing="0" cellpadding="4" bgcolor="white">
             <tr height="35">
               <td colspan="3" height="35"><select name="catlist" size="1" onchange="new_cat();">
-                <option value=""><? echo _("Choose a category..."); ?></option>
-<?
+                <option value=""><?=_("Choose a category...")?></option>
+<?php
 //get category list from database and fill rest of select box
 $sql = "SELECT * FROM category ORDER BY Category";
-if (!$result = mysql_query($sql)) {
-  echo("<b>SQL Error ".mysql_errno().": ".mysql_error()."</b> ($sql)");
-  exit;
-}
-while ($cat = mysql_fetch_object($result)) {
+$result = sqlquery_checked($sql);
+while ($cat = mysqli_fetch_object($result)) {
   echo "                <option value=\"$cat->CategoryID\">$cat->Category</option>\n";
 }
 ?>
-                <option value="all"><? echo _("All Categories"); ?></option>
-                </select><br /><font size=2 color=red><? echo _("Highlight and press > or
-                select all with >>"); ?></font></td>
+                <option value="all"><?=_("All Categories")?></option>
+                </select><br /><font size=2 color=red><?=_("Highlight and press > or
+                select all with >>")?></font></td>
             </tr>
             <tr height="35">
               <td height="35"><select style="width:220px;" name="choices" size="15" multiple></select></td>
@@ -103,7 +96,7 @@ while ($cat = mysql_fetch_object($result)) {
                 <img onclick="move(0,1);" src="graphics/left_double.gif" alt="remove all people" name="remove_all" border="0">
               </td>
               <td align="center" height="35">
-                <select style="width:220px;" id="selection" name="selection" size="15" multiple><? echo $presel_html; ?></select>
+                <select style="width:220px;" id="selection" name="selection" size="15" multiple><?=$presel_html?></select>
               </td>
             </tr>
           </table>
@@ -112,56 +105,56 @@ while ($cat = mysql_fetch_object($result)) {
       <td valign="top">
         <form action="blank.html" method="post" name="sform" id="sform" target="ActionFrame">
           <input type="hidden" name="pid_list" value="" border="0" />
-          <b><? echo sprintf(_("%s Entries Selected"),"<span id=\"selection_count\">$presel_num</span>"); ?></b><br />
-          <b><? echo _("Choose an Action:"); ?></b><br />
+          <b><?=sprintf(_("%s Entries Selected"),"<span id=\"selection_count\">$presel_num</span>")?></b><br />
+          <b><?=_("Choose an Action:")?></b><br />
           <div class="buttongroup">
             <h3><?=_("Batch Data Entry")?></h3>
-            <input type="submit" name="ms_attendance" value="<? echo _("Record Attendance"); ?>" border="0"
+            <input type="submit" name="ms_attendance" value="<?=_("Record Attendance")?>" border="0"
                 onclick="document.sform.action='ms_attendance.php';">
-            <input type="submit" name="ms_contacts" value="<? echo _("Add a Contact for All"); ?>" border="0"
+            <input type="submit" name="ms_contacts" value="<?=_("Add a Contact for All")?>" border="0"
                 onclick="document.sform.action='ms_contact.php';">
-            <input type="submit" name="ms_category" value="<? echo _("Add All to a Category"); ?>" border="0"
+            <input type="submit" name="ms_category" value="<?=_("Add All to a Category")?>" border="0"
                 onclick="document.sform.action='ms_category.php';">
-            <input type="submit" name="ms_cat_remove" value="<? echo _("Remove All from a Category"); ?>" border="0"
+            <input type="submit" name="ms_cat_remove" value="<?=_("Remove All from a Category")?>" border="0"
                 onclick="document.sform.action='ms_cat_remove.php';">
-            <input type="submit" name="ms_organization" value="<? echo _("Connect All to an Organization"); ?>" border="0"
+            <input type="submit" name="ms_organization" value="<?=_("Connect All to an Organization")?>" border="0"
                 onclick="document.sform.action='ms_organization.php';">
           </div>
           <div class="buttongroup">
             <h3><?=_("Reports")?></h3>
-            <input type="submit" name="ms_person_text" value="<? echo _("Person Info (Text)"); ?>"
+            <input type="submit" name="ms_person_text" value="<?=_("Person Info (Text)")?>"
                 border="0" onclick="document.sform.action='ms_person_text.php';">
-            <input type="submit" name="ms_custom" value="<? echo _("Custom Report"); ?>"
+            <input type="submit" name="ms_custom" value="<?=_("Custom Report")?>"
                 border="0" onclick="document.sform.action='ms_custom.php';">
-            <input type="submit" name="ms_person_xml" value="<? echo _("Person Info (XML)"); ?>"
+            <input type="submit" name="ms_person_xml" value="<?=_("Person Info (XML)")?>"
                 border="0" onclick="document.sform.action='ms_person_xml.php';">
-            <input type="submit" name="ms_person_format" value="<? echo _("Person Info (Formatted)"); ?>"
+            <input type="submit" name="ms_person_format" value="<?=_("Person Info (Formatted)")?>"
                 border="0" onclick="document.sform.action='ms_person_format.php';">
-            <input type="submit" name="ms_household_text" value="<? echo _("Household Info (Text)"); ?>"
+            <input type="submit" name="ms_household_text" value="<?=_("Household Info (Text)")?>"
                 border="0" onclick="document.sform.action='ms_household_text.php';">
-            <input type="submit" name="ms_household_format" value="<? echo _("Household Info (Formatted)"); ?>"
+            <input type="submit" name="ms_household_format" value="<?=_("Household Info (Formatted)")?>"
                 border="0" onclick="document.sform.action='ms_household_format.php';">
-            <input type="submit" name="ms_overview" value="<? echo _("Overview Pages"); ?>"
+            <input type="submit" name="ms_overview" value="<?=_("Overview Pages")?>"
                 border="0" onclick="document.sform.action='ms_overview.php';">
           </div>
           <div class="buttongroup">
             <h3><?=_("Pre-Filtering Search Pages")?></h3>
-            <input type="submit" name="ms_blank" value="<? echo _("Pre-Filter Main Search"); ?>"
+            <input type="submit" name="ms_blank" value="<?=_("Pre-Filter Main Search")?>"
                 border="0" onclick="document.sform.action='search.php';document.sform.target='_self';">
-            <input type="submit" name="ms_blank" value="<? echo _("Pre-Filter Attendance Chart"); ?>"
+            <input type="submit" name="ms_blank" value="<?=_("Pre-Filter Attendance Chart")?>"
                 border="0" onclick="document.sform.action='event_attend.php';document.sform.target='_blank';">
-            <input type="submit" name="ms_blank" value="<? echo _("Pre-Filter Donation/Pledge Reports"); ?>"
+            <input type="submit" name="ms_blank" value="<?=_("Pre-Filter Donation/Pledge Reports")?>"
                 border="0" onclick="document.sform.action='donations.php';document.sform.target='_blank';">
           </div>
           <div class="buttongroup">
             <h3><?=_("Specialized Output")?></h3>
-            <input type="submit" name="ms_label" value="<? echo _("Print Labels"); ?>" border="0"
+            <input type="submit" name="ms_label" value="<?=_("Print Labels")?>" border="0"
                 onclick="document.sform.action='ms_label.php';document.sform.target='ActionFrame';">
-            <input type="submit" name="ms_printaddr" value="<? echo _("Print Envelopes/Postcards"); ?>" border="0"
+            <input type="submit" name="ms_printaddr" value="<?=_("Print Envelopes/Postcards")?>" border="0"
                 onclick="document.sform.action='ms_printaddr.php';document.sform.target='ActionFrame';">
-            <input type="submit" name="ms_photos" value="<? echo _("Print Photos"); ?>" border="0"
+            <input type="submit" name="ms_photos" value="<?=_("Print Photos")?>" border="0"
                 onclick="document.sform.action='ms_photos.php';document.sform.target='ActionFrame';">
-            <input type="submit" name="ms_email" value="<? echo _("Prepare Email"); ?>" border="0"
+            <input type="submit" name="ms_email" value="<?=_("Prepare Email")?>" border="0"
                 onclick="document.sform.action='ms_email.php';document.sform.target='ActionFrame';">
           </div>
         </form>
@@ -262,4 +255,4 @@ function make_list() {
   }
 }
 </script>
-<? footer(); ?>
+<?php footer(); ?>

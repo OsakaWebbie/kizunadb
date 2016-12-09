@@ -1,11 +1,11 @@
 <?php
 include("functions.php");
 include("accesscontrol.php");
-mysql_select_db("kizuna_common");
+mysqli_select_db("kizuna_common");
 
 setlocale(LC_ALL, 'ja_JP.UTF8');
 header1(_("Update of Auxiliary Postal Code Data"));
-?> <link rel="stylesheet" type="text/css" href="style.php" /> <?
+?> <link rel="stylesheet" type="text/css" href="style.php" /> <?php
 header2(1);
 
 //if (!is_file("http://www.post.japanpost.jp/zipcode/dl/kogaki/lzh/ken_all.lzh")) die("Can't find file on post office website.");
@@ -34,10 +34,10 @@ if (!is_file("ken_all.csv")) {
 }  //end of section that gets file externally (which doesn't currently work)
 
 sqlquery_checked("DROP TABLE IF EXISTS auxpostalcode");
-$sql = "CREATE TABLE auxpostalcode (`PostalCode` varchar(8) NOT NULL default '',";
-$sql .= "`Prefecture` varchar(12) NOT NULL default '',`ShiKuCho` varchar(54) NOT NULL default '',";
-$sql .= "`KataPref` varchar(20) NOT NULL,`KataShi` varchar(120) NOT NULL,";
-$sql .= "`KataCho` varchar(120) NOT NULL, KEY `PostalCode` (`PostalCode`)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+$sql = "CREATE TABLE auxpostalcode (`PostalCode` varchar(8) NOT NULL default '',".
+    "`Prefecture` varchar(12) NOT NULL default '',`ShiKuCho` varchar(54) NOT NULL default '',".
+    "`KataPref` varchar(20) NOT NULL,`KataShi` varchar(120) NOT NULL,".
+    "`KataCho` varchar(120) NOT NULL, KEY `PostalCode` (`PostalCode`)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 sqlquery_checked($sql);
 
 $handle = fopen("ken_all.csv", "r");

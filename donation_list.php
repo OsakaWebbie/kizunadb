@@ -93,9 +93,9 @@ td.amount-for-display { text-align:right; }
 </style>
 <script type="text/javascript">
 $(document).ready(function() {
-<? if ($summary) { ?>
+<?php if ($summary) { ?>
   $("#summarytable").tablesorter({ sortList:[[<?=($type=="PersonID"?($_POST['limit']?"4,1":"2,0"):"0,0")?>]] });
-<? } else { ?>
+<?php } else { ?>
   $("#listtable").tablesorter({
     sortList:[[4,0],[0,1]],
     headers:{<?=(count($cols)-2)?>:{sorter:false},<?=(count($cols)-1)?>:{sorter:false}}
@@ -141,7 +141,7 @@ $(document).ready(function() {
       }
     );
   });
-<? } ?>
+<?php } ?>
 });
 
 function getCSV() {
@@ -156,7 +156,7 @@ function getCSV() {
   $(".name-for-display, .amount-for-display, .selectcol").show();
 }
 </script>
-<?
+<?php
 header2($_GET['nav']);
 if ($_GET['nav']==1) echo "<h1 id=\"title\">".$title."</h1>\n";
 if ($_SESSION['userid']=="karen") echo "<pre>".print_r($_POST,TRUE)."</pre>";
@@ -168,7 +168,7 @@ if ($_POST['dtype']) {
   $where .= ($wheredone?" AND":" WHERE")." d.DonationTypeID IN (".implode(",",$_POST['dtype']).")";
   $result = sqlquery_checked("SELECT DonationType FROM donationtype WHERE DonationTypeID IN (".implode(",",$_POST['dtype']).")");
   $dtarray = array();
-  while ($row = mysql_fetch_object($result)) {
+  while ($row = mysqli_fetch_object($result)) {
     $dtarray[] = $row->DonationType;
   }
   $criteria .= "<li>".sprintf(_("In at least one of these donation types: %s"),implode(",",$dtarray))."</li>\n";
@@ -233,13 +233,13 @@ if ($type=="DonationType") {
 }
 if ($_SESSION['userid']=="karen") echo "<p>".$sql."</p>";
 $result = sqlquery_checked($sql);
-if (mysql_numrows($result) == 0) {
+if (mysqli_num_rows($result) == 0) {
   echo "<h3>"._("There are no records matching your criteria.")."</h3>";
   footer();
   exit;
 }
 //$pidarray = array();
-while ($row = mysql_fetch_object($result)) {
+while ($row = mysqli_fetch_object($result)) {
   $pidarray[] = $row->PersonID;
   if ($type=="DonationType") $dtidarray[] = $row->DonationTypeID;
 //if ($_SESSION['userid']=="karen") echo "<p>".$row->PersonID.$row->DonationTypeID." - ".$row->Furigana.$row->DonationType.": ".$row->subtotal."</p>";
@@ -271,7 +271,7 @@ if (!$summary) {
 //if ($_SESSION['userid']=="karen") echo "<p>".$sql."</p>";
 
 if (!$summary) {
-  echo "<h3>".sprintf(_("%d results of these criteria:"),mysql_num_rows($result))."</h3>\n";
+  echo "<h3>".sprintf(_("%d results of these criteria:"),mysqli_num_rows($result))."</h3>\n";
   echo $criteria;
 }
 echo "<div id=\"actions\">";
@@ -281,7 +281,7 @@ if (!$summary) {
     <input type="hidden" id="preselected" name="preselected" value="<?=$pids?>">
     <input type="submit" value="<?=_("Go to Multi-Select with these entries preselected")?>">
   </form>
-<?
+<?php
 } // if list, not summary
 if ($summary || $type=="Normal") {
 ?>
@@ -289,7 +289,7 @@ if ($summary || $type=="Normal") {
     <input type="hidden" id="csvtext" name="csvtext" value="">
     <input type="submit" id="csvfile" name="csvfile" value="<?=_("Download a CSV file of this table")?>" onclick="getCSV();">
   </form>
-<?
+<?php
 } // if listtype=Normal
 echo "</div>"; //end of actions div (which may or may not have anything in it)
 if (!$summary) {
@@ -298,15 +298,15 @@ if (!$summary) {
   <button id="allproc"><?=_("Check all")?></button>
   <button id="updateproc" disabled><?=_("Save Changes to \"Processed\" Checkboxes")?></button>
 </div>
-<?
+<?php
 } // if list, not summary
 
 // build table of data
 if ($summary) {
   echo "<table id=\"summarytable\" class=\"tablesorter\">\n<thead>\n<tr>".$tableheads."</tr>\n</thead><tbody>\n";
   $total = 0;
-  mysql_data_seek($result, 0);
-  while ($row = mysql_fetch_object($result)) {
+  mysqli_data_seek($result, 0);
+  while ($row = mysqli_fetch_object($result)) {
     if ($type == "PersonID") {
       echo "<tr><td class=\"name-for-csv\" style=\"display:none\">".$row->FullName."</td>\n";
       echo "<td class=\"furigana-for-csv\" style=\"display:none\">".$row->Furigana."</td>\n";
@@ -337,7 +337,7 @@ if ($summary) {
   $prev_groupfieldvalue = "";
   $total = $subtotal = 0;
   $firstrow = 1; //i.e. true
-  while ($row = mysql_fetch_object($result)) {
+  while ($row = mysqli_fetch_object($result)) {
     if ($type!="Normal" && $prev_groupfieldvalue!="" && $row->$type!=$prev_groupfieldvalue) {  //change of section
       echo "</tbody><tfoot><tr><td colspan=\"2\" class=\"subtotal\">";
       echo ($type=="PersonID"?$prev_name:$prev_groupfieldvalue)." - "._("Subtotal")."</td>\n";

@@ -12,7 +12,7 @@ $sql = "SELECT person.*, household.*, postalcode.* ".
     "WHERE PersonID in ($pid_list) ORDER BY $orderby";
 $result = sqlquery_checked($sql);
 
-while($row = mysql_fetch_object($result)) {
+while($row = mysqli_fetch_object($result)) {
   if ($row->Birthdate == '0000-00-00') $row->Birthdate = "";
   if (substr($row->Birthdate,0,4) == '1900') $row->Birthdate = "????".substr($row->Birthdate,4);
   
@@ -63,16 +63,16 @@ while($row = mysql_fetch_object($result)) {
           "ON percat.CategoryID=category.CategoryID WHERE PersonID=".$row->PersonID." AND percat.CategoryID IN ($selectlist)");
       if ($$combinevar) {
         if ($$stylevar == "custom") {
-          echo "    <".$$tagvar.">".(mysql_num_rows($tempresult)>0 ? $$textvar : "")."</".$$tagvar.">\n";
+          echo "    <".$$tagvar.">".(mysqli_num_rows($tempresult)>0 ? $$textvar : "")."</".$$tagvar.">\n";
         } else {
-            while($tmp = mysql_fetch_object($tempresult)) {
+            while($tmp = mysqli_fetch_object($tempresult)) {
             $tmparray[] = $tmp->Category;
           }
           echo "    <".$$tagvar.">".(isset($tmparray) ? implode(",",$tmparray) : "")."</".$$tagvar.">\n";
           unset($tmparray);
         }
       } else {
-        while($tmp = mysql_fetch_object($tempresult)) {
+        while($tmp = mysqli_fetch_object($tempresult)) {
           echo "    <".$$tagvar.">".$tmp->Category."</".$$tagvar.">\n";
         }
       }
@@ -92,7 +92,7 @@ while($row = mysql_fetch_object($result)) {
       switch ($$stylevar) {
       case "all":
         echo "    <".$$tagvar.">\n";
-        while($tmp = mysql_fetch_object($tempresult)) {
+        while($tmp = mysqli_fetch_object($tempresult)) {
           echo "      <Date>".$tmp->ContactDate."</Date>\n";
           echo "      <ContactType>".$tmp->ContactType."</ContactType>\n";
           echo "      <Description>".$tmp->Description."</Description>\n";
@@ -100,21 +100,21 @@ while($row = mysql_fetch_object($result)) {
         echo "    </".$$tagvar.">\n";
         break;
       case "type":
-        while($tmp = mysql_fetch_object($tempresult)) {
+        while($tmp = mysqli_fetch_object($tempresult)) {
           $tmparray[] = $tmp->ContactType;
         }
         echo "    <".$$tagvar.">".(isset($tmparray) ? implode($separator,$tmparray) : "")."</".$$tagvar.">\n";
         unset($tmparray);
         break;
       case "desc":
-        while($tmp = mysql_fetch_object($tempresult)) {
+        while($tmp = mysqli_fetch_object($tempresult)) {
           $tmparray[] = $tmp->Description;
         }
         echo "    <".$$tagvar.">".(isset($tmparray) ? implode($separator,$tmparray) : "")."</".$$tagvar.">\n";
         unset($tmparray);
         break;
       case "custom":
-        echo "    <".$$tagvar.">".(mysql_num_rows($tempresult)>0 ? $$textvar : "")."</".$$tagvar.">\n";
+        echo "    <".$$tagvar.">".(mysqli_num_rows($tempresult)>0 ? $$textvar : "")."</".$$tagvar.">\n";
       }  // end of switch
       break;
     case "Attendance":
@@ -123,7 +123,7 @@ while($row = mysql_fetch_object($result)) {
       $textvar = "attendtext".sprintf("%02d",$fieldindex);
       $selectlist = implode(",",$$selectvar);
       $tempresult = sqlquery_checked("SELECT * FROM attendance WHERE PersonID=".$row->PersonID." AND EventID IN ($selectlist)");
-      echo "    <".$$tagvar.">".(mysql_num_rows($tempresult)>0 ? $$textvar : "")."</".$$tagvar.">\n";
+      echo "    <".$$tagvar.">".(mysqli_num_rows($tempresult)>0 ? $$textvar : "")."</".$$tagvar.">\n";
       break;
     case "Members":
       $selectvar = "memberfield".sprintf("%02d",$fieldindex);
@@ -133,7 +133,7 @@ while($row = mysql_fetch_object($result)) {
           "LEFT JOIN postalcode ON household.PostalCode=postalcode.PostalCode ".
           "WHERE PersonID in (SELECT PersonID FROM perorg WHERE OrgID=".$row->PersonID.") ORDER BY $orderby";
       $tempresult = sqlquery_checked($sql);
-      while($tmp = mysql_fetch_object($tempresult)) {
+      while($tmp = mysqli_fetch_object($tempresult)) {
         if ($tmp->Birthdate == '0000-00-00') $tmp->Birthdate = "";
         if (substr($tmp->Birthdate,0,4) == '1900') $tmp->Birthdate = "????".substr($tmp->Birthdate,4);
         echo "    <member>\n";
@@ -187,7 +187,7 @@ while($row = mysql_fetch_object($result)) {
           "LEFT JOIN postalcode ON household.PostalCode=postalcode.PostalCode ".
           "WHERE PersonID in (SELECT OrgID FROM perorg WHERE PersonID=".$row->PersonID.") ORDER BY $orderby";
       $tempresult = sqlquery_checked($sql);
-      while($tmp = mysql_fetch_object($tempresult)) {
+      while($tmp = mysqli_fetch_object($tempresult)) {
         echo "    <org>\n";
         for ($mfindex=0; ${$selectvar}[$mfindex]; $mfindex++) {
           switch (${$selectvar}[$mfindex]) {

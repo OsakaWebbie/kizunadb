@@ -1,4 +1,4 @@
-<?
+<?php
 include("functions.php");
 include("accesscontrol.php");
 
@@ -13,13 +13,13 @@ if ($_POST['csvfile']) {
 } elseif ($_GET['uid']) {
   // UPLOADED FILES RECORDED IN DATABASE
   $result = sqlquery_checked("SELECT * FROM upload WHERE UploadID=".$_GET['uid']);
-  if (mysql_numrows($result) == 0)  die("Upload record not found for UploadID ".$_GET['uid'].".");
-  $upd = mysql_fetch_object($result);
+  if (mysqli_num_rows($result) == 0)  die("Upload record not found for UploadID ".$_GET['uid'].".");
+  $upd = mysqli_fetch_object($result);
   $ext = strtolower(pathinfo($upd->FileName, PATHINFO_EXTENSION));
   $result = sqlquery_checked("SELECT * FROM uploadtype WHERE Extension='$ext'");
-  if (mysql_numrows($result) == 0)  die("File extension '$ext' not found in table of approved file types - query was:<br>".
+  if (mysqli_num_rows($result) == 0)  die("File extension '$ext' not found in table of approved file types - query was:<br>".
   "SELECT * FROM uploadtype WHERE Extension='$ext'");
-  $type = mysql_fetch_object($result);
+  $type = mysqli_fetch_object($result);
 
   $filepath = "/var/www/".$_SESSION['client']."/uploads/u".$_GET['uid'].".$ext";
   //echo "<pre>".print_r($_SESSION,TRUE);
