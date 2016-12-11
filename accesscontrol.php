@@ -20,7 +20,7 @@ if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
       " OR PASSWORD('".$_POST['pwd']."') IN (SELECT Password FROM login WHERE UserID='dev'))";
     $result = mysqli_query($db, $sql) or die("A database error occurred while checking your login details.<br>".
     "If this error persists, please contact the webservant.<br>".
-    "(SQL Error ".mysql_errno($db).": ".mysqli_error($db).")");
+    "(SQL Error: ".mysqli_error($db).")");
     if (mysqli_num_rows($result) == 1) {
       $user = mysqli_fetch_object($result);
       //convert to new password hashing if necessary
@@ -54,9 +54,9 @@ if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
       $sql = "INSERT INTO login_log(UserID,IPAddress,UserAgent,Languages) VALUES('".
         $user->UserID."','".$_SERVER['REMOTE_ADDR']."','".$_SERVER['HTTP_USER_AGENT']."','".
         $_SERVER['HTTP_ACCEPT_LANGUAGE']."')";
-      $result = mysqli_query($db, $sql) or die("SQL Error: ".mysql_errno($db).": ".mysqli_error($db).")");
+      $result = mysqli_query($db, $sql) or die("SQL Error: ".mysqli_error($db).")");
       
-      $result = mysqli_query($db, "SELECT * FROM config") or die("SQL Error: ".mysql_errno($db).": ".mysqli_error($db).")");
+      $result = mysqli_query($db, "SELECT * FROM config") or die("SQL Error: ".mysqli_error($db).")");
       while ($row = mysqli_fetch_object($result)) {
         $par = $row->Parameter;
         $_SESSION[$par] = $row->Value;
@@ -143,7 +143,8 @@ bindtextdomain($domain,"/var/www/".$_SESSION['client']."/locale");
 bind_textdomain_codeset($domain, "utf8");
 
 // I HATE TO DO IT, BUT FOR NOW I NEED TO EMULATE REGISTER_GLOBALS ON
-if (!ini_get('register_globals')) {
+extract($_GET, EXTR_SKIP);  //try it just for GET
+/*if (!ini_get('register_globals')) {
   $superglobals = array($_SERVER, $_ENV, $_FILES, $_COOKIE, $_POST, $_GET);
   if (isset($_SESSION)) {
     array_unshift($superglobals, $_SESSION);
@@ -151,6 +152,6 @@ if (!ini_get('register_globals')) {
   foreach ($superglobals as $superglobal) {
     extract($superglobal, EXTR_SKIP);
   }
-}
+}*/
 
 ?>

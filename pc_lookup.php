@@ -32,7 +32,7 @@ window.close();
 </script>
 
 <?php
-if ($selected_from_list) {   // *** User just finishing clicking on one of a multiple list ***
+if ($_GET['selected_from_list']) {   // *** User just finishing clicking on one of a multiple list ***
   process_selection($_POST['pc'], $_POST['pref'], $_POST['shi'], "", $maindb);
   exit;
 } elseif ($entered_romaji) {   // *** User just finished entering romaji ***
@@ -59,12 +59,12 @@ if ($_GET['pc']) {
 }
 
 // ***** Connect to common database for auxpostalcode table *****
-if (!$commondb = mysqli_connect("localhost", "kz_".$client, $pass, "kizuna_common")) {
-  echo("<body onload=\"window.focus();\"><b>SQL Error: "
-    .mysql_errno($db).": ".mysqli_error($db)."</b><br>(attempting to connect to kizuna_common databasel)</body></html>");
-  exit;
-}
-$sql = "SELECT * FROM auxpostalcode $where";
+//if (!$commondb = mysqli_connect("localhost", "kz_".$client, $pass, "kizuna_common")) {
+//  echo("<body onload=\"window.focus();\"><b>SQL Error: "
+//    .mysqli_error($db)."</b><br>(attempting to connect to kizuna_common databasel)</body></html>");
+//  exit;
+//}
+$sql = "SELECT * FROM kizuna_common.auxpostalcode $where";
 if (!$aux = mysqli_query($commondb, $sql)) {
   echo("<body onload=\"window.focus();\"><b>SQL Error: "
   .mysql_errno($db).": ".mysqli_error($db)."</b><br>($sql)</body></html>");
@@ -122,8 +122,7 @@ function process_selection($pc, $pref, $shi, $rom, $maindb) {
   // ***** CHECK POSTALCODE TABLE FOR ENTRY *****
   $sql = "SELECT * FROM postalcode WHERE PostalCode='".$pc."'";
   if (!$main = mysqli_query($db, $sql)) {
-    echo("<body onload=\"window.focus();\"><b>SQL Error: "
-    .mysql_errno($db).": ".mysqli_error($db)."</b><br>($sql)</body></html>");
+    echo("<body onload=\"window.focus();\"><b>SQL Error: ".mysqli_error($db)."</b><br>($sql)</body></html>");
     exit;
   }
 

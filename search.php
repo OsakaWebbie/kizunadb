@@ -21,8 +21,8 @@ header1(_("Search").(isset($psnum) ? sprintf(_(" (%d People/Orgs Pre-selected)")
 $psnum) : "")?></h1>
 <?php if (isset($text)) echo "<h3 class=\"alert\">".urldecode($text)."</h3>"; ?>
 
-<form id="searchform" action="list.php?<?=$_GET['ps']?"?ps=".$_GET['ps']:""?>" method="<?=(isset($_POST['pid_list']) ? "post" : "get")?>">
-<input type="hidden" id="preselected" name="preselected" value="<?=$_POST['pid_list']?>">
+<form id="searchform" action="list.php?<?=isset($_GET['ps'])?"?ps=".$_GET['ps']:""?>" method="<?=(isset($_POST['pid_list']) ? "post" : "get")?>">
+<?php if (isset($_GET['ps'])) echo "<input type=\"hidden\" id=\"preselected\" name=\"preselected\" value=\"".$_POST['pid_list']."\">\n"; ?>
 <h2 class="simpleonly"><?php $txt=_("records"); printf(_("Search for %s that..."),$txt); ?></h2>
 <h2 class="advanced">
 <?php $txt="<span class=\"radiogroup\">".
