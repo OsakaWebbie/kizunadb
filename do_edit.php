@@ -1,6 +1,8 @@
 <?php
 include("functions.php");
 include("accesscontrol.php");
+extract($_POST, EXTR_SKIP);  //make POST superglobal into plain variables for the ancient code
+
 print_header("Editing Record...","#FFFFFF",0);
 
 echo "<h3 color=green>Editing (or adding) record...<h3>";
@@ -74,19 +76,21 @@ if ($updateper == "1") {
   } else {
     $organization = "0";
   }
+  if (!isset($householdid) || $householdid=='') $householdid=0;
+  if (!isset($birthdate) || $birthdate=='') $birthdate='0000-00-00';
 
   if ($pid) {
-    $sql = "UPDATE person SET FullName='".h2d($fullname)."',Furigana='".h2d($furigana)."',Sex='$sex',HouseholdID='$householdid',".
+    $sql = "UPDATE person SET FullName='".h2d($fullname)."',Furigana='".h2d($furigana)."',Sex='$sex',HouseholdID=$householdid,".
     "Relation='$relation',Title='".h2d($title)."',CellPhone='".h2d($cellphone)."',Email='".h2d($email)."',Birthdate='$birthdate',".
-    "Country='".h2d($country)."',URL='".h2d($URL)."',Organization='$organization',Remarks='".h2d($remarks)."',UpdDate=CURDATE() ".
+    "Country='".h2d($country)."',URL='".h2d($URL)."',Organization=$organization,Remarks='".h2d($remarks)."',UpdDate=CURDATE() ".
     "WHERE PersonID=$pid LIMIT 1";
     $result = sqlquery_checked($sql);
     if (mysqli_affected_rows($db) > 0) echo "The person record was updated<br>\n";
   } else {
     $sql = "INSERT INTO person (FullName,Furigana,Sex,HouseholdID,Relation,Title,CellPhone,".
     "Email,Birthdate,Country,URL,Organization,Remarks,UpdDate) VALUES ('".h2d($fullname)."','".h2d($furigana)."','$sex',".
-    "'$householdid','$relation','".h2d($title)."','".h2d($cellphone)."','".h2d($email)."','$birthdate',".
-    "'$country','$URL','$organization','".h2d($remarks)."',CURDATE())";
+        "$householdid,'$relation','".h2d($title)."','".h2d($cellphone)."','".h2d($email)."','$birthdate',".
+    "'$country','$URL',$organization,'".h2d($remarks)."',CURDATE())";
     $result = sqlquery_checked($sql);
     if (mysqli_affected_rows($db) > 0) {
       $pid = mysqli_insert_id($db);

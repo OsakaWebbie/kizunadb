@@ -1,5 +1,7 @@
 <?php
 
+error_reporting(E_ALL ^ E_NOTICE);
+
 function header1($title) {
   echo "<!doctype html>\n<html>\n<head>\n<meta charset=\"utf-8\">\n";
   echo "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n";
@@ -243,7 +245,8 @@ function email2link($text) {
 // Get client login credentials and connect to client database
 $hostarray = explode(".",$_SERVER['HTTP_HOST']);
 include("/var/www/kizunadb/client/".$hostarray[0]."/kizuna_connect.php");
-$db = mysqli_connect("localhost", "kz_".$client, $pass, "kizuna_".$client) or die("Failed to connect user "."kz_".$client." (".$pass.").");
+$db = mysqli_connect("localhost", "kz_".$client, $pass, "kizuna_".$client)
+    or die("Failed to connect user "."kz_".$client." (PWD=".$pass.").");
 
 // not sure if this is needed anymore, but...
 mysqli_set_charset($db, "utf8");

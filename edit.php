@@ -405,7 +405,7 @@ echo ($_SESSION['furiganaisromaji']=="yes") ? _("(\"Last name, first name\" - do
 <div id="title_section">
   <label class="label-n-input"><?=_("Title")?>:
     <input name="title" id="nametitle" type="text" style="width:3em;ime-mode:auto;" maxlength="6"
-    value="<?($rec->Title ? $rec->Title : "様")?>" onchange="editform.updateper.value=1;" />
+    value="<?=($rec->Title ? $rec->Title : "様")?>" onchange="editform.updateper.value=1;" />
   </label>
 </div>
 
