@@ -131,7 +131,7 @@ while ($row = mysqli_fetch_object($result)) {
     <input type="hidden" name="catlist" value="">
   </form>
   </td><td align=center>
-  <iframe name="ResultFrame" width="100%" height="400" src="blank.html"></iframe>
+  <iframe name="ResultFrame" width="100%" height="400" src="blank.php"></iframe>
 </td></tr></table>
 
 <script type="text/JavaScript" src="js/jquery.js"></script>

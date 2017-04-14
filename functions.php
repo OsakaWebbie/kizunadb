@@ -245,8 +245,8 @@ function email2link($text) {
 // Get client login credentials and connect to client database
 $hostarray = explode(".",$_SERVER['HTTP_HOST']);
 include("/var/www/kizunadb/client/".$hostarray[0]."/kizuna_connect.php");
-$db = mysqli_connect("localhost", "kz_".$client, $pass, "kizuna_".$client)
-    or die("Failed to connect user "."kz_".$client." (PWD=".$pass.").");
+$db = mysqli_connect("localhost", "kz_".$hostarray[0], $pass, "kizuna_".$hostarray[0])
+    or die("Failed to connect user "."kz_".$hostarray[0]." (PWD=".$pass.").");
 
 // not sure if this is needed anymore, but...
 mysqli_set_charset($db, "utf8");

@@ -103,7 +103,7 @@ while ($cat = mysqli_fetch_object($result)) {
         </form>
       </td>
       <td valign="top">
-        <form action="blank.html" method="post" name="sform" id="sform" target="ActionFrame">
+        <form action="blank.php" method="post" name="sform" id="sform" target="ActionFrame">
           <input type="hidden" name="pid_list" value="" border="0" />
           <b><?=sprintf(_("%s Entries Selected"),"<span id=\"selection_count\">$presel_num</span>")?></b><br />
           <b><?=_("Choose an Action:")?></b><br />
@@ -161,7 +161,7 @@ while ($cat = mysqli_fetch_object($result)) {
       </td>
     </tr>
   </table>
-<iframe name="ActionFrame" style="width:100%;height:400px" src="blank.html">
+<iframe name="ActionFrame" style="width:100%;height:400px" src="blank.php">
 </iframe>
 
 <script>
@@ -229,7 +229,7 @@ function move(add_flag, all_flag) {
     }
   }
   $('#selection_count').text($('#selection option').size());
-  parent.ActionFrame.location.href="blank.html";
+  parent.ActionFrame.location.href="blank.php";
 }
 
 function empty(list) {

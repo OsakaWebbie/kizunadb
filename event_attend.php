@@ -67,7 +67,7 @@ while ($row = mysqli_fetch_object($result)) {
 ?>
 
 <h1 id="title"><?=_("Event Attendance").($_POST['pid_list']!="" ? sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($_POST['pid_list'],",")+1) : "")?></h1>
-<form id="eform" method="post" action="blank.html" target="ResultFrame">
+<form id="eform" method="post" action="blank.php" target="ResultFrame">
 <input type="hidden" name="preselected" value="<?=$_POST['pid_list']?>">
 <div id="dates">
 <?php printf(_("Optional Dates: after %s and/or before %s"),
@@ -95,7 +95,7 @@ while ($row = mysqli_fetch_object($result)) {
 "<input type=\"radio\" id=\"radio_frame\" name=\"ftarget\" value=\"ResultFrame\" checked>",
 "<input type=\"radio\" id=\"radio_window\" name=\"ftarget\" value=\"_blank\">")?></p>
 </form>
-<iframe name="ResultFrame" width="100%" height="320" src="blank.html"></iframe>
+<iframe name="ResultFrame" width="100%" height="320" src="blank.php"></iframe>
 
 <?php
 footer();
