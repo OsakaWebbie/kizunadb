@@ -144,7 +144,7 @@ bind_textdomain_codeset($domain, "utf8");
 
 // I HATE TO DO IT, BUT FOR NOW I NEED TO EMULATE REGISTER_GLOBALS ON
 extract($_GET, EXTR_SKIP);  //try it just for GET
-extract($_POST, EXTR_SKIP);  //try it just for GET
+extract($_POST, EXTR_SKIP);  //try it just for POST
 /*if (!ini_get('register_globals')) {
   $superglobals = array($_SERVER, $_ENV, $_FILES, $_COOKIE, $_POST, $_GET);
   if (isset($_SESSION)) {
