@@ -32,9 +32,9 @@ header1(_("User Settings"));
   <input type="submit" id="pw_upd" name="pw_upd" value="<?=_("Change Password")?>">
 </fieldset></form>
 
-<script type="text/JavaScript" src="js/jquery.js"></script>
-<script type="text/JavaScript" src="js/jquery-ui.js"></script>
-<script type="text/JavaScript" src="js/functions.js"></script>
+<script type="text/JavaScript" src="js_procedural/jquery.js"></script>
+<script type="text/JavaScript" src="js_procedural/jquery-ui.js"></script>
+<script type="text/JavaScript" src="js_procedural/functions.js"></script>
 
 <script type="text/javascript">
 function validate(form) {

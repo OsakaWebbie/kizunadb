@@ -1,9 +1,9 @@
 <?php
 session_start();
 if (!isset($_SESSION['client'])) die;
-$path = "/var/www/".$_SESSION['client']."/css/";
+$path = "/var/www/".$_SESSION['client']."/css_procedural/";
 header("Content-type: text/css");
-serve(is_file($path."reset.css") ? $path."reset.css" : "css/reset.css");
+serve(is_file($path."reset.css") ? $path."reset.css" : "css_procedural/reset.css");
 if (is_file($path."styles.php")) {
   serve($path."styles.php");
   exit;
@@ -11,7 +11,7 @@ if (is_file($path."styles.php")) {
   serve($path."styles.css");
   exit;
 } else {
-  include(is_file($path."colors.php") ? $path."colors.php" : "css/colors.php");
+  include(is_file($path."colors.php") ? $path."colors.php" : "css_procedural/colors.php");
   // INCLUDE ALL DEFINITIONS HERE (so that colors can be applied)
 ?>
 /* theme layout and styling */
@@ -637,22 +637,22 @@ body.dashboard #attend_datesums h3 { display:none; }
 } // end IF USING THIS FILE
 
 if (isset($_GET['jquery'])) {
-  serve(is_file($path."jquery-ui.css") ? $path."jquery-ui.css" : "css/jquery-ui.css");
-  serve(is_file($path."jquery-ui-timepicker.css") ? $path."jquery-ui-timepicker.css" : "css/jquery-ui-timepicker.css");
+  serve(is_file($path."jquery-ui.css") ? $path."jquery-ui.css" : "css_procedural/jquery-ui.css");
+  serve(is_file($path."jquery-ui-timepicker.css") ? $path."jquery-ui-timepicker.css" : "css_procedural/jquery-ui-timepicker.css");
 }
 if (isset($_GET['table'])) {
-  serve(is_file($path."tablesorter.css") ? $path."tablesorter.css" : "css/tablesorter.css");
-  serve(is_file($path."clickmenu4colman.css") ? $path."clickmenu4colman.css" : "css/clickmenu4colman.css");
+  serve(is_file($path."tablesorter.css") ? $path."tablesorter.css" : "css_procedural/tablesorter.css");
+  serve(is_file($path."clickmenu4colman.css") ? $path."clickmenu4colman.css" : "css_procedural/clickmenu4colman.css");
 }
 if (isset($_GET['multiselect'])) {
-  serve(is_file($path."jquery.multiselect.css") ? $path."jquery.multiselect.css" : "css/jquery.multiselect.css");
-  serve(is_file($path."jquery.multiselect.filter.css") ? $path."jquery.multiselect.filter.css" : "css/jquery.multiselect.filter.css");
+  serve(is_file($path."jquery.multiselect.css") ? $path."jquery.multiselect.css" : "css_procedural/jquery.multiselect.css");
+  serve(is_file($path."jquery.multiselect.filter.css") ? $path."jquery.multiselect.filter.css" : "css_procedural/jquery.multiselect.filter.css");
 }
 if (is_file($path."custom.css")) serve($path."custom.css");  // if client wants more customization than colors
 
 function serve($source) {
   $stuff = file_get_contents($source);
-  echo preg_replace('#url\( *["\']?([^"\'\)]*)["\']? *\)#', 'url("clientfile.php?f=css/$1")', $stuff);
+  echo preg_replace('#url\( *["\']?([^"\'\)]*)["\']? *\)#', 'url("clientfile.php?f=css_procedural/$1")', $stuff);
 }
 function rgba($color,$alpha) {
   if (strtolower(substr($color,0,4)) == "rgba") return preg_replace("/,[0-9\.]+\)$/",",".$alpha.")",$color);

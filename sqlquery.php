@@ -9,9 +9,9 @@ if ($_POST['query']) {
   $result = mysqli_query($db, $query);
 ?>
 <link rel="stylesheet" href="style.php?table=1" type="text/css" />
-<script type="text/javascript" src="js/jquery.js"></script>
-<script type="text/javascript" src="js/table2CSV.js"></script>
-<script type="text/javascript" src="js/tablesorter.js"></script>
+<script type="text/javascript" src="js_procedural/jquery.js"></script>
+<script type="text/javascript" src="js_procedural/table2CSV.js"></script>
+<script type="text/javascript" src="js_procedural/tablesorter.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
   $("#mainTable").tablesorter({

@@ -4,8 +4,8 @@ include("accesscontrol.php");
 header1(_("Select Organization"));
 ?>
 <link rel="stylesheet" href="style.php?table=1" type="text/css" />
-<script type="text/JavaScript" src="js/jquery.js"></script>
-<script type="text/JavaScript" src="js/tablesorter.js"></script>
+<script type="text/JavaScript" src="js_procedural/jquery.js"></script>
+<script type="text/JavaScript" src="js_procedural/tablesorter.js"></script>
 <script language=Javascript>
 $(document).ready(function() {
   $("#mainTable").tablesorter({ sortList:[[3,0]], headers:{0:{sorter:false}}

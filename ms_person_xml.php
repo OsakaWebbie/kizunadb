@@ -5,7 +5,7 @@ header1("");
 ?>
 <meta http-equiv="expires" content="0">
 <link rel="stylesheet" href="style.php" type="text/css" />
-<script type="text/JavaScript" src="js/jquery.js"></script>
+<script type="text/JavaScript" src="js_procedural/jquery.js"></script>
 <script type="text/javascript">
 $(document).ready(function(){
   $("select[id^=field]").change(function() {

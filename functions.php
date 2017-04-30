@@ -10,7 +10,7 @@ function header1($title) {
 }
 
 function header2($nav=0) {
-  echo "<link rel=\"stylesheet\" href=\"css/print.css\" type=\"text/css\" media=\"print\">\n";
+  echo ">\n";
   echo "</head>\n";
   $fileroot = substr($_SERVER['PHP_SELF'],(strrpos($_SERVER['PHP_SELF'],"/")+1),(strrpos($_SERVER['PHP_SELF'],".")-strrpos($_SERVER['PHP_SELF'],"/")-1));
   echo "<body class=\"".$fileroot.($nav?" full":" simple")."\">\n";

@@ -7,8 +7,8 @@ $custom = mysqli_fetch_object($result);
 if ($custom->IsTable) {
 ?>
 <link rel="stylesheet" href="style.php?table=1" type="text/css" />
-<script type="text/javascript" src="js/jquery.js"></script>
-<script type="text/javascript" src="js/tablesorter.js"></script>
+<script type="text/javascript" src="js_procedural/jquery.js"></script>
+<script type="text/javascript" src="js_procedural/tablesorter.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
   $("#mainTable").tablesorter({

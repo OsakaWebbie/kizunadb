@@ -78,8 +78,8 @@ while ($row = mysqli_fetch_object($result)) {
     <input type="submit" name="save_contact" value="<?=_("Save Contact Info")?>">
   </form>
 
-<script type="text/JavaScript" src="js/jquery.js"></script>
-<script type="text/JavaScript" src="js/jquery-ui.js"></script>
+<script type="text/JavaScript" src="js_procedural/jquery.js"></script>
+<script type="text/JavaScript" src="js_procedural/jquery-ui.js"></script>
 <script type="text/JavaScript">
 $(document).ready(function(){
   $(document).ajaxError(function(e, xhr, settings, exception) {

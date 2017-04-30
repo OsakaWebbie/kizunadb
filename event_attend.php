@@ -5,11 +5,11 @@ include("accesscontrol.php");
 header1(_("Event Attendance").($_POST['pid_list']!="" ? sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($_POST['pid_list'],",")+1) : "")); ?>
 <meta http-equiv="expires" content="0">
 <link rel="stylesheet" href="style.php?jquery=1&multiselect=1" type="text/css" />
-<script type="text/JavaScript" src="js/jquery.js"></script>
-<script type="text/JavaScript" src="js/jquery-ui.js"></script>
-<script type="text/JavaScript" src="js/jquery.ui.datepicker-ja.js"></script>
-<script type="text/javascript" src="js/jquery.multiselect-classes.js"></script>
-<script type="text/javascript" src="js/jquery.multiselect.filter.js"></script>
+<script type="text/JavaScript" src="js_procedural/jquery.js"></script>
+<script type="text/JavaScript" src="js_procedural/jquery-ui.js"></script>
+<script type="text/JavaScript" src="js_procedural/jquery.ui.datepicker-ja.js"></script>
+<script type="text/javascript" src="js_procedural/jquery.multiselect-classes.js"></script>
+<script type="text/javascript" src="js_procedural/jquery.multiselect.filter.js"></script>
 
 <script type="text/javascript">
 

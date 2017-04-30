@@ -64,8 +64,8 @@ if (isset($_GET['plid'])) {
 header1(sprintf($plid?_("Edit Pledge for %s"):_("New Pledge Entry for %s"),readable_name($old->FullName,$old->Furigana)));
 ?>
 <link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
-<script type="text/JavaScript" src="js/jquery.js"></script>
-<script type="text/JavaScript" src="js/jquery-ui.js"></script>
+<script type="text/JavaScript" src="js_procedural/jquery.js"></script>
+<script type="text/JavaScript" src="js_procedural/jquery-ui.js"></script>
 <script type="text/javascript">
 $(document).ready(function(){
   <?php

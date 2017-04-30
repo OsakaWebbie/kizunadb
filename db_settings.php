@@ -6,10 +6,10 @@ header1(_("Database Settings"));
 ?>
 <link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
 <script type="text/javascript" src="jscolor/jscolor.js"></script>
-<script type="text/JavaScript" src="js/jquery.js"></script>
-<script type="text/JavaScript" src="js/jquery-ui.js"></script>
-<script type="text/JavaScript" src="js/jquery.populate.js"></script>
-<script type="text/JavaScript" src="js/functions.js"></script>
+<script type="text/JavaScript" src="js_procedural/jquery.js"></script>
+<script type="text/JavaScript" src="js_procedural/jquery-ui.js"></script>
+<script type="text/JavaScript" src="js_procedural/jquery.populate.js"></script>
+<script type="text/JavaScript" src="js_procedural/functions.js"></script>
 
 <script type="text/javascript">
 
