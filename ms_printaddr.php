@@ -3,7 +3,7 @@ include("functions.php");
 include("accesscontrol.php");
 header1("");
 ?>
-<link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
+<link rel="stylesheet" href="style.php?jquery=1" type="text/css">
 <?php
 header2(0);
 
@@ -15,7 +15,7 @@ $sql = "SELECT p.PersonID, FullName, Furigana ".
 $result = sqlquery_checked($sql);
 if ($num = mysqli_num_rows($result) > 0) {
   echo "<div style=\"float:left;border:2px solid darkred;padding:4px;margin:4px\">"._("The following entries have no address:")."<br />\n";
-  echo "<span style=\"text-size:0.8em\">"._("(They will not be printed unless you click on<br />each to add addresses before continuing.)")."</span>\n";
+  echo "<span style=\"font-size:0.8em\">"._("(They will not be printed unless you click on<br />each to add addresses before continuing.)")."</span>\n";
   while ($row = mysqli_fetch_object($result)) {
     echo "<br>&nbsp;&nbsp;&nbsp;";
     echo "<a href=\"individual.php?pid=".$row->PersonID."\" target=\"_blank\">";
@@ -24,23 +24,25 @@ if ($num = mysqli_num_rows($result) > 0) {
   echo "</div>\n";
 }
 /* GET NUMBERS OF ENTRIES THAT WOULD BE PRINTED */
-$sql = "SELECT count(PersonID) FROM person p LEFT JOIN household h ON p.HouseholdID=h.HouseholdID ".
+$sql = "SELECT count(PersonID) num FROM person p LEFT JOIN household h ON p.HouseholdID=h.HouseholdID ".
     "WHERE p.PersonID IN (".$pid_list.") AND NOT (p.HouseholdID=0 OR h.Address IS NULL OR h.Address='' ".
     "OR (h.NonJapan=0 AND h.PostalCode=''))";
 $result = sqlquery_checked($sql);
-$num_individuals = mysqli_result($result,0);
-$sql = "SELECT count(DISTINCT h.HouseholdID) FROM person p LEFT JOIN household h ON p.HouseholdID=h.HouseholdID ".
+$row = mysqli_fetch_object($result);
+$num_individuals = $row->num;
+$sql = "SELECT count(DISTINCT h.HouseholdID) num FROM person p LEFT JOIN household h ON p.HouseholdID=h.HouseholdID ".
     "WHERE p.PersonID IN (".$pid_list.") AND NOT (p.HouseholdID=0 OR h.Address IS NULL OR h.Address='' ".
     "OR (h.NonJapan=0 AND h.PostalCode=''))";
 $result = sqlquery_checked($sql);
-$num_households = mysqli_result($result,0);
+$row = mysqli_fetch_object($result);
+$num_households = $row->num;
 ?>
 <h3><?=_("Select options for address printing and click the button.")?></h3>
 <form action="print_addr.php" method="post" name="optionsform" target="_blank" style="text-align:left">
-  <input type="hidden" name="pid_list" value="<?=$pid_list?>" border="0">
+  <input type="hidden" name="pid_list" value="<?=$pid_list?>">
   <div style="display:inline-block;vertical-align:middle;margin:0 2em">
-    <input type="radio" name="name_type" value="ind" tabindex="1" border="0"><?=_("Individuals")." (".$num_individuals.")"?><br />
-    <input type="radio" name="name_type" value="label" border="0" checked><?=_("Households")." (".$num_households.")"?>
+    <label><input type="radio" name="name_type" value="ind" tabindex="1"><?=_("Individuals")." (".$num_individuals.")"?></label><br />
+    <label><input type="radio" name="name_type" value="label" checked><?=_("Households")." (".$num_households.")"?></label>
   </div>
   <div style="display:inline-block;vertical-align:middle">
     <label class="label-n-input"><?=_("Envelope/Postcard Format")?>: <select id="addrprint-select" name="addr_print_name" size="1">
@@ -58,14 +60,14 @@ while ($row = mysqli_fetch_object($result)) {
     </div>
     <div style="display:inline-block;vertical-align:middle;margin:0 2em">
       <h4><?=_("Post office stamp:")?></h4>
-      <input type="radio" name="po_stamp" value="none" checked><?=_("None")?><br />
-      <input type="radio" name="po_stamp" value="betsunou"><?=_("Standard mail")?><br />
-      <input type="radio" name="po_stamp" value="yuumail_betsunou"><?=_("'Yuu-mail'")?><br />
-      <input type="radio" name="po_stamp" value="kounou"><?=_("Standard mail w/ contract")?><br />
-      <input type="radio" name="po_stamp" value="yuumail_kounou"><?=_("'Yuu-mail' w/ contract")?>
+      <label><input type="radio" name="po_stamp" value="none" checked><?=_("None")?></label><br />
+      <label><input type="radio" name="po_stamp" value="betsunou"><?=_("Standard mail")?></label><br />
+      <label><input type="radio" name="po_stamp" value="yuumail_betsunou"><?=_("'Yuu-mail'")?></label><br />
+      <label><input type="radio" name="po_stamp" value="kounou"><?=_("Standard mail w/ contract")?></label><br />
+      <label><input type="radio" name="po_stamp" value="yuumail_kounou"><?=_("'Yuu-mail' w/ contract")?></label>
     </div>
   </div>
-  <input type="submit" name="submit" value="<?=_("Make PDF")?>" border="0">
+  <input type="submit" name="submit" value="<?=_("Make PDF")?>">
 </form>
 
 <script type="text/JavaScript" src="js_procedural/jquery.js"></script>

@@ -17,7 +17,7 @@ $sql = "SELECT p.PersonID, FullName, Furigana ".
 $result = sqlquery_checked($sql);
 if ($num = mysqli_num_rows($result) > 0) {
   echo "<div style=\"float:left;border:2px solid darkred;padding:4px;margin:4px\">"._("The following entries have no address:")."<br />\n";
-  echo "<span style=\"text-size:0.8em\">"._("(They will not be printed unless you click on<br />each to add addresses before continuing.)")."</span>\n";
+  echo "<span style=\"font-size:0.8em\">"._("(They will not be printed unless you click on<br />each to add addresses before continuing.)")."</span>\n";
   while ($row = mysqli_fetch_object($result)) {
     echo "<br>&nbsp;&nbsp;&nbsp;";
     echo "<a href=\"individual.php?pid=".$row->PersonID."\" target=\"_blank\">";
@@ -30,12 +30,14 @@ $sql = "SELECT count(PersonID) FROM person p LEFT JOIN household h ON p.Househol
     "WHERE p.PersonID IN (".$pid_list.") AND NOT (p.HouseholdID=0 OR h.Address IS NULL OR h.Address='' ".
     "OR (h.NonJapan=0 AND h.PostalCode=''))";
 $result = sqlquery_checked($sql);
-$num_individuals = mysqli_result($result,0);
+$row = mysqli_fetch_object($result);
+$num_individuals = $row->num;
 $sql = "SELECT count(DISTINCT h.HouseholdID) FROM person p LEFT JOIN household h ON p.HouseholdID=h.HouseholdID ".
     "WHERE p.PersonID IN (".$pid_list.") AND NOT (p.HouseholdID=0 OR h.Address IS NULL OR h.Address='' ".
     "OR (h.NonJapan=0 AND h.PostalCode=''))";
 $result = sqlquery_checked($sql);
-$num_households = mysqli_result($result,0);
+$row = mysqli_fetch_object($result);
+$num_households = $row->num;
 ?>
     <h3><?=_("Select options for label printing and click the button.")?></h3>
     <form action="print_label.php" method="post" name="optionsform" target="_blank" style="text-align:left">
