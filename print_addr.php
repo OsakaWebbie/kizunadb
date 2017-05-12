@@ -3,10 +3,10 @@ include("functions.php");
 include("accesscontrol.php");
 
 if (!$_POST['pid_list']) {
-  die("There were no Person IDs passed.");
+  die(_("There were no Person IDs passed."));
 }
 if (!$_POST['addr_print_name']) {
-  die("There was no layout type passed.");
+  die(_("There was no layout type passed."));
 }
 
 $sql = "SELECT * FROM addrprint WHERE AddrPrintName='".urldecode($_POST['addr_print_name'])."'";
@@ -21,8 +21,12 @@ $sql = "SELECT ".($_POST['name_type']=="label" ? "DISTINCT LabelName" :
 "AND (h.NonJapan=1 OR h.PostalCode!='') ORDER BY ".($_POST['nj_separate']=="yes" ? "NonJapan," : "").
 "FIND_IN_SET(PersonID,'".$pid_list."')";
 $result = sqlquery_checked($sql);
+if (mysqli_num_rows($result)==0) {
+  die(_("No addresses to print. Just close this tab and check your selection."));
+}
 
-$fileroot = "/tmp/addr".getmypid();
+$tmppath = '/var/www/tmp/';
+$fileroot = 'addr'.getmypid();
 
 /* PREPARE ARRAYS FOR ADDRESS NUMBERS */
 $number_array = array("0","1","2","3","4","5","6","7","8","9","-");
@@ -188,27 +192,26 @@ str_replace($search_array,$replace_array,$row->Name))?>
 ?>
 \end{document}
 <?php
-file_put_contents($fileroot.".tex",ob_get_contents());
+file_put_contents($tmppath.$fileroot.".tex",ob_get_contents());
 ob_end_clean();
 
 // RUN TEX COMMANDS TO MAKE PDF
 
-exec("cd /tmp;/usr/local/texlive/2011/bin/x86_64-linux/uplatex -interaction=batchmode --output-directory=/tmp $fileroot", $output, $return);
+exec("cd $tmppath;uplatex -interaction=batchmode --output-directory=$tmppath $fileroot", $output, $return);
 //exec("cd /tmp;uplatex -interaction=batchmode --output-directory=/tmp $fileroot", $output, $return);
-if (!is_file("$fileroot.dvi")) {
-  die("Error processing '$fileroot.tex':<br /><br /><pre>".print_r($output,TRUE)."</pre>");
+if (!is_file("$tmppath$fileroot.dvi")) {
+  die("Error processing '$tmppath$fileroot.tex':<br /><br /><pre>".print_r($output,TRUE)."</pre>");
 }
-//unlink("$fileroot.tex");
-exec("cd /tmp;/usr/local/texlive/2011/bin/x86_64-linux/dvipdfmx $fileroot", $output, $return);
-//unlink("$fileroot.dvi");
-if (!is_file("$fileroot.pdf")) {
-  die("Error processing '$fileroot.dvi':<br /><br /><pre>".print_r($output,TRUE)."</pre>");
+//unlink("$tmppath$fileroot.tex");
+exec("cd $tmppath;dvipdfmx $fileroot", $output, $return);
+//unlink("$tmppath$fileroot.dvi");
+if (!is_file("$tmppath$fileroot.pdf")) {
+  die("Error processing '$tmppath$fileroot.dvi':<br /><br /><pre>".print_r($output,TRUE)."</pre>");
 }
-
 // DELIVER PDF CONTENT TO BROWSER
 
 header("Content-Type: application/pdf");
 header('Content-Disposition: attachment; filename="envelopes_'.date('Y-m-d').'.pdf"');
 header("Content-Transfer-Encoding: binary");
-@readfile("$fileroot.pdf");
+@readfile("$tmppath$fileroot.pdf");
 ?>
