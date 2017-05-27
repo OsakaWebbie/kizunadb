@@ -26,7 +26,7 @@ if (mysqli_num_rows($result)==0) {
 }
 
 $tmppath = '/var/www/tmp/';
-$fileroot = 'addr'.getmypid();
+$fileroot = $_SESSION['client'].'-'.$_SESSION['userid'].'-'.date('His');
 
 /* PREPARE ARRAYS FOR ADDRESS NUMBERS */
 $number_array = array("0","1","2","3","4","5","6","7","8","9","-");
@@ -197,17 +197,17 @@ ob_end_clean();
 
 // RUN TEX COMMANDS TO MAKE PDF
 
-exec("cd $tmppath;uplatex -interaction=batchmode --output-directory=$tmppath $fileroot", $output, $return);
-//exec("cd /tmp;uplatex -interaction=batchmode --output-directory=/tmp $fileroot", $output, $return);
+exec("cd $tmppath;/usr/local/bin/uplatex -interaction=batchmode --output-directory=$tmppath $fileroot", $output, $return);
 if (!is_file("$tmppath$fileroot.dvi")) {
   die("Error processing '$tmppath$fileroot.tex':<br /><br /><pre>".print_r($output,TRUE)."</pre>");
 }
 //unlink("$tmppath$fileroot.tex");
-exec("cd $tmppath;dvipdfmx $fileroot", $output, $return);
+exec("cd $tmppath;/usr/local/bin/dvipdfmx $fileroot", $output, $return);
 //unlink("$tmppath$fileroot.dvi");
 if (!is_file("$tmppath$fileroot.pdf")) {
   die("Error processing '$tmppath$fileroot.dvi':<br /><br /><pre>".print_r($output,TRUE)."</pre>");
 }
+
 // DELIVER PDF CONTENT TO BROWSER
 
 header("Content-Type: application/pdf");
