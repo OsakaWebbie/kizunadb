@@ -139,7 +139,7 @@ $_SESSION['client'] = $hostarray[0];
 setlocale(LC_ALL, $_SESSION['lang'].".utf8");
 $domain = "default";
 textdomain($domain);
-bindtextdomain($domain,"/var/www/".$_SESSION['client']."/locale");
+bindtextdomain($domain,"locale");
 bind_textdomain_codeset($domain, "utf8");
 
 // I HATE TO DO IT, BUT FOR NOW I NEED TO EMULATE REGISTER_GLOBALS ON
