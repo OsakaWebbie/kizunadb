@@ -93,7 +93,7 @@ function footer($nav=0) {
                     event.preventDefault();
                     $.ajax({
                         type: "POST",
-                        url: "ajax_actions.php?action=SwitchLang&lang=<? echo $_SESSION['lang']=='en_US'?'ja_JP':'en_US'; ?>",
+                        url: "ajax_actions.php?action=SwitchLang&lang=<?=$_SESSION['lang']=='en_US'?'ja_JP':'en_US' ?>",
                         success: function() {
                             location.reload(true);
                         }
@@ -103,7 +103,7 @@ function footer($nav=0) {
                 $('#announcements').dialog({
                     modal: true,
                     buttons: [{
-                        text: "<? echo _("OK, I got it!"); ?>",
+                        text: "<?=_("OK, I got it!") ?>",
                         click: function() {
                             $( this ).dialog( "close" );
                         }
