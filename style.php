@@ -1,7 +1,6 @@
 <?php
 session_start();
-if (!isset($_SESSION['client'])) die;
-$path = "/var/www/".$_SESSION['client']."/css_procedural/";
+$path = CLIENT_PATH."/css_procedural/";
 header("Content-type: text/css");
 serve(is_file($path."reset.css") ? $path."reset.css" : "css_procedural/reset.css");
 if (is_file($path."styles.php")) {

@@ -101,7 +101,7 @@ if ($updateper == "1") {
   }
 
   if (is_uploaded_file($_FILES['photofile']['tmp_name'])) {
-    $photofile = "/var/www/".$_SESSION['client']."/photos/p".$pid.".jpg";
+    $photofile = CLIENT_PATH."/photos/p".$pid.".jpg";
     if (move_uploaded_file($_FILES['photofile']['tmp_name'], $photofile)) {
       echo "File is valid, and was successfully uploaded. ";
       list($width, $height) = getimagesize($photofile);

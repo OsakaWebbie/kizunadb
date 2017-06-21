@@ -59,8 +59,8 @@ $periods[1] = _("years");
 $periods[4] = _("quarters");
 $periods[12] = _("months");
 
-echo "<h2 align=center>".($_POST['closed']=="true" ? _("All") : _("Open"))._(" Pledges as of ").
-date("Y-m-d",mktime(gmdate("H")+9))."</h2>";
+echo "<h2 align=center>".sprint(($_POST['closed']=="true" ? _("All Pledges as of %s") : _("Open Pledges as of %s")),
+date("Y-m-d",mktime(gmdate("H")+9)))."</h2>";
 echo "<table border=1 cellspacing=0 cellpadding=1 style=\"empty-cells:show\">\n";
 echo "<tr>";
 echo "<th><a href=\"".$href."Furigana";

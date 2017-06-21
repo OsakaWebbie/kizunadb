@@ -241,17 +241,22 @@ function email2link($text) {
 
 // STUFF THAT GETS RUN RIGHT AWAY
 
-// Get client login credentials and connect to client database
 $hostarray = explode(".",$_SERVER['HTTP_HOST']);
-include("/var/www/kizunadb/client/".$hostarray[0]."/kizuna_connect.php");
-$db = mysqli_connect("localhost", "kz_".$hostarray[0], $pass, "kizuna_".$hostarray[0])
-    or die("Failed to connect user "."kz_".$hostarray[0]." (PWD=".$pass.").");
+define('CLIENT',$hostarray[0]);
+define('CLIENT_PATH',"/var/www/kizunadb/client/".CLIENT);
+// Get client login credentials and connect to client database
+$connectfile = CLIENT_PATH."/kizuna_connect.php";
+if (!is_readable($connectfile)) die("No database connection credentials. Notify the developer.");
+include($connectfile);
+$db = mysqli_connect("localhost", "kizuna_".CLIENT, $pass, "kizuna_".CLIENT)
+    or die("Failed to connect to database. Notify the developer.");
 
 // not sure if this is needed anymore, but...
-mysqli_set_charset($db, "utf8");
+//mysqli_set_charset($db, "utf8");
 
 // Set internal character encoding to UTF-8
-mb_internal_encoding("UTF-8");
-mb_regex_encoding("UTF-8");
+//die('current internal_encoding is '.mb_internal_encoding().' and current regex_encoding is '.mb_regex_encoding());
+//mb_internal_encoding("UTF-8");
+//mb_regex_encoding("UTF-8");
 
-sqlquery_checked("SET SESSION group_concat_max_len = 4096");
+//sqlquery_checked("SET SESSION group_concat_max_len = 4096");

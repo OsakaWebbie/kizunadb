@@ -15,11 +15,11 @@ header1(_("CSV Import"));
 header2(1);
 
 if ($_GET['file']) { //file pre-placed on server
-  if (!is_file("/var/www/".$_SESSION['client']."/".$_GET['file'].".csv")) {
-    die("File "."/var/www/".$_SESSION['client']."/".$_GET['file'].".csv"." not found.");
+  if (!is_file(CLIENT_PATH."/".$_GET['file'].".csv")) {
+    die("File ".CLIENT_PATH."/".$_GET['file'].".csv"." not found.");
   }
-  $csv = file_get_contents("/var/www/".$_SESSION['client']."/".$_GET['file'].".csv")
-    or die("Failed to read file '/var/www/".$_SESSION['client']."/".$_GET['file'].".csv'.");
+  $csv = file_get_contents(CLIENT_PATH."/".$_GET['file'].".csv")
+    or die("Failed to read file '".CLIENT_PATH."/".$_GET['file'].".csv'.");
 } else {
   //EXPECT UPLOAD
   echo "I would process an upload here.";

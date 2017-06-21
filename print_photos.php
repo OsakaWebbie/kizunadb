@@ -9,7 +9,7 @@ $table_width = floor(($print->PaperWidth - $print->PaperLeftMargin - $print->Pap
 $num_col = floor(($table_width) / ($print->PhotoWidth + $print->Gutter));
 $col_width = floor($table_width / $num_col);
 $cell_padding = floor($print->Gutter / 2);
-$path = "/var/www/".$_SESSION['client']."/photos/";
+$path = CLIENT_PATH."/photos/";
 ?>
 <html>
 <head>

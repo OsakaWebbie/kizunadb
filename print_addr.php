@@ -26,7 +26,7 @@ if (mysqli_num_rows($result)==0) {
 }
 
 $tmppath = '/var/www/tmp/';
-$fileroot = $_SESSION['client'].'-'.$_SESSION['userid'].'-'.date('His');
+$fileroot = CLIENT.'-'.$_SESSION['userid'].'-'.date('His');
 
 /* PREPARE ARRAYS FOR ADDRESS NUMBERS */
 $number_array = array("0","1","2","3","4","5","6","7","8","9","-");

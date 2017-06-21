@@ -28,7 +28,7 @@ if (!$hhid) {
 
 if ($newphoto) {
   if (is_uploaded_file($_FILES['photofile']['tmp_name'])) {
-    $photofile = "/var/www/".$_SESSION['client']."/photos/h".$hhid.".jpg";
+    $photofile = CLIENT_PATH."/photos/h".$hhid.".jpg";
     echo "File path is $photofile.<br />";
     if (move_uploaded_file($_FILES['photofile']['tmp_name'], $photofile)) {
       echo "File is valid, and was successfully uploaded.<br />";

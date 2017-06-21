@@ -28,7 +28,6 @@ if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
       //  sqlquery_checked("UPDATE login SET Password=PASSWORD('".$_POST['pwd']."') WHERE UserID='".$_POST['usr']."'");
       //}
       $hostarray = explode(".",$_SERVER['HTTP_HOST']);
-      $_SESSION['client'] = $hostarray[0];
       $_SESSION['userid'] = $user->UserID;
       $_SESSION['username'] = $user->UserName;
       $_SESSION['categories'] = $user->Categories;
@@ -78,7 +77,6 @@ if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
   <title>KizunaDB Login</title>
 <?php
 $hostarray = explode(".",$_SERVER['HTTP_HOST']);
-$_SESSION['client'] = $hostarray[0];
 ?>
   <link rel="stylesheet" type="text/css" href="style.php?page=<?=$_SERVER['PHP_SELF']?>&jquery=1" />
   <style>

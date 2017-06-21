@@ -21,7 +21,7 @@ if ($_POST['csvfile']) {
   "SELECT * FROM uploadtype WHERE Extension='$ext'");
   $type = mysqli_fetch_object($result);
 
-  $filepath = "/var/www/".$_SESSION['client']."/uploads/u".$_GET['uid'].".$ext";
+  $filepath = CLIENT_PATH."/uploads/u".$_GET['uid'].".$ext";
   //echo "<pre>".print_r($_SESSION,TRUE);
   //die($filepath);
   if (!is_file($filepath)) {

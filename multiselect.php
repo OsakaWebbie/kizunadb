@@ -36,7 +36,7 @@ if (isset($_GET['pspid'])) {
   list($psid,$psnum) = explode(":",$_GET['ps']);
   $tempres = sqlquery_checked("SELECT Pids,Client FROM kizuna_common.preselect WHERE PSID='$psid'");
   $psobj = mysqli_fetch_object($tempres);
-  if ($psobj && $_SESSION['client']==$psobj->Client && $psobj->Pids!="") $preselected = $psobj->Pids;
+  if ($psobj && CLIENT==$psobj->Client && $psobj->Pids!="") $preselected = $psobj->Pids;
 } else if (isset($_REQUEST['preselected']) && $_REQUEST['preselected']!="") {
   $preselected = $_REQUEST['preselected'];
   $psnum = substr_count($preselected,",")+1;

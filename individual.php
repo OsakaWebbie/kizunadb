@@ -155,7 +155,7 @@ if ($newupload) {
     } else {
       sqlquery_checked("INSERT INTO upload(PersonID,UploadTime,FileName,Description)"."VALUES($pid,NOW(),'".h2d($_FILES['uploadfile']['name'])."','".h2d($_POST['uploaddesc'])."')");
       $uid = mysqli_insert_id($db);
-      if (!move_uploaded_file($_FILES['uploadfile']['tmp_name'], "/var/www/".$_SESSION['client']."/uploads/u$uid.$ext")) {
+      if (!move_uploaded_file($_FILES['uploadfile']['tmp_name'], CLIENT_PATH."/uploads/u$uid.$ext")) {
         sqlquery_checked("DELETE FROM upload WHERE UploadID=$uid");
         echo "File upload failed.  Here's some debugging info:\n<pre>";
         print_r($_FILES);
@@ -189,7 +189,7 @@ if ($newupload) {
 
 // A REQUEST TO DELETE AN UPLOADED FILE?
 if ($delupload) {
-  if (!unlink("/var/www/".$_SESSION['client']."/uploads/u".$_POST['uid'].".".$_POST['ext'])) die("Failed to delete file.");
+  if (!unlink(CLIENT_PATH."/uploads/u".$_POST['uid'].".".$_POST['ext'])) die("Failed to delete file.");
   $result = sqlquery_checked("DELETE FROM upload WHERE UploadID=".$_POST['uid']);
   header("Location: individual.php?pid=".$_POST['pid']."#uploads");
   exit;

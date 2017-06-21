@@ -31,11 +31,11 @@ $(document).ready(function(){
     $('#dform').attr({target:$('input[name=ftarget]:checked').val()});
   });
   $("#show_list").click(function(){
-    $('#dform').attr({action:"donation_list<?=($_SESSION['userid']=="karen" && $_SESSION['client']=="dev"?"_new":"")?>.php?nav="+(($('input[name=ftarget]:checked').val()=="_blank")?"1":"0")});
+    $('#dform').attr({action:"donation_list<?=($_SESSION['userid']=="karen" && CLIENT=="dev"?"_new":"")?>.php?nav="+(($('input[name=ftarget]:checked').val()=="_blank")?"1":"0")});
     $('#dform').submit();
   });
   $("#show_summary").click(function(){
-    $('#dform').attr({action:"donation_list<?=($_SESSION['userid']=="karen" && $_SESSION['client']=="dev"?"_new":"")?>.php?nav="+(($('input[name=ftarget]:checked').val()=="_blank")?"1":"0")});
+    $('#dform').attr({action:"donation_list<?=($_SESSION['userid']=="karen" && CLIENT=="dev"?"_new":"")?>.php?nav="+(($('input[name=ftarget]:checked').val()=="_blank")?"1":"0")});
     $('#dform').submit();
   });
   $("#show_pledges").click(function(){

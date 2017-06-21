@@ -7,7 +7,7 @@ $mime_map = array(
   'jpg' => 'image/jpeg',
   'png' => 'image/png',
 );
-$fullpath = "/var/www/".$_SESSION['client']."/".$_GET['f'];
+$fullpath = CLIENT_PATH."/".$_GET['f'];
 if(!is_file($fullpath)) {  //if there is no client version, check for a default
   if (is_file($_GET['f'])) {
     $fullpath = $_GET['f'];  //found default (relative path), so set path to that
