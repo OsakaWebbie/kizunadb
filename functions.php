@@ -251,8 +251,7 @@ include($connectfile);
 $db = mysqli_connect("localhost", "kizuna_".CLIENT, $pass, "kizuna_".CLIENT)
     or die("Failed to connect to database. Notify the developer.");
 
-// not sure if this is needed anymore, but...
-//mysqli_set_charset($db, "utf8");
+mysqli_set_charset($db, "utf8");
 
 // Set internal character encoding to UTF-8
 //die('current internal_encoding is '.mb_internal_encoding().' and current regex_encoding is '.mb_regex_encoding());
