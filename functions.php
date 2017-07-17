@@ -245,10 +245,10 @@ $hostarray = explode(".",$_SERVER['HTTP_HOST']);
 define('CLIENT',$hostarray[0]);
 define('CLIENT_PATH',"/var/www/kizunadb/client/".CLIENT);
 // Get client login credentials and connect to client database
-$connectfile = CLIENT_PATH."/kizuna_connect.php";
-if (!is_readable($connectfile)) die("No database connection credentials. Notify the developer.");
-include($connectfile);
-$db = mysqli_connect("localhost", "kizuna_".CLIENT, $pass, "kizuna_".CLIENT)
+$configfile = CLIENT_PATH."/kizunadb.ini";
+if (!is_readable($configfile)) die("No configuration file. Notify the developer.");
+$config = parse_ini_file($configfile);
+$db = mysqli_connect("localhost", "kizuna_".CLIENT, $config['password'], "kizuna_".CLIENT)
     or die("Failed to connect to database. Notify the developer.");
 
 mysqli_set_charset($db, "utf8");
