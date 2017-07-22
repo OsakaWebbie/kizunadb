@@ -101,7 +101,7 @@ case "Event":
   break;
 case "Login":
   if (isset($_REQUEST['userid']) && $_REQUEST['userid']!="") {
-    $result = sqlquery_checked("SELECT * FROM login WHERE UserID='".$_REQUEST['userid']."'");
+    $result = sqlquery_checked("SELECT * FROM user WHERE UserID='".$_REQUEST['userid']."'");
     if (mysqli_num_rows($result)>0) {
       $row = mysqli_fetch_object($result);
       $arr = array("userid" => $row->UserID, "new_userid" => $row->UserID, "old_userid" => $row->UserID,

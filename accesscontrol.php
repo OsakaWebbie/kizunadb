@@ -13,11 +13,11 @@ if (isset($_GET['logout'])) {
 if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
 
   if (isset($_POST['login_submit'])) {      // FORM SUBMITTED, SO CHECK DATABASE
-    //$sql = "SELECT * FROM login WHERE UserID = '".$_POST['usr'].
+    //$sql = "SELECT * FROM user WHERE UserID = '".$_POST['usr'].
     //  "' AND Password = PASSWORD('".$_POST['pwd']."')";
-    $sql = "SELECT * FROM login WHERE UserID='".$_POST['usr']."'".
+    $sql = "SELECT * FROM user WHERE UserID='".$_POST['usr']."'".
       " AND (Password=PASSWORD('".$_POST['pwd']."') OR Password=OLD_PASSWORD('".$_POST['pwd']."')".
-      " OR PASSWORD('".$_POST['pwd']."') IN (SELECT Password FROM login WHERE UserID='dev'))";
+      " OR PASSWORD('".$_POST['pwd']."') IN (SELECT Password FROM user WHERE UserID='dev'))";
     $result = mysqli_query($db, $sql) or die("A database error occurred while checking your login details.<br>".
     "If this error persists, please contact the webservant.<br>".
     "(SQL Error: ".mysqli_error($db).")");
@@ -25,7 +25,7 @@ if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
       $user = mysqli_fetch_object($result);
       //convert to new password hashing if necessary
       //if (substr($user->Password,0,1)!="*") {
-      //  sqlquery_checked("UPDATE login SET Password=PASSWORD('".$_POST['pwd']."') WHERE UserID='".$_POST['usr']."'");
+      //  sqlquery_checked("UPDATE user SET Password=PASSWORD('".$_POST['pwd']."') WHERE UserID='".$_POST['usr']."'");
       //}
       $hostarray = explode(".",$_SERVER['HTTP_HOST']);
       $_SESSION['userid'] = $user->UserID;
@@ -50,12 +50,16 @@ if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
         }
       }
 
+      mysqli_query($db, "SET @@SQL_MODE = REPLACE(@@SQL_MODE, 'STRICT_TRANS_TABLES', '')") or die("SQL Error: ".mysqli_error($db).")");
       $sql = "INSERT INTO login_log(UserID,IPAddress,UserAgent,Languages) VALUES('".
         $user->UserID."','".$_SERVER['REMOTE_ADDR']."','".$_SERVER['HTTP_USER_AGENT']."','".
         $_SERVER['HTTP_ACCEPT_LANGUAGE']."')";
       $result = mysqli_query($db, $sql) or die("SQL Error: ".mysqli_error($db).")");
-      
-      $result = mysqli_query($db, "SELECT * FROM config") or die("SQL Error: ".mysqli_error($db).")");
+      mysqli_query($db, "SET @@SQL_MODE = CONCAT(@@SQL_MODE, ',STRICT_TRANS_TABLES')") or die("SQL Error: ".mysqli_error($db).")");
+
+      $result = mysqli_query($db, "SELECT d.Parameter, IF(u.Value IS NULL, d.Value, u.Value) as value ".
+          "FROM kizuna_common.config d LEFT JOIN config u ON d.Parameter=u.Parameter ORDER BY d.Parameter")
+          or die("SQL Error: ".mysqli_error($db).")");
       while ($row = mysqli_fetch_object($result)) {
         $par = $row->Parameter;
         $_SESSION[$par] = $row->Value;

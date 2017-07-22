@@ -251,7 +251,7 @@ $config = parse_ini_file($configfile);
 $db = mysqli_connect("localhost", "kizuna_".CLIENT, $config['password'], "kizuna_".CLIENT)
     or die("Failed to connect to database. Notify the developer.");
 
-mysqli_set_charset($db, "utf8");
+mysqli_set_charset($db, "utf8mb4");
 
 // Set internal character encoding to UTF-8
 //die('current internal_encoding is '.mb_internal_encoding().' and current regex_encoding is '.mb_regex_encoding());

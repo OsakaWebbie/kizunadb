@@ -2,7 +2,7 @@
 include("functions.php");
 include("accesscontrol.php");
 
-$result = sqlquery_checked("SELECT Language FROM login WHERE UserID='".$_SESSION['userid']."'");
+$result = sqlquery_checked("SELECT Language FROM user WHERE UserID='".$_SESSION['userid']."'");
 $row = mysqli_fetch_object($result);
 $default_lang = $row->Language;
 header1(_("User Settings"));

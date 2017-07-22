@@ -567,9 +567,9 @@ body.maintenance form select { margin: 0px 10px 6px 0; }
 body.maintenance p { margin-bottom: 8px; }
 body.maintenance input#userid { display:block; }
 body.maintenance form#pcform span.romaji { display:block; }
-body.maintenance form#loginform span.new_userid { display:block; }
-body.maintenance form#loginform span.new_pw1 { display:block; }
-body.maintenance form#loginform span.new_pw2 { display:block; }
+body.maintenance form#userform span.new_userid { display:block; }
+body.maintenance form#userform span.new_pw1 { display:block; }
+body.maintenance form#userform span.new_pw2 { display:block; }
 body.maintenance form#ctform span.ctcolor_button { display:block; }
 body.maintenance form#dtform span.dtcolor_button { display:block; }
 

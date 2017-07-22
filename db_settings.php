@@ -164,7 +164,7 @@ $(document).ready(function(){
       $("#language").val($_SESSION['lang']);
       $("#admin").prop("checked", true);
       $("#hidedonations").prop("checked", <?=($_SESSION['hidedonations_default']=="yes" ? "true" : "false")?>);
-      $("#login_del").prop('disabled', true);
+      $("#user_del").prop('disabled', true);
     } else {
       showSpinner($('#userid'));
       $.getJSON("ajax_request.php?req=Login&userid="+$('#userid').val(), function(data) {
@@ -173,9 +173,9 @@ $(document).ready(function(){
           alert("<?=_("Your login has timed out - please refresh the page.")?>");
         } else {
           $("#admin,#hidedonations").prop("checked", false);
-          $('#loginform').populate(data, {resetForm:false});
+          $('#userform').populate(data, {resetForm:false});
           $("#language").val(data.language);
-          $("#login_del").prop('disabled', false);
+          $("#user_del").prop('disabled', false);
         }
       });
     }
@@ -222,17 +222,17 @@ function validate(form) {
       return false;
     }
     break;
-  case "login":
-    if (document.loginform.username.value == "") {
+  case "user":
+    if (document.userform.username.value == "") {
       alert("<?=_("User Name cannot be blank.")?>");
       return false;
-    } else if (document.loginform.new_userid.value == "") {
+    } else if (document.userform.new_userid.value == "") {
       alert("<?=_("UserID cannot be blank.")?>");
       return false;
-    } else if (document.loginform.userid.selectedIndex == 0 && document.loginform.new_pw1.value == "") {
+    } else if (document.userform.userid.selectedIndex == 0 && document.userform.new_pw1.value == "") {
       alert("<?=_("You must enter a password for a new user.")?>");
       return false;
-    } else if (document.loginform.new_pw1.value != "" && document.loginform.new_pw1.value != document.loginform.new_pw2.value) {
+    } else if (document.userform.new_pw1.value != "" && document.userform.new_pw1.value != document.userform.new_pw2.value) {
       alert("<?=_("The two password entries don't match.")?>");
       return false;
     }
@@ -385,14 +385,14 @@ if ($_SESSION['admin'] == 1) {
 ?>
 <!-- LOGIN USERS -->
 
-<form action="do_maint.php" method="post" name="loginform" id="loginform" autocomplete="off" onSubmit="return validate('login');">
+<form action="do_maint.php" method="post" name="userform" id="userform" autocomplete="off" onSubmit="return validate('user');">
   <fieldset><legend><?=_("User (Login) Management")?></legend>
   <p><?=_("Fill in the information to add a new user.  Or select an existing user to make changes or delete.".
   "NOTE: You cannot see the existing password, but you can enter a new one if the user forgot his/her password.")?></p>
   <select id="userid" name="userid" size="1">
     <option value="new"><?=_("New User...")?></option>
 <?php
-$result = sqlquery_checked("SELECT UserID,UserName FROM login ORDER BY UserName");
+$result = sqlquery_checked("SELECT UserID,UserName FROM user ORDER BY UserName");
 while ($row = mysqli_fetch_object($result))  echo "    <option value=\"".$row->UserID."\">".$row->UserName."</option>\n";
 ?>
   </select>
@@ -418,8 +418,8 @@ while ($row = mysqli_fetch_object($result))  echo "    <option value=\"".$row->U
   id="new_pw2" name="new_pw2" style="width:10em"></label><br />
   <label class="label-n-input"><?=_("PHP for Dashboard Head")?>: <textarea id="dashboardhead" name="dashboardhead" style="height:3em;width:70%"></textarea></label>
   <label class="label-n-input"><?=_("PHP for Dashboard Body")?>: <textarea id="dashboardbody" name="dashboardbody" style="height:3em;width:70%"></textarea></label>
-  <br /><input type="submit" id="login_add_upd" name="login_add_upd" value="<?=_("Add or Update")?>">
-  <input type="submit" id="login_del" name="login_del" value="<?=_("Delete")?>" disabled>
+  <br /><input type="submit" id="user_add_upd" name="user_add_upd" value="<?=_("Add or Update")?>">
+  <input type="submit" id="user_del" name="user_del" value="<?=_("Delete")?>" disabled>
 </fieldset></form>
 <?php
 } //end of if admin=1

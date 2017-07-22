@@ -15,7 +15,7 @@ if (!$_SESSION['hasdashboard']) {
   echo "<h3>"._("You don't have a dashboard yet.  If you would like one, talk to your KizunaDB administrator.")."</h3>\n";
   footer();
 } else {
-  $result = sqlquery_checked("SELECT DashboardHead,DashboardBody FROM login WHERE UserID='".$_SESSION['userid']."'");
+  $result = sqlquery_checked("SELECT DashboardHead,DashboardBody FROM user WHERE UserID='".$_SESSION['userid']."'");
   $code = mysqli_fetch_object($result);
   eval($code->DashboardHead);
   header2(1);

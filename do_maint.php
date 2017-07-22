@@ -262,7 +262,7 @@ thru %s."),$attend_num, $attend_first, $attend_last);
   
 // ********** MY USER  **********
 } elseif ($_POST['user_upd']) {
-  sqlquery_checked("UPDATE login set Language = '".$_POST['language']."' WHERE UserID = '".$_SESSION['userid']."'"); 
+  sqlquery_checked("UPDATE user set Language = '".$_POST['language']."' WHERE UserID = '".$_SESSION['userid']."'");
   if (mysqli_affected_rows($db) == 1) {
     $_SESSION['lang'] = $_POST['language'];
     setlocale(LC_ALL, $_SESSION['lang'].".utf8");
@@ -271,31 +271,31 @@ thru %s."),$attend_num, $attend_first, $attend_last);
 
 // ********** MY PASSWORD  **********
 } elseif ($_POST['pw_upd']) {
-  $result = sqlquery_checked("SELECT * FROM login WHERE UserID = '".$_SESSION['userid']."'".
+  $result = sqlquery_checked("SELECT * FROM user WHERE UserID = '".$_SESSION['userid']."'".
     " AND (Password=PASSWORD('".$_POST['old_pw']."') OR Password=OLD_PASSWORD('".$_POST['old_pw']."'))");
   if (mysqli_num_rows($result) == 0) {
     $message = _("Sorry, but your old password entry was incorrect, so the password was not changed.");
   } elseif ($new_pw1 != $new_pw2) {
     $message = _("Sorry, but the two entries for the new password did not match. Password not changed.");
   } else {
-    sqlquery_checked("UPDATE login set Password = PASSWORD('$new_pw1') WHERE UserID = '".$_SESSION['userid']."'"); 
+    sqlquery_checked("UPDATE user set Password = PASSWORD('$new_pw1') WHERE UserID = '".$_SESSION['userid']."'");
     if (mysqli_affected_rows($db) == 1) {
       $message = _("Password successfully changed.");
     }
   }
 
 // ********** LOGIN  **********
-} elseif ($_POST['login_add_upd']) {
+} elseif ($_POST['user_add_upd']) {
   $adm = $_POST['admin'] ? "1" : "0";
   $hd = $_POST['hidedonations'] ? "1" : "0";
   if ($_POST['userid'] == "new") {
-    $result = sqlquery_checked("SELECT UserName FROM login WHERE UserID='".$_POST['new_userid']."'");
+    $result = sqlquery_checked("SELECT UserName FROM user WHERE UserID='".$_POST['new_userid']."'");
     if (mysqli_num_rows($result) > 0) {
       $row = mysqli_fetch_object($result);
       $message = sprintf(_("UserID '%s' is already in use by %s. Please choose a different UserID."),
           $new_userid, $row->UserName);
     } else {
-      sqlquery_checked("INSERT INTO login (UserID,UserName,Password,Admin,Language,HideDonations,DashboardHead,DashboardBody) ".
+      sqlquery_checked("INSERT INTO user (UserID,UserName,Password,Admin,Language,HideDonations,DashboardHead,DashboardBody) ".
       "VALUES ('".$_POST['new_userid']."','".h2d($_POST['username'])."',PASSWORD('".$_POST['new_pw1']."'),$adm,".
       "'".$_POST['language']."',$hd,'".h2d($_POST['dashboardhead'])."','".h2d($_POST['dashboardbody'])."')");
       if (mysqli_affected_rows($db) == 1) {
@@ -303,13 +303,13 @@ thru %s."),$attend_num, $attend_first, $attend_last);
       }
     }
   } else { //update
-    $result = sqlquery_checked("SELECT UserName FROM login WHERE UserID='".$_POST['new_userid']."'");
+    $result = sqlquery_checked("SELECT UserName FROM user WHERE UserID='".$_POST['new_userid']."'");
     if ($new_userid != $old_userid && mysqli_num_rows($result) > 0) {
       $row = mysqli_fetch_object($result);
       $message = sprintf(_("UserID '%s' is already in use by %s. Please choose a different UserID."),
           $_POST['new_userid'], $row->UserName);
     } else {
-      $sql = "UPDATE login SET ";
+      $sql = "UPDATE user SET ";
       if ($_POST['new_userid'] != $_POST['old_userid']) {
         $sql .= "UserID='".$_POST['new_userid']."',";
       }
@@ -333,9 +333,9 @@ thru %s."),$attend_num, $attend_first, $attend_last);
       }
     }
   }
-} elseif ($_POST['login_del']) {
+} elseif ($_POST['user_del']) {
 
-  sqlquery_checked("DELETE FROM login WHERE UserID='{$_POST['old_userid']}'");
+  sqlquery_checked("DELETE FROM user WHERE UserID='{$_POST['old_userid']}'");
   if (mysqli_affected_rows($db) == 1) {
     $message = _("User successfully deleted.");
   }
