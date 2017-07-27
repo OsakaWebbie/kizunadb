@@ -61,7 +61,7 @@ if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
           or die("SQL Error: ".mysqli_error($db).")");
       while ($row = mysqli_fetch_object($result)) {
         $par = $row->Parameter;
-        $_SESSION[$par] = $row->Value;
+        $_SESSION[$par] = $row->value;
       }
       if ($_SESSION['donations'] == "yes" && $user->HideDonations == 1) $_SESSION['donations'] = "";
     } else {     // INFORM USER OF FAILED LOGIN

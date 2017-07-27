@@ -18,8 +18,8 @@ if ($_POST['listtype'] == "Normal") {
   $cols[] = array("address",1);
   $cols[] = array("remarks",1);
 }
-$cols[] = array("cdate",1);
-if ($_POST['listtype'] != "ActionType") $cols[] = array("ctype",1);
+$cols[] = array("adate",1);
+if ($_POST['listtype'] != "ActionType") $cols[] = array("atype",1);
 $cols[] = array("desc",1);
 if ($_POST['listtype'] == "Normal") $cols[] = array("selectcol",0);
 $colsHidden = $hideInList = "";
@@ -44,8 +44,8 @@ if ($_POST['listtype'] == "Normal") {
   $tableheads .= "<th class=\"address\">"._("Address")."</th>\n";
   $tableheads .= "<th class=\"remarks\">"._("Remarks")."</th>\n";
 }
-$tableheads .= "<th class=\"cdate\">"._("Date")."</th>\n";
-if ($_POST['listtype'] != "ActionType") $tableheads .= "<th class=\"ctype\">"._("Action Type")."</th>\n";
+$tableheads .= "<th class=\"adate\">"._("Date")."</th>\n";
+if ($_POST['listtype'] != "ActionType") $tableheads .= "<th class=\"atype\">"._("Action Type")."</th>\n";
 $tableheads .= "<th class=\"desc\">"._("Description")."</th>\n";
 if ($_POST['listtype'] == "Normal") $tableheads .= "<th id=\"thSelectColumn\" class=\"selectcol\">".
     "<ul id=\"ulSelectColumn\"><li><img src=\"graphics/selectcol.png\" alt=\"select columns\" ".
@@ -60,13 +60,13 @@ $tableheads .= "</th>\n";
 <script type="text/javascript" src="js/jquery.clickmenu.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
-  $("#ctable").tablesorter({
+  $("#atable").tablesorter({
     sortList:[[3,0],[8,1]],
     headers:{<?=(count($cols)-1)?>:{sorter:false}}
   });
   $(".grouptable").tablesorter({ sortList:[[0,<?=($_POST['listtype']=="PersonID"?"1":"0],[1,1")?>]] });
 
-  $('#ctable').columnManager({listTargetID:'targetall',
+  $('#atable').columnManager({listTargetID:'targetall',
   onClass: 'advon',
   offClass: 'advoff',
   hideInList: [<?=$hideInList?>],
@@ -78,7 +78,7 @@ $(document).ready(function() {
 function getCSV() {
   $(".name-for-display, .selectcol").hide();
   $(".name-for-csv, .furigana-for-csv").show();
-  $('#csvtext').val($('#ctable').table2CSV({delivery:'value'}));
+  $('#csvtext').val($('#atable').table2CSV({delivery:'value'}));
   $(".name-for-csv, .furigana-for-csv").hide();
   $(".name-for-display, .selectcol").show();
 }
@@ -88,7 +88,7 @@ header2($_GET['nav']);
 if ($_GET['nav']==1) echo "<h1 id=\"title\">"._("Action List").($_POST['preselected']!="" ?
 sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($_POST['preselected'],",")+1) : "")."</h1>\n";
 
-if ($_POST['ctype']) $where .= ($where?" AND":" WHERE")." a.ActionTypeID IN (".implode(",",$_POST['ctype']).")";
+if ($_POST['atype']) $where .= ($where?" AND":" WHERE")." a.ActionTypeID IN (".implode(",",$_POST['atype']).")";
 if ($_POST['startdate']) $where .= ($where?" AND":" WHERE")." ActionDate >= '".$_POST['startdate']."'";
 if ($_POST['enddate']) $where .= ($where?" AND":" WHERE")." ActionDate <= '".$_POST['enddate']."'";
 if ($_POST['csearch']) $where .= ($where?" AND":" WHERE")." Description LIKE '%".$_POST['csearch']."%'";
@@ -122,7 +122,7 @@ $pids = implode(",",$pidarray);
 </div>
 <?php
 if ($_POST['listtype'] == "Normal") {
-  $tablestart = "<table id=\"ctable\" class=\"tablesorter\">\n";
+  $tablestart = "<table id=\"atable\" class=\"tablesorter\">\n";
 } else {
   $tablestart = "<table class=\"grouptable tablesorter\">\n";
 }
@@ -177,9 +177,9 @@ while ($row = mysqli_fetch_object($result)) {
     echo "<td class=\"address\">".$row->PostalCode.$row->Prefecture.$row->ShiKuCho.db2table($row->Address)."</td>\n";
     echo "<td class=\"remarks\">".email2link(url2link(d2h($row->Remarks)))."</td>\n";
   }
-  echo "<td class=\"cdate\">".$row->ActionDate."</td>\n";
+  echo "<td class=\"adate\">".$row->ActionDate."</td>\n";
   if ($_POST['listtype'] != "ActionType") {
-    echo "<td class=\"ctype\" style=\"background-color:".$row->BGColor."\">".$row->ActionType."</td>\n";
+    echo "<td class=\"atype\" style=\"background-color:".$row->BGColor."\">".$row->ActionType."</td>\n";
   }
   echo "<td class=\"desc\">".$row->Description."</td>\n";
   if ($_POST['listtype'] == "Normal") echo "<td class=\"selectcol\">-</td>\n";
@@ -190,7 +190,8 @@ while ($row = mysqli_fetch_object($result)) {
   }
 }
 echo "</tbody></table>\n";
-echo $_SESSION['userid']=="karen"?"<pre class=\"noprint\">".$sql."</pre>":"";
+echo $_SESSION['userid']=="dev"?"<pre class=\"noprint\">".$sql."</pre>":"";
 
+print_r($_SESSION['actionlist_showcols']);
 footer();
 ?>

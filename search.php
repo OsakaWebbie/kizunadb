@@ -293,5 +293,6 @@ alert("preselected = #"+$('#preselected')+value+"#");
 });
 </script>
 <?php
+echo "<pre>".print_r($_SESSION,true)."</pre>";
 footer();
 ?>

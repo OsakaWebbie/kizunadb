@@ -64,7 +64,7 @@ while ($row = mysqli_fetch_object($result)) {
     <label class="label-n-input"><?=_("Search")?>: <input type="text" name="csearch" style="width:10em"></label>
     <input type="button" id="show_actions" name="show_actions" value="<?=_("Show List")?>">
   </div>
-  <p><?=sprintf(_("Show in: %sframe below&nbsp; %snew window"),
+  <p style="clear:both"><?=sprintf(_("Show in: %sframe below&nbsp; %snew window"),
   "<input type=\"radio\" id=\"radio_frame\" name=\"ftarget\" value=\"ResultFrame\" checked>",
   "<input type=\"radio\" id=\"radio_window\" name=\"ftarget\" value=\"_blank\">")?></p>
 </form>
