@@ -91,7 +91,7 @@ $(document).ready(function(){
     }
   });
 
-// AJAX call for Contact Types
+// AJAX call for Action Types
   $("#ctypeid").change(function(){
     if ($("#ctypeid").val() == "new") {
       $("#ctype").val("");
@@ -105,7 +105,7 @@ $(document).ready(function(){
         if (data.alert) {
           alert(data.alert);
         } else {
-          $('#ctform').populate(data, {resetForm:false});
+          $('#atform').populate(data, {resetForm:false});
           $("#ctcolor_button").css("background-color","#"+data.ctcolor);
           $("#ct_del").prop('disabled', false);
         }
@@ -217,8 +217,8 @@ function validate(form) {
     }
     break;
   case "ct":
-    if (document.ctform.ct.value == "") {
-      alert("<?=_("Contact Type name cannot be blank.")?>");
+    if (document.atform.at.value == "") {
+      alert("<?=_("Action Type name cannot be blank.")?>");
       return false;
     }
     break;
@@ -294,17 +294,17 @@ while ($row = mysqli_fetch_object($result))  echo "    <option value=\"".$row->C
 
 <!-- CONTACT TYPES -->
 
-<form action="do_maint.php" method="post" name="ctform" id="ctform" onSubmit="return validate('ct');">
-  <fieldset><legend><?=_("Contact Types")?></legend>
-  <p><?=_("Fill in the information to add a new Contact Type (the color is optional). Or select an existing entry to make changes or delete.")?></p>
+<form action="do_maint.php" method="post" name="atform" id="atform" onSubmit="return validate('ct');">
+  <fieldset><legend><?=_("Action Types")?></legend>
+  <p><?=_("Fill in the information to add a new Action Type (the color is optional). Or select an existing entry to make changes or delete.")?></p>
   <select id="ctypeid" name="ctypeid" size="1">
-    <option value="new"><?=_("New Contact Type...")?></option>
+    <option value="new"><?=_("New Action Type...")?></option>
 <?php
-$result = sqlquery_checked("SELECT * FROM contacttype ORDER BY ContactType");
-while ($row = mysqli_fetch_object($result))  echo "    <option value=\"".$row->ContactTypeID."\" style=\"background-color:#".$row->BGColor."\">".$row->ContactType."</option>\n";
+$result = sqlquery_checked("SELECT * FROM actiontype ORDER BY ActionType");
+while ($row = mysqli_fetch_object($result))  echo "    <option value=\"".$row->ActionTypeID."\" style=\"background-color:#".$row->BGColor."\">".$row->ActionType."</option>\n";
 ?>
   </select>
-  <label class="label-n-input"><?=_("Contact Type Name")?>: <input type="text"
+  <label class="label-n-input"><?=_("Action Type Name")?>: <input type="text"
   id="ctype" name="ctype" style="width:20em" maxlength="30"></label>
   <div class="color_section"><label class="label-n-input"><?=_("Optional background color (choose something light)")?>: <input
   name="ctcolor_button" id="ctcolor_button" type="button" value="<?=_("Click to pick a color...")?>">

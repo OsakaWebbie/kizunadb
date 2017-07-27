@@ -16,9 +16,9 @@ case "OrgName":
     }
   }
   break;
-case "ContactTemplate":
+case "ActionTemplate":
   if (isset($_REQUEST['ctid']) && $_REQUEST['ctid']!="") {
-    $result = sqlquery_checked("SELECT Template FROM contacttype WHERE ContactTypeID=".$_REQUEST['ctid']);
+    $result = sqlquery_checked("SELECT Template FROM actiontype WHERE ActionTypeID=".$_REQUEST['ctid']);
     if (mysqli_num_rows($result)>0) {
       $row = mysqli_fetch_object($result);
       echo $row->Template;
@@ -62,10 +62,10 @@ case "Category":
   break;
 case "CType":
   if (isset($_REQUEST['ctypeid']) && $_REQUEST['ctypeid']!="") {
-    $result = sqlquery_checked("SELECT * FROM contacttype WHERE ContactTypeID=".$_REQUEST['ctypeid']);
+    $result = sqlquery_checked("SELECT * FROM actiontype WHERE ActionTypeID=".$_REQUEST['ctypeid']);
     if (mysqli_num_rows($result)>0) {
       $row = mysqli_fetch_object($result);
-      $arr = array("ctypeid" => $row->ContactTypeID, "ctype" => $row->ContactType,
+      $arr = array("ctypeid" => $row->ActionTypeID, "ctype" => $row->ActionType,
       "ctcolor" => $row->BGColor, "cttemplate" => $row->Template);
       die (json_encode($arr));
     } else {

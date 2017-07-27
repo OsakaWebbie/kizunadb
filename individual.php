@@ -2,8 +2,8 @@
 include("functions.php");
 include("accesscontrol.php");
 $recent=10;
-$_SESSION['displaydefault_contactnum'] = 5;
-$_SESSION['displaydefault_contactsize'] = 200;
+$_SESSION['displaydefault_actionnum'] = 5;
+$_SESSION['displaydefault_actionsize'] = 200;
 
 // so that upload file timestamps always work as in Japan, rather than wherever the server is...
 sqlquery_checked("SET time_zone='+09:00'");
@@ -22,29 +22,29 @@ if ($_POST['newperorg']) {
 }
 
 // A REQUEST TO ADD A CONTACT RECORD?
-if ($newcontact) {
-  $result = sqlquery_checked("SELECT * FROM contact WHERE PersonID=${pid} AND ContactTypeID=${ctype} ".
-    "AND ContactDate='${date}' AND Description= '".h2d($desc)."'");
+if ($newaction) {
+  $result = sqlquery_checked("SELECT * FROM action WHERE PersonID=${pid} AND ActionTypeID=${ctype} ".
+    "AND ActionDate='${date}' AND Description= '".h2d($desc)."'");
   if (mysqli_num_rows($result) == 0) {  // making sure this isn't an accidental repeat entry
-    $result = sqlquery_checked("INSERT INTO contact(PersonID, ContactTypeID, ContactDate, Description) ".
+    $result = sqlquery_checked("INSERT INTO action(PersonID, ActionTypeID, ActionDate, Description) ".
         "VALUES($pid, $ctype, '$date', '".h2d($desc)."')");
-    header("Location: individual.php?pid=".$_POST['pid']."#contacts");
+    header("Location: individual.php?pid=".$_POST['pid']."#actions");
     exit;
   }
 }
 
 // A REQUEST TO DELETE A CONTACT RECORD?
-if ($delcontact) {
-  $result = sqlquery_checked("DELETE FROM contact WHERE ContactID=$cid");
-  header("Location: individual.php?pid=".$_POST['pid']."#contacts");
+if ($delaction) {
+  $result = sqlquery_checked("DELETE FROM action WHERE ActionID=$cid");
+  header("Location: individual.php?pid=".$_POST['pid']."#actions");
   exit;
 }
 
 // A REQUEST TO UPDATE A CONTACT RECORD?
-if ($editcontactsave) {
-  $result = sqlquery_checked("UPDATE contact SET ContactTypeID=$ctype, ContactDate='$date', ".
-    "Description='".h2d($desc)."' WHERE ContactID=$cid");
-  header("Location: individual.php?pid=".$_POST['pid']."#contacts");
+if ($editactionsave) {
+  $result = sqlquery_checked("UPDATE action SET ActionTypeID=$ctype, ActionDate='$date', ".
+    "Description='".h2d($desc)."' WHERE ActionID=$cid");
+  header("Location: individual.php?pid=".$_POST['pid']."#actions");
   exit;
 }
 
@@ -556,89 +556,89 @@ echo "</div>";
 //} // end of "if not organization"  (commented out because I'm considering letting orgs belong to orgs)
 ?>
 
-<!-- Contacts Section -->
+<!-- Actions Section -->
 
-<a name="contacts"></a>
+<a name="actions"></a>
 <div class="section">
 <?php
-echo "<h3 class=\"section-title\">"._("Contacts")."</h3>\n";
+echo "<h3 class=\"section-title\">"._("Actions")."</h3>\n";
 
   // FORM FOR ADD OR EDIT OF A CONTACT
-if ($editcontact) {   // A CONTACT IN THE TABLE IS TO BE EDITED
-  echo "<p class=\"alert\">"._("Edit fields as needed and press 'Save Contact Entry'")."</h3>";
+if ($editaction) {   // A CONTACT IN THE TABLE IS TO BE EDITED
+  echo "<p class=\"alert\">"._("Edit fields as needed and press 'Save Action Entry'")."</h3>";
 }
 ?>
-  <form name="contactform" id="contactform" method="post" action="<?=$_SERVER['PHP_SELF']."?pid=$pid"?>#contacts" onSubmit="return ValidateContact()">
+  <form name="actionform" id="actionform" method="post" action="<?=$_SERVER['PHP_SELF']."?pid=$pid"?>#actions" onSubmit="return ValidateAction()">
   <input type="hidden" name="pid" value="<?=$pid?>" />
-<?php if ($editcontact) echo "  <input type=\"hidden\" name=\"cid\" value=\"$cid\">\n"; ?>
-  <label class="label-n-input"><?=_("Date")?>: <input type="text" name="date" id="contactdate" style="width:6em"
-    value="<?=($editcontact ? $date : "")?>"></label>
+<?php if ($editaction) echo "  <input type=\"hidden\" name=\"cid\" value=\"$cid\">\n"; ?>
+  <label class="label-n-input"><?=_("Date")?>: <input type="text" name="date" id="actiondate" style="width:6em"
+    value="<?=($editaction ? $date : "")?>"></label>
 <?php
-$result = sqlquery_checked("SELECT * FROM contacttype ORDER BY ContactType");
+$result = sqlquery_checked("SELECT * FROM actiontype ORDER BY ActionType");
 echo "<label class=\"label-n-input\">"._("Type").": <select size=\"1\" id=\"ctype\" name=\"ctype\"><option value=\"NULL\">"._("Select...")."</option>\n";
 while ($row = mysqli_fetch_object($result)) {
-  echo "<option value=\"".$row->ContactTypeID."\"".(($editcontact && $row->ContactTypeID==$ctype)?
-        " selected":"")." style=\"background-color:#".$row->BGColor."\">".$row->ContactType."</option>\n";
+  echo "<option value=\"".$row->ActionTypeID."\"".(($editaction && $row->ActionTypeID==$ctype)?
+        " selected":"")." style=\"background-color:#".$row->BGColor."\">".$row->ActionType."</option>\n";
 }
 ?>
 </select></label>
-<textarea id="contactdesc" name="desc" class="expanding" wrap="virtual">
-<?php if ($editcontact) echo preg_replace("=<br */?>=i", "", $desc); ?></textarea>
-<?php if ($editcontact) {
-  echo "<input type=\"submit\" value=\""._("Save Changes")."\" name=\"editcontactsave\">";
+<textarea id="actiondesc" name="desc" class="expanding" wrap="virtual">
+<?php if ($editaction) echo preg_replace("=<br */?>=i", "", $desc); ?></textarea>
+<?php if ($editaction) {
+  echo "<input type=\"submit\" value=\""._("Save Changes")."\" name=\"editactionsave\">";
 } else {
-  echo "<input type=\"submit\" value=\""._("Save Contact Entry")."\" name=\"newcontact\">";
+  echo "<input type=\"submit\" value=\""._("Save Action Entry")."\" name=\"newaction\">";
 } ?>
 </form>
 
 <?php
 // TABLE OF CONTACT HISTORY
-$result = sqlquery_checked("SELECT c.ContactID,c.ContactTypeID,t.ContactType,ContactDate,".
-    "c.Description,t.BGColor FROM contact c,contacttype t WHERE c.ContactTypeID=t.ContactTypeID ".
-    "AND c.PersonID=$pid ORDER BY c.ContactDate DESC, ContactID DESC");
+$result = sqlquery_checked("SELECT a.ActionID,a.ActionTypeID,t.ActionType,ActionDate,".
+    "a.Description,t.BGColor FROM action a,actiontype t WHERE a.ActionTypeID=t.ActionTypeID ".
+    "AND a.PersonID=$pid ORDER BY a.ActionDate DESC, ActionID DESC");
 if (mysqli_num_rows($result) == 0) {
-  echo("<p>No previous contacts recorded.</p>");
+  echo("<p>No previous actions recorded.</p>");
 } else {
-  echo "<table id=\"contact-table\" class=\"tablesorter\" width=\"100%\" border=\"1\"><thead><tr>";
-  echo "<th>"._("Date")."</th><th>"._("Contact Type")."</th><th>"._("Description")."</th><th></th><th></th>\n";
+  echo "<table id=\"action-table\" class=\"tablesorter\" width=\"100%\" border=\"1\"><thead><tr>";
+  echo "<th>"._("Date")."</th><th>"._("Action Type")."</th><th>"._("Description")."</th><th></th><th></th>\n";
   echo "</tr></thead><tbody>\n";
   $rownum = 0;
   while ($row = mysqli_fetch_object($result)) {
     $rownum++;
-    if ($editcontact && ($row->ContactID==$cid)) {
+    if ($editaction && ($row->ActionID==$cid)) {
       $fcstart = "<span style=\"color:#FFFFFF\">";
       $fcend = "</span>";
     } else {
       $fcstart = $fcend = "";
     }
-    echo "<tr bgcolor=\"#".($editcontact&&($row->ContactID==$cid)?"404040":$row->BGColor)."\"";
-    if ($rownum > $_SESSION['displaydefault_contactnum']) echo " class=\"oldcontact\" style=\"display:none\"";
+    echo "<tr bgcolor=\"#".($editaction&&($row->ActionID==$cid)?"404040":$row->BGColor)."\"";
+    if ($rownum > $_SESSION['displaydefault_actionnum']) echo " class=\"oldaction\" style=\"display:none\"";
     echo "><td nowrap>".$fcstart;
-    echo $row->ContactDate."<span style=\"display:none\">".$row->ContactID."</span>".$fcend."</td>\n";
-    echo "<td nowrap>".$fcstart.$row->ContactType.$fcend."</td>\n";
+    echo $row->ActionDate."<span style=\"display:none\">".$row->ActionID."</span>".$fcend."</td>\n";
+    echo "<td nowrap>".$fcstart.$row->ActionType.$fcend."</td>\n";
     echo "<td>".$fcstart."<span class=\"readmore\">".url2link(d2h($row->Description))."</span>".$fcend."</td>\n";
-    echo "<form method=\"post\" action=\"${PHP_SELF}?pid=$pid#contacts\">\n";
+    echo "<form method=\"post\" action=\"${PHP_SELF}?pid=$pid#actions\">\n";
     echo "<td class=\"button-in-table\">";
     echo "<input type=\"hidden\" name=\"pid\" value=\"$pid\">";
-    echo "<input type=\"hidden\" name=\"cid\" value=\"$row->ContactID\">\n";
-    echo "<input type=\"hidden\" name=\"ctype\" value=\"$row->ContactTypeID\">";
-    echo "<input type=\"hidden\" name=\"date\" value=\"$row->ContactDate\">\n";
+    echo "<input type=\"hidden\" name=\"cid\" value=\"$row->ActionID\">\n";
+    echo "<input type=\"hidden\" name=\"ctype\" value=\"$row->ActionTypeID\">";
+    echo "<input type=\"hidden\" name=\"date\" value=\"$row->ActionDate\">\n";
     echo "<input type=\"hidden\" name=\"desc\" value=\"".d2h($row->Description)."\">\n";
-    echo "<input type=\"submit\" name=\"editcontact\" value=\""._("Edit")."\"></td></form>\n";
-    echo "<form method=\"post\" action=\"${PHP_SELF}?pid=$pid#contacts\" onSubmit=";
-    echo "\"return confirm('Are you sure you want to delete record of ".$row->ContactType;
-    echo " on ".$row->ContactDate."?')\">\n";
+    echo "<input type=\"submit\" name=\"editaction\" value=\""._("Edit")."\"></td></form>\n";
+    echo "<form method=\"post\" action=\"${PHP_SELF}?pid=$pid#actions\" onSubmit=";
+    echo "\"return confirm('Are you sure you want to delete record of ".$row->ActionType;
+    echo " on ".$row->ActionDate."?')\">\n";
     echo "<td class=\"button-in-table\">";
     echo "<input type=\"hidden\" name=\"pid\" value=\"$pid\">\n";
-    echo "<input type=\"hidden\" name=\"cid\" value=\"$row->ContactID\">";
-    echo "<input type=\"submit\" name=\"delcontact\" value=\""._("Del")."\">";
+    echo "<input type=\"hidden\" name=\"cid\" value=\"$row->ActionID\">";
+    echo "<input type=\"submit\" name=\"delaction\" value=\""._("Del")."\">";
     echo "</td>\n</form></tr>\n";
   }
   echo "</tbody></table>";
-  if (mysqli_num_rows($result) > $_SESSION['displaydefault_contactnum']) {
+  if (mysqli_num_rows($result) > $_SESSION['displaydefault_actionnum']) {
     echo "<div style=\"text-align:left\">";
-    echo "<button id=\"oldcontact_show\" onclick=\"$('#oldcontact_show').hide();$('.oldcontact').show();\">"._("Show Older Records Also")."</button>";
-    echo "<button class=\"oldcontact\" onclick=\"$('.oldcontact').hide();$('#oldcontact_show').show();\" style=\"display:none\">"._("Hide Older Records")."</button>";
+    echo "<button id=\"oldaction_show\" onclick=\"$('#oldaction_show').hide();$('.oldaction').show();\">"._("Show Older Records Also")."</button>";
+    echo "<button class=\"oldaction\" onclick=\"$('.oldaction').hide();$('#oldaction_show').show();\" style=\"display:none\">"._("Hide Older Records")."</button>";
     echo "</div>\n";
   }
 }
@@ -963,16 +963,16 @@ if($_SESSION['lang']=="ja_JP") {
   echo "  $.timepicker.setDefaults( $.timepicker.regional[\"ja\"] );\n";
 }
 ?>
-  $("#contactdate").datepicker({ dateFormat: 'yy-mm-dd' });
-  if ($("#contactdate").val()=="") $("#contactdate").datepicker('setDate', new Date());
+  $("#actiondate").datepicker({ dateFormat: 'yy-mm-dd' });
+  if ($("#actiondate").val()=="") $("#actiondate").datepicker('setDate', new Date());
   $("#donationdate").datepicker({ dateFormat: 'yy-mm-dd', maxDate: 0 });
-  if ($("#contactdate").val()=="") $("#donationdate").datepicker('setDate', new Date());
+  if ($("#actiondate").val()=="") $("#donationdate").datepicker('setDate', new Date());
   $("#attenddate").datepicker({ dateFormat: 'yy-mm-dd' });
   $("#attendenddate").datepicker({ dateFormat: 'yy-mm-dd' });
   $("#attendstarttime").timepicker();
   $("#attendendtime").timepicker();
 
-  $("#contact-table").tablesorter({ sortList:[[0,1]], headers:{3:{sorter:false},4:{sorter:false}} });
+  $("#action-table").tablesorter({ sortList:[[0,1]], headers:{3:{sorter:false},4:{sorter:false}} });
   $("#attend-table").tablesorter({ sortList:[[1,1]], headers:{3:{sorter:false}} });
   $("#upload-table").tablesorter({ sortList:[[0,1]], headers:{3:{sorter:false}} });
 
@@ -1006,15 +1006,15 @@ if($_SESSION['lang']=="ja_JP") {
     }
   });
 
-  $("#ctype").change(function(){  //insert template text in Contact description when applicable ContactType is selected
-    if (!$.trim($("#contactdesc").val())) {
-      $("#contactdesc").load("ajax_request.php",{'req':'ContactTemplate','ctid':$("#ctype").val()}, function() {
+  $("#ctype").change(function(){  //insert template text in Action description when applicable ActionType is selected
+    if (!$.trim($("#actiondesc").val())) {
+      $("#actiondesc").load("ajax_request.php",{'req':'ActionTemplate','ctid':$("#ctype").val()}, function() {
         $(this).change();
       });
     }
   });
 
-  $.fn.readmore.defaults.substr_len = <?=$_SESSION['displaydefault_contactsize'] ?>;
+  $.fn.readmore.defaults.substr_len = <?=$_SESSION['displaydefault_actionsize'] ?>;
   $.fn.readmore.defaults.more_link = '<a class="more"><?=_("[Read more]")?></a>';
   $(".readmore").readmore();
   
@@ -1088,19 +1088,19 @@ function ValidateOrg(){
   return true;
 }
 
-function ValidateContact(){
-  if ($('#contactdate').val() == '') {
+function ValidateAction(){
+  if ($('#actiondate').val() == '') {
     alert('<?=_("You must enter a date.")?>');
-    $('#contactdate').click();
+    $('#actiondate').click();
     return false;
   }
-  try { $.datepicker.parseDate('yy-mm-dd', $('#contactdate').val()); }
+  try { $.datepicker.parseDate('yy-mm-dd', $('#actiondate').val()); }
   catch(error) {
     alert('<?=_("Date is invalid.")?>');
     return false;
   }
-  if (document.contactform.ctype.selectedIndex == 0) {
-  alert('<?=_("You must select a Contact Type.")?>');
+  if (document.actionform.ctype.selectedIndex == 0) {
+  alert('<?=_("You must select a Action Type.")?>');
     return false;
   }
   return true;

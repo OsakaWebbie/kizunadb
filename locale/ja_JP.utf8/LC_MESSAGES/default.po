@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Contacts DB\n"
+"Project-Id-Version: KizunaDB\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-06-21 17:00+0900\n"
-"PO-Revision-Date: 2017-06-21 17:09+0900\n"
+"PO-Revision-Date: 2017-07-27 23:29+0900\n"
 "Last-Translator: Karen Ellrick <osakawebbie@gmail.com>\n"
 "Language-Team: Karen Ellrick\n"
 "Language: ja\n"
@@ -13,7 +13,7 @@ msgstr ""
 "X-Poedit-KeywordsList: _;gettext;gettext_noop\n"
 "X-Poedit-Basepath: ../../..\n"
 "X-Poedit-SourceCharset: UTF-8\n"
-"X-Generator: Poedit 2.0.1\n"
+"X-Generator: Poedit 2.0.3\n"
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: *.js\n"
 
@@ -42,7 +42,7 @@ msgid ""
 "internet."
 msgstr "郵便番号は見つかりませんでした。ウエブで番号を確認してください。"
 
-#: attend_aggregate.php:50 contact_chart.php:35 donation_list.php:58
+#: attend_aggregate.php:50 action_chart.php:35 donation_list.php:58
 #: functions.php:199 individual.php:245 list.php:289 ms_person_xml.php:112
 #: ms_person_xml.php:215 ms_person_xml.php:245 ms_person_xml.php:270
 #: selectorg.php:35
@@ -50,18 +50,18 @@ msgid "ID"
 msgstr "ID"
 
 #: attend_aggregate.php:51 attend_aggregate.php:52 attend_detail.php:206
-#: contact_chart.php:36 contact_chart.php:39 db_settings.php:400
+#: action_chart.php:36 action_chart.php:39 db_settings.php:400
 #: donation_list.php:13 donation_list.php:16 donation_list.php:59
 #: donation_list.php:63 donation_summary.php:39 household.php:111
 #: individual.php:246 individual.php:247 list.php:290 list.php:291
-#: ms_contact.php:59 ms_person_text.php:46 ms_person_xml.php:108
+#: ms_action.php:59 ms_person_text.php:46 ms_person_xml.php:108
 #: ms_person_xml.php:211 ms_person_xml.php:241 ms_person_xml.php:271
 #: overview.php:125 pledge_list.php:68 search.php:44 selectorg.php:36
 msgid "Name"
 msgstr "名前"
 
-#: attend_aggregate.php:51 attend_aggregate.php:52 contact_chart.php:37
-#: contact_chart.php:39 donation_list.php:15 donation_list.php:17
+#: attend_aggregate.php:51 attend_aggregate.php:52 action_chart.php:37
+#: action_chart.php:39 donation_list.php:15 donation_list.php:17
 #: donation_list.php:61 donation_list.php:64 edit.php:240 edit.php:395
 #: individual.php:246 individual.php:247 list.php:290 list.php:291
 #: ms_person_text.php:47 ms_person_text.php:48 ms_person_xml.php:109
@@ -72,8 +72,8 @@ msgstr "名前"
 msgid "Romaji"
 msgstr "ローマ字"
 
-#: attend_aggregate.php:51 attend_aggregate.php:52 contact_chart.php:37
-#: contact_chart.php:39 donation_list.php:15 donation_list.php:17
+#: attend_aggregate.php:51 attend_aggregate.php:52 action_chart.php:37
+#: action_chart.php:39 donation_list.php:15 donation_list.php:17
 #: donation_list.php:61 donation_list.php:64 edit.php:240 edit.php:395
 #: individual.php:246 individual.php:247 list.php:290 list.php:291
 #: ms_person_text.php:47 ms_person_text.php:48 ms_person_xml.php:109
@@ -89,19 +89,19 @@ msgstr "フリガナ"
 msgid "Photo"
 msgstr "写真"
 
-#: attend_aggregate.php:54 contact_chart.php:42 donation_list.php:67
+#: attend_aggregate.php:54 action_chart.php:42 donation_list.php:67
 #: get_duplicates.php:37 individual.php:249 list.php:293 overview.php:87
 #: search.php:46
 msgid "Phone"
 msgstr "電話番号"
 
-#: attend_aggregate.php:55 contact_chart.php:43 donation_list.php:68
+#: attend_aggregate.php:55 action_chart.php:43 donation_list.php:68
 #: edit.php:500 get_duplicates.php:39 household.php:111 individual.php:250
 #: individual.php:295 list.php:294 overview.php:73
 msgid "Email"
 msgstr "メールアドレス"
 
-#: attend_aggregate.php:56 contact_chart.php:44 donation_list.php:69
+#: attend_aggregate.php:56 action_chart.php:44 donation_list.php:69
 #: edit.php:462 household.php:85 individual.php:251 individual.php:316
 #: list.php:295 ms_person_text.php:49 ms_person_xml.php:113
 #: ms_person_xml.php:216 ms_person_xml.php:246 search.php:45 search.php:169
@@ -181,8 +181,8 @@ msgid " (Minimum attendance %d times)"
 msgstr "（参加 %d 回以上）"
 
 #: attend_aggregate.php:124 attend_datesums.php:6 attend_datesums.php:30
-#: attend_datesums.php:48 attend_detail.php:38 contact.php:6 contact.php:40
-#: contact_chart.php:4 contact_chart.php:89 donation_list.php:8
+#: attend_datesums.php:48 attend_detail.php:38 action.php:6 action.php:40
+#: action_chart.php:4 action_chart.php:89 donation_list.php:8
 #: donation_list.php:210 donations.php:6 donations.php:89 event_attend.php:5
 #: event_attend.php:69 list.php:239 list.php:264 pledge_list.php:6
 #: search.php:15 search.php:20
@@ -194,13 +194,13 @@ msgstr "（%d の人/団体のフィルター有効）"
 msgid "There are no attendance records matching your criteria."
 msgstr "この条件には、イベント参加のデータはありません。"
 
-#: attend_aggregate.php:148 attend_detail.php:169 contact_chart.php:114
+#: attend_aggregate.php:148 attend_detail.php:169 action_chart.php:114
 #: donation_list.php:282 individual.php:454 individual.php:516 list.php:318
 #: list.php:321
 msgid "Go to Multi-Select with these entries preselected"
 msgstr "この項目を選択される状態で、「複数作業」のページに移動"
 
-#: attend_aggregate.php:152 contact_chart.php:119 donation_list.php:290
+#: attend_aggregate.php:152 action_chart.php:119 donation_list.php:290
 #: list.php:326 sqlquery.php:65
 msgid "Download a CSV file of this table"
 msgstr "この表のCSVファイルをダウンロード"
@@ -226,7 +226,7 @@ msgstr "イベント"
 msgid "Attendance Detail Chart"
 msgstr "イベント参加の詳細"
 
-#: attend_detail.php:22 contact_chart.php:100 donation_list.php:237
+#: attend_detail.php:22 action_chart.php:100 donation_list.php:237
 msgid "There are no records matching your criteria."
 msgstr "この条件に合う項目はありません。"
 
@@ -289,87 +289,87 @@ msgstr "次 >"
 msgid "End of Range >>"
 msgstr "最後 >>"
 
-#: contact.php:5 contact.php:40 contact_chart.php:4 contact_chart.php:88
-msgid "Contact List"
-msgstr "コンタクト表"
+#: action.php:5 action.php:40 action_chart.php:4 action_chart.php:88
+msgid "Action List"
+msgstr "アクション表"
 
-#: contact.php:19 db_settings.php:285 do_maint.php:128 do_maint.php:192
+#: action.php:19 db_settings.php:285 do_maint.php:128 do_maint.php:192
 #: donations.php:19 event_attend.php:18 individual.php:578 individual.php:828
 #: ms_attendance.php:152 ms_custom.php:12 search.php:219
 msgid "Select..."
 msgstr "選択…"
 
-#: contact.php:20 donations.php:20 event_attend.php:19 search.php:220
+#: action.php:20 donations.php:20 event_attend.php:19 search.php:220
 msgid "# selected"
 msgstr "# 選択された"
 
-#: contact.php:21 donation_list.php:298 donations.php:21 event_attend.php:20
+#: action.php:21 donation_list.php:298 donations.php:21 event_attend.php:20
 #: search.php:221
 msgid "Check all"
 msgstr "全部にチェックを付ける"
 
-#: contact.php:22 donations.php:22 event_attend.php:21 search.php:222
+#: action.php:22 donations.php:22 event_attend.php:21 search.php:222
 msgid "Uncheck all"
 msgstr "全部にチェックを外す"
 
-#: contact.php:24 donations.php:24 event_attend.php:23 search.php:225
+#: action.php:24 donations.php:24 event_attend.php:23 search.php:225
 #: search.php:252
 msgid "Search:"
 msgstr "検索："
 
-#: contact.php:47 donations.php:129
+#: action.php:47 donations.php:129
 msgid "Continuous List (can sort freely)"
 msgstr "グループ無しの表（ソート可）"
 
-#: contact.php:48
-msgid "Group by Contact Type"
-msgstr "コンタクトタイプでまとめる"
+#: action.php:48
+msgid "Group by Action Type"
+msgstr "アクションタイプでまとめる"
 
-#: contact.php:49
+#: action.php:49
 msgid "Group by Person"
 msgstr "人/団体でまとめる"
 
-#: contact.php:51 contact_chart.php:48 individual.php:603 ms_contact.php:67
-msgid "Contact Type"
-msgstr "コンタクトタイプ"
+#: action.php:51 action_chart.php:48 individual.php:603 ms_action.php:67
+msgid "Action Type"
+msgstr "アクションタイプ"
 
-#: contact.php:59 donations.php:101 event_attend.php:73
+#: action.php:59 donations.php:101 event_attend.php:73
 #, php-format
 msgid "Optional Dates: after %s and/or before %s"
 msgstr "日付フィルター：　%sから、および、または %sまで"
 
-#: contact.php:64 functions.php:22 individual.php:421 individual.php:422
+#: action.php:64 functions.php:22 individual.php:421 individual.php:422
 #: ms_organization.php:47 ms_organization.php:48 search.php:15 search.php:20
 msgid "Search"
 msgstr "検索"
 
-#: contact.php:65
+#: action.php:65
 msgid "Show List"
 msgstr "表を表示"
 
-#: contact.php:67 donations.php:152 event_attend.php:94
+#: action.php:67 donations.php:152 event_attend.php:94
 #, php-format
 msgid "Show in: %sframe below&nbsp; %snew window"
 msgstr "%s下記の枠&nbsp; %s新規ウインドーに表示する"
 
-#: contact_chart.php:45 donation_list.php:71 edit.php:529 individual.php:257
+#: action_chart.php:45 donation_list.php:71 edit.php:529 individual.php:257
 #: individual.php:355 list.php:301 ms_person_text.php:67 ms_person_xml.php:130
 #: ms_person_xml.php:233 ms_person_xml.php:258 overview.php:92
 #: pledge_list.php:104 search.php:50 search.php:179
 msgid "Remarks"
 msgstr "備考"
 
-#: contact_chart.php:47 donation_list.php:55 individual.php:574
+#: action_chart.php:47 donation_list.php:55 individual.php:574
 #: individual.php:603 individual.php:664 individual.php:710 individual.php:837
-#: ms_attendance.php:168 ms_contact.php:76 overview.php:163 overview.php:190
+#: ms_attendance.php:168 ms_action.php:76 overview.php:163 overview.php:190
 #: overview.php:217
 msgid "Date"
 msgstr "日付"
 
-#: contact_chart.php:49 db_settings.php:378 donation_list.php:77
+#: action_chart.php:49 db_settings.php:378 donation_list.php:77
 #: edit_pledge.php:152 individual.php:603 individual.php:690 individual.php:710
-#: individual.php:792 individual.php:910 individual.php:922 ms_contact.php:59
-#: ms_contact.php:77 overview.php:165 overview.php:191 overview.php:218
+#: individual.php:792 individual.php:910 individual.php:922 ms_action.php:59
+#: ms_action.php:77 overview.php:165 overview.php:191 overview.php:218
 msgid "Description"
 msgstr "内容"
 
@@ -422,8 +422,8 @@ msgid "All fields must be filled in."
 msgstr "空白のフィールドはいけません。"
 
 #: db_settings.php:221
-msgid "Contact Type name cannot be blank."
-msgstr "コンタクトタイプの名前を入力してください。"
+msgid "Action Type name cannot be blank."
+msgstr "アクションタイプの名前を入力してください。"
 
 #: db_settings.php:227
 msgid "User Name cannot be blank."
@@ -524,24 +524,24 @@ msgid "Delete"
 msgstr "削除"
 
 #: db_settings.php:298 ms_person_xml.php:164
-msgid "Contact Types"
-msgstr "コンタクトタイプ"
+msgid "Action Types"
+msgstr "アクションタイプ"
 
 #: db_settings.php:299
 msgid ""
-"Fill in the information to add a new Contact Type (the color is optional). "
-"Or select an existing entry to make changes or delete."
+"Fill in the information to add a new Action Type (the color is optional). Or "
+"select an existing entry to make changes or delete."
 msgstr ""
-"新規コンタクトタイプの情報を入力する。または、タイプを選択したら、変更や削除"
+"新規アクションタイプの情報を入力する。または、タイプを選択したら、変更や削除"
 "できます。"
 
 #: db_settings.php:301
-msgid "New Contact Type..."
-msgstr "新規コンタクトタイプ…"
+msgid "New Action Type..."
+msgstr "新規アクションタイプ…"
 
 #: db_settings.php:307
-msgid "Contact Type Name"
-msgstr "コンタクトタイプの名前"
+msgid "Action Type Name"
+msgstr "アクションタイプの名前"
 
 #: db_settings.php:309 db_settings.php:340
 msgid "Optional background color (choose something light)"
@@ -726,51 +726,50 @@ msgid "Category Members"
 msgstr "カテゴリに入っている項目"
 
 #: do_maint.php:81
-msgid "New contact type successfully added."
-msgstr "コンタクトタイプを作成しました。"
+msgid "New action type successfully added."
+msgstr "アクションタイプを作成しました。"
 
 #: do_maint.php:86
-msgid "Contact Type information successfully updated."
-msgstr "コンタクトタイプのデータを変更しました。"
+msgid "Action Type information successfully updated."
+msgstr "アクションタイプのデータを変更しました。"
 
 #: do_maint.php:106
 #, php-format
-msgid "%s related contact records updated."
-msgstr "関係ある %s のコンタクト記録を変更しました。"
+msgid "%s related action records updated."
+msgstr "関係ある %s のアクション記録を変更しました。"
 
 #: do_maint.php:111
-msgid "Contact Type successfully deleted."
-msgstr "コンタクトタイプを削除しました。"
+msgid "Action Type successfully deleted."
+msgstr "アクションタイプを削除しました。"
 
 #: do_maint.php:122
-msgid "Please Confirm Contact Type Delete"
-msgstr "コンタクトタイプ削除の確認"
+msgid "Please Confirm Action Type Delete"
+msgstr "アクションタイプ削除の確認"
 
 #: do_maint.php:123
 #, php-format
 msgid ""
-"There are %s contact entries of this contact type.  If you delete this "
-"contact type, I must assign a different contact type to those contact "
-"entries."
+"There are %s action entries of this action type.  If you delete this action "
+"type, I must assign a different action type to those action entries."
 msgstr ""
-"このタイプには、%s のコンタクト記録あります。このコンタクトタイプを削除すれ"
-"ば、そのコンタクト記録を別のタイプに変更しなければなりません。"
+"このタイプには、%s のアクション記録あります。このアクションタイプを削除すれ"
+"ば、そのアクション記録を別のタイプに変更しなければなりません。"
 
 #: do_maint.php:124
 msgid ""
 " If you don't want to do this, just press your browser's Back button.  To "
-"reassign the contact entries, choose from the list below:"
+"reassign the action entries, choose from the list below:"
 msgstr ""
 "キャンセルしたい場合は、ブラウザの「戻る」ボタンをクリックしてください。別の"
 "種類に変更したい場合は、下記のリストから変更先の種類を選んでください。"
 
 #: do_maint.php:126
-msgid "New Contact Type"
-msgstr "新規コンタクトタイプ"
+msgid "New Action Type"
+msgstr "新規アクションタイプ"
 
 #: do_maint.php:133
-msgid "Yes, reassign the contact entries"
-msgstr "はい、コンタクト記録を変更したい"
+msgid "Yes, reassign the action entries"
+msgstr "はい、アクション記録を変更したい"
 
 #: do_maint.php:145
 msgid "New donation type successfully added."
@@ -1474,8 +1473,8 @@ msgstr "複数選択/作業"
 
 #: functions.php:25 individual.php:564 ms_person_xml.php:132 overview.php:160
 #: search.php:86
-msgid "Contacts"
-msgstr "コンタクト"
+msgid "Actions"
+msgstr "アクション"
 
 #: functions.php:27
 msgid "Donations &amp; Pledges"
@@ -1678,16 +1677,16 @@ msgstr ""
 "所属情報を記入のはできます。）"
 
 #: individual.php:568
-msgid "Edit fields as needed and press 'Save Contact Entry'"
-msgstr "編集してから、「コンタクト入力を保存」をクリックしてください。"
+msgid "Edit fields as needed and press 'Save Action Entry'"
+msgstr "編集してから、「アクション入力を保存」をクリックしてください。"
 
 #: individual.php:578 individual.php:792 overview.php:164
 msgid "Type"
 msgstr "種類"
 
 #: individual.php:590
-msgid "Save Contact Entry"
-msgstr "コンタクト入力を保存"
+msgid "Save Action Entry"
+msgstr "アクション入力を保存"
 
 #: individual.php:627
 msgid "Edit"
@@ -1871,8 +1870,8 @@ msgid "Date is invalid."
 msgstr "日付は正しくありません。"
 
 #: individual.php:1103
-msgid "You must select a Contact Type."
-msgstr "コンタクトタイプを選択してください。"
+msgid "You must select a Action Type."
+msgstr "アクションタイプを選択してください。"
 
 #: individual.php:1121
 msgid "Date cannot be in the future."
@@ -1922,28 +1921,28 @@ msgstr "このカテゴリいずれかに入っている：%s"
 
 #: list.php:108
 #, php-format
-msgid "Has none of these types of contacts: %s"
-msgstr "このコンタクトタイプのコンタクトはない：%s"
+msgid "Has none of these types of actions: %s"
+msgstr "このアクションタイプのアクションはない：%s"
 
 #: list.php:110
 #, php-format
-msgid "Has at least one of these types of contacts: %s"
-msgstr "このコンタクトタイプのいずれかのコンタクトがある：%s"
+msgid "Has at least one of these types of actions: %s"
+msgstr "このアクションタイプのいずれかのアクションがある：%s"
 
 #: list.php:143
 #, php-format
-msgid "Has at least one contact of type(s) [%s] and none later of type(s) [%s]"
+msgid "Has at least one action of type(s) [%s] and none later of type(s) [%s]"
 msgstr ""
-"[%s]のコンタクトタイプいずれか、合っているコンタクトがありますが、その後に"
-"[%s]のコンタクトタイプのコンタクトはない"
+"[%s]のアクションタイプいずれか、合っているアクションがありますが、その後に"
+"[%s]のアクションタイプのアクションはない"
 
 #: list.php:146
 #, php-format
 msgid ""
-"Has at least one contact of type(s) [%s] and none earlier of type(s) [%s]"
+"Has at least one action of type(s) [%s] and none earlier of type(s) [%s]"
 msgstr ""
-"[%s]のコンタクトタイプいずれか、合っているコンタクトがありますが、その前に"
-"[%s]のコンタクトタイプのコンタクトはない"
+"[%s]のアクションタイプいずれか、合っているアクションがありますが、その前に"
+"[%s]のアクションタイプのアクションはない"
 
 #: list.php:164
 #, php-format
@@ -2014,45 +2013,45 @@ msgstr "イベントと日付一つ以上を選んでから、ボタンをクリ
 msgid "Save Attendance Entries"
 msgstr "参加記録を保存"
 
-#: ms_contact.php:41
+#: ms_action.php:41
 #, php-format
 msgid "%s new records successfully added."
 msgstr "%s の項目を追加しました。"
 
-#: ms_contact.php:54
+#: ms_action.php:54
 #, php-format
 msgid ""
-"However, the following %s people already had a contact of type \"%s\" on %s."
+"However, the following %s people already had a action of type \"%s\" on %s."
 msgstr ""
-"しかし、下記の %s人は、「%s」と言うコンタクトタイプで %sにコンタクト項目が既"
+"しかし、下記の %s人は、「%s」と言うアクションタイプで %sにアクション項目が既"
 "にありました。"
 
-#: ms_contact.php:56
+#: ms_action.php:56
 msgid "Do you still want the additional records added?"
 msgstr "本当にさらの項目を追加したいですか。"
 
-#: ms_contact.php:57
+#: ms_action.php:57
 msgid "Yes, add them anyway!"
 msgstr "はい、追加します！"
 
-#: ms_contact.php:58
+#: ms_action.php:58
 msgid ""
 "(You can click on a name to view their individual info - it will open in a "
 "new window/tab.)"
 msgstr "（名前をクリックすると、別のウインドー/タブで詳細を見れる）"
 
-#: ms_contact.php:64
-msgid "Choose contact type and date, and fill in a description if desired:"
+#: ms_action.php:64
+msgid "Choose action type and date, and fill in a description if desired:"
 msgstr ""
-"コンタクトタイプと日付を選んで、備考を入れたいなら備考も入力してください。"
+"アクションタイプと日付を選んで、備考を入れたいなら備考も入力してください。"
 
-#: ms_contact.php:78
-msgid "Save Contact Info"
-msgstr "コンタクト入力を保存"
+#: ms_action.php:78
+msgid "Save Action Info"
+msgstr "アクション入力を保存"
 
-#: ms_contact.php:107
-msgid "Please select a Contact Type."
-msgstr "コンタクトタイプを選択してください。"
+#: ms_action.php:107
+msgid "Please select a Action Type."
+msgstr "アクションタイプを選択してください。"
 
 #: ms_custom.php:8
 msgid "Select desired report and click the button..."
@@ -2254,8 +2253,8 @@ msgid "All data in XML sub-elements"
 msgstr "すべてのXMLサブエレメントにあるデータ"
 
 #: ms_person_xml.php:181
-msgid "Contact type names only"
-msgstr "コンタクトタイプ名のみ"
+msgid "Action type names only"
+msgstr "アクションタイプ名のみ"
 
 #: ms_person_xml.php:183
 msgid "Descriptions only"
@@ -2369,8 +2368,8 @@ msgid "Record Attendance"
 msgstr "イベント参加を記録"
 
 #: multiselect.php:114
-msgid "Add a Contact for All"
-msgstr "全てにはコンタクトを追加"
+msgid "Add a Action for All"
+msgstr "全てにはアクションを追加"
 
 #: multiselect.php:116
 msgid "Add All to a Category"
@@ -2469,8 +2468,8 @@ msgid "Relation"
 msgstr "関係"
 
 #: overview.php:161
-msgid "first, last, and key contacts"
-msgstr "コンタクト：最初、最後、重要"
+msgid "first, last, and key actions"
+msgstr "アクション：最初、最後、重要"
 
 #: pledge_list.php:58
 msgid "years"
@@ -2582,25 +2581,25 @@ msgstr "%4$sのカテゴリのいずれかに%1$s入っている%2$s入ってい
 #: search.php:94
 #, php-format
 msgid ""
-"%s...have%s...don't have%s contacts of one of these types:%s <span class="
+"%s...have%s...don't have%s actions of one of these types:%s <span class="
 "\"inputgroup\"><label>(after %s)</label><label>(before %s)</label></span>"
 msgstr ""
-"%4$sのコンタクトタイプ<span class=\"inputgroup\"><label>(%5$sから)</"
-"label><label>(%6$sまで)</label></span>いずれか、合っているコンタクトが%1$sあ"
+"%4$sのアクションタイプ<span class=\"inputgroup\"><label>(%5$sから)</"
+"label><label>(%6$sまで)</label></span>いずれか、合っているアクションが%1$sあ"
 "る%2$sない%3$s"
 
 #: search.php:102
-msgid "Contact Sequence"
-msgstr "コンタクト順番"
+msgid "Action Sequence"
+msgstr "アクション順番"
 
 #: search.php:108
 #, php-format
 msgid ""
-"...have one of these contact types:%s without any of these %slater%searlier"
-"%s:%s"
+"...have one of these action types:%s without any of these %slater%searlier%s:"
+"%s"
 msgstr ""
-"%sのコンタクトタイプいずれか、合っているコンタクトがありますが、その%s後%s"
-"前%sに%sのコンタクトタイプのコンタクトはない"
+"%sのアクションタイプいずれか、合っているアクションがありますが、その%s後%s"
+"前%sに%sのアクションタイプのアクションはない"
 
 #: search.php:130
 #, php-format
@@ -2750,7 +2749,7 @@ msgstr "入力された二つのパスワードは異なります。"
 #~ "(To select multiple possible types (\"this one OR that one\"), hold Ctrl "
 #~ "key while clicking.)"
 #~ msgstr ""
-#~ "（「Ctrl」キーを押しながら選択すれば、複数のコンタクトタイプを選択でき"
+#~ "（「Ctrl」キーを押しながら選択すれば、複数のアクションタイプを選択でき"
 #~ "る。）"
 
 #~ msgid ""
@@ -2782,8 +2781,8 @@ msgstr "入力された二つのパスワードは異なります。"
 #~ msgid "New Person"
 #~ msgstr "新規項目"
 
-#~ msgid "Contact Chart"
-#~ msgstr "コンタクト表"
+#~ msgid "Action Chart"
+#~ msgstr "アクション表"
 
 #~ msgid "Pledges/Donations"
 #~ msgstr "約束/献金"

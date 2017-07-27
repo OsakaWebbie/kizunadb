@@ -90,7 +90,7 @@ function getCSV() {
 } else {
   ?> <link rel="stylesheet" href="style.php" type="text/css" /> <?php
   header2(1);
-  echo "<h2>SQL Query in Contacts Database</h2>";
+  echo "<h2>SQL Query in Kizuna Database</h2>";
   echo "<form action=\"sqlquery.php\" method=\"post\">\n";
   echo "<textarea name=\"query\"  style=\"height:5em;width:100%\"></textarea>";
   echo "<p class=\"comment\">NOTE: If you include hyperlink tags, they must be by themselves (i.e. the column data must start with '&lt;a').</p>\n";

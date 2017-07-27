@@ -94,20 +94,20 @@ for ($i=1; isset($_REQUEST["catselect".$i]); $i++) {
 
 for ($i=1; isset($_REQUEST["ctselect".$i]); $i++) {
   $cts = implode(",",$_REQUEST["ctselect".$i]);
-  $not = ($_REQUEST["contactinout".$i]=="OUT") ? " NOT" : "";
-  $where .= ($where!=""?" AND":" WHERE")." $not ($ptable.PersonID IN (SELECT PersonID FROM contact WHERE ContactTypeID IN ($cts)";
-  if ($_REQUEST["ctstartdate".$i]) $where .= " AND ContactDate >= '".$_REQUEST["ctstartdate".$i]."'";
-  if ($_REQUEST["ctenddate".$i]) $where .= " AND ContactDate <= '".$_REQUEST["ctenddate".$i]."'";
+  $not = ($_REQUEST["actioninout".$i]=="OUT") ? " NOT" : "";
+  $where .= ($where!=""?" AND":" WHERE")." $not ($ptable.PersonID IN (SELECT PersonID FROM action WHERE ActionTypeID IN ($cts)";
+  if ($_REQUEST["ctstartdate".$i]) $where .= " AND ActionDate >= '".$_REQUEST["ctstartdate".$i]."'";
+  if ($_REQUEST["ctenddate".$i]) $where .= " AND ActionDate <= '".$_REQUEST["ctenddate".$i]."'";
   $where .= "))";
-  $result = sqlquery_checked("SELECT ContactType FROM contacttype WHERE ContactTypeID IN ($cts) ORDER BY ContactType");
+  $result = sqlquery_checked("SELECT ActionType FROM actiontype WHERE ActionTypeID IN ($cts) ORDER BY ActionType");
   $ctnames = "";
   while ($row = mysqli_fetch_object($result)) {
-    $ctnames .= d2h($row->ContactType).", ";
+    $ctnames .= d2h($row->ActionType).", ";
   }
   if ($not) {
-    $criterialist .= "<li>".sprintf(_("Has none of these types of contacts: %s"), mb_substr($ctnames,0,mb_strlen($ctnames)-2));
+    $criterialist .= "<li>".sprintf(_("Has none of these types of actions: %s"), mb_substr($ctnames,0,mb_strlen($ctnames)-2));
   } else {
-    $criterialist .= "<li>".sprintf(_("Has at least one of these types of contacts: %s"), mb_substr($ctnames,0,mb_strlen($ctnames)-2));
+    $criterialist .= "<li>".sprintf(_("Has at least one of these types of actions: %s"), mb_substr($ctnames,0,mb_strlen($ctnames)-2));
   }
   if ($_REQUEST["ctstartdate".$i] && $_REQUEST["ctenddate".$i]) $criterialist .= sprintf(_(", between %s and %s"),$_REQUEST["ctstartdate".$i],$_REQUEST["ctenddate".$i]);
   elseif ($_REQUEST["ctstartdate".$i]) $criterialist .= sprintf(_(", on or after %s"),$_REQUEST["ctstartdate".$i]);
@@ -119,31 +119,31 @@ for ($i=1; isset($_REQUEST["seqctqual".$i]) && isset($_REQUEST["seqctelim".$i]);
   $qualcts = implode(",",$_REQUEST["seqctqual".$i]);
   $elimcts = implode(",",$_REQUEST["seqctelim".$i]);
   $minmax = ($_REQUEST["seqorder".$i]=="AFTER") ? "MAX" : "MIN";
-  /*$join = " INNER JOIN (SELECT PersonID,ContactTypeID,$minmax(ContactDate) FROM contact".
-  " WHERE ContactTypeID IN ($qualcts,$elimcts) GROUP BY PersonID) AS seq ON person.PersonID=seq.PersonID";
-  $where .= ($where!=""?" AND":" WHERE")." seq.ContactTypeID IN ($qualcts)";*/
+  /*$join = " INNER JOIN (SELECT PersonID,ActionTypeID,$minmax(ActionDate) FROM action".
+  " WHERE ActionTypeID IN ($qualcts,$elimcts) GROUP BY PersonID) AS seq ON person.PersonID=seq.PersonID";
+  $where .= ($where!=""?" AND":" WHERE")." seq.ActionTypeID IN ($qualcts)";*/
   $operator = ($_REQUEST["seqorder".$i]=="AFTER") ? ">" : "<";
-  $join = " inner join (select pq.PersonID,$minmax(ContactDate) as qualdate from person pq".
-  " inner join contact cq on pq.PersonID = cq.PersonID where cq.ContactTypeID in ($qualcts) group by pq.PersonID) qual".
-  " on $ptable.PersonID=qual.PersonID left outer join (select pe.personID,$minmax(ContactDate) as elimdate from person pe".
-  " inner join contact ce on pe.PersonID = ce.PersonID where ce.ContactTypeID in ($elimcts) group by pe.PersonID) elim".
+  $join = " inner join (select pq.PersonID,$minmax(ActionDate) as qualdate from person pq".
+  " inner join action aq on pq.PersonID = aq.PersonID where aq.ActionTypeID in ($qualcts) group by pq.PersonID) qual".
+  " on $ptable.PersonID=qual.PersonID left outer join (select pe.personID,$minmax(ActionDate) as elimdate from person pe".
+  " inner join action ae on pe.PersonID = ae.PersonID where ae.ActionTypeID in ($elimcts) group by pe.PersonID) elim".
   " on qual.PersonID=elim.PersonID";
   $where .= ($where!=""?" AND":" WHERE")." (elim.elimdate is null or qual.qualdate $operator elim.elimdate)";
-  $result = sqlquery_checked("SELECT ContactType FROM contacttype WHERE ContactTypeID IN ($qualcts) ORDER BY ContactType");
+  $result = sqlquery_checked("SELECT ActionType FROM actiontype WHERE ActionTypeID IN ($qualcts) ORDER BY ActionType");
   $ctqualnames = "";
   while ($row = mysqli_fetch_object($result)) {
-    $ctqualnames .= d2h($row->ContactType).", ";
+    $ctqualnames .= d2h($row->ActionType).", ";
   }
-  $result = sqlquery_checked("SELECT ContactType FROM contacttype WHERE ContactTypeID IN ($elimcts) ORDER BY ContactType");
+  $result = sqlquery_checked("SELECT ActionType FROM actiontype WHERE ActionTypeID IN ($elimcts) ORDER BY ActionType");
   $ctelimnames = "";
   while ($row = mysqli_fetch_object($result)) {
-    $ctelimnames .= d2h($row->ContactType).", ";
+    $ctelimnames .= d2h($row->ActionType).", ";
   }
   if ($_REQUEST["seqorder".$i]=="AFTER") {
-    $criterialist .= "<li>".sprintf(_("Has at least one contact of type(s) [%s] and none later of type(s) [%s]"),
+    $criterialist .= "<li>".sprintf(_("Has at least one action of type(s) [%s] and none later of type(s) [%s]"),
     mb_substr($ctqualnames,0,mb_strlen($ctqualnames)-2), mb_substr($ctelimnames,0,mb_strlen($ctelimnames)-2))."</li>\n";
   } else {
-    $criterialist .= "<li>".sprintf(_("Has at least one contact of type(s) [%s] and none earlier of type(s) [%s]"),
+    $criterialist .= "<li>".sprintf(_("Has at least one action of type(s) [%s] and none earlier of type(s) [%s]"),
     mb_substr($ctqualnames,0,mb_strlen($ctqualnames)-2), mb_substr($ctelimnames,0,mb_strlen($ctelimnames)-2))."</li>\n";
   }
 }

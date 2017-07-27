@@ -111,8 +111,8 @@ while ($cat = mysqli_fetch_object($result)) {
             <h3><?=_("Batch Data Entry")?></h3>
             <input type="submit" name="ms_attendance" value="<?=_("Record Attendance")?>" border="0"
                 onclick="document.sform.action='ms_attendance.php';">
-            <input type="submit" name="ms_contacts" value="<?=_("Add a Contact for All")?>" border="0"
-                onclick="document.sform.action='ms_contact.php';">
+            <input type="submit" name="ms_actions" value="<?=_("Add a Action for All")?>" border="0"
+                onclick="document.sform.action='ms_action.php';">
             <input type="submit" name="ms_category" value="<?=_("Add All to a Category")?>" border="0"
                 onclick="document.sform.action='ms_category.php';">
             <input type="submit" name="ms_cat_remove" value="<?=_("Remove All from a Category")?>" border="0"

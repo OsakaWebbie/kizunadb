@@ -151,30 +151,30 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
 
 /*** CONTACTS ***/
 
-  if ($_POST['contacts']) {
-    $sql = "SELECT contact.*, contacttype.ContactType, contacttype.BGColor FROM contact"
-    ." JOIN contacttype ON contact.ContactTypeID=contacttype.ContactTypeID"
-    ." WHERE contact.PersonID=".$person->PersonID." ORDER BY contact.ContactDate DESC";
+  if ($_POST['actions']) {
+    $sql = "SELECT action.*, actiontype.ActionType, actiontype.BGColor FROM action"
+    ." JOIN actiontype ON action.ActionTypeID=actiontype.ActionTypeID"
+    ." WHERE action.PersonID=".$person->PersonID." ORDER BY action.ActionDate DESC";
     $result = sqlquery_checked($sql);
     if (($numrows = mysqli_num_rows($result)) > 0) {
-      echo "<h2 class=\"contitle\">"._("Contacts");
-      if ($_POST['contact_types']!="all") echo " ("._("first, last, and key contacts").")</h2>\n";
+      echo "<h2 class=\"contitle\">"._("Actions");
+      if ($_POST['action_types']!="all") echo " ("._("first, last, and key actions").")</h2>\n";
       echo "<table class=\"contable\">";
       echo "<tr><th>"._("Date")."</th>";
       echo "<th>"._("Type")."</th>";
       echo "<th>"._("Description")."</th></tr>";
       $rownum = 1;
       while ($row = mysqli_fetch_object($result)) {
-        if (($_POST['contact_types']=="all") || ($rownum==1) || ($rownum==$numrows) || ($row->BGColor!="FFFFFF")) {
-          echo "<tr><td align=center style=\"background-color:#".$row->BGColor."\">".$row->ContactDate."</td>\n";
-          echo "<td align=center style=\"background-color:#".$row->BGColor."\">".$row->ContactType."</td>\n";
+        if (($_POST['action_types']=="all") || ($rownum==1) || ($rownum==$numrows) || ($row->BGColor!="FFFFFF")) {
+          echo "<tr><td align=center style=\"background-color:#".$row->BGColor."\">".$row->ActionDate."</td>\n";
+          echo "<td align=center style=\"background-color:#".$row->BGColor."\">".$row->ActionType."</td>\n";
           echo "<td align=left style=\"background-color:#".$row->BGColor."\">".$row->Description."</td></tr>\n";
         }
         $rownum++;
       }
       echo "  </table>";
     }
-  } //if contacts to be printed
+  } //if actions to be printed
 
 /*** EVENT ATTENDANCE ***/
 

@@ -15,8 +15,8 @@ $(document).ready(function(){
     case "Category":
       $("#catspan"+number).show();
       break;
-    case "Contact":
-      $("#contactspan"+number).show();
+    case "Action":
+      $("#actionspan"+number).show();
       break;
     case "Attendance":
       $("#attendspan"+number).show();
@@ -49,17 +49,17 @@ $(document).ready(function(){
   $("[id^=ctcombine]").change(function() {
     var number = $(this).attr("id").substr(9,2);
     if ($("[id^=ctcombine]").is(':checked')) {
-      if ($("#contactstyle"+number+"-all").is(':checked')) $("#contactstyle"+number+"-type").click();
-      $("#contactstyle"+number+"-all").parent().hide();
+      if ($("#actionstyle"+number+"-all").is(':checked')) $("#actionstyle"+number+"-type").click();
+      $("#actionstyle"+number+"-all").parent().hide();
     } else {
-      $("#contactstyle"+number+"-all").parent().show();
+      $("#actionstyle"+number+"-all").parent().show();
     }
   });
 
-  $("[id^=contactstyle]").change(function() {
+  $("[id^=actionstyle]").change(function() {
     var number = $(this).attr("id").substr(12,2);
-    if ($("#contactstyle"+number+"-custom").is(':checked') && $("#contacttext"+number).val()=="") {
-      $("#contacttext"+number).val("*");
+    if ($("#actionstyle"+number+"-custom").is(':checked') && $("#actiontext"+number).val()=="") {
+      $("#actiontext"+number).val("*");
     }
   });
 
@@ -129,7 +129,7 @@ for ($i=0; $i<4; $i++) {
         <option value="Country"><?=_("Home Country")?></option>
         <option value="Remarks"><?=_("Remarks")?></option>
         <option value="Category"><?=_("Categories")?></option>
-        <option value="Contact"><?=_("Contacts")?></option>
+        <option value="Action"><?=_("Actions")?></option>
         <option value="Attendance"><?=_("Attendance")?></option>
         <option value="Members"><?=_("Members (organizations only)")?></option>
         <option value="Orgs"><?=_("Organizations (people only)")?></option>
@@ -159,31 +159,31 @@ for ($i=0; $i<4; $i++) {
         </span>
       </span>
 
-<!-- Contacts -->
-      <span id="contactspan<?=$s?>" style="display:none">
-        <span class="label-n-input"><label for="contact<?=$s?>"><?=_("Contact Types")?>: </label>
-        <select name="contact<?=$s?>[]" id="contact<?=$s?>" size="3" multiple="multiple">
+<!-- Actions -->
+      <span id="actionspan<?=$s?>" style="display:none">
+        <span class="label-n-input"><label for="action<?=$s?>"><?=_("Action Types")?>: </label>
+        <select name="action<?=$s?>[]" id="action<?=$s?>" size="3" multiple="multiple">
 <?php
-  $result = sqlquery_checked("SELECT * FROM contacttype ORDER BY ContactType");
+  $result = sqlquery_checked("SELECT * FROM actiontype ORDER BY ActionType");
   while ($row = mysqli_fetch_object($result)) {
-    echo "          <option value=\"".$row->ContactTypeID."\">".d2h($row->ContactType)."</option>\n";
+    echo "          <option value=\"".$row->ActionTypeID."\">".d2h($row->ActionType)."</option>\n";
   }
 ?>
         </select></span>
-        <span class="label-n-input"><label for="contacttag<?=$s?>"><?=_("XML Tag Name")?>: </label>
-        <input type="text" name="contacttag<?=$s?>" id="contacttag<?=$s?>" value="Contact" style="width:5em;ime-mode:disabled;" /></span>
+        <span class="label-n-input"><label for="actiontag<?=$s?>"><?=_("XML Tag Name")?>: </label>
+        <input type="text" name="actiontag<?=$s?>" id="actiontag<?=$s?>" value="Action" style="width:5em;ime-mode:disabled;" /></span>
         <span class="label-n-input"><input type="checkbox" name="ctcombine<?=$s?>" id="ctcombine<?=$s?>" value="YES">
         <label for="ctcombine<?=$s?>"><?=_("Combine in one element"); ?></label></span>
         <span class="radiogroup">
-          <span class="label-n-input"><input name="contactstyle<?=$s?>" id="contactstyle<?=$s?>-all" value="all" type="radio" checked>
-          <label for="contactstyle<?=$s?>-all"><?=_("All data in XML sub-elements")?></label></span>
-          <span class="label-n-input"><input name="contactstyle<?=$s?>" id="contactstyle<?=$s?>-type" value="type" type="radio">
-          <label for="contactstyle<?=$s?>-type"><?=_("Contact type names only")?></label></span>
-          <span class="label-n-input"><input name="contactstyle<?=$s?>" id="contactstyle<?=$s?>-desc" value="desc" type="radio">
-          <label for="contactstyle<?=$s?>-desc"><?=_("Descriptions only")?></label></span>
-          <span class="label-n-input"><input name="contactstyle<?=$s?>" id="contactstyle<?=$s?>-custom" value="custom" type="radio">
-          <label for="contactstyle<?=$s?>-custom"><?=_("Custom value text")?>: </label>
-          <input type="text" name="contacttext<?=$s?>" id="contacttext<?=$s?>" style="width:3em;ime-mode:auto;" /></span>
+          <span class="label-n-input"><input name="actionstyle<?=$s?>" id="actionstyle<?=$s?>-all" value="all" type="radio" checked>
+          <label for="actionstyle<?=$s?>-all"><?=_("All data in XML sub-elements")?></label></span>
+          <span class="label-n-input"><input name="actionstyle<?=$s?>" id="actionstyle<?=$s?>-type" value="type" type="radio">
+          <label for="actionstyle<?=$s?>-type"><?=_("Action type names only")?></label></span>
+          <span class="label-n-input"><input name="actionstyle<?=$s?>" id="actionstyle<?=$s?>-desc" value="desc" type="radio">
+          <label for="actionstyle<?=$s?>-desc"><?=_("Descriptions only")?></label></span>
+          <span class="label-n-input"><input name="actionstyle<?=$s?>" id="actionstyle<?=$s?>-custom" value="custom" type="radio">
+          <label for="actionstyle<?=$s?>-custom"><?=_("Custom value text")?>: </label>
+          <input type="text" name="actiontext<?=$s?>" id="actiontext<?=$s?>" style="width:3em;ime-mode:auto;" /></span>
         </span>
       </span>
 

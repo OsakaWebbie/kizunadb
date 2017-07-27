@@ -77,31 +77,31 @@ while($row = mysqli_fetch_object($result)) {
         }
       }
       break;
-    case "Contact":
-      $selectvar = "contact".sprintf("%02d",$fieldindex);
-      $tagvar = "contacttag".sprintf("%02d",$fieldindex);
+    case "Action":
+      $selectvar = "action".sprintf("%02d",$fieldindex);
+      $tagvar = "actiontag".sprintf("%02d",$fieldindex);
       $combinevar = "ctcombine".sprintf("%02d",$fieldindex);
-      $stylevar = "contactstyle".sprintf("%02d",$fieldindex);
-      $textvar = "contacttext".sprintf("%02d",$fieldindex);
+      $stylevar = "actionstyle".sprintf("%02d",$fieldindex);
+      $textvar = "actiontext".sprintf("%02d",$fieldindex);
       $selectlist = implode(",",$$selectvar);
-      $sql = "SELECT contact.*,contacttype.ContactType FROM contact JOIN contacttype ".
-          "ON contact.ContactTypeID=contacttype.ContactTypeID WHERE PersonID=".$row->PersonID.
-          " AND contact.ContactTypeID IN ($selectlist)";
+      $sql = "SELECT action.*,actiontype.ActionType FROM action JOIN actiontype ".
+          "ON action.ActionTypeID=actiontype.ActionTypeID WHERE PersonID=".$row->PersonID.
+          " AND action.ActionTypeID IN ($selectlist)";
       $tempresult = sqlquery_checked($sql);
       $separator = ($$combinevar) ? "</".$$tagvar."><".$$tagvar.">" : ",";
       switch ($$stylevar) {
       case "all":
         echo "    <".$$tagvar.">\n";
         while($tmp = mysqli_fetch_object($tempresult)) {
-          echo "      <Date>".$tmp->ContactDate."</Date>\n";
-          echo "      <ContactType>".$tmp->ContactType."</ContactType>\n";
+          echo "      <Date>".$tmp->ActionDate."</Date>\n";
+          echo "      <ActionType>".$tmp->ActionType."</ActionType>\n";
           echo "      <Description>".$tmp->Description."</Description>\n";
         }
         echo "    </".$$tagvar.">\n";
         break;
       case "type":
         while($tmp = mysqli_fetch_object($tempresult)) {
-          $tmparray[] = $tmp->ContactType;
+          $tmparray[] = $tmp->ActionType;
         }
         echo "    <".$$tagvar.">".(isset($tmparray) ? implode($separator,$tmparray) : "")."</".$$tagvar.">\n";
         unset($tmparray);

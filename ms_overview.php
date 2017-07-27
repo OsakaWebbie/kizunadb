@@ -12,9 +12,9 @@ print_header("Multiple Selection","#FFFFE0",0);
           <td>
             <input type="checkbox" name="categories" checked>Categories
             <br><input type="checkbox" name="household" checked>Household member table
-            <br><input type="checkbox" name="contacts" checked>Contacts:
-            &nbsp;<input type="radio" name="contact_types" value="key" checked>only first, last, & key (colored) ones, or
-            <input type="radio" name="contact_types" value="all">all contacts
+            <br><input type="checkbox" name="actions" checked>Actions:
+            &nbsp;<input type="radio" name="action_types" value="key" checked>only first, last, & key (colored) ones, or
+            <input type="radio" name="action_types" value="all">all actions
             <br><input type="checkbox" name="attendance" checked>Event attendance
 <?php if ($_SESSION['donations'] == "yes") echo "            <br><input type=\"checkbox\" name=\"donations\" checked>Donations & Pledges\n"; ?>
             <br>Between each person: <input type="radio" name="break" value="page" checked>page break

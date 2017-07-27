@@ -76,22 +76,22 @@ if ($_POST['pc_upd']) {
 } elseif ($_POST['ct_add_upd']) {
 
   if ($ctypeid == "new") {
-    sqlquery_checked("INSERT INTO contacttype (ContactType,BGColor,Template) VALUES ('".h2d($_POST['ctype'])."','".$_POST['ctcolor']."','".h2d($_POST['cttemplate'])."')");
+    sqlquery_checked("INSERT INTO actiontype (ActionType,BGColor,Template) VALUES ('".h2d($_POST['ctype'])."','".$_POST['ctcolor']."','".h2d($_POST['cttemplate'])."')");
     if (mysqli_affected_rows($db) == 1) {
-      $message = _("New contact type successfully added.");
+      $message = _("New action type successfully added.");
     }
   } else {
-    sqlquery_checked("UPDATE contacttype SET ContactType='".h2d($_POST['ctype'])."',BGColor='".$_POST['ctcolor']."',Template='".h2d($_POST['cttemplate'])."' WHERE ContactTypeID=".$_POST['ctypeid']);
+    sqlquery_checked("UPDATE actiontype SET ActionType='".h2d($_POST['ctype'])."',BGColor='".$_POST['ctcolor']."',Template='".h2d($_POST['cttemplate'])."' WHERE ActionTypeID=".$_POST['ctypeid']);
     if (mysqli_affected_rows($db) == 1) {
-      $message = _("Contact Type information successfully updated.");
+      $message = _("Action Type information successfully updated.");
     }
   }
 
 } elseif ($_POST['ct_del']) {
 
-  // if first time around, check for contact records - if none, don't need confirmation
+  // if first time around, check for action records - if none, don't need confirmation
   if (!$confirmed) {
-    $result = sqlquery_checked("SELECT count(*) AS num FROM contact WHERE ContactTypeID=".$_POST['ctypeid']);
+    $result = sqlquery_checked("SELECT count(*) AS num FROM action WHERE ActionTypeID=".$_POST['ctypeid']);
     $row = mysqli_fetch_object($result);
     if ($row->num == 0) {
       $confirmed = 1;
@@ -101,36 +101,36 @@ if ($_POST['pc_upd']) {
   }
   if ($confirmed) {
     if ($_POST['new_ctypeid']) {
-      sqlquery_checked("UPDATE contact SET ContactTypeID=".$_POST['new_ctypeid']." WHERE ContactTypeID=".$_POST['ctypeid']);
+      sqlquery_checked("UPDATE action SET ActionTypeID=".$_POST['new_ctypeid']." WHERE ActionTypeID=".$_POST['ctypeid']);
       if (mysqli_affected_rows($db) > 0) {
-        $message = sprintf(_("%s related contact records updated.")."\\n",mysqli_affected_rows($db));
+        $message = sprintf(_("%s related action records updated.")."\\n",mysqli_affected_rows($db));
       }
     }
-    sqlquery_checked("DELETE FROM contacttype WHERE ContactTypeID=".$_POST['ctypeid']." LIMIT 1");
+    sqlquery_checked("DELETE FROM actiontype WHERE ActionTypeID=".$_POST['ctypeid']." LIMIT 1");
     if (mysqli_affected_rows($db) == 1) {
-      $message .= _("Contact Type successfully deleted.");
+      $message .= _("Action Type successfully deleted.");
     }
   } else {
   //ask for confirmation
-    $result = sqlquery_checked("SELECT * FROM contacttype ORDER BY ContactType");
+    $result = sqlquery_checked("SELECT * FROM actiontype ORDER BY ActionType");
     while ($row = mysqli_fetch_object($result)) {
-      if ($row->ContactTypeID != $_POST['ctypeid']) {
-        $options .= "\n      <option value=".$row->ContactTypeID.">".$row->ContactType."</option>";
+      if ($row->ActionTypeID != $_POST['ctypeid']) {
+        $options .= "\n      <option value=".$row->ActionTypeID.">".$row->ActionType."</option>";
       }
     }
 ?>
-<h3><font color="red"><?=_("Please Confirm Contact Type Delete")?></font></h3>
-<?php printf(_("There are %s contact entries of this contact type.  If you delete this contact type, I must assign a different contact type to those contact entries."),$ct_num);
-echo _(" If you don't want to do this, just press your browser's Back button.  To reassign the contact entries, choose from the list below:"); ?>
+<h3><font color="red"><?=_("Please Confirm Action Type Delete")?></font></h3>
+<?php printf(_("There are %s action entries of this action type.  If you delete this action type, I must assign a different action type to those action entries."),$ct_num);
+echo _(" If you don't want to do this, just press your browser's Back button.  To reassign the action entries, choose from the list below:"); ?>
 <form action="<?=$_SERVER['PHP_SELF']?>" method="post">
-  <p><?=_("New Contact Type")?>:
+  <p><?=_("New Action Type")?>:
     <select size="1" name="new_ctypeid">
       <option value=""><?=_("Select...")?></option><?=$options?>
     </select>
   <input type="hidden" name="ctypeid" value="<?=$_POST['ctypeid']?>">
   <input type="hidden" name="ct_del" value="<?=$_POST['ct_del']?>">
   <input type="hidden" name="confirmed" value="1">
-  <input type="submit" value="<?=_("Yes, reassign the contact entries")?>">
+  <input type="submit" value="<?=_("Yes, reassign the action entries")?>">
 </form>
 <?php
     $need_confirmation = 1;

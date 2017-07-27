@@ -421,10 +421,10 @@ body.individual div#orgsection form.msform { margin-top:15px; }
 body.individual tr.leader { background-color:<?=($leaderbg?$leaderbg:"#FFF0C0")?>; }
 body.individual div.section h3 { margin:5px 0 0 0; }
 body.individual form#orgform,
-body.individual form#contactform,
+body.individual form#actionform,
 body.individual form#donationform,
 body.individual form#attendform { margin:0 0 5px 30px; padding:5px; border:1px solid LightGray; }
-body.individual form#contactform textarea { height:2em; }
+body.individual form#actionform textarea { height:2em; }
 body.individual td.categories, body.individual td.events { white-space:nowrap; }
 body.individual #dayofweek, body.individual #attend-apply { display:block; }
 body.individual #dayofweek label, body.individual #attend-apply label { margin-right:0.5em; }
@@ -485,11 +485,11 @@ body.edit #duplicates .button_section form { display:inline; }
 body.ms_person_xml span.radiogroup { display:inline-block; }
 body.ms_person_xml span.radiogroup span.label-n-input { display:block; }
 
-/* specific to contact.php */
-body.contact #listtypes { float:right; }
-body.contact #listtypes label { display:block; }
-body.contact div.section { float:left; }  /* needed to force the div to fully surround the inner float */
-body.contact div.section:after { clear:both; }  /* needed because we had to float the section div */
+/* specific to action.php */
+body.action #listtypes { float:right; }
+body.action #listtypes label { display:block; }
+body.action div.section { float:left; }  /* needed to force the div to fully surround the inner float */
+body.action div.section:after { clear:both; }  /* needed because we had to float the section div */
 
 /* specific to donations.php */
 body.donations #typefilter { display:inline-block; vertical-align:middle; border:none; margin:0 20px 5px 0; padding:0; }
@@ -570,7 +570,7 @@ body.maintenance form#pcform span.romaji { display:block; }
 body.maintenance form#userform span.new_userid { display:block; }
 body.maintenance form#userform span.new_pw1 { display:block; }
 body.maintenance form#userform span.new_pw2 { display:block; }
-body.maintenance form#ctform span.ctcolor_button { display:block; }
+body.maintenance form#atform span.ctcolor_button { display:block; }
 body.maintenance form#dtform span.dtcolor_button { display:block; }
 
 /* specific to sqlquery.php */

@@ -74,38 +74,38 @@ printf(_("%s...are in%s...are not in%s one of these categories:%s"), $in, $out, 
   <button type="button" id="catdup" class="dup advanced"><?=_("Add another...")?></button>
 </fieldset>
 
-<?php //ContactType list used three times in the next two sections
+<?php //ActionType list used three times in the next two sections
 $ctselect = "<select size=\"3\" id=\"#ID#1\" name=\"#ID#1[]\" multiple=\"multiple\">\n";
-$result = sqlquery_checked("SELECT * FROM contacttype ORDER BY ContactType");
+$result = sqlquery_checked("SELECT * FROM actiontype ORDER BY ActionType");
 while ($row = mysqli_fetch_object($result)) {
-  $ctselect .= "    <option value=\"".$row->ContactTypeID."\">".d2h($row->ContactType)."</option>";
+  $ctselect .= "    <option value=\"".$row->ActionTypeID."\">".d2h($row->ActionType)."</option>";
 }
 $ctselect .= "</select>\n";
 ?>
 
-<fieldset class="advanced"><legend><?=_("Contacts")?></legend>
-  <div id="contact1" class="criteria">
+<fieldset class="advanced"><legend><?=_("Actions")?></legend>
+  <div id="action1" class="criteria">
 <?php
-$in = "<span class=\"radiogroup\"><label><input type=\"radio\" name=\"contactinout1\" value=\"IN\" checked />";
-$out = "</label><label><input type=\"radio\" name=\"contactinout1\" value=\"OUT\" />";
+$in = "<span class=\"radiogroup\"><label><input type=\"radio\" name=\"actioninout1\" value=\"IN\" checked />";
+$out = "</label><label><input type=\"radio\" name=\"actioninout1\" value=\"OUT\" />";
 $inoutfinish = "</label></span>\n";
 $ctstartdate = "<input type=\"text\" name=\"ctstartdate1\" id=\"ctstartdate1\" style=\"width:6em\" />";
 $ctenddate = "<input type=\"text\" name=\"ctenddate1\" id=\"ctenddate1\" style=\"width:6em\" />";
-printf(_("%s...have%s...don't have%s contacts of one of these types:%s ".
+printf(_("%s...have%s...don't have%s actions of one of these types:%s ".
 "<span class=\"inputgroup\"><label>(after %s)</label><label>(before %s)</label></span>"),
 $in, $out, $inoutfinish, str_replace("#ID#","ctselect",$ctselect), $ctstartdate, $ctenddate);
 ?>
   </div>
-  <button type="button" id="contactdup" class="dup advanced"><?=_("Add another...")?></button>
+  <button type="button" id="actiondup" class="dup advanced"><?=_("Add another...")?></button>
 </fieldset>
 
-<fieldset class="advanced"><legend><?=_("Contact Sequence")?></legend>
+<fieldset class="advanced"><legend><?=_("Action Sequence")?></legend>
   <div id="seq1" class="criteria">
 <?php
 $after = "<span class=\"radiogroup\"><label><input type=\"radio\" name=\"seqorder1\" value=\"AFTER\" checked />";
 $before = "</label><label><input type=\"radio\" name=\"seqorder1\" value=\"BEFORE\" />";
 $finish = "</label></span>\n";
-printf(_("...have one of these contact types:%s without any of these %slater%searlier%s:%s"),
+printf(_("...have one of these action types:%s without any of these %slater%searlier%s:%s"),
 str_replace("#ID#","seqctqual",$ctselect), $after, $before, $finish, str_replace("#ID#","seqctelim",$ctselect));
 ?>
   </div>

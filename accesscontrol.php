@@ -30,7 +30,6 @@ if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
       $hostarray = explode(".",$_SERVER['HTTP_HOST']);
       $_SESSION['userid'] = $user->UserID;
       $_SESSION['username'] = $user->UserName;
-      $_SESSION['categories'] = $user->Categories;
       $_SESSION['admin'] = $user->Admin;
       $_SESSION['lang'] = $user->Language;
       $_SESSION['hasdashboard'] = $user->DashboardBody ? 1 : 0;

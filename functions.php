@@ -22,7 +22,7 @@ function header2($nav=0) {
     $navmarkup .= "  <li><a href=\"search.php\" target=\"_top\">"._("Search")."</a></li>\n";
     $navmarkup .= "  <li><a href=\"edit.php\" target=\"_top\">"._("New Person/Org")."</a></li>\n";
     $navmarkup .= "  <li><a href=\"multiselect.php\" target=\"_top\">"._("Multi-Select")."</a></li>\n";
-    $navmarkup .= "  <li><a href=\"contact.php\" target=\"_top\">"._("Contacts")."</a></li>\n";
+    $navmarkup .= "  <li><a href=\"action.php\" target=\"_top\">"._("Actions")."</a></li>\n";
     if ($_SESSION['donations'] == "yes") {
       $navmarkup .= "  <li><a href=\"donations.php\" target=\"_top\">"._("Donations &amp; Pledges")."</a></li>\n";
     }
