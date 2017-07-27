@@ -2,5 +2,5 @@ dev-*
 tmp-*
 .user.ini
 .idea/
-procedural/.idea/
 adminer*
+robots.txt

@@ -201,10 +201,10 @@ if ($_SESSION['admin'] == 1) {
 </div>
 </form>
 
-<script type="text/JavaScript" src="js_procedural/jquery.js"></script>
-<script type="text/JavaScript" src="js_procedural/jquery-ui.js"></script>
-<script type="text/javascript" src="js_procedural/jquery.multiselect.min.js"></script>
-<script type="text/javascript" src="js_procedural/jquery.multiselect.filter.js"></script>
+<script type="text/JavaScript" src="js/jquery.js"></script>
+<script type="text/JavaScript" src="js/jquery-ui.js"></script>
+<script type="text/javascript" src="js/jquery.multiselect.min.js"></script>
+<script type="text/javascript" src="js/jquery.multiselect.filter.js"></script>
 
 <script type="text/JavaScript">
 $(document).ready(function(){

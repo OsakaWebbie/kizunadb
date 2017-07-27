@@ -10,7 +10,7 @@ table th, table td { border:1px solid black; padding:2px; }
 table tbody { text-align:left; }
 table tbody tr:nth-child(odd) { background-color:#F0FFF0; }
 </style>
-<script type="text/JavaScript" src="js_procedural/jquery.js"></script>
+<script type="text/JavaScript" src="js/jquery.js"></script>
 <script type="text/javascript">
 function finish(form) {
 e = opener.document.forms['editform'];

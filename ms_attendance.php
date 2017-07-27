@@ -52,9 +52,9 @@ body { margin:20px; }
 #eventselect label.label-n-input { margin-right:0; }
 #dayofweek label { margin-right: 0.5em; }
 </style>
-<script type="text/JavaScript" src="js_procedural/jquery.js"></script>
-<script type="text/JavaScript" src="js_procedural/jquery-ui.js"></script>
-<script type="text/JavaScript" src="js_procedural/jquery.ui.timepicker.js"></script>
+<script type="text/JavaScript" src="js/jquery.js"></script>
+<script type="text/JavaScript" src="js/jquery-ui.js"></script>
+<script type="text/JavaScript" src="js/jquery.ui.timepicker.js"></script>
 <script type="text/javascript">
 $(document).ready(function(){
   $(document).ajaxError(function(e, xhr, settings, exception) {

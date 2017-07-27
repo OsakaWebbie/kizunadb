@@ -134,8 +134,8 @@ while ($row = mysqli_fetch_object($result)) {
   <iframe name="ResultFrame" width="100%" height="400" src="blank.php"></iframe>
 </td></tr></table>
 
-<script type="text/JavaScript" src="js_procedural/jquery.js"></script>
-<script type="text/JavaScript" src="js_procedural/jquery-ui.js"></script>
+<script type="text/JavaScript" src="js/jquery.js"></script>
+<script type="text/JavaScript" src="js/jquery-ui.js"></script>
 <?php
 footer();
 ?>

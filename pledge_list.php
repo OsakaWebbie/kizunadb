@@ -6,11 +6,11 @@ header1(_("Pledge List").
 ($_POST['preselected']!="" ? sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($_POST['preselected'],",")+1) : ""));
 ?>
 <link rel="stylesheet" href="style.php?table=1" type="text/css" />
-<script type="text/JavaScript" src="js_procedural/jquery.js"></script>
-<script type="text/javascript" src="js_procedural/tablesorter.js"></script>
-<script type="text/javascript" src="js_procedural/table2CSV.js"></script>
-<script type="text/javascript" src="js_procedural/jquery.columnmanager.pack.js"></script>
-<script type="text/javascript" src="js_procedural/jquery.clickmenu.js"></script>
+<script type="text/JavaScript" src="js/jquery.js"></script>
+<script type="text/javascript" src="js/tablesorter.js"></script>
+<script type="text/javascript" src="js/table2CSV.js"></script>
+<script type="text/javascript" src="js/jquery.columnmanager.pack.js"></script>
+<script type="text/javascript" src="js/jquery.clickmenu.js"></script>
 
 <script type="text/JavaScript">
 </script>

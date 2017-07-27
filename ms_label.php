@@ -4,8 +4,8 @@ include("accesscontrol.php");
 header1("");
 ?>
 <link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
-<script type="text/JavaScript" src="js_procedural/jquery.js"></script>
-<script type="text/JavaScript" src="js_procedural/jquery-ui.js"></script>
+<script type="text/JavaScript" src="js/jquery.js"></script>
+<script type="text/JavaScript" src="js/jquery-ui.js"></script>
 <?php
 header2(0);
 

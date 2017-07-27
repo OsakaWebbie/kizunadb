@@ -49,8 +49,8 @@ $eid = $_REQUEST['eid'];
 ?>
 <meta http-equiv="expires" content="0">
 <link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
-<script type="text/JavaScript" src="js_procedural/jquery.js"></script>
-<script type="text/JavaScript" src="js_procedural/jquery-ui.js"></script>
+<script type="text/JavaScript" src="js/jquery.js"></script>
+<script type="text/JavaScript" src="js/jquery-ui.js"></script>
 
 <script type="text/JavaScript">
 $(document).ready(function(){

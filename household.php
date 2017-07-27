@@ -5,8 +5,8 @@ header1(_("Household Information"));
 ?>
 <meta http-equiv="expires" content="0">
 <link rel="stylesheet" type="text/css" href="style.php?table=1" />
-<script type="text/JavaScript" src="js_procedural/jquery.js"></script>
-<script type="text/JavaScript" src="js_procedural/tablesorter.js"></script>
+<script type="text/JavaScript" src="js/jquery.js"></script>
+<script type="text/JavaScript" src="js/tablesorter.js"></script>
 <script type="text/javascript">
 jpg_regexp = /\.[Jj][Pp][Gg]$/;
 function validate() {

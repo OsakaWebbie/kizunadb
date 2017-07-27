@@ -8,7 +8,7 @@ header1(_("Multiple Selection/Action"));
 div.buttongroup { border:1px solid gray; margin:6px 0 0 0; padding:0 3px 3px 3px; }
 div.buttongroup h3 { margin:0; }
 </style>
-<script type="text/JavaScript" src="js_procedural/jquery.js"></script>
+<script type="text/JavaScript" src="js/jquery.js"></script>
 <script>
 //indexes for arrays (just to keep sane)
 var pid = 0;

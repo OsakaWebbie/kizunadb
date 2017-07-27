@@ -938,15 +938,15 @@ echo "</div>";
 mysqli_free_result($result);
 ?>
 
-<script type="text/JavaScript" src="js_procedural/jquery.js"></script>
-<script type="text/JavaScript" src="js_procedural/jquery-ui.js"></script>
-<script type="text/JavaScript" src="js_procedural/jquery.ui.timepicker.js"></script>
-<script type="text/JavaScript" src="js_procedural/jquery.readmore.js"></script>
-<script type="text/JavaScript" src="js_procedural/tablesorter.js"></script>
-<script type="text/javascript" src="js_procedural/table2CSV.js"></script>
-<script type="text/javascript" src="js_procedural/jquery.columnmanager.pack.js"></script>
-<script type="text/javascript" src="js_procedural/jquery.clickmenu.js"></script>
-<script type="text/javascript" src="js_procedural/expanding.js"></script>
+<script type="text/JavaScript" src="js/jquery.js"></script>
+<script type="text/JavaScript" src="js/jquery-ui.js"></script>
+<script type="text/JavaScript" src="js/jquery.ui.timepicker.js"></script>
+<script type="text/JavaScript" src="js/jquery.readmore.js"></script>
+<script type="text/JavaScript" src="js/tablesorter.js"></script>
+<script type="text/javascript" src="js/table2CSV.js"></script>
+<script type="text/javascript" src="js/jquery.columnmanager.pack.js"></script>
+<script type="text/javascript" src="js/jquery.clickmenu.js"></script>
+<script type="text/javascript" src="js/expanding.js"></script>
 
 <script type="text/JavaScript">
 $("#org_preselected").val("<?=substr($org_pids,1)?>");

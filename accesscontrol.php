@@ -104,7 +104,7 @@ $hostarray = explode(".",$_SERVER['HTTP_HOST']);
     }
     #nav-trigger span::after { display:none; }
   </style>
-  <script type="text/JavaScript" src="js_procedural/jquery.js"></script>
+  <script type="text/JavaScript" src="js/jquery.js"></script>
 </head>
 <body class="accesscontrol full" onload="document.lform.usr.focus();">
   <div id="main-container">
