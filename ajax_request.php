@@ -17,8 +17,8 @@ case "OrgName":
   }
   break;
 case "ActionTemplate":
-  if (isset($_REQUEST['ctid']) && $_REQUEST['ctid']!="") {
-    $result = sqlquery_checked("SELECT Template FROM actiontype WHERE ActionTypeID=".$_REQUEST['ctid']);
+  if (isset($_REQUEST['atid']) && $_REQUEST['atid']!="") {
+    $result = sqlquery_checked("SELECT Template FROM actiontype WHERE ActionTypeID=".$_REQUEST['atid']);
     if (mysqli_num_rows($result)>0) {
       $row = mysqli_fetch_object($result);
       echo $row->Template;
@@ -60,13 +60,13 @@ case "Category":
     }
   }
   break;
-case "CType":
-  if (isset($_REQUEST['ctypeid']) && $_REQUEST['ctypeid']!="") {
-    $result = sqlquery_checked("SELECT * FROM actiontype WHERE ActionTypeID=".$_REQUEST['ctypeid']);
+case "AType":
+  if (isset($_REQUEST['atypeid']) && $_REQUEST['atypeid']!="") {
+    $result = sqlquery_checked("SELECT * FROM actiontype WHERE ActionTypeID=".$_REQUEST['atypeid']);
     if (mysqli_num_rows($result)>0) {
       $row = mysqli_fetch_object($result);
-      $arr = array("ctypeid" => $row->ActionTypeID, "ctype" => $row->ActionType,
-      "ctcolor" => $row->BGColor, "cttemplate" => $row->Template);
+      $arr = array("atypeid" => $row->ActionTypeID, "atype" => $row->ActionType,
+      "atcolor" => $row->BGColor, "attemplate" => $row->Template);
       die (json_encode($arr));
     } else {
       die(json_encode(array("alert" => "Record not found.")));

@@ -34,14 +34,14 @@ if ($_POST['pc_upd']) {
 } elseif ($_POST['cat_del']) {
 
   // if first time around, check for percat records - if none, don't need confirmation
-  if (!$confirmed) {
+  if (!isset($confirmed)) {
     $result = sqlquery_checked("SELECT percat.PersonID,FullName,Furigana FROM percat LEFT JOIN person ON".
     " percat.PersonID=person.PersonID WHERE CategoryID=".$_POST['catid']." ORDER BY Furigana");
     if (mysqli_num_rows($result) == 0) {
       $confirmed = 1;
     }
   }
-  if ($confirmed) {
+  if (isset($confirmed)) {
     sqlquery_checked("DELETE FROM percat WHERE CategoryID=".$_POST['catid']);
     if (mysqli_affected_rows($db) > 0) {
       $message = sprintf(_("%s persons removed from category.")."\\n",mysqli_affected_rows($db));
@@ -52,9 +52,10 @@ if ($_POST['pc_upd']) {
     }
   } else {
   //already did query for the category's members - now tell the user and ask for confirmation
-    echo "<h3 class=\"alert\">"._("Please Confirm Category Delete")."</font></h3>\n<p>";
-    printf(_("The following %s entries are members of the %s category."),mysqli_num_rows($result),$_POST['category']);
-    echo _(" If you are sure you want to delete these category associations, click the button. (If not, just press your browser's Back button.)"); ?>
+?>
+<h3 class="alert"><?=_("Please Confirm Category Delete")?></font></h3>
+<p><?php printf(_("The following %s entries are members of the %s category."),mysqli_num_rows($result),$_POST['category']); ?>
+<?=_(" If you are sure you want to delete these category associations, click the button. (If not, just press your browser's Back button.)")?>
 </p>
 <form action="<?=$_SERVER['PHP_SELF']?>" method="post">
   <input type="hidden" name="catid" value="<?=$_POST['catid']?>">
@@ -72,41 +73,42 @@ if ($_POST['pc_upd']) {
     $need_confirmation = 1;
   }
   
-// ********** CONTACT TYPE  **********
-} elseif ($_POST['ct_add_upd']) {
+// ********** ACTION TYPE  **********
+} elseif (isset($_POST['at_add_upd'])) {
+  echo "<pre>".print_r($_POST,true)."</pre>";
 
-  if ($ctypeid == "new") {
-    sqlquery_checked("INSERT INTO actiontype (ActionType,BGColor,Template) VALUES ('".h2d($_POST['ctype'])."','".$_POST['ctcolor']."','".h2d($_POST['cttemplate'])."')");
+  if ($_POST['atypeid'] == "new") {
+    sqlquery_checked("INSERT INTO actiontype (ActionType,BGColor,Template) VALUES ('".h2d($_POST['atype'])."','".$_POST['atcolor']."','".h2d($_POST['attemplate'])."')");
     if (mysqli_affected_rows($db) == 1) {
       $message = _("New action type successfully added.");
     }
   } else {
-    sqlquery_checked("UPDATE actiontype SET ActionType='".h2d($_POST['ctype'])."',BGColor='".$_POST['ctcolor']."',Template='".h2d($_POST['cttemplate'])."' WHERE ActionTypeID=".$_POST['ctypeid']);
+    sqlquery_checked("UPDATE actiontype SET ActionType='".h2d($_POST['atype'])."',BGColor='".$_POST['atcolor']."',Template='".h2d($_POST['attemplate'])."' WHERE ActionTypeID=".$_POST['atypeid']);
     if (mysqli_affected_rows($db) == 1) {
       $message = _("Action Type information successfully updated.");
     }
   }
 
-} elseif ($_POST['ct_del']) {
+} elseif (isset($_POST['at_del'])) {
 
   // if first time around, check for action records - if none, don't need confirmation
-  if (!$confirmed) {
-    $result = sqlquery_checked("SELECT count(*) AS num FROM action WHERE ActionTypeID=".$_POST['ctypeid']);
+  if (!isset($confirmed)) {
+    $result = sqlquery_checked("SELECT count(*) AS num FROM action WHERE ActionTypeID=".$_POST['atypeid']);
     $row = mysqli_fetch_object($result);
     if ($row->num == 0) {
       $confirmed = 1;
     } else {
-      $ct_num = $row->num;
+      $at_num = $row->num;
     }
   }
-  if ($confirmed) {
-    if ($_POST['new_ctypeid']) {
-      sqlquery_checked("UPDATE action SET ActionTypeID=".$_POST['new_ctypeid']." WHERE ActionTypeID=".$_POST['ctypeid']);
+  if (isset($confirmed)) {
+    if ($_POST['new_atypeid']) {
+      sqlquery_checked("UPDATE action SET ActionTypeID=".$_POST['new_atypeid']." WHERE ActionTypeID=".$_POST['atypeid']);
       if (mysqli_affected_rows($db) > 0) {
         $message = sprintf(_("%s related action records updated.")."\\n",mysqli_affected_rows($db));
       }
     }
-    sqlquery_checked("DELETE FROM actiontype WHERE ActionTypeID=".$_POST['ctypeid']." LIMIT 1");
+    sqlquery_checked("DELETE FROM actiontype WHERE ActionTypeID=".$_POST['atypeid']." LIMIT 1");
     if (mysqli_affected_rows($db) == 1) {
       $message .= _("Action Type successfully deleted.");
     }
@@ -114,21 +116,21 @@ if ($_POST['pc_upd']) {
   //ask for confirmation
     $result = sqlquery_checked("SELECT * FROM actiontype ORDER BY ActionType");
     while ($row = mysqli_fetch_object($result)) {
-      if ($row->ActionTypeID != $_POST['ctypeid']) {
+      if ($row->ActionTypeID != $_POST['atypeid']) {
         $options .= "\n      <option value=".$row->ActionTypeID.">".$row->ActionType."</option>";
       }
     }
 ?>
-<h3><font color="red"><?=_("Please Confirm Action Type Delete")?></font></h3>
-<?php printf(_("There are %s action entries of this action type.  If you delete this action type, I must assign a different action type to those action entries."),$ct_num);
+<h3 style="color:red"><?=_("Please Confirm Action Type Delete")?></h3>
+<?php printf(_("There are %s action entries of this action type.  If you delete this action type, I must assign a different action type to those action entries."),$at_num);
 echo _(" If you don't want to do this, just press your browser's Back button.  To reassign the action entries, choose from the list below:"); ?>
 <form action="<?=$_SERVER['PHP_SELF']?>" method="post">
   <p><?=_("New Action Type")?>:
-    <select size="1" name="new_ctypeid">
+    <select size="1" name="new_atypeid">
       <option value=""><?=_("Select...")?></option><?=$options?>
     </select>
-  <input type="hidden" name="ctypeid" value="<?=$_POST['ctypeid']?>">
-  <input type="hidden" name="ct_del" value="<?=$_POST['ct_del']?>">
+  <input type="hidden" name="atypeid" value="<?=$_POST['atypeid']?>">
+  <input type="hidden" name="at_del" value="<?=$_POST['at_del']?>">
   <input type="hidden" name="confirmed" value="1">
   <input type="submit" value="<?=_("Yes, reassign the action entries")?>">
 </form>
@@ -154,7 +156,7 @@ echo _(" If you don't want to do this, just press your browser's Back button.  T
 } elseif ($_POST['dt_del']) {
 
   // if first time around, check for donation records - if none, don't need confirmation
-  if (!$confirmed) {
+  if (!isset($confirmed)) {
     $result = sqlquery_checked("SELECT count(*) AS num FROM donation WHERE DonationTypeID=".$_POST['dtypeid']);
     $row = mysqli_fetch_object($result);
     if ($row->num == 0) {
@@ -163,9 +165,12 @@ echo _(" If you don't want to do this, just press your browser's Back button.  T
       $dt_num = $row->num;
     }
   }
-  if ($confirmed) {
+  if (isset($confirmed)) {
     if ($_POST['new_dtypeid']) {
-      sqlquery_checked("UPDATE donation SET DonationTypeID=".$_POST['new_dtypeid']." WHERE DonationTypeID=".$_POST['dtypeid']);
+      $prepend_clause = '';
+      if (isset($_POST['prepend']) && $_POST['prepend_text']!='' && substr($_POST['prepend_text'], -1)!=' ')
+          $prepend_clause = ", Description=CONCAT('".$_POST['prepend_text'].(substr($_POST['prepend_text'], -1)!=' '?' ':'')."',Description)";
+      sqlquery_checked("UPDATE donation SET DonationTypeID=".$_POST['new_dtypeid'].$prepend_clause." WHERE DonationTypeID=".$_POST['dtypeid']);
       if (mysqli_affected_rows($db) > 0) {
         $message = sprintf(_("%s related donation records updated.")."\\n",mysqli_affected_rows($db));
       }
@@ -178,23 +183,36 @@ echo _(" If you don't want to do this, just press your browser's Back button.  T
   //ask for confirmation
     $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
     while ($row = mysqli_fetch_object($result)) {
-      if ($row->DonationTypeID != $ctid) {
+      if ($row->DonationTypeID == $_POST['dtypeid']) {
+        $current_dtype = $row->DonationType;
+      } else {
         $options .= "\n      <option value=".$row->DonationTypeID.">".$row->DonationType."</option>";
       }
     }
 ?>
-<h3><font color="red"><?=_("Please Confirm Donation Type Delete")?></font></h3>
-<?php printf(_("There are %s donation entries of this donation type.  If you delete this donation type, I must assign a different donation type to those donation entries."),$dt_num);
-echo _(" If you don't want to do this, just press your browser's Back button.  To reassign the donation entries, choose from the list below:"); ?>
+<h3 style="color:red"><?=_("Please Confirm Donation Type Delete")?></h3>
+<? printf(_("There are %s donation entries of donation type '%s' (%sclick for list%s). ".
+    "If you delete this donation type, I must assign a different donation type to these donation entries."),
+    $dt_num, $current_dtype, '<a href="donation_list.php?nav=1&show_list='.
+    urlencode(_("Donation List")).'&listtype=Normal&dtype[]='.$_POST['dtypeid'].'" target="_blank">', '</a>');
+echo _(" If you don't want to do this, just press your browser's Back button. ".
+    "To reassign the donation entries, choose from the list below:");
+?>
 <form action="<?=$_SERVER['PHP_SELF']?>" method="post">
-  <p><?=_("New Donation Type")?>:
+  <div style="margin:10px">
+    <label><?=_("New Donation Type")?>:
     <select size="1" name="new_dtypeid">
       <option value=""><?=_("Select...")?></option><?=$options?>
-    </select>
+    </select></label>
+  </div>
+  <div style="margin:10px">
+    <label><input type="checkbox" name="prepend" checked="checked"><?=_("Prepend this text to donation descriptions:")?></label>
+    <input type="text" name="prepend_text" value="(<?=$current_dtype?>) " style="width:20em">
+  </div>
   <input type="hidden" name="dtypeid" value="<?=$_POST['dtypeid']?>">
   <input type="hidden" name="dt_del" value="<?=$_POST['dt_del']?>">
   <input type="hidden" name="confirmed" value="1">
-  <input type="submit" value="<?=_("Yes, reassign the donation entries")?>">
+  <p><input type="submit" value="<?=_("Yes, reassign the donation entries")?>"></p>
 </form>
 <?php
     $need_confirmation = 1;

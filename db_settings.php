@@ -29,7 +29,7 @@ function hideSpinner(el) {
 }
 
 $(document).ready(function(){
-  //$( "#cttemplate,#dashboardhead,#dashboardbody" ).resizable();
+  //$( "#attemplate,#dashboardhead,#dashboardbody" ).resizable();
 <?php if($_SESSION['lang']=="ja_JP") echo "  $.datepicker.setDefaults( $.datepicker.regional[\"ja\"] );\n"; ?>
   $('#eventstartdate').datepicker({ dateFormat: 'yy-mm-dd'});
   $("#eventenddate").datepicker({ dateFormat: 'yy-mm-dd' });
@@ -92,22 +92,22 @@ $(document).ready(function(){
   });
 
 // AJAX call for Action Types
-  $("#ctypeid").change(function(){
-    if ($("#ctypeid").val() == "new") {
-      $("#ctype").val("");
-      $("#ctcolor").val("FFFFFF");
-      $("#ctcolor_button").css("background-color","#FFFFFF");
-      $("#ct_del").prop('disabled', true);
+  $("#atypeid").change(function(){
+    if ($("#atypeid").val() == "new") {
+      $("#atype").val("");
+      $("#atcolor").val("FFFFFF");
+      $("#atcolor_button").css("background-color","#FFFFFF");
+      $("#at_del").prop('disabled', true);
     } else {
-      showSpinner($('#ctypeid'));
-      $.getJSON("ajax_request.php?req=CType&ctypeid="+$('#ctypeid').val(), function(data) {
-        hideSpinner($('#ctypeid'));
+      showSpinner($('#atypeid'));
+      $.getJSON("ajax_request.php?req=AType&atypeid="+$('#atypeid').val(), function(data) {
+        hideSpinner($('#atypeid'));
         if (data.alert) {
           alert(data.alert);
         } else {
           $('#atform').populate(data, {resetForm:false});
-          $("#ctcolor_button").css("background-color","#"+data.ctcolor);
-          $("#ct_del").prop('disabled', false);
+          $("#atcolor_button").css("background-color","#"+data.atcolor);
+          $("#at_del").prop('disabled', false);
         }
       });
     }
@@ -216,7 +216,7 @@ function validate(form) {
       return false;
     }
     break;
-  case "ct":
+  case "at":
     if (document.atform.at.value == "") {
       alert("<?=_("Action Type name cannot be blank.")?>");
       return false;
@@ -294,10 +294,10 @@ while ($row = mysqli_fetch_object($result))  echo "    <option value=\"".$row->C
 
 <!-- CONTACT TYPES -->
 
-<form action="do_maint.php" method="post" name="atform" id="atform" onSubmit="return validate('ct');">
+<form action="do_maint.php" method="post" name="atform" id="atform" onSubmit="return validate('at');">
   <fieldset><legend><?=_("Action Types")?></legend>
   <p><?=_("Fill in the information to add a new Action Type (the color is optional). Or select an existing entry to make changes or delete.")?></p>
-  <select id="ctypeid" name="ctypeid" size="1">
+  <select id="atypeid" name="atypeid" size="1">
     <option value="new"><?=_("New Action Type...")?></option>
 <?php
 $result = sqlquery_checked("SELECT * FROM actiontype ORDER BY ActionType");
@@ -305,19 +305,19 @@ while ($row = mysqli_fetch_object($result))  echo "    <option value=\"".$row->A
 ?>
   </select>
   <label class="label-n-input"><?=_("Action Type Name")?>: <input type="text"
-  id="ctype" name="ctype" style="width:20em" maxlength="30"></label>
+  id="atype" name="atype" style="width:20em" maxlength="30"></label>
   <div class="color_section"><label class="label-n-input"><?=_("Optional background color (choose something light)")?>: <input
-  name="ctcolor_button" id="ctcolor_button" type="button" value="<?=_("Click to pick a color...")?>">
-  <input type="text" id="ctcolor" name="ctcolor" value="FFFFFF" style="width:5em"></label>
+  name="atcolor_button" id="atcolor_button" type="button" value="<?=_("Click to pick a color...")?>">
+  <input type="text" id="atcolor" name="atcolor" value="FFFFFF" style="width:5em"></label>
   <script type="text/javascript">
-  var colorBtn = document.getElementById("ctcolor_button");
-  var jsc = new jscolor.color(colorBtn, {valueElement:'ctcolor',pickerMode:'HSV',pickerOnfocus:false});
+  var colorBtn = document.getElementById("atcolor_button");
+  var jsc = new jscolor.color(colorBtn, {valueElement:'atcolor',pickerMode:'HSV',pickerOnfocus:false});
   $(colorBtn).click(function (evt) { jsc.showPicker(); evt.stopPropagation(); });
   $("body").mouseup(function () { jsc.hidePicker(); });
   </script></div>
-  <label class="label-n-input"><?=_("Template")?>: <textarea id="cttemplate" name="cttemplate" rows="3" cols="50"></textarea></label>
-  <div class="submits"><input type="submit" id="ct_add_upd" name="ct_add_upd" value="<?=_("Add or Update")?>">
-  <input type="submit" id="ct_del" name="ct_del" value="<?=_("Delete")?>" disabled></div>
+  <label class="label-n-input"><?=_("Template")?>: <textarea id="attemplate" name="attemplate" rows="3" cols="50"></textarea></label>
+  <div class="submits"><input type="submit" id="at_add_upd" name="at_add_upd" value="<?=_("Add or Update")?>">
+  <input type="submit" id="at_del" name="at_del" value="<?=_("Delete")?>" disabled></div>
 </fieldset></form>
 
 <?php
