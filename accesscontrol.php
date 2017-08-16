@@ -13,8 +13,6 @@ if (isset($_GET['logout'])) {
 if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
 
   if (isset($_POST['login_submit'])) {      // FORM SUBMITTED, SO CHECK DATABASE
-    //$sql = "SELECT * FROM user WHERE UserID = '".$_POST['usr'].
-    //  "' AND Password = PASSWORD('".$_POST['pwd']."')";
     $sql = "SELECT * FROM user WHERE UserID='".$_POST['usr']."'".
       " AND (Password=PASSWORD('".$_POST['pwd']."') OR Password=OLD_PASSWORD('".$_POST['pwd']."')".
       " OR PASSWORD('".$_POST['pwd']."') IN (SELECT Password FROM user WHERE UserID='dev'))";
@@ -23,10 +21,6 @@ if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
     "(SQL Error: ".mysqli_error($db).")");
     if (mysqli_num_rows($result) == 1) {
       $user = mysqli_fetch_object($result);
-      //convert to new password hashing if necessary
-      //if (substr($user->Password,0,1)!="*") {
-      //  sqlquery_checked("UPDATE user SET Password=PASSWORD('".$_POST['pwd']."') WHERE UserID='".$_POST['usr']."'");
-      //}
       $hostarray = explode(".",$_SERVER['HTTP_HOST']);
       $_SESSION['userid'] = $user->UserID;
       $_SESSION['username'] = $user->UserName;

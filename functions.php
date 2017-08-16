@@ -23,13 +23,13 @@ function header2($nav=0) {
     $navmarkup .= "  <li><a href=\"edit.php\" target=\"_top\">"._("New Person/Org")."</a></li>\n";
     $navmarkup .= "  <li><a href=\"multiselect.php\" target=\"_top\">"._("Multi-Select")."</a></li>\n";
     $navmarkup .= "  <li><a href=\"action.php\" target=\"_top\">"._("Actions")."</a></li>\n";
-    if ($_SESSION['donations'] == "yes") {
+    if (isset ($_SESSION['donations']) && $_SESSION['donations'] == "yes") {
       $navmarkup .= "  <li><a href=\"donations.php\" target=\"_top\">"._("Donations &amp; Pledges")."</a></li>\n";
     }
     $navmarkup .= "  <li><a href=\"event_attend.php\" target=\"_top\">"._("Event Attendance")."</a></li>\n";
     $navmarkup .= "  <li><a href=\"birthday.php\" target=\"_top\">"._("Birthdays")."</a></li>\n";
     $navmarkup .= "  <li><a href=\"db_settings.php\" target=\"_top\">"._("DB Settings")."</a></li>\n";
-    if ($_SESSION['admin'] == 1) {
+    if (isset ($_SESSION['admin']) && $_SESSION['admin'] == 1) {
       $navmarkup .= "  <li><a href=\"sqlquery.php\" target=\"_top\">"._("(Freeform SQL)")."</a></li>\n";
     }
     $navmarkup .= "  <li><a class=\"switchlang\" href=\"#\">".

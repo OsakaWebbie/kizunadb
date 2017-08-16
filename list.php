@@ -227,7 +227,7 @@ if ($_REQUEST['freesql'] != "") {
 
 if (isset($_GET['ps'])) {
   list($psid,$psnum) = explode(":",$_GET['ps']);
-  $tempres = sqlquery_checked("SELECT Pids,Client FROM kizuna_common.preselect WHERE PSID='$psid'");
+  $tempres = sqlquery_checked("SELECT Pids,Client FROM preselect WHERE PSID='$psid'");
   $psobj = mysqli_fetch_object($tempres);
   if ($psobj && CLIENT==$psobj->Client && $psobj->Pids!="") $preselected = $psobj->Pids;
 } else if (isset($_REQUEST['preselected']) && $_REQUEST['preselected']!="") {
@@ -366,7 +366,7 @@ if ($_REQUEST['countonly']) {  //if count only, just get pids for multi-select
 }
 echo $_SESSION['userid']=="karen"?"<pre class=\"noprint\">".$sql."</pre>":"";
 echo "<div id=\"pids\" style=\"display:none\">".substr($pid_list,1)."</div>\n";
-sqlquery_checked("INSERT INTO kizuna_common.preselect(PSID,Pids,Client) VALUES('".$psid."','".substr($pid_list,1)."','".CLIENT."')");
+sqlquery_checked("INSERT INTO preselect(PSID,Pids,Client) VALUES('".$psid."','".substr($pid_list,1)."','".CLIENT."')");
 ?>
 <script type="text/javascript" src="js/jquery.js"></script>
 <script type="text/javascript" src="js/tablesorter.js"></script>
