@@ -35,7 +35,7 @@ if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
       $_SESSION['hasdashboard'] = $user->DashboardBody ? 1 : 0;
 
       //GET ANNOUNCEMENTS IF ANY
-      $result = sqlquery_checked("SELECT MAX(LoginTime) Last FROM login_log WHERE UserID='".$user->UserID."'");
+      $result = sqlquery_checked("SELECT MAX(LoginTime) Last FROM loginlog WHERE UserID='".$user->UserID."'");
       $row = mysqli_fetch_object($result);
       if ($row->Last != NULL) { //make sure it's not a brand new user
         $lastlogin = $row->Last;
@@ -50,7 +50,7 @@ if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
       }
 
       mysqli_query($db, "SET @@SQL_MODE = REPLACE(@@SQL_MODE, 'STRICT_TRANS_TABLES', '')") or die("SQL Error: ".mysqli_error($db).")");
-      $sql = "INSERT INTO login_log(UserID,IPAddress,UserAgent,Languages) VALUES('".
+      $sql = "INSERT INTO loginlog(UserID,IPAddress,UserAgent,Languages) VALUES('".
         $user->UserID."','".$_SERVER['REMOTE_ADDR']."','".$_SERVER['HTTP_USER_AGENT']."','".
         $_SERVER['HTTP_ACCEPT_LANGUAGE']."')";
       $result = mysqli_query($db, $sql) or die("SQL Error: ".mysqli_error($db).")");
