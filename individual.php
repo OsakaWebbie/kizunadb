@@ -23,11 +23,11 @@ if ($_POST['newperorg']) {
 
 // A REQUEST TO ADD A CONTACT RECORD?
 if ($newaction) {
-  $result = sqlquery_checked("SELECT * FROM action WHERE PersonID=${pid} AND ActionTypeID=${ctype} ".
+  $result = sqlquery_checked("SELECT * FROM action WHERE PersonID=${pid} AND ActionTypeID=${atype} ".
     "AND ActionDate='${date}' AND Description= '".h2d($desc)."'");
   if (mysqli_num_rows($result) == 0) {  // making sure this isn't an accidental repeat entry
     $result = sqlquery_checked("INSERT INTO action(PersonID, ActionTypeID, ActionDate, Description) ".
-        "VALUES($pid, $ctype, '$date', '".h2d($desc)."')");
+        "VALUES($pid, $atype, '$date', '".h2d($desc)."')");
     header("Location: individual.php?pid=".$_POST['pid']."#actions");
     exit;
   }
@@ -42,7 +42,7 @@ if ($delaction) {
 
 // A REQUEST TO UPDATE A CONTACT RECORD?
 if ($editactionsave) {
-  $result = sqlquery_checked("UPDATE action SET ActionTypeID=$ctype, ActionDate='$date', ".
+  $result = sqlquery_checked("UPDATE action SET ActionTypeID=$atype, ActionDate='$date', ".
     "Description='".h2d($desc)."' WHERE ActionID=$cid");
   header("Location: individual.php?pid=".$_POST['pid']."#actions");
   exit;
@@ -153,7 +153,8 @@ if ($newupload) {
     if (mysqli_num_rows($result) == 0) {
       $msg = "This file type is not approved for uploads.";
     } else {
-      sqlquery_checked("INSERT INTO upload(PersonID,UploadTime,FileName,Description)"."VALUES($pid,NOW(),'".h2d($_FILES['uploadfile']['name'])."','".h2d($_POST['uploaddesc'])."')");
+      sqlquery_checked("INSERT INTO upload(PersonID,UploadTime,FileName,Description)".
+          "VALUES($pid,NOW(),'".h2d($_FILES['uploadfile']['name'])."','".h2d($_POST['uploaddesc'])."')");
       $uid = mysqli_insert_id($db);
       if (!move_uploaded_file($_FILES['uploadfile']['tmp_name'], CLIENT_PATH."/uploads/u$uid.$ext")) {
         sqlquery_checked("DELETE FROM upload WHERE UploadID=$uid");
@@ -415,7 +416,7 @@ echo "</div>";  //end of cats-out
 <h3 class="section-title"><?=_("Related Organizations")?></h3>
 
 <?php // FORM FOR ADDING ORGS ?>
-<form name="orgform" id="orgform" method="POST" action="<?=${PHP_SELF}."?pid=$pid"?>" onSubmit="return ValidateOrg()">
+<form name="orgform" id="orgform" method="POST" action="<?=${_SERVER['PHP_SELF']}."?pid=$pid"?>" onSubmit="return ValidateOrg()">
 <input type="hidden" name="pid" value="<?=$pid?>" />
 <label class="label-n-input"><?=_("Organization ID")?>: <input type="text" name="orgid" id="orgid" style="width:5em;ime-mode:disabled" value="" /><span id="orgname" style="color:darkred;font-weight:bold"></span></label>
 (<label class="label-n-input"><?=_("Search")?>: <input type="text" name="orgsearchtxt" id="orgsearchtxt" style="width:7em" value=""></label>
@@ -575,9 +576,9 @@ if ($editaction) {   // A CONTACT IN THE TABLE IS TO BE EDITED
     value="<?=($editaction ? $date : "")?>"></label>
 <?php
 $result = sqlquery_checked("SELECT * FROM actiontype ORDER BY ActionType");
-echo "<label class=\"label-n-input\">"._("Type").": <select size=\"1\" id=\"ctype\" name=\"ctype\"><option value=\"NULL\">"._("Select...")."</option>\n";
+echo "<label class=\"label-n-input\">"._("Type").": <select size=\"1\" id=\"atype\" name=\"atype\"><option value=\"NULL\">"._("Select...")."</option>\n";
 while ($row = mysqli_fetch_object($result)) {
-  echo "<option value=\"".$row->ActionTypeID."\"".(($editaction && $row->ActionTypeID==$ctype)?
+  echo "<option value=\"".$row->ActionTypeID."\"".(($editaction && $row->ActionTypeID==$atype)?
         " selected":"")." style=\"background-color:#".$row->BGColor."\">".$row->ActionType."</option>\n";
 }
 ?>
@@ -617,15 +618,15 @@ if (mysqli_num_rows($result) == 0) {
     echo $row->ActionDate."<span style=\"display:none\">".$row->ActionID."</span>".$fcend."</td>\n";
     echo "<td nowrap>".$fcstart.$row->ActionType.$fcend."</td>\n";
     echo "<td>".$fcstart."<span class=\"readmore\">".url2link(d2h($row->Description))."</span>".$fcend."</td>\n";
-    echo "<form method=\"post\" action=\"${PHP_SELF}?pid=$pid#actions\">\n";
+    echo "<form method=\"post\" action=\"${_SERVER['PHP_SELF']}?pid=$pid#actions\">\n";
     echo "<td class=\"button-in-table\">";
     echo "<input type=\"hidden\" name=\"pid\" value=\"$pid\">";
     echo "<input type=\"hidden\" name=\"cid\" value=\"$row->ActionID\">\n";
-    echo "<input type=\"hidden\" name=\"ctype\" value=\"$row->ActionTypeID\">";
+    echo "<input type=\"hidden\" name=\"atype\" value=\"$row->ActionTypeID\">";
     echo "<input type=\"hidden\" name=\"date\" value=\"$row->ActionDate\">\n";
     echo "<input type=\"hidden\" name=\"desc\" value=\"".d2h($row->Description)."\">\n";
     echo "<input type=\"submit\" name=\"editaction\" value=\""._("Edit")."\"></td></form>\n";
-    echo "<form method=\"post\" action=\"${PHP_SELF}?pid=$pid#actions\" onSubmit=";
+    echo "<form method=\"post\" action=\"${_SERVER['PHP_SELF']}?pid=$pid#actions\" onSubmit=";
     echo "\"return confirm('Are you sure you want to delete record of ".$row->ActionType;
     echo " on ".$row->ActionDate."?')\">\n";
     echo "<td class=\"button-in-table\">";
@@ -658,7 +659,7 @@ if ($_SESSION['donations'] == "yes") {   // covers both DONATIONS and PLEDGES se
   if ($editdonation) {   // A DONATION IN THE TABLE IS TO BE EDITED
     echo "<font color=\"red\"><b>Edit any fields you want to change, and Press 'SAVE' to save changes</b></font><br>";
   }
-  echo "<form name=\"donationform\" id=\"donationform\" method=\"POST\" action=\"${PHP_SELF}?pid=$pid#donations\" onSubmit=\"return ValidateDonation()\">\n";
+  echo "<form name=\"donationform\" id=\"donationform\" method=\"POST\" action=\"${_SERVER['PHP_SELF']}?pid=$pid#donations\" onSubmit=\"return ValidateDonation()\">\n";
   echo "<input type=\"hidden\" name=\"pid\" value=\"$pid\">\n";
   if ($editdonation) echo "<input type=\"hidden\" name=\"did\" value=\"$did\">\n";
   echo "<label class=\"label-n-input\">"._("Date").
@@ -728,7 +729,7 @@ $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
           number_format($row->Amount,$_SESSION['currency_decimals']).$fcend."</td>\n";
       echo "<td align=\"center\">".$fcstart.$row->Description.$fcend."</td>\n";
       echo "<td align=\"center\">".$fcstart.($row->Processed ? "〇" : "").$fcend."</td>\n";
-      echo "<form method=\"POST\" action=\"${PHP_SELF}?pid=$pid#donations\">\n<td align=\"center\">";
+      echo "<form method=\"POST\" action=\"${_SERVER['PHP_SELF']}?pid=$pid#donations\">\n<td align=\"center\">";
       echo "<input type=\"hidden\" name=\"pid\" value=\"$pid\">";
       echo "<input type=\"hidden\" name=\"did\" value=\"$row->DonationID\">\n";
       echo "<input type=\"hidden\" name=\"plid\" value=\"$row->PledgeID\">";
@@ -738,7 +739,7 @@ $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
       echo "<input type=\"hidden\" name=\"desc\" value=\"$row->Description\">\n";
       echo "<input type=\"hidden\" name=\"proc\" value=\"$row->Processed\">\n";
       echo "<input type=\"submit\" name=\"editdonation\" value=\"Edit\"></td></form>\n";
-      echo "<form method=\"POST\" action=\"${PHP_SELF}?pid=$pid#donations\" onSubmit=";
+      echo "<form method=\"POST\" action=\"${_SERVER['PHP_SELF']}?pid=$pid#donations\" onSubmit=";
       echo "\"return confirm('Are you sure you want to delete record of ".
           $_SESSION['currency_mark'].number_format($row->Amount,$_SESSION['currency_decimals']).
           " on ".$row->DonationDate."?')\">\n<td align=center>";
@@ -819,7 +820,7 @@ $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
 echo "<h3 class=\"section-title\">"._("Event Attendance")."</h3>\n";
 
 // FORM FOR ADDING ATTENDANCE
-echo "<form name=\"attendform\" id=\"attendform\" method=\"post\" action=\"${PHP_SELF}?pid=$pid#attendance\" onSubmit=\"return ValidateAttendance()\">\n";
+echo "<form name=\"attendform\" id=\"attendform\" method=\"post\" action=\"${_SERVER['PHP_SELF']}?pid=$pid#attendance\" onSubmit=\"return ValidateAttendance()\">\n";
 echo "<input type=\"hidden\" name=\"pid\" value=\"$pid\" />\n";
 $result = sqlquery_checked("SELECT EventID,Event,UseTimes,IF(EventEndDate AND EventEndDate<CURDATE(),'inactive','active') AS Active FROM event ORDER BY Event");
 //echo "<div style=\"display:inline-block\">\n";
@@ -881,7 +882,7 @@ if (mysqli_num_rows($result) == 0) {
       echo "<br />".sprintf(_("[Total time %s]"),(($row->minutes-$row->minutes%60)/60).":".sprintf("%02d",$row->minutes%60));
     }
     echo "</td><td>".d2h($row->Remarks)."</td>\n";
-    echo "<form method=\"POST\" action=\"${PHP_SELF}?pid=$pid\" onSubmit=";
+    echo "<form method=\"POST\" action=\"${_SERVER['PHP_SELF']}?pid=$pid\" onSubmit=";
     echo "\"return confirm('".sprintf(_("Are you sure you want to delete these %s attendance records?"),
     $row->times)."')\"><td class=\"button-in-table\">";
     echo "<input type=\"hidden\" name=\"pid\" value=\"$pid\">\n";
@@ -902,10 +903,9 @@ if (mysqli_num_rows($result) == 0) {
 echo "<h3 class=\"section-title\">"._("Uploaded Files")."</h3>\n";
 
 // FORM FOR UPLOADING FILES
-echo "<form name=\"uploadform\" method=\"post\" action=\"${PHP_SELF}?pid=$pid#uploads\" enctype=\"multipart/form-data\" onSubmit=\"return ValidateUpload()\">\n";
+echo "<form name=\"uploadform\" method=\"post\" action=\"${_SERVER['PHP_SELF']}?pid=$pid#uploads\" enctype=\"multipart/form-data\" onSubmit=\"return ValidateUpload()\">\n";
 echo "<input type=\"hidden\" name=\"pid\" value=\"$pid\" />\n";
-//echo "<input type=\"hidden\" id=\"uploadtime\" name=\"uploadtime\" value=\"".date()."\" />\n";
-echo "<label for=\"uploadfile\" class=\"label-n-input\">"._("File").": ";
+echo "<label for=\"uploadfile\" class=\"label-n-input\">"._("File")._(" (max 8MB)").": ";
 echo "<input id=\"uploadfile\" name=\"uploadfile\" type=\"file\" style=\"width:20em\" /></label>\n";
 echo "<label for=\"uploaddesc\" class=\"label-n-input\">"._("Description").": ";
 echo "<input id=\"uploaddesc\" name=\"uploaddesc\" type=\"text\" style=\"width:85%\" /></label>\n";
@@ -924,7 +924,7 @@ if (mysqli_num_rows($result) == 0) {
     echo "<tr><td nowrap><span style=\"display:none\">".$row->UploadTime."</span>".$row->UploadDate."</td>\n";
     echo "<td><a href=\"download.php?uid=".$row->UploadID."\">".$row->FileName."</a></td>\n";
     echo "<td>".$row->Description."</td>\n";
-    echo "<form method=\"POST\" action=\"${PHP_SELF}?pid=$pid\" onSubmit=";
+    echo "<form method=\"POST\" action=\"${_SERVER['PHP_SELF']}?pid=$pid\" onSubmit=";
     echo "\"return confirm('"._("Are you sure you want to delete this file?")."')\"><td class=\"button-in-table\">";
     echo "<input type=\"hidden\" name=\"pid\" value=\"$pid\">\n";
     echo "<input type=\"hidden\" name=\"uid\" value=\"".$row->UploadID."\">\n";
@@ -1006,9 +1006,9 @@ if($_SESSION['lang']=="ja_JP") {
     }
   });
 
-  $("#ctype").change(function(){  //insert template text in Action description when applicable ActionType is selected
+  $("#atype").change(function(){  //insert template text in Action description when applicable ActionType is selected
     if (!$.trim($("#actiondesc").val())) {
-      $("#actiondesc").load("ajax_request.php",{'req':'ActionTemplate','ctid':$("#ctype").val()}, function() {
+      $("#actiondesc").load("ajax_request.php",{'req':'ActionTemplate','atid':$("#atype").val()}, function() {
         $(this).change();
       });
     }
@@ -1099,7 +1099,7 @@ function ValidateAction(){
     alert('<?=_("Date is invalid.")?>');
     return false;
   }
-  if (document.actionform.ctype.selectedIndex == 0) {
+  if (document.actionform.atype.selectedIndex == 0) {
   alert('<?=_("You must select a Action Type.")?>');
     return false;
   }
@@ -1154,12 +1154,15 @@ function ValidateAttendance(){
   return true;
 }
 
-function ValidateUpload(){
+function ValidateUpload() {
   if ($('#uploadfile').val() == '') {
-    alert('<?=_("You must select a file.")?>');
-    return false;
+      alert('<?=_("You must select a file.")?>');
+      return false;
   }
-  $('#uploadtime').val(Date().getTimezoneOffset()/60);
+  if (document.getElementById('uploadfile').files[0].size > 8*1024*1024) {
+      alert('<?=_("File size cannot exceed 8MB. Yours is: ")?>'+Math.round(document.getElementById('uploadfile').files[0].size/1024/1024*100)/100+"MB");
+      return false;
+  }
   return true;
 }
 
