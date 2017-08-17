@@ -10,7 +10,7 @@ if ($format == "xml") {
   echo "</head><body>";
 }
 
-$pid_array = split(",",$pid_list);
+$pid_array = explode(",",$pid_list);
 $num_pids = count($pid_array);
 for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
   $sql = "SELECT FullName,Furigana,Sex,Birthdate,CellPhone,Email,URL,Country,person.Photo,Remarks,".
@@ -20,7 +20,7 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
     "WHERE PersonID=$pid_array[$pid_index] ORDER BY Furigana";
   $result = sqlquery_checked($sql);
   $row = mysqli_fetch_object($result);
-  if ($xml) {
+  if ($_POST['xml']) {
     echo "<person>\n";
   }
   for ($i=1; $i<7; $i++) {
@@ -118,17 +118,17 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
           break;
         case "photo":
           if ($row->Photo) {
-            $text = "photos/p".$pid_array[$pid_index].".jpg";
-          } elseif ($include_empties) {
-            $text = "photos/no_photo.gif";
+            $text = "photo.php?f=p".$pid_array[$pid_index];
+          } elseif ($_POST['include_empties']) {
+            $text = "graphics/no_photo.jpg";
           }
           break;
         case "category":
-          $array = split(" ",${"cat".$i});
-          $where1 = split("=",$array[0]);
+          $array = explode(" ",${"cat".$i});
+          $where1 = explode("=",$array[0]);
           $where = (($where1[0]=="in")?"":"NOT ") . "CategoryID=" . $where1[1];
           if (count($array) == 3) {
-            $where2 = split("=",$array[2]);
+            $where2 = explode("=",$array[2]);
             $where .= " " . $array[1] . " " . (($where2[0]=="in")?"":"NOT ") . "CategoryID=" . $where2[1];
             if ($array[1] == "OR")  $where = "(".$where.")";
           }
@@ -144,7 +144,7 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
         default:
           $text = $row->{${"field".$i}};
       }  //end of switch statement
-      if ($text || $include_empties || $format == "tab") {
+      if ($text || $_POST['include_empties'] || $format == "tab") {
         if ($format == "xml") {
           $text = str_replace("&","&amp;",$text);
           $text = str_replace("'","&apos;",$text);
@@ -157,7 +157,7 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
           $text = preg_replace("/\r\n|\n|\r/","<br>",$text);
           echo ($i == 1) ? $text : "\t".$text;
         } else {
-          if (${"field".$i} == "photo" && $row->Photo) {
+          if (${"field".$i} == "photo" && ($row->Photo || $_POST['include_empties'])) {
             $text = "<img width=\"150\" src=\"".$text."\" />";
           }
           $text = preg_replace("/\r\n|\n|\r/","<br>\n",$text);

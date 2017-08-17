@@ -10,5 +10,5 @@ define('CLIENT_PATH',"/var/www/kizunadb/client/".CLIENT);
 $path = CLIENT_PATH."/photos/";
 //die($path.$_GET['f'].".jpg");
 header("Content-type: image/jpeg");
-readfile($path.(is_file($path.$_GET['f'].".jpg") ? $_GET['f'] : "missing_file").".jpg");
+readfile((is_file($path.$_GET['f'].".jpg") ? $path.$_GET['f'] : "graphics/missing_file").".jpg");
 
