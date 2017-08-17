@@ -416,7 +416,7 @@ echo "</div>";  //end of cats-out
 <h3 class="section-title"><?=_("Related Organizations")?></h3>
 
 <?php // FORM FOR ADDING ORGS ?>
-<form name="orgform" id="orgform" method="POST" action="<?=${_SERVER['PHP_SELF']}."?pid=$pid"?>" onSubmit="return ValidateOrg()">
+<form name="orgform" id="orgform" method="POST" action="<?=$_SERVER['PHP_SELF']."?pid=$pid"?>" onSubmit="return ValidateOrg()">
 <input type="hidden" name="pid" value="<?=$pid?>" />
 <label class="label-n-input"><?=_("Organization ID")?>: <input type="text" name="orgid" id="orgid" style="width:5em;ime-mode:disabled" value="" /><span id="orgname" style="color:darkred;font-weight:bold"></span></label>
 (<label class="label-n-input"><?=_("Search")?>: <input type="text" name="orgsearchtxt" id="orgsearchtxt" style="width:7em" value=""></label>
