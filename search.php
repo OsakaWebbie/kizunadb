@@ -4,9 +4,9 @@ include("accesscontrol.php");
 
 if (isset($_GET['ps'])) {
   list($psid,$psnum) = explode(":",$_GET['ps']);
-  $tempres = sqlquery_checked("SELECT Pids,Client FROM preselect WHERE PSID='$psid'");
+  $tempres = sqlquery_checked("SELECT Pids FROM preselect WHERE PSID='$psid'");
   $psobj = mysqli_fetch_object($tempres);
-  if ($psobj && CLIENT==$psobj->Client && $psobj->Pids!="") $preselected = $psobj->Pids;
+  if ($psobj && $psobj->Pids!="") $preselected = $psobj->Pids;
 } elseif (isset($_POST['pid_list']) && $_POST['pid_list']!="") {
   $preselected = $_POST['pid_list'];
   $psnum = substr_count($preselected,",")+1;
