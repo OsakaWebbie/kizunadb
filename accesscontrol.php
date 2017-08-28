@@ -13,14 +13,23 @@ if (isset($_GET['logout'])) {
 if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
 
   if (isset($_POST['login_submit'])) {      // FORM SUBMITTED, SO CHECK DATABASE
-    $sql = "SELECT * FROM user WHERE UserID='".$_POST['usr']."'".
-      " AND (Password=PASSWORD('".$_POST['pwd']."') OR Password=OLD_PASSWORD('".$_POST['pwd']."')".
-      " OR PASSWORD('".$_POST['pwd']."') IN (SELECT Password FROM user WHERE UserID='dev'))";
-    $result = mysqli_query($db, $sql) or die("A database error occurred while checking your login details.<br>".
-    "If this error persists, please contact the webservant.<br>".
-    "(SQL Error: ".mysqli_error($db).")");
+    $sql = "SELECT *, IF(Password=OLD_PASSWORD('".$_POST['pwd']."'),1,0) NeedPwdUpgrade".
+        " FROM user WHERE UserID='".$_POST['usr']."'".
+        " AND (Password=PASSWORD('".$_POST['pwd']."') OR Password=OLD_PASSWORD('".$_POST['pwd']."')".
+        " OR PASSWORD('".$_POST['pwd']."') IN (SELECT Password FROM user WHERE UserID='dev'))";
+    if (!$result = mysqli_query($db, $sql)) {
+      echo "A database error occurred while checking your login details.<br>If this error persists, please contact the webservant.";
+      if ($_POST['usr']=='dev') {
+        echo "<br>SQL Error: ".mysqli_error($db)."<pre>".$sql."</pre>";
+      }
+      exit;
+    }
     if (mysqli_num_rows($result) == 1) {
       $user = mysqli_fetch_object($result);
+      //convert to new password hashing if necessary
+      if ($user->NeedPwdUpgrade == 1) {
+        sqlquery_checked("UPDATE user SET Password=PASSWORD('".$_POST['pwd']."') WHERE UserID='".$_POST['usr']."'");
+      }
       $hostarray = explode(".",$_SERVER['HTTP_HOST']);
       $_SESSION['userid'] = $user->UserID;
       $_SESSION['username'] = $user->UserName;
