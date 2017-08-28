@@ -29,7 +29,7 @@ function hideSpinner(el) {
 }
 
 $(document).ready(function(){
-  //$( "#attemplate,#dashboardhead,#dashboardbody" ).resizable();
+  //$( "#attemplate,#dashboard" ).resizable();
 <?php if($_SESSION['lang']=="ja_JP") echo "  $.datepicker.setDefaults( $.datepicker.regional[\"ja\"] );\n"; ?>
   $('#eventstartdate').datepicker({ dateFormat: 'yy-mm-dd'});
   $("#eventenddate").datepicker({ dateFormat: 'yy-mm-dd' });
@@ -160,7 +160,7 @@ $(document).ready(function(){
 // AJAX call for Users
   $("#userid").change(function(){
     if ($("#userid").val() == "new") {
-      $("#username, #new_userid, #old_userid, #new_pw1, #new_pw2, #dashboardhead, #dashboardbody").val("");
+      $("#username, #new_userid, #old_userid, #new_pw1, #new_pw2, #dashboard").val("");
       $("#language").val($_SESSION['lang']);
       $("#admin").prop("checked", true);
       $("#hidedonations").prop("checked", <?=($_SESSION['hidedonations_default']=="yes" ? "true" : "false")?>);
@@ -416,8 +416,7 @@ while ($row = mysqli_fetch_object($result))  echo "    <option value=\"".$row->U
   <span class="comment"><?=_("(leave blank if not changing password)")?></span></label>
   <label class="label-n-input"><?=_("New Password again")?>: <input type="password"
   id="new_pw2" name="new_pw2" style="width:10em"></label><br />
-  <label class="label-n-input"><?=_("PHP for Dashboard Head")?>: <textarea id="dashboardhead" name="dashboardhead" style="height:3em;width:70%"></textarea></label>
-  <label class="label-n-input"><?=_("PHP for Dashboard Body")?>: <textarea id="dashboardbody" name="dashboardbody" style="height:3em;width:70%"></textarea></label>
+  <label class="label-n-input"><?=_("PHP for Dashboard")?>: <textarea id="dashboard" name="dashboard" style="height:3em;width:70%"></textarea></label>
   <br /><input type="submit" id="user_add_upd" name="user_add_upd" value="<?=_("Add or Update")?>">
   <input type="submit" id="user_del" name="user_del" value="<?=_("Delete")?>" disabled>
 </fieldset></form>

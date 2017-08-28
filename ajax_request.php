@@ -106,7 +106,7 @@ case "Login":
       $row = mysqli_fetch_object($result);
       $arr = array("userid" => $row->UserID, "new_userid" => $row->UserID, "old_userid" => $row->UserID,
       "username" => $row->UserName, "language" => $row->Language, "new_pw1" => "", "new_pw2" => "",
-	  "dashboardhead" => $row->DashboardHead, "dashboardbody" => $row->DashboardBody);
+	  "dashboard" => $row->DashboardCode);
       $arr["admin"] = $row->Admin ? "checkboxValue" : "";
       $arr["hidedonations"] = $row->HideDonations ? "checkboxValue" : "";
       die (json_encode($arr));

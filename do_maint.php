@@ -313,9 +313,9 @@ thru %s."),$attend_num, $attend_first, $attend_last);
       $message = sprintf(_("UserID '%s' is already in use by %s. Please choose a different UserID."),
           $new_userid, $row->UserName);
     } else {
-      sqlquery_checked("INSERT INTO user (UserID,UserName,Password,Admin,Language,HideDonations,DashboardHead,DashboardBody) ".
+      sqlquery_checked("INSERT INTO user (UserID,UserName,Password,Admin,Language,HideDonations,DashboardCode) ".
       "VALUES ('".$_POST['new_userid']."','".h2d($_POST['username'])."',PASSWORD('".$_POST['new_pw1']."'),$adm,".
-      "'".$_POST['language']."',$hd,'".h2d($_POST['dashboardhead'])."','".h2d($_POST['dashboardbody'])."')");
+      "'".$_POST['language']."',$hd,'".h2d($_POST['dashboard'])."')");
       if (mysqli_affected_rows($db) == 1) {
         $message = _("New user successfully added.");
       }
@@ -335,8 +335,8 @@ thru %s."),$attend_num, $attend_first, $attend_last);
       if ($_POST['new_pw1'] != "") {
         $sql .= "Password=PASSWORD('".$_POST['new_pw1']."'),";
       }
-      $sql .= "Admin=$adm,Language='".$_POST['language']."',HideDonations=$hd,DashboardHead='".h2d($_POST['dashboardhead'])."',".
-	  "DashboardBody='".h2d($_POST['dashboardbody'])."' WHERE UserID='".$_POST['old_userid']."'";
+      $sql .= "Admin=$adm,Language='".$_POST['language']."',HideDonations=$hd,DashboardCode='".h2d($_POST['dashboard']).
+	  "' WHERE UserID='".$_POST['old_userid']."'";
       $result = sqlquery_checked($sql);
       if (mysqli_affected_rows($db) == 1) {
         if ($_POST['old_userid'] == $_SESSION['userid']) {  //I'm editing me, so change the session stuff too
@@ -344,8 +344,7 @@ thru %s."),$attend_num, $attend_first, $attend_last);
           $_SESSION['username'] = $_POST['username'];
           $_SESSION['admin'] = $adm;
           $_SESSION['lang'] = $_POST['language'];
-          $_SESSION['dashboardhead'] = $_POST['dashboardhead'];
-          $_SESSION['dashboardbody'] = $_POST['dashboardbody'];
+          $_SESSION['hasdashboard'] = $_POST['dashboard']!='' ? 1 : 0;
         }
         $message = _("User information successfully updated.");
       }
