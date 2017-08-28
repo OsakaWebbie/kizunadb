@@ -7,6 +7,9 @@ $mime_map = array(
   'jpg' => 'image/jpeg',
   'png' => 'image/png',
 );
+$hostarray = explode(".",$_SERVER['HTTP_HOST']);
+define('CLIENT',$hostarray[0]);
+define('CLIENT_PATH',"/var/www/kizunadb/client/".CLIENT);
 $fullpath = CLIENT_PATH."/".$_GET['f'];
 if(!is_file($fullpath)) {  //if there is no client version, check for a default
   if (is_file($_GET['f'])) {

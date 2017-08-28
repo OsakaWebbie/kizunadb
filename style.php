@@ -1,5 +1,8 @@
 <?php
 session_start();
+$hostarray = explode(".",$_SERVER['HTTP_HOST']);
+define('CLIENT',$hostarray[0]);
+define('CLIENT_PATH',"/var/www/kizunadb/client/".CLIENT);
 $path = CLIENT_PATH."/css/";
 header("Content-type: text/css");
 serve(is_file($path."reset.css") ? $path."reset.css" : "css/reset.css");
