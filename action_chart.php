@@ -190,8 +190,10 @@ while ($row = mysqli_fetch_object($result)) {
   }
 }
 echo "</tbody></table>\n";
-echo $_SESSION['userid']=="dev"?"<pre class=\"noprint\">".$sql."</pre>":"";
 
-print_r($_SESSION['actionlist_showcols']);
+if ($_SESSION['userid']== "dev") {
+  echo "POST:<pre class=\"noprint\">".print_r($_POST,true)."</pre>";
+  echo "SQL:<pre class=\"noprint\">".$sql."</pre>";
+}
 footer();
 ?>

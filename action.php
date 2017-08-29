@@ -15,7 +15,7 @@ header1(_("Action List").
 <script type="text/javascript">
 
 $(document).ready(function(){
-  $("#ctype").multiselect({
+  $("#atype").multiselect({
     noneSelectedText: '<?=_("Select...")?>',
     selectedText: '<?=_("# selected")?>',
     checkAllText: '<?=_("Check all")?>',
@@ -48,7 +48,7 @@ substr_count($_POST['pid_list'],",")+1) : "")?></h1>
       <label class="label-n-input"><input type="radio" name="listtype" value="ActionType"><?=_("Group by Action Type")?></label>
       <label class="label-n-input"><input type="radio" name="listtype" value="PersonID"><?=_("Group by Person")?></label>
     </div>
-    <label class="label-n-input"><?=_("Action Type")?>: <select id="ctype" name="ctype[]" multiple="multiple" size="1">
+    <label class="label-n-input"><?=_("Action Type")?>: <select id="atype" name="atype[]" multiple="multiple" size="1">
 <?php
 $result = sqlquery_checked("SELECT * FROM actiontype ORDER BY ActionType");
 while ($row = mysqli_fetch_object($result)) {

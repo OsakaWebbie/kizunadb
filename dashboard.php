@@ -1,10 +1,6 @@
 <?php
 include("functions.php");
 include("accesscontrol.php");
-if ($_SESSION['userid']== "dev") {
-  error_reporting(E_ALL);
-  ini_set('display_errors',1);
-}
 if ($_SESSION['admin'] && isset($_GET['user'])) {  /* to test or view other user's dashboards */
   $user = $_GET['user'];
   $sql = "SELECT UserName,DashboardCode FROM user WHERE UserID='$user'";

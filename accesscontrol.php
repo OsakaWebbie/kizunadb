@@ -138,6 +138,14 @@ $hostarray = explode(".",$_SERVER['HTTP_HOST']);
   }
 }
 
+// TURN ON ERROR DISPLAY IF DEV
+if ($_SESSION['userid']== "dev") {
+  //echo "expecting to turn on error display...<br>";
+  error_reporting(E_ALL);
+  ini_set('display_errors',1);
+  //echo "Display errors is ".ini_get('display_errors')."<br>";
+}
+
 // SET THE LANGUAGE BASED ON THE SETTING OF THE LOGGED IN USER
 //putenv("LANG=".$_SESSION['lang'].".utf8");
 setlocale(LC_ALL, $_SESSION['lang'].".utf8");

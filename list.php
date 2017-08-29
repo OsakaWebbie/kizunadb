@@ -257,6 +257,9 @@ if (mysqli_num_rows($result) == 0) {
   header("Location: search.php?text=".urlencode(_("Search resulted in no records.".($_SESSION['userid']=="karen"?urlencode("<pre>".$sql."</pre>"):""))));
   exit;
 } elseif (mysqli_num_rows($result) == 1) {
+  if ($_SESSION['userid']=="dev") {
+    die("<pre class=\"noprint\">".$sql."</pre>");
+  }
   $person = mysqli_fetch_object($result);
   header("Location: individual.php?pid=".$person->PersonID);
   exit;
@@ -364,7 +367,7 @@ if ($_REQUEST['countonly']) {  //if count only, just get pids for multi-select
   }
   echo "</tr></tbody></table>\n";
 }
-echo $_SESSION['userid']=="karen"?"<pre class=\"noprint\">".$sql."</pre>":"";
+echo $_SESSION['userid']=="dev"?"<pre class=\"noprint\">".$sql."</pre>":"";
 echo "<div id=\"pids\" style=\"display:none\">".substr($pid_list,1)."</div>\n";
 sqlquery_checked("INSERT INTO preselect(PSID,Pids) VALUES('".$psid."','".substr($pid_list,1)."')");
 ?>

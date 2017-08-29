@@ -7,10 +7,11 @@ header1("Maintenance Processing");
 <?php
 header2(1);
 
+$need_confirmation = 0;
 if (isset($_POST['confirmed'])) $confirmed = $_POST['confirmed'];
 
 // ********** POSTAL CODE  **********
-if ($_POST['pc_upd']) {
+if (!empty($_POST['pc_upd'])) {
   $sql = "UPDATE postalcode set Prefecture='".$_POST['prefecture']."', ShiKuCho='".$_POST['shikucho']."'";
   if ($_SESSION['romajiaddresses'])  $sql .= ", Romaji='".h2d($_POST['romaji'])."'";
   $sql .= " WHERE PostalCode='".$_POST['postalcode']."'";
@@ -22,7 +23,7 @@ if ($_POST['pc_upd']) {
   }
   
 // ********** CATEGORY **********
-} elseif ($_POST['cat_add_upd']) {
+} elseif (!empty($_POST['cat_add_upd'])) {
   if ($_POST['catid']=="new") {
     sqlquery_checked("INSERT INTO category (Category,UseFor) VALUES ('".h2d($_POST['category'])."','".$_POST['usefor']."')");
     if (mysqli_affected_rows($db) == 1) $message = _("Category successfully added.");
@@ -31,7 +32,7 @@ if ($_POST['pc_upd']) {
     if (mysqli_affected_rows($db) == 1) $message = _("Category successfully updated.");
   }
   
-} elseif ($_POST['cat_del']) {
+} elseif (!empty($_POST['cat_del'])) {
 
   // if first time around, check for percat records - if none, don't need confirmation
   if (!isset($confirmed)) {
@@ -139,9 +140,9 @@ echo _(" If you don't want to do this, just press your browser's Back button.  T
   }
   
 // ********** DONATION TYPE  **********
-} elseif ($_POST['dt_add_upd']) {
+} elseif (!empty($_POST['dt_add_upd'])) {
 
-  if ($dtypeid == "new") {
+  if ($_POST['dtypeid'] == "new") {
     sqlquery_checked("INSERT INTO donationtype (DonationType,BGColor) VALUES ('".h2d($_POST['dtype'])."','".$_POST['dtcolor']."')");
     if (mysqli_affected_rows($db) == 1) {
       $message = _("New donation type successfully added.");
@@ -153,7 +154,7 @@ echo _(" If you don't want to do this, just press your browser's Back button.  T
     }
   }
 
-} elseif ($_POST['dt_del']) {
+} elseif (!empty($_POST['dt_del'])) {
 
   // if first time around, check for donation records - if none, don't need confirmation
   if (!isset($confirmed)) {
@@ -219,7 +220,7 @@ echo _(" If you don't want to do this, just press your browser's Back button. ".
   }
 
 // ********** EVENT  **********
-} elseif ($_POST['event_add_upd']) {
+} elseif (!empty($_POST['event_add_upd'])) {
 
   $active = ($_POST['active'] ? "1" : "0");
   $usetimes = ($_POST['usetimes'] ? "1" : "0");
@@ -237,7 +238,7 @@ echo _(" If you don't want to do this, just press your browser's Back button. ".
     }
   }
 
-} elseif ($_POST['event_del']) {
+} elseif (!empty($_POST['event_del'])) {
 
   // if first time around, check for attendance records - if none, don't need confirmation
   if (!$confirmed) {
@@ -260,14 +261,15 @@ echo _(" If you don't want to do this, just press your browser's Back button. ".
     }
     sqlquery_checked("DELETE FROM event WHERE EventID=".$_POST['eventid']." LIMIT 1");
     if (mysqli_affected_rows($db) == 1) {
-      $message = $message._("Event record successfully deleted.");
+      $message .= _("Event record successfully deleted.");
     }
   } else {
   //ask for confirmation
     echo "<h3 class=\"alert\">"._("Please Confirm Event Delete")."</font></h3>\n<p>";
-    printf(_("There are %s attendance records for this event, during the time period %s
-thru %s."),$attend_num, $attend_first, $attend_last);
-    echo _(" In deleting the event, you will also delete all attendance data associated with it.  Are you sure you want to do this?  (If not, just press your browser's Back button.)"); ?>
+    printf(_("There are %s attendance records for this event, during the time period %s thru %s."),
+        $attend_num, $attend_first, $attend_last);
+    echo _(" In deleting the event, you will also delete all attendance data associated with it. ".
+        " Are you sure you want to do this?  (If not, just press your browser's Back button.)"); ?>
 <form action="<?=$_SERVER['PHP_SELF']?>" method="post">
   <input type="hidden" name="event_id" value="<?=$event_id?>">
   <input type="hidden" name="event_del" value="<?=$event_del?>">
@@ -279,7 +281,7 @@ thru %s."),$attend_num, $attend_first, $attend_last);
   }
   
 // ********** MY USER  **********
-} elseif ($_POST['user_upd']) {
+} elseif (!empty($_POST['user_upd'])) {
   sqlquery_checked("UPDATE user set Language = '".$_POST['language']."' WHERE UserID = '".$_SESSION['userid']."'");
   if (mysqli_affected_rows($db) == 1) {
     $_SESSION['lang'] = $_POST['language'];
@@ -288,7 +290,7 @@ thru %s."),$attend_num, $attend_first, $attend_last);
   }
 
 // ********** MY PASSWORD  **********
-} elseif ($_POST['pw_upd']) {
+} elseif (!empty($_POST['pw_upd'])) {
   $result = sqlquery_checked("SELECT * FROM user WHERE UserID = '".$_SESSION['userid']."'".
     " AND (Password=PASSWORD('".$_POST['old_pw']."') OR Password=OLD_PASSWORD('".$_POST['old_pw']."'))");
   if (mysqli_num_rows($result) == 0) {
@@ -302,10 +304,10 @@ thru %s."),$attend_num, $attend_first, $attend_last);
     }
   }
 
-// ********** LOGIN  **********
-} elseif ($_POST['user_add_upd']) {
-  $adm = $_POST['admin'] ? "1" : "0";
-  $hd = $_POST['hidedonations'] ? "1" : "0";
+// ********** USER  **********
+} elseif (!empty($_POST['user_add_upd'])) {
+  $adm = !empty($_POST['admin']) ? "1" : "0";
+  $hd = !empty($_POST['hidedonations']) ? "1" : "0";
   if ($_POST['userid'] == "new") {
     $result = sqlquery_checked("SELECT UserName FROM user WHERE UserID='".$_POST['new_userid']."'");
     if (mysqli_num_rows($result) > 0) {
@@ -350,7 +352,7 @@ thru %s."),$attend_num, $attend_first, $attend_last);
       }
     }
   }
-} elseif ($_POST['user_del']) {
+} elseif (!empty($_POST['user_del'])) {
 
   sqlquery_checked("DELETE FROM user WHERE UserID='{$_POST['old_userid']}'");
   if (mysqli_affected_rows($db) == 1) {
@@ -361,12 +363,14 @@ thru %s."),$attend_num, $attend_first, $attend_last);
 } else {
   $message = "No match for type of update in do_maint.php.  Programming bug!";
 }
+
+//echo "about to check need_conf, which is currently $need_confirmation<br>";
 if (!$need_confirmation) {
   echo "<SCRIPT FOR=window EVENT=onload LANGUAGE=\"JavaScript\">\n";
-  if ($message) {
+  if (!empty($message)) {
     echo "alert(\"".$message."\");\n";
   }
-  echo "window.location = \"".($_GET['page']=='user_settings' ? 'user_settings' : 'db_settings').".php\";\n";
+  echo "window.location = \"".((isset($_GET['page']) && $_GET['page']=='user_settings') ? 'user_settings' : 'db_settings').".php\";\n";
   echo "</SCRIPT>\n";
   
 }
