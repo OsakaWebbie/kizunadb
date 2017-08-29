@@ -12,8 +12,11 @@ if (is_file($path."styles.php")) {
   serve($path."styles.css");
   exit;
 } else {
-  include("css/colors.php");  // default colors
-  if (is_file($path."colors.php"))  include($path."colors.php");
+  if (is_file($path."colors.php")) {
+    include($path."colors.php");
+  } else {
+    include("css/colors.php");  // default colors
+  }
   // INCLUDE ALL DEFINITIONS HERE (so that colors can be applied)
 ?>
 /* theme layout and styling */
