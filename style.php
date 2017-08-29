@@ -1,11 +1,10 @@
 <?php
 session_start();
 $hostarray = explode(".",$_SERVER['HTTP_HOST']);
-define('CLIENT',$hostarray[0]);
-define('CLIENT_PATH',"/var/www/kizunadb/client/".CLIENT);
-$path = CLIENT_PATH."/css/";
+$path = "/var/www/kizunadb/client/".$hostarray[0]."/css/";
+
 header("Content-type: text/css");
-serve(is_file($path."reset.css") ? $path."reset.css" : "css/reset.css");
+serve("css/reset.css");
 if (is_file($path."styles.php")) {
   serve($path."styles.php");
   exit;
@@ -13,14 +12,15 @@ if (is_file($path."styles.php")) {
   serve($path."styles.css");
   exit;
 } else {
-  include(is_file($path."colors.php") ? $path."colors.php" : "css/colors.php");
+  include("css/colors.php");  // default colors
+  if (is_file($path."colors.php"))  include($path."colors.php");
   // INCLUDE ALL DEFINITIONS HERE (so that colors can be applied)
 ?>
 /* theme layout and styling */
 
 body.full {
   text-align:center;
-  background-color: <?=($bodybg?$bodybg:"DarkGrey")?>;
+  background-color: <?=(!empty($bodybg)?$bodybg:"DarkGrey")?>;
 }
 body.simple {
   text-align:center;
@@ -28,10 +28,10 @@ body.simple {
 }
 
 body.full div#main-container {
-  background:<?=($mainbg?$mainbg:"White")?> url('graphics/kizunadb-logo.png') no-repeat 3px 3px;
+  background:<?=(!empty($mainbg)?$mainbg:"White")?> url('graphics/kizunadb-logo.png') no-repeat 3px 3px;
   text-align:left;
   width:auto;
-  border: 1px solid <?=($mainborder?$mainborder:"Black")?>;
+  border: 1px solid <?=(!empty($mainborder)?$mainborder:"Black")?>;
   margin: 10px;
 }
 body.simple div#main-container {
@@ -50,7 +50,7 @@ table { background-color: White;}
 #nav-main {
 }
 #nav-main ul, #scrollnav ul {
-  background-color:<?=($navbg)?>;
+  background-color:<?=(!empty($navbg)?$navbg:"rgb(88,57,7)")?>;
   list-style-type: none;
   margin:10px 10px 0 58px;
   padding:3px 0 5px 0;
@@ -63,7 +63,7 @@ table { background-color: White;}
 }
 #nav-main a, #scrollnav a {
   display: block;
-  color: <?=($navlink)?>;
+  color: <?=(!empty($navlink)?$navlink:"LightSteelBlue")?>;
   padding: 5px 10px;
   margin: 0;
   font-family: arial, helvetica, sans-serif;
@@ -72,8 +72,8 @@ table { background-color: White;}
 }
 #nav-main li.menu-usersettings a span { font-weight:normal; white-space:wrap; }
 #nav-main a:hover {
-  background-color: <?=($navbghover)?>;
-  color: <?=($navlinkhover)?>;
+  background-color: <?=(!empty($navbghover)?$navbghover:"rgb(132,78,12)")?>;
+  color: <?=(!empty($navlinkhover)?$navlinkhover:"White")?>;
 }
 
 /* MENU THAT APPEARS WHEN SCROLLING (WIDE SCREENS) */
@@ -85,7 +85,7 @@ table { background-color: White;}
   z-index: 9999;
 }
 #scrollnav ul {
-  background-color: <?=($navbg?rgba($navbg,"0.7"):rgba("#2C2C2C","0.7"))?>;
+  background-color: <?=(!empty($navbg)?rgba($navbg,"0.7"):rgba("#2C2C2C","0.7"))?>;
   margin:0;
   padding:5px;
   -moz-border-radius: 0;
@@ -103,7 +103,7 @@ table { background-color: White;}
 #nav-trigger {
   display: none;
   text-align: center;
-  background-color:<?=($navbg)?>;
+  background-color:<?=(!empty($navbg)?$navbg:"rgb(88,57,7)")?>;
 }
 #nav-trigger img {
   float:left;
@@ -116,7 +116,7 @@ table { background-color: White;}
 #nav-trigger span {
   display: inline-block;
   padding: 10px 30px;
-  color: <?=($navlink)?>;
+  color: <?=(!empty($navlink)?$navlink:"LightSteelBlue")?>;
   cursor: pointer;
   font-family: arial, helvetica, sans-serif;
   font-size: 120%;
@@ -130,15 +130,15 @@ table { background-color: White;}
   height: 10px;
   content: "";
   border-left: solid 10px transparent;
-  border-top: solid 10px <?=($navlink)?>;
+  border-top: solid 10px <?=(!empty($navlink)?$navlink:"LightSteelBlue")?>;
   border-right: solid 10px transparent;
 }
-#nav-trigger.open { background-color: <?=($navbghover)?>; }
-#nav-trigger.open span { color:<?=($navlinkhover)?>; }
+#nav-trigger.open { background-color: <?=(!empty($navbghover)?$navbghover:"rgb(132,78,12)")?>; }
+#nav-trigger.open span { color:<?=(!empty($navlinkhover)?$navlinkhover:"White")?>; }
 #nav-trigger.open span:after {
   border-left: solid 10px transparent;
   border-top: none;
-  border-bottom: solid 10px <?=($navlinkhover)?>;
+  border-bottom: solid 10px <?=(!empty($navlinkhover)?$navlinkhover:"White")?>;
   border-right: solid 10px transparent;
 }
 
@@ -157,18 +157,18 @@ table { background-color: White;}
   margin-left: auto;
   margin-right: auto;
   text-align: center;
-  background-color: <?=($navbg?$navbg:"#583907")?>;
+  background-color: <?=(!empty($navbg)?$navbg:"rgb(88,57,7)")?>;
 }
 #nav-mobile li {
   display: block;
   padding: 5px 0;
   margin: 0 5px;
-  border-bottom: solid 1px <?=($primarymedium)?>;
+  border-bottom: solid 1px <?=(!empty($primarymedium)?$primarymedium:"SteelBlue")?>;
 }
 nav#nav-mobile li:last-child { border-bottom: none; }
 nav#nav-mobile a {
   display: block;
-  color: <?=($navlink?$navlink:"LightSteelBlue")?>;
+  color: <?=(!empty($navlink)?$navlink:"LightSteelBlue")?>;
   padding: 8px 0;
   font-family: arial, helvetica, sans-serif;
   font-size: 120%;
@@ -176,8 +176,8 @@ nav#nav-mobile a {
 }
 nav#nav-mobile li.menu-usersettings a span { font-weight:normal; white-space:wrap; }
 nav#nav-mobile a:hover {
-  background-color: <?=($navbghover?$navbghover:"#583907")?>;
-  color: <?=($navlinkhover)?>;
+  background-color: <?=(!empty($navbghover)?$navbghover:"#583907")?>;
+  color: <?=(!empty($navlinkhover)?$navlinkhover:"White")?>;
 }
 
 /* general purpose typography */
@@ -191,13 +191,13 @@ h1 {
   font-size: 1.8em;
   line-height:1;
   font-weight:bold;
-  color: <?=($h1?$h1:"Red")?>;
+  color: <?=(!empty($h1)?$h1:"#CC9944")?>;
 }
 h2 {
   text-align:left;
   font-size: 1.5em;
   line-height:1.1;
-  color: <?=($h2?$h2:"SteelBlue")?>;
+  color: <?=(!empty($h2)?$h2:"SteelBlue")?>;
   font-weight:bold;
 }
 h3 {
@@ -205,24 +205,24 @@ h3 {
   font-size: 1.2em;
   font-weight:bold;
   font-style:italic;
-  color: <?=($h3?$h3:"Black")?>;
+  color: <?=(!empty($h3)?$h3:"Black")?>;
   margin:10px 0 4px 0;
 }
-a:link,a:visited { color:<?=($link?$link:"#333399")?>; }
-a:hover,a:active { color:<?=($linkhover?$linkhover:"DarkBlue")?>; }
-a.more { cursor:pointer; color:<?=($linkmore?$linkmore:"Black")?>#333399; text-decoration:underline; }
+a:link,a:visited { color:<?=(!empty($link)?$link:"#333399")?>; }
+a:hover,a:active { color:<?=(!empty($linkhover)?$linkhover:"DarkBlue")?>; }
+a.more { cursor:pointer; color:<?=(!empty($linkmore)?$linkmore:"Black")?>; text-decoration:underline; }
 
-.alert { color:<?=($alert?$alert:"Red")?>; }
+.alert { color:<?=(!empty($alert)?$alert:"Red")?>; }
 .comment { font-size:0.8em; font-style:italic; }
-.highlight { background-color:<?=($highlight?$highlight:"LightSteelBlue")?>; }
-.validation { background-color:<?=($validation?$validation:"Red")?>; }
+.highlight { background-color:<?=(!empty($highlight)?$highlight:"LightSteelBlue")?>; }
+.validation { background-color:<?=(!empty($validation)?$validation:"Red")?>; }
 
 /*forms*/
 
 form div { margin-top:0.1em; margin-bottom:0.1em; }
 input.text {
-  background-color: <?=($inputbg?$inputbg:"White")?>;
-  border: <?=($inputborder?$inputborder:"DimGray")?> solid 1px;
+  background-color: <?=(!empty($inputbg)?$inputbg:"White")?>;
+  border: <?=(!empty($inputborder)?$inputborder:"DimGray")?> solid 1px;
 }
 fieldset,input,select,label,label textarea { vertical-align:top; }
 .label-n-input { white-space:nowrap; margin-right:2em;}
@@ -235,14 +235,14 @@ div#actions form { display:inline; margin:2px 15px; }
 
 div.section  {
   margin: 15px 0 15px 0;
-  border: 2px solid <?=($sectionborder?$sectionborder:"DarkRed")?>;
+  border: 2px solid <?=(!empty($sectionborder)?$sectionborder:"DarkRed")?>;
   padding: 5px;
   background-color: White;
 }
 h3.section-title {
   margin:0 0 3px 5px;
   padding:2px 7px 2px 7px;
-  border: 2px solid <?=($sectiontitleborder?$sectiontitleborder:"DarkRed")?>;
+  border: 2px solid <?=(!empty($sectiontitleborder)?$sectiontitleborder:"DarkRed")?>;
   text-align:left;
   display:inline;
   position:relative;
@@ -250,12 +250,12 @@ h3.section-title {
   font-size:1.2em;
   font-weight:bold;
   font-style:italic;
-  color: <?=($sectiontitle?$sectiontitle:"White")?>;
-  background-color: <?=($sectiontitlebg?$sectiontitlebg:"DarkRed")?>;
+  color: <?=(!empty($sectiontitle)?$sectiontitle:"White")?>;
+  background-color: <?=(!empty($sectiontitlebg)?$sectiontitlebg:"DarkRed")?>;
 }
 fieldset {
   margin: 15px 0 15px 0;
-  border: 2px solid <?=($fieldsetborder?$fieldsetborder:"DarkRed")?>;
+  border: 2px solid <?=(!empty($fieldsetborder)?$fieldsetborder:"DarkRed")?>;
   padding: 5px;
   background-color: White;
 }
@@ -265,24 +265,24 @@ fieldset legend {
   font-size:1.2em;
   font-weight:bold;
   font-style:italic;
-  color: <?=($legend?$legend:"White")?>;
-  background-color: <?=($legendbg?$legendbg:"DarkRed")?>;
+  color: <?=(!empty($legend)?$legend:"White")?>;
+  background-color: <?=(!empty($legendbg)?$legendbg:"DarkRed")?>;
 }
 
 h1#title {
   margin: 0 0 0 48px;
   padding:4px 0 10px 0;
-  color: <?=($title?$title:"Red")?>;
-  background-color:<?=($titlebg?$titlebg:"White")?>;
+  color: <?=(!empty($title)?$title:"Red")?>;
+  background-color:<?=(!empty($titlebg)?$titlebg:"White")?>;
 }
 
 span.inlinelabel {
   font-weight: bold;
-  color: <?=($inlinelabel?$inlinelabel:"DarkRed")?>;
+  color: <?=(!empty($inlinelabel)?$inlinelabel:"DarkRed")?>;
 }
 
-option.active. li.active { background-color:<?=($activeeventbg?$activeeventbg:"White")?>; }
-option.inactive, li.inactive { background-color:<?=($inactiveeventbg?$inactiveeventbg:"#BBBBBB")?>; }
+option.active. li.active { background-color:<?=(!empty($activeeventbg)?$activeeventbg:"White")?>; }
+option.inactive, li.inactive { background-color:<?=(!empty($inactiveeventbg)?$inactiveeventbg:"#BBBBBB")?>; }
 
 /* MOBILE MEDIA QUERIES */
 
@@ -306,8 +306,8 @@ option.inactive, li.inactive { background-color:<?=($inactiveeventbg?$inactiveev
 
 /* AJAX related */
 
-.delconfirm { background-color: <?=($delconfirm?$delconfirm:"#808080")?>; } 
-.spinner { background: <?=($delconfirm?$delconfirm:"#808080")?> url('graphics/ajax_loader.gif'); } 
+.delconfirm { background-color: <?=(!empty($delconfirm)?$delconfirm:"#808080")?>; }
+.spinner { background: <?=(!empty($delconfirm)?$delconfirm:"#808080")?> url('graphics/ajax_loader.gif'); }
 
 /* specific to search.php */
 body.search div#content {
@@ -329,7 +329,7 @@ body.search span.radiogroup, body.search span.inputgroup {
   vertical-align: middle;
 }
 body.search h2 span.radiogroup {
-  border:1px solid <?=($h2?$h2:"SteelBlue")?>;
+  border:1px solid <?=(!empty($h2)?$h2:"SteelBlue")?>;
   font-size: 0.8em;
 }
 body.search h2 span.radiogroup label { display:inline-block; margin:3px 5px; }
@@ -389,11 +389,11 @@ body.list td.categories { white-space:nowrap; }
 
 /* specific to individual.php */
 body.individual div#photo { float:left; width:150px; text-align:center; }
-body.individual div#photo img { width:150px; border:1px solid <?=($photoborder?$photoborder:"Gray")?>;}
+body.individual div#photo img { width:150px; border:1px solid <?=(!empty($photoborder)?$photoborder:"Gray")?>;}
 body.individual div#photo p { margin-top:60px; text-align:center; }
 body.individual div#info-block { float:left; }
 body.individual div#personal-info,div#household-info {
-  border:2px solid <?=($personinfoborder?$personinfoborder:"Red")?>;
+  border:2px solid <?=(!empty($personinfoborder)?$personinfoborder:"Red")?>;
   float:left;
   margin-left: 8px;
   padding:5px;
@@ -404,7 +404,7 @@ body.individual h3.info-title {
   font-size:1.2em;
   font-weight:bold;
   font-style:italic;
-  color: <?=($personinfotitle?$personinfotitle:"Red")?>;
+  color: <?=(!empty($personinfotitle)?$personinfotitle:"Red")?>;
 }
 body.individual div#personal-info div,div#household-info div { margin-bottom:0.3em; }
 body.individual div#nonjapan-address,div#address,div#romaji-address { padding-left:15px; margin:0em; }
@@ -417,11 +417,11 @@ body.individual div#cats-button { text-align:center; margin:-10px 0 10px 0; }
 body.individual div#cats-in {
   margin:5px 0;
   padding:5px 0;
-  border-top: 2px solid <?=($sectionborder?$sectionborder:"DarkRed")?>;
-  border-bottom: 2px solid <?=($sectionborder?$sectionborder:"DarkRed")?>;
+  border-top: 2px solid <?=(!empty($sectionborder)?$sectionborder:"DarkRed")?>;
+  border-bottom: 2px solid <?=(!empty($sectionborder)?$sectionborder:"DarkRed")?>;
 }
 body.individual div#orgsection form.msform { margin-top:15px; }
-body.individual tr.leader { background-color:<?=($leaderbg?$leaderbg:"#FFF0C0")?>; }
+body.individual tr.leader { background-color:<?=(!empty($leaderbg)?$leaderbg:"#FFF0C0")?>; }
 body.individual div.section h3 { margin:5px 0 0 0; }
 body.individual form#orgform,
 body.individual form#actionform,
@@ -441,7 +441,7 @@ body.edit div#name_section,body.edit div#furigana_section,body.edit div#title_se
 }
 body.edit div#household_section {
   clear:both;
-  border: 1px solid <?=($sectionborder?$sectionborder:"DarkRed")?>;
+  border: 1px solid <?=(!empty($sectionborder)?$sectionborder:"DarkRed")?>;
   padding: 5px;
   margin: 10px 0 5px 0;
 }
@@ -498,7 +498,7 @@ body.action div.section:after { clear:both; }  /* needed because we had to float
 body.donations #typefilter { display:inline-block; vertical-align:middle; border:none; margin:0 20px 5px 0; padding:0; }
 body.donations #typefilter label, body.donations #dtselect { display:block; }
 body.donations #datefilter { display:inline-block; vertical-align:middle; border:none; margin:0 0 5px 0; padding:0; }
-body.donations .actions { border:1px solid <?=($innerborder?$innerborder:"SteelBlue")?>; margin:6px 20px 0 20px; padding:8px; }
+body.donations .actions { border:1px solid <?=(!empty($innerborder)?$innerborder:"SteelBlue")?>; margin:6px 20px 0 20px; padding:8px; }
 body.donations #show_list, body.donations #show_summary { display:inline-block; vertical-align:middle; margin-right:20px; }
 body.donations .actiontypes { display:inline-block; vertical-align:middle; margin-right:20px; }
 body.donations .proctype, body.donations .actiontype { display:block; }
@@ -512,7 +512,7 @@ body.donation_list ul#criteria {
 }
 body.donation_list div#procbuttons { text-align:right; }
 body.donation_list div#procbuttons button { margin-left:10px; }
-body.donation_list table.sttable td { border:1px solid <?=($innerborder?$innerborder:"SteelBlue")?>; }
+body.donation_list table.sttable td { border:1px solid <?=(!empty($innerborder)?$innerborder:"SteelBlue")?>; }
 body.donation_list table.sttable td { padding:1px 3px 1px 3px; vertical-align:middle; }
 body.donation_list td.dtype, td.amount { white-space:nowrap; }
 body.donation_list td.amount { text-align:right; }
@@ -526,33 +526,33 @@ body.donation_list td.subtotal {
 body.attend_detail.full div#main-container { width:auto; }
 body.attend_detail .weekdaydate, body.attend_datesums .weekdaydate {
   white-space:nowrap;
-  background-color: <?=($weekdaybg?$weekdaybg:"#FFFFD0")?>;
+  background-color: <?=(!empty($weekdaybg)?$weekdaybg:"#FFFFD0")?>;
   font-size:0.8em;
   text-align:center;
 }
 body.attend_detail .saturdaydate, body.attend_datesums .saturdaydate {
   white-space:nowrap;
-  background-color: <?=($saturdaybg?$saturdaybg:"#C0C0E0")?>;
+  background-color: <?=(!empty($saturdaybg)?$saturdaybg:"#C0C0E0")?>;
   font-size:0.8em;
   text-align:center;
 }
 body.attend_detail .sundaydate, body.attend_datesums .sundaydate {
   white-space:nowrap;
-  background-color: <?=($sundaybg?$sundaybg:"#FF8080")?>;
+  background-color: <?=(!empty($sundaybg)?$sundaybg:"#FF8080")?>;
   font-size:0.8em;
   text-align:center;
 }
 body.attend_detail td.photocell, body.attend_detail .photohead {
   text-align:center;
-  background-color: <?=($photocellbg?$photocellbg:"#FFFFD0")?>;
+  background-color: <?=(!empty($photocellbg)?$photocellbg:"#FFFFD0")?>;
 }
-body.attend_detail td.namecell, body.attend_detail .namehead { white-space:nowrap; background-color: <?=($namecellbg?$namecellbg:"#D0D0F0")?>; }
+body.attend_detail td.namecell, body.attend_detail .namehead { white-space:nowrap; background-color: <?=(!empty($namecellbg)?$namecellbg:"#D0D0F0")?>; }
 body.attend_detail .namehead { font-weight:bold; }
-body.attend_detail td.attendcell { white-space:nowrap; background: <?=($attendcellbg?$attendcellbg:"#40A060")?> none; text-align:center; }
-body.attend_detail td.attendtimecell { white-space:nowrap; background: <?=($attendtimebg?$attendtimebg:"#70E090")?> none; text-align:center; }
+body.attend_detail td.attendcell { white-space:nowrap; background: <?=(!empty($attendcellbg)?$attendcellbg:"#40A060")?> none; text-align:center; }
+body.attend_detail td.attendtimecell { white-space:nowrap; background: <?=(!empty($attendtimebg)?$attendtimebg:"#70E090")?> none; text-align:center; }
 body.attend_detail td.ui-selected { background: #808080 url('graphics/delete_icon.png'); }
-body.attend_datesums td.datecell { white-space:nowrap; background-color: <?=($datecellbg?$datecellbg:"#FFFFD0")?>; font-size:0.8em; text-align:center; }
-body.attend_datesums td.eventcell, body.attend_datesums td.eventhead { white-space:nowrap; background-color: <?=($eventcellbg?$eventcellbg:"#D0D0F0")?>; }
+body.attend_datesums td.datecell { white-space:nowrap; background-color: <?=(!empty($datecellbg)?$datecellbg:"#FFFFD0")?>; font-size:0.8em; text-align:center; }
+body.attend_datesums td.eventcell, body.attend_datesums td.eventhead { white-space:nowrap; background-color: <?=(!empty($eventcellbg)?$eventcellbg:"#D0D0F0")?>; }
 body.attend_datesums td.eventhead { font-weight:bold; }
 body.attend_datesums td.sumcell { text-align:center }
 body.attend_datesums td.sumcell a { font-weight:bold; font-size:1.2em; }
@@ -595,7 +595,7 @@ body.sqlquery #mainTable tbody td { vertical-align:top; }
 /* specific to dashboard.php */
 body.dashboard .dashboard-item {
   float: left;
-  border: 2px solid <?=($sectionborder?$sectionborder:"DarkRed")?>;
+  border: 2px solid <?=(!empty($sectionborder)?$sectionborder:"DarkRed")?>;
   margin: 10px;
   padding: 10px;
 }

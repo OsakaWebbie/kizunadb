@@ -3,22 +3,21 @@ include("functions.php");
 include("accesscontrol.php");
 
 $criterialist = "<ul id=\"criteria\">";
-$sql = "SELECT ".($_REQUEST['countonly'] ?
+$sql = "SELECT ".(!empty($_REQUEST['countonly']) ?
   "person.PersonID " :
   "person.*, household.AddressComp, household.Phone, GROUP_CONCAT(Category ORDER BY Category SEPARATOR '\\n') AS categories ");
-$sql .= "FROM person LEFT JOIN household ON person.HouseholdID=household.HouseholdID ".($_REQUEST['countonly'] ? "" : 
+$sql .= "FROM person LEFT JOIN household ON person.HouseholdID=household.HouseholdID ".(!empty($_REQUEST['countonly']) ? "" :
     "LEFT JOIN percat ON person.PersonID=percat.PersonID LEFT JOIN category ON percat.CategoryID=category.CategoryID");
 $join = $where = "";
 $ptable = $grouptable = "person";
+$closing = '';
 
 if ($_REQUEST['filter'] == "Organizations") {
   $where .= " WHERE Organization>0";
   $criterialist .= "<li>"._("Organizations only");
-  $closing = "";
 } elseif ($_REQUEST['filter'] == "People") {
   $where .= " WHERE Organization=0";
   $criterialist .= "<li>"._("People only (no organizations)");
-  $closing = "";
 } elseif ($_REQUEST['filter'] == "OrgsOfPeople") {
     $sql = "SELECT DISTINCT p1.*, h1.AddressComp, h1.Phone, GROUP_CONCAT(Category ORDER BY Category SEPARATOR '\\n') AS categories ".
     "FROM person p1 LEFT JOIN household h1 ON p1.HouseholdID=h1.HouseholdID ".
@@ -264,7 +263,7 @@ if (mysqli_num_rows($result) == 0) {
   header("Location: individual.php?pid=".$person->PersonID);
   exit;
 }
-header1(_("Search Results").($_POST['preselected']!="" ? sprintf(_(" (%d People/Orgs Pre-selected)"),$psnum) : ""));
+header1(_("Search Results").(!empty($_POST['preselected']) ? sprintf(_(" (%d People/Orgs Pre-selected)"),$psnum) : ""));
 
 $cols[] = array("personid",1,"digit");
 $cols[] = array("name-for-csv",0,"text");
@@ -311,7 +310,7 @@ $tableheads .= "</th>\n";
 <link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />
 <?php
 header2(1);
-echo "<h3>".sprintf(_("%d results of these criteria:"),mysqli_num_rows($result)).($_REQUEST['countonly'] ? "&nbsp;&nbsp;&nbsp;<a href=\"".
+echo "<h3>".sprintf(_("%d results of these criteria:"),mysqli_num_rows($result)).(!empty($_REQUEST['countonly']) ? "&nbsp;&nbsp;&nbsp;<a href=\"".
 str_replace("countonly=yes","countonly=",$_SERVER['REQUEST_URI'])."\">"._("(Show results)")."</a>" : "")."</h3>\n";
 echo $criterialist;
 
@@ -323,7 +322,7 @@ $psid = uniqid();
   <input type="hidden" id="preselected" name="preselected" value="">
   <input type="submit" value="<?=_("Go to Multi-Select with these entries preselected")?>">
   </form>
-<?php if (!$_REQUEST['countonly']) {  //can't do CSV if there is no table ?>
+<?php if (empty($_REQUEST['countonly'])) {  //can't do CSV if there is no table ?>
   <form action="download.php" method="post" target="_top">
   <input type="hidden" id="csvtext" name="csvtext" value="">
   <input type="submit" id="csvfile" name="csvfile" value="<?=_("Download a CSV file of this table")?>" onclick="getCSV();">
@@ -331,7 +330,8 @@ $psid = uniqid();
 <?php } //end if not count only ?>
 </div>
 <?php
-if ($_REQUEST['countonly']) {  //if count only, just get pids for multi-select
+$pid_list = '';
+if (!empty($_REQUEST['countonly'])) {  //if count only, just get pids for multi-select
   while ($row = mysqli_fetch_object($result)) $pid_list .= ",".$row->PersonID;
 } else {  //if not count only, build the whole table
   echo "<table id=\"mainTable\" class=\"tablesorter\"><thead>";
