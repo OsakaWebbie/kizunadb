@@ -67,7 +67,7 @@ if ($_GET['pc']) {
 $sql = "SELECT * FROM kizuna_common.auxpostalcode $where";
 if (!$aux = mysqli_query($commondb, $sql)) {
   echo("<body onload=\"window.focus();\"><b>SQL Error: "
-  .mysql_errno($db).": ".mysqli_error($db)."</b><br>($sql)</body></html>");
+  .mysqli_errno($db).": ".mysqli_error($db)."</b><br>($sql)</body></html>");
   exit;
 }
 
@@ -165,7 +165,7 @@ ECHOEND;
       " VALUES('$pc','$pref','$shi','$rom')";
       if (!$aux = mysqli_query($db, $sql)) {
         echo("<body onload=\"window.focus();\"><b>SQL Error: "
-        .mysql_errno($db).": ".mysqli_error($db)."</b><br>($sql)</body></html>");
+        .mysqli_errno($db).": ".mysqli_error($db)."</b><br>($sql)</body></html>");
         exit;
       }
     }
@@ -174,7 +174,7 @@ ECHOEND;
     $rom = $rec->Romaji;
   }
   // ***** FINALLY, BUILD JAVASCRIPT CALL TO FILL IN PARENT FIELDS *****
-  echo "<body onload=\"fill_parent('$pc','$pref','$shi','".ereg_replace("\r\n","\\n",$rom)."');\">";
+  echo "<body onload=\"fill_parent('$pc','$pref','$shi','".str_replace("\r\n","\\n",$rom)."');\">";
   echo "</body></html>\n";
 }
 

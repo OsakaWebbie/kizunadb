@@ -5,8 +5,8 @@ if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
   die("NOSESSION");
 }
 
-$fullname = h2d(mb_ereg_replace(" ","",$_POST['fullname']));
-$furigana = h2d(mb_ereg_replace(",","",mb_ereg_replace(" ","",$_POST['furigana'])));
+$fullname = h2d(str_replace(" ","",$_POST['fullname']));
+$furigana = h2d(str_replace(",","",str_replace(" ","",$_POST['furigana'])));
 $sql = "SELECT DISTINCT person.*, household.*, postalcode.* FROM person ".
     "LEFT JOIN household ON person.HouseholdID=household.HouseholdID LEFT JOIN postalcode ".
     "ON household.PostalCode=postalcode.PostalCode";

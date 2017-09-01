@@ -43,7 +43,7 @@ function getCSV() {
   echo "<input type=\"submit\" name=\"submit\" id=\"submit\" value=\"Do this new (modified) query!\" /></form>\n";
 
   if ($result === false ){
-     echo "<pre style=\"font-size:15px;\"><strong>SQL Error ".mysql_errno($db).": ".mysqli_error($db)."</strong></pre>";
+     echo "<pre style=\"font-size:15px;\"><strong>SQL Error ".mysqli_errno($db).": ".mysqli_error($db)."</strong></pre>";
      footer();
      exit;
   }

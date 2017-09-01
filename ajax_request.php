@@ -9,7 +9,7 @@ switch($_REQUEST['req']) {
 case "OrgName":
   if (isset($_REQUEST['orgid']) && $_REQUEST['orgid']!="") {
     $sql = "SELECT FullName,Furigana FROM person WHERE PersonID=".$_REQUEST['orgid']." AND Organization>0";
-    $result = sqlquery_checked($sql) or die("SQL Error ".mysql_errno($db).": ".mysqli_error($db)."</b><br>".$sql);
+    $result = sqlquery_checked($sql) or die("SQL Error ".mysqli_errno($db).": ".mysqli_error($db)."</b><br>".$sql);
     if (mysqli_num_rows($result)>0) {
       $row = mysqli_fetch_object($result);
       echo readable_name($row->FullName,$row->Furigana);

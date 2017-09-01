@@ -161,8 +161,6 @@ function showfile($filename) {
 
 // DEPRECATED
 function db2table($text) {
-//  $text = ereg_replace("\r\n|\n|\r","<br>",$text);
-//  $text = ereg_replace("<br> ","<br>&nbsp;",$text);
   return d2h($text);
 }
 
@@ -180,7 +178,6 @@ function d2j($text) {  //makes carriage returns safe for JSON
 
 // DEPRECATED
 function post2form($text) {
-//  $text = ereg_replace("\'","'",$text);
   return stripslashes($text);
 }
 

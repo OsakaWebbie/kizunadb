@@ -41,7 +41,7 @@ if ($_REQUEST['filter'] == "Organizations") {
 }
 for ($i=1; isset($_REQUEST["textinput".$i]); $i++) {
   if ($_REQUEST["textinput".$i] != "") {
-    $search = mb_ereg_replace("%","\%",h2d($_REQUEST["textinput".$i]));
+    $search = str_replace("%","\%",h2d($_REQUEST["textinput".$i]));
     $target = $_REQUEST["texttarget".$i];
     $not = ($_REQUEST["textinout".$i]=="OUT") ? " NOT" : "";
     $where .= ($where!=""?" AND":" WHERE");
@@ -248,7 +248,7 @@ if (!$result = mysqli_query($db, $sql)) {
   echo $test;
   echo $criterialist;
   echo "<div style=\"border: 2px solid darkred;background-color:#ffe0e0;color:darkred;padding-left:5px;margin:20px 0;\">$sql</div>";
-  echo "<div style=\"font-weight:bold;margin:10px 0\">The query had an error:<br>".mysql_errno($db).": ".mysqli_error($db)."</div>";
+  echo "<div style=\"font-weight:bold;margin:10px 0\">The query had an error:<br>".mysqli_errno($db).": ".mysqli_error($db)."</div>";
   exit;
 }
 
