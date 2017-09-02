@@ -167,7 +167,7 @@ $(document).ready(function(){
       $("#user_del").prop('disabled', true);
     } else {
       showSpinner($('#userid'));
-      $.getJSON("ajax_request.php?req=Login&userid="+$('#userid').val(), function(data) {
+      $.getJSON("ajax_request.php?req=User&userid="+$('#userid').val(), function(data) {
         hideSpinner($('#userid'));
         if (data.alert === "NOSESSION") {
           alert("<?=_("Your login has timed out - please refresh the page.")?>");
@@ -383,10 +383,10 @@ while ($row = mysqli_fetch_object($result))  echo "    <option class=\"".($row->
 <?php
 if ($_SESSION['admin'] == 1) {
 ?>
-<!-- LOGIN USERS -->
+<!-- USERS -->
 
 <form action="do_maint.php" method="post" name="userform" id="userform" autocomplete="off" onSubmit="return validate('user');">
-  <fieldset><legend><?=_("User (Login) Management")?></legend>
+  <fieldset><legend><?=_("User Management")?></legend>
   <p><?=_("Fill in the information to add a new user.  Or select an existing user to make changes or delete.".
   "NOTE: You cannot see the existing password, but you can enter a new one if the user forgot his/her password.")?></p>
   <select id="userid" name="userid" size="1">
