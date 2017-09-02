@@ -3,7 +3,7 @@ include("functions.php");
 include("accesscontrol.php");
 
 header1(_("Pledge List").
-($_POST['preselected']!="" ? sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($_POST['preselected'],",")+1) : ""));
+(!empty($_POST['preselected']) ? sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($_POST['preselected'],",")+1) : ""));
 ?>
 <link rel="stylesheet" href="style.php?table=1" type="text/css" />
 <script type="text/JavaScript" src="js/jquery.js"></script>
@@ -18,38 +18,44 @@ header1(_("Pledge List").
 header2($_GET['nav']);
 
 $sql = "SELECT pl.*, FullName, Furigana, DonationType, SUM(IFNULL(d.Amount,0)) - ".
-"(pl.Amount * pl.TimesPerYear / 12 * PERIOD_DIFF(DATE_FORMAT(IF(pl.EndDate IS NULL OR CURDATE()<pl.EndDate, ".
+"(pl.Amount * pl.TimesPerYear / 12 * PERIOD_DIFF(DATE_FORMAT(IF(pl.EndDate='0000-00-00' OR CURDATE()<pl.EndDate, ".
 "CURDATE(), pl.EndDate), '%Y%m'), DATE_FORMAT(pl.StartDate, '%Y%m'))) AS Balance, ".
 "(SUM(IFNULL(d.Amount,0)) - (pl.Amount * pl.TimesPerYear / 12 * ".
-"PERIOD_DIFF(DATE_FORMAT(IF(pl.EndDate IS NULL OR CURDATE()<pl.EndDate, ".
+"PERIOD_DIFF(DATE_FORMAT(IF(pl.EndDate='0000-00-00' OR CURDATE()<pl.EndDate, ".
 "CURDATE(), pl.EndDate), '%Y%m'), DATE_FORMAT(pl.StartDate, '%Y%m')))) ".
 "/ pl.Amount * 12 / pl.TimesPerYear AS Months".
 " FROM pledge pl LEFT JOIN person p ON p.PersonID=pl.PersonID".
 " LEFT JOIN donationtype dt ON pl.DonationTypeID=dt.DonationTypeID".
 " LEFT JOIN donation d ON pl.PledgeID=d.PledgeID";
 
-if ($_POST['closed']!="yes") {
+$closed = isset($_POST['closed']) ? $_POST['closed'] : '';
+$subtotals = isset($_POST['subtotals']) ? $_POST['subtotals'] : '';
+$sort = isset($_POST['sort']) ? $_POST['sort'] : '';
+$desc = isset($_POST['desc']) ? $_POST['desc'] : '';
+$psubtotals = isset($_POST['psubtotals']) ? $_POST['psubtotals'] : '';
+
+if (!$closed) {
   $sql .= " WHERE pl.EndDate is null OR pl.EndDate > CURDATE()";
 }
 $sql .= " GROUP BY pl.PledgeID";
 
 //from old form - I'm in the middle of making more options
-if ($_POST['psubtotals'] == "yes") {
-  $_POST['subtotals'] = "yes";
+if ($psubtotals) {
+  $subtotals = "yes";
 }
 
 $show_subtotals = 0;
-if ($_POST['subtotals']=="yes" and (!$_POST['sort'] or $_POST['sort'] == "DonationType")) {
+if ($subtotals && ($sort || $sort == "DonationType")) {
   $show_subtotals = 1;
-  $sql .= " ORDER BY DonationType ".$_POST['desc'].",Furigana";
-  $_POST['sort'] = "DonationType";  //for the table heading code to catch
-} elseif ($_POST['sort'] and ($_POST['sort'] != "Furigana")) {
-  $sql .= " ORDER BY ".$_POST['sort']." ".$_POST['desc'].",Furigana";
+  $sql .= " ORDER BY DonationType ".$desc.",Furigana";
+  $sort = "DonationType";  //for the table heading code to catch
+} elseif ($sort && $sort != "Furigana") {
+  $sql .= " ORDER BY ".$sort." ".$desc.",Furigana";
 } else {
-  $sql .= " ORDER BY Furigana ".$_POST['desc'];
+  $sql .= " ORDER BY Furigana ".$desc;
   $_POST['sort'] = "Furigana";  //for the table heading code to catch
 }
-$href = $_SERVER['PHP_SELF']."?closed=".$_POST['closed']."&subtotals=".$_POST['subtotals']."&sort=";
+$href = $_SERVER['PHP_SELF']."?closed=$closed&subtotals=$subtotals&sort=";
 $result = sqlquery_checked($sql);
 
 $period[1] = _("year");
@@ -59,50 +65,50 @@ $periods[1] = _("years");
 $periods[4] = _("quarters");
 $periods[12] = _("months");
 
-echo "<h2 align=center>".sprint(($_POST['closed']=="true" ? _("All Pledges as of %s") : _("Open Pledges as of %s")),
+echo "<h2 align=center>".sprintf($closed ? _("All Pledges as of %s") : _("Open Pledges as of %s"),
 date("Y-m-d",mktime(gmdate("H")+9)))."</h2>";
 echo "<table border=1 cellspacing=0 cellpadding=1 style=\"empty-cells:show\">\n";
 echo "<tr>";
 echo "<th><a href=\"".$href."Furigana";
-if (($_POST['sort'] == "Furigana") && !$_POST['desc']) echo "&desc=desc";
+if (($sort == "Furigana") && !$desc) echo "&desc=desc";
 echo "\">"._("Name");
-if ($_POST['sort'] == "Furigana") echo $_POST['desc'] ? " &#x25bc" : " &#x25b2";
+if ($sort == "Furigana") echo $desc ? " &#x25bc" : " &#x25b2";
 echo "</a></th>";
 
 echo "<th><a href=\"".$href."DonationType";
-if (($_POST['sort'] == "DonationType") && !$_POST['desc']) echo "&desc=desc";
+if (($sort == "DonationType") && !$desc) echo "&desc=desc";
 echo "\">"._("Pledge Type");
-if ($_POST['sort'] == "DonationType") echo $_POST['desc'] ? " &#x25bc" : " &#x25b2";
+if ($sort == "DonationType") echo $desc ? " &#x25bc" : " &#x25b2";
 echo "</a></th>";
 
 echo "<th><a href=\"".$href."pl.Amount";
-if (($_POST['sort'] == "pl.Amount") && !$_POST['desc']) echo "&desc=desc";
+if (($sort == "pl.Amount") && !$desc) echo "&desc=desc";
 echo "\">"._("Amount");
-if ($_POST['sort'] == "pl.Amount") echo $_POST['desc'] ? " &#x25bc" : " &#x25b2";
+if ($sort == "pl.Amount") echo $desc ? " &#x25bc" : " &#x25b2";
 echo "</a></th>";
 
 echo "<th><a href=\"".$href."StartDate";
-if (($_POST['sort'] == "StartDate") && !$_POST['desc']) echo "&desc=desc";
+if (($sort == "StartDate") && !$desc) echo "&desc=desc";
 echo "\">"._("Dates");
-if ($_POST['sort'] == "StartDate") echo $_POST['desc'] ? " &#x25bc" : " &#x25b2";
+if ($sort == "StartDate") echo $desc ? " &#x25bc" : " &#x25b2";
 echo "</a></th>";
 
 echo "<th><a href=\"".$href."Balance";
-if (($_POST['sort'] == "Balance") && !$_POST['desc']) echo "&desc=desc";
+if (($sort == "Balance") && !$desc) echo "&desc=desc";
 echo "\">"._("Balance");
-if ($_POST['sort'] == "Balance") echo $_POST['desc'] ? " &#x25bc" : " &#x25b2";
+if ($sort == "Balance") echo $desc ? " &#x25bc" : " &#x25b2";
 echo "</a></th>";
 
 echo "<th><a href=\"".$href."Months";
-if (($_POST['sort'] == "Months") && !$_POST['desc']) echo "&desc=desc";
+if (($sort == "Months") && !$desc) echo "&desc=desc";
 echo "\">"._("Months");
-if ($_POST['sort'] == "Months") echo $_POST['desc'] ? " &#x25bc" : " &#x25b2";
+if ($sort == "Months") echo $desc ? " &#x25bc" : " &#x25b2";
 echo "</a></th>";
 
 echo "<th><a href=\"".$href."PledgeDesc";
-if (($_POST['sort'] == "PledgeDesc") && !$_POST['desc']) echo "&desc=desc";
+if (($sort == "PledgeDesc") && !$desc) echo "&desc=desc";
 echo "\">"._("Remarks");
-if ($_POST['sort'] == "PledgeDesc") echo $_POST['desc'] ? " &#x25bc" : " &#x25b2";
+if ($sort == "PledgeDesc") echo $desc ? " &#x25bc" : " &#x25b2";
 echo "</a></th>";
 echo "</tr>\n";
 
