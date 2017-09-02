@@ -63,19 +63,13 @@ if (!empty($_POST['editactionsave'])) {
 
 // A REQUEST TO ADD A DONATION RECORD?
 if (!empty($_POST['newdonation'])) {
-  if (strpos($_POST['plid'],":") > 0) {
-    $dtype = substr($_POST['plid'],strpos($_POST['plid'],":")+1);
-    $plid = substr($_POST['plid'],0,strpos($_POST['plid'],":"));
-  } else {
-    $dtype = $_POST['dtype'];
-  }
-  $sql = "SELECT * FROM donation WHERE PersonID=".$_POST['pid']." AND DonationTypeID=$dtype ".
-    "AND DonationDate='".$_POST['date']."' AND PledgeID".($_POST['plid'] ? "=".$_POST['plid'] : " IS NULL").
+  $sql = "SELECT * FROM donation WHERE PersonID=".$_POST['pid']." AND DonationTypeID=".$_POST['dtype'].
+    " AND DonationDate='".$_POST['date']."' AND PledgeID=".$_POST['plid'].
     " AND Amount=".str_replace(",","",$_POST['amount']." AND Description='".h2d($_POST['desc'])."'");
   $result = sqlquery_checked($sql);
   if (mysqli_num_rows($result) == 0) {  // making sure this isn't an accidental repeat entry
-    $sql = "INSERT INTO donation(PersonID,".($_POST['plid']?"PledgeID,":"")."DonationTypeID, DonationDate,".
-    "Amount, Description, Processed) VALUES(".$_POST['pid'].",".($_POST['plid']?$_POST['plid'].",":"").$dtype.",".
+    $sql = "INSERT INTO donation(PersonID, PledgeID, DonationTypeID, DonationDate, ".
+    "Amount, Description, Processed) VALUES(".$_POST['pid'].",".$_POST['plid'].",".$_POST['dtype'].",".
     "'".$_POST['date']."',".str_replace(",","",$_POST['amount']).",'".h2d($_POST['desc'])."',".($_POST['proc']?"1":"0").")";
     $result = sqlquery_checked($sql);
     header("Location: individual.php?pid=".$_POST['pid']."#donations");
@@ -90,21 +84,14 @@ if (!empty($_POST['newdonation'])) {
 
 // A REQUEST TO DELETE A DONATION RECORD?
 if (!empty($_POST['deldonation'])) {
-  $result = sqlquery_checked("DELETE FROM donation WHERE DonationID=${_POST['did']}");
+  $result = sqlquery_checked("DELETE FROM donation WHERE DonationID=".$_POST['did']);
   header("Location: individual.php?pid=".$_POST['pid']."#donations");
   exit;
 }
 
 // A REQUEST TO UPDATE A DONATION RECORD?
 if (!empty($_POST['editdonationsave'])) {
-  if (strpos($_POST['plid'],":") > 0) {
-    $dtype = substr($_POST['plid'],strpos($_POST['plid'],":")+1);
-    $plid = substr($_POST['plid'],0,strpos($_POST['plid'],":"));
-  } else {
-    $dtype = $_POST['dtype'];
-  }
-  $sql = "UPDATE donation SET PledgeID=".($_POST['plid']?$_POST['plid']:"NULL").
-      ",DonationTypeID=".$dtype.",DonationDate='".$_POST['date']."',".
+  $sql = "UPDATE donation SET PledgeID=".$_POST['plid'].",DonationTypeID=".$_POST['dtype'].",DonationDate='".$_POST['date']."',".
       "Amount=".str_replace(",","",$_POST['amount']).",Description='".h2d($_POST['desc'])."',".
       "Processed=".($_POST['proc']?"1":"0")." WHERE DonationID=${_POST['did']}";
   $result = sqlquery_checked($sql);
@@ -608,7 +595,7 @@ if (mysqli_num_rows($result) == 0) {
     } else {
       $fcstart = $fcend = "";
     }
-    echo '<tr style="backgroundcolor:#'.(!empty($_GET['editaction'])&&($row->ActionID==$_GET['aid'])?'404040':$row->BGColor);
+    echo '<tr style="background-color:#'.(!empty($_GET['editaction'])&&($row->ActionID==$_GET['aid'])?'404040':$row->BGColor);
     echo ($row_index > $_SESSION['displaydefault_actionnum']) ? ';display:none" class="oldaction">' : '">';
     echo '<td style="white-space:nowrap">'.$fcstart;
     echo $row->ActionDate."<span style=\"display:none\">".$row->ActionID."</span>".$fcend."</td>\n";
@@ -657,7 +644,7 @@ if ($_SESSION['donations'] == "yes") {   // covers both DONATIONS and PLEDGES se
   }
   echo "<form name=\"donationform\" id=\"donationform\" method=\"POST\" action=\"${_SERVER['PHP_SELF']}?pid=${_GET['pid']}#donations\" onSubmit=\"return ValidateDonation()\">\n";
   echo "<input type=\"hidden\" name=\"pid\" value=\"${_GET['pid']}\">\n";
-  if (!empty($_GET['editdonation)'])) echo "<input type=\"hidden\" name=\"did\" value=\"${_GET['did']}\">\n";
+  if (!empty($_GET['editdonation'])) echo "<input type=\"hidden\" name=\"did\" value=\"${_GET['did']}\">\n";
   echo "<label class=\"label-n-input\">"._("Date").
   ": <input type=\"text\" name=\"date\" id=\"donationdate\" style=\"width:6em\" value=\"".
       (!empty($_GET['editdonation']) ? $_GET['date'] : "")."\"></label>\n";
@@ -666,19 +653,19 @@ if ($_SESSION['donations'] == "yes") {   // covers both DONATIONS and PLEDGES se
       "AND (EndDate='0000-00-00' OR EndDate>CURDATE()) ORDER BY PledgeDesc";
   $result = sqlquery_checked($sql);
   echo "<label class=\"label-n-input pledges\">"._("Pledge").": ";
-  echo "<select size=\"1\" name=\"plid\" onChange=\"SetDtypeSelect();\">";
-  echo "<option value=\"0\">Select if pledge...</option>";
+  echo "<select size=\"1\" name=\"plid\" id=\"plid\">\n";
+  echo "  <option value=\"0\">"._("Select if pledge...")."</option>\n";
   while ($row = mysqli_fetch_object($result)) {
-    echo "<option value=\"".$row->PledgeID.":".$row->DonationTypeID."\"".((!empty($_GET['editdonation']) && $row->PledgeID==$_GET['plid'])?
-        " selected":"")." style=\"background-color:#".$row->BGColor."\">$row->PledgeDesc</option>";
+    echo "  <option value=\"".$row->PledgeID."\"".((!empty($_GET['editdonation']) && $row->PledgeID==$_GET['plid'])?
+        " selected":"")." style=\"background-color:#".$row->BGColor."\">$row->PledgeDesc</option>\n";
   }
   echo "</select></label>\n";
 $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
   echo "<label class=\"label-n-input\">"._("Donation Type").": ";
-  echo "<select size=\"1\" name=\"dtype\"".((!empty($_GET['editdonation']) && $_GET['plid']>0)?" disabled":"").">";
+  echo "<select size=\"1\" name=\"dtype\" id=\"dtype\"".((!empty($_GET['editdonation']) && $_GET['plid']>0)?" disabled":"").">";
   echo "<option value=\"0\">"._("Select if not pledge...")."</option>";
   while ($row = mysqli_fetch_object($result)) {
-    echo "<option value=\"".$row->DonationTypeID."\"".((!empty($_GET['editdonation']) && $row->DonationTypeID==$_GET['plid'])?
+    echo "<option value=\"".$row->DonationTypeID."\"".((!empty($_GET['editdonation']) && $row->DonationTypeID==$_GET['dtype'])?
         " selected":"")." style=\"background-color:#".$row->BGColor."\">$row->DonationType</option>";
   }
   echo "</select></label>\n";
@@ -715,7 +702,7 @@ $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
       } else {
         $fcstart = $fcend = "";
       }
-      echo '<tr style="backgroundcolor:#'.(!empty($_GET['editdonation'])&&($row->DonationID==$_GET['did'])?'404040':'FFFFFF');
+      echo '<tr style="background-color:#'.(!empty($_GET['editdonation'])&&($row->DonationID==$_GET['did'])?'404040':'FFFFFF');
       echo ($row_index > $_SESSION['displaydefault_donationnum']) ? ';display:none" class="olddonation">' : '">';
       echo '<td style="text-align:center;white-space:nowrap">'.$fcstart.$row->DonationDate.$fcend."</td>\n";
       if ($row->PledgeID) {
@@ -728,21 +715,21 @@ $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
       echo '<td style="text-align:center">'.$fcstart.$row->Description.$fcend."</td>\n";
       echo '<td style="text-align:center">'.$fcstart.($row->Processed ? "〇" : "").$fcend."</td>\n";
       echo '<td style="text-align:center"><form method="GET" action="'.$_SERVER['PHP_SELF'].'?pid='.$_GET['pid'].'#donations">'."\n";
-      echo "<input type=\"hidden\" name=\"pid\" value=\"${_GET['pid']}\">";
-      echo "<input type=\"hidden\" name=\"did\" value=\"$row->DonationID\">\n";
-      echo "<input type=\"hidden\" name=\"plid\" value=\"$row->PledgeID\">";
-      echo "<input type=\"hidden\" name=\"dtype\" value=\"$row->DonationTypeID\">";
-      echo "<input type=\"hidden\" name=\"date\" value=\"$row->DonationDate\">\n";
+      echo "<input type=\"hidden\" name=\"pid\" value=\"".$_GET['pid']."\">";
+      echo "<input type=\"hidden\" name=\"did\" value=\"".$row->DonationID."\">\n";
+      echo "<input type=\"hidden\" name=\"plid\" value=\"".$row->PledgeID."\">";
+      echo "<input type=\"hidden\" name=\"dtype\" value=\"".$row->DonationTypeID."\">";
+      echo "<input type=\"hidden\" name=\"date\" value=\"".$row->DonationDate."\">\n";
       echo "<input type=\"hidden\" name=\"amount\" value=\"".number_format($row->Amount,$_SESSION['currency_decimals'])."\">\n";
-      echo "<input type=\"hidden\" name=\"desc\" value=\"$row->Description\">\n";
-      echo "<input type=\"hidden\" name=\"proc\" value=\"$row->Processed\">\n";
+      echo "<input type=\"hidden\" name=\"desc\" value=\"".$row->Description."\">\n";
+      echo "<input type=\"hidden\" name=\"proc\" value=\"".$row->Processed."\">\n";
       echo "<input type=\"submit\" name=\"editdonation\" value=\"Edit\"></form></td>\n";
       echo "<td style=\"text-align:center\"><form method=\"POST\" action=\"${_SERVER['PHP_SELF']}?pid=${_GET['pid']}#donations\" onSubmit=";
       echo "\"return confirm('Are you sure you want to delete record of ".
           $_SESSION['currency_mark'].number_format($row->Amount,$_SESSION['currency_decimals']).
           " on ".$row->DonationDate."?')\">\n";
       echo "<input type=\"hidden\" name=\"pid\" value=\"${_GET['pid']}\">\n";
-      echo "<input type=\"hidden\" name=\"did\" value=\"$row->DonationID\">";
+      echo "<input type=\"hidden\" name=\"did\" value=\"".$row->DonationID."\">";
       echo "<input type=\"submit\" name=\"deldonation\" value=\""._("Del")."\">";
       echo "</form></td>\n</tr>\n";
     }
@@ -791,7 +778,7 @@ $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
       echo "<td align=\"center\">".db2table($row->PledgeDesc)."</td>\n";
       echo "<td align=\"center\" nowrap>".$_SESSION['currency_mark']." ".
           number_format($row->Amount,$_SESSION['currency_decimals']).$period[$row->TimesPerYear]."</td>\n";
-      echo "<td align=\"center\" nowrap>".$row->StartDate."&#xFF5E;".($row->EndDate ? $row->EndDate : "")."</td>\n";
+      echo "<td align=\"center\" nowrap>".$row->StartDate."&#xFF5E;".($row->EndDate!='0000-00-00' ? $row->EndDate : "")."</td>\n";
       echo "<td align=\"center\" nowrap".($row->Balance<0 ? " style=\"color:red\"" : "").">".
           $_SESSION['currency_mark']." ".number_format($row->Balance,$_SESSION['currency_decimals']).
           (($row->Balance<0 && $row->TimesPerYear>0) ? "<br>(".number_format(((0-$row->Balance)/$row->Amount*12/$row->TimesPerYear),0)." months)" : "")."</td>\n";
@@ -941,7 +928,7 @@ mysqli_free_result($result);
 <script type="text/javascript" src="js/jquery.clickmenu.js"></script>
 <script type="text/javascript" src="js/expanding.js"></script>
 
-<script type="text/JavaScript">
+<script type="text/javascript">
 $("#org_preselected").val("<?=substr($org_pids,1)?>");
 <?php if ($per->Organization) { ?>$("#mem_preselected").val("<?=substr($mem_pids,1)?>");<?php } ?>
 
@@ -1004,6 +991,27 @@ if($_SESSION['lang']=="ja_JP") {
       $("#actiondesc").load("ajax_request.php",{'req':'ActionTemplate','atid':$("#atype").val()}, function() {
         $(this).change();
       });
+    }
+  });
+
+  $("#plid").change(function(){  //select matching DonationType when Pledge is selected
+    if ($(this).val() == 0) {
+      $("#dtype").prop( "disabled", false ).val(0);
+    } else {
+      $.getJSON("ajax_request.php", {
+        'req':'Unique',
+        'table':'pledge',
+        'col':'DonationTypeID',
+        'PledgeID':$("#plid").val()
+      }, function(data) {
+        //console.log(data);
+        if (data.alert) {
+          alert(data.alert);
+        } else {
+          $("#dtype").val(data.DonationTypeID).prop( "disabled", true );
+        }
+      })
+      .fail(function(jqXHR, textStatus, errorThrown) { alert('getJSON request failed! ' + textStatus); })
     }
   });
 
@@ -1110,15 +1118,29 @@ function ValidateDonation() {
     alert('<?=_("Date is invalid.")?>');
     return false;
   }
-  if (isDate(document.donationform.date.value,"past")==false){
-    alert('<?=_("Date cannot be in the future.")?>');
+  // I gave up for now - I can't get this to work, and it jumps past all other checks
+  /*if (new Date(document.donationform.date.value) > new Date(y,m,d)) {
+    alert('<?=_("Date cannot be in the future.")?>'+Date.parse(document.donationform.date.value)+" > "+today);
     document.donationform.date.focus();
     return false;
-  }
+  }*/
   if ((document.donationform.plid.selectedIndex == 0) && (document.donationform.dtype.selectedIndex == 0)) {
   alert('<?=_("You must select either a Pledge or a Donation Type.")?>');
     return false;
   }
+  if (document.donationform.amount.value == ""){
+    alert('<?=_("You must enter an amount.")?>');
+    document.donationform.amount.focus();
+    return false;
+  }
+/*
+  if (isNaN(document.donationform.amount.value)){
+    alert('<?=_("Amount must be a number.")?>');
+    document.donationform.amount.focus();
+    return false;
+  }
+*/
+  $("#dtype").prop( "disabled", false )
   return true;
 }
 
@@ -1157,19 +1179,6 @@ function ValidateUpload() {
       return false;
   }
   return true;
-}
-
-function SetDtypeSelect() {
-  if (document.donationform.plid.selectedIndex == 0) {
-    document.donationform.dtype.disabled = false;
-  } else {
-    document.donationform.dtype.disabled = true;
-    var dtype = document.donationform.plid.options[document.donationform.plid.selectedIndex].value;
-    dtype = dtype.substr(dtype.indexOf(':')+1);
-    var i = 0;
-    while (document.donationform.dtype.options[i].value != dtype) i++;
-    document.donationform.dtype.selectedIndex = i;
-  }
 }
 </script>
 <?php footer(); ?>

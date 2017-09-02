@@ -6,7 +6,7 @@ if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
 }
 
 switch($_REQUEST['req']) {
-case "OrgName":
+case 'OrgName':
   if (isset($_REQUEST['orgid']) && $_REQUEST['orgid']!="") {
     $sql = "SELECT FullName,Furigana FROM person WHERE PersonID=".$_REQUEST['orgid']." AND Organization>0";
     $result = sqlquery_checked($sql) or die("SQL Error ".mysqli_errno($db).": ".mysqli_error($db)."</b><br>".$sql);
@@ -16,7 +16,7 @@ case "OrgName":
     }
   }
   break;
-case "ActionTemplate":
+case 'ActionTemplate':
   if (isset($_REQUEST['atid']) && $_REQUEST['atid']!="") {
     $result = sqlquery_checked("SELECT Template FROM actiontype WHERE ActionTypeID=".$_REQUEST['atid']);
     if (mysqli_num_rows($result)>0) {
@@ -25,7 +25,7 @@ case "ActionTemplate":
     }
   }
   break;
-case "PC":
+case 'PC':
   if (isset($_REQUEST['pc']) && $_REQUEST['pc']!="") {
     $result = sqlquery_checked("SELECT * FROM postalcode WHERE PostalCode='".$_REQUEST['pc']."'");
     if (mysqli_num_rows($result)==0) {
@@ -48,95 +48,97 @@ case "PC":
     die (json_encode($arr));
   }
   break;
-case "Category":
+case 'Category':
   if (isset($_REQUEST['catid']) && $_REQUEST['catid']!="") {
     $result = sqlquery_checked("SELECT * FROM category WHERE CategoryID=".$_REQUEST['catid']);
     if (mysqli_num_rows($result)>0) {
       $row = mysqli_fetch_object($result);
-      $arr = array("catid" => $row->CategoryID, "category" => $row->Category, "usefor" => $row->UseFor);
+      $arr = array('catid' => $row->CategoryID, 'category' => $row->Category, 'usefor' => $row->UseFor);
       die (json_encode($arr));
     } else {
       die(json_encode(array("alert" => "Record not found.")));
     }
   }
   break;
-case "AType":
+case 'AType':
   if (isset($_REQUEST['atypeid']) && $_REQUEST['atypeid']!="") {
     $result = sqlquery_checked("SELECT * FROM actiontype WHERE ActionTypeID=".$_REQUEST['atypeid']);
     if (mysqli_num_rows($result)>0) {
       $row = mysqli_fetch_object($result);
-      $arr = array("atypeid" => $row->ActionTypeID, "atype" => $row->ActionType,
-      "atcolor" => $row->BGColor, "attemplate" => $row->Template);
+      $arr = array('atypeid' => $row->ActionTypeID, 'atype' => $row->ActionType,
+      'atcolor' => $row->BGColor, 'attemplate' => $row->Template);
       die (json_encode($arr));
     } else {
-      die(json_encode(array("alert" => "Record not found.")));
+      die(json_encode(array('alert' => 'Record not found.')));
     }
   }
   break;
-case "DType":
+case 'DType':
   if (isset($_REQUEST['dtypeid']) && $_REQUEST['dtypeid']!="") {
     $result = sqlquery_checked("SELECT * FROM donationtype WHERE DonationTypeID=".$_REQUEST['dtypeid']);
     if (mysqli_num_rows($result)>0) {
       $row = mysqli_fetch_object($result);
-      $arr = array("dtypeid" => $row->DonationTypeID, "dtype" => $row->DonationType, "dtcolor" => $row->BGColor);
+      $arr = array('dtypeid' => $row->DonationTypeID, 'dtype' => $row->DonationType, 'dtcolor' => $row->BGColor);
       die (json_encode($arr));
     } else {
       die(json_encode(array("alert" => "Record not found.")));
     }
   }
   break;
-case "Event":
+case 'Event':
   if (isset($_REQUEST['eventid']) && $_REQUEST['eventid']!="") {
     $result = sqlquery_checked("SELECT * FROM event WHERE EventID=".$_REQUEST['eventid']);
     if (mysqli_num_rows($result)>0) {
       $row = mysqli_fetch_object($result);
-      $arr = array("eventid" => $row->EventID, "event" => $row->Event, "eventstartdate" => $row->EventStartDate, "eventenddate" => $row->EventEndDate, "remarks" => $row->Remarks);
-      //$arr["active"] = $row->Active ? "checkboxValue" : "";
-      $arr["usetimes"] = $row->UseTimes ? "checkboxValue" : "";
+      $arr = array('eventid' => $row->EventID, 'event' => $row->Event, 'eventstartdate' => $row->EventStartDate, 'eventenddate' => $row->EventEndDate, 'remarks' => $row->Remarks);
+      //$arr['active'] = $row->Active ? 'checkboxValue' : '';
+      $arr['usetimes'] = $row->UseTimes ? 'checkboxValue' : '';
       die (json_encode($arr));
     } else {
-      die(json_encode(array("alert" => "Record not found.")));
+      die(json_encode(array('alert' => 'Record not found.')));
     }
   }
   break;
-case "Login":
+case 'User':
   if (isset($_REQUEST['userid']) && $_REQUEST['userid']!="") {
     $result = sqlquery_checked("SELECT * FROM user WHERE UserID='".$_REQUEST['userid']."'");
     if (mysqli_num_rows($result)>0) {
       $row = mysqli_fetch_object($result);
-      $arr = array("userid" => $row->UserID, "new_userid" => $row->UserID, "old_userid" => $row->UserID,
-      "username" => $row->UserName, "language" => $row->Language, "new_pw1" => "", "new_pw2" => "",
-	  "dashboard" => $row->DashboardCode);
-      $arr["admin"] = $row->Admin ? "checkboxValue" : "";
-      $arr["hidedonations"] = $row->HideDonations ? "checkboxValue" : "";
+      $arr = array('userid' => $row->UserID, 'new_userid' => $row->UserID, 'old_userid' => $row->UserID,
+          'username' => $row->UserName, 'language' => $row->Language, 'new_pw1' => '', 'new_pw2' => '',
+	        'dashboard' => $row->DashboardCode);
+      $arr['admin'] = $row->Admin ? 'checkboxValue' : '';
+      $arr['hidedonations'] = $row->HideDonations ? 'checkboxValue' : '';
       die (json_encode($arr));
     } else {
-      die(json_encode(array("alert" => "Record not found.")));
+      die(json_encode(array('alert' => 'Record not found.')));
     }
   }
   break;
-case "Single":
-  if (isset($_REQUEST['sql']) && stripos($_REQUEST['sql'],"select")==0) {
-    $result = sqlquery_checked(stripslashes($_REQUEST['sql']));
-    $row = mysqli_fetch_array($result);
-    die ($row[0]);
+case 'Unique':
+  if (empty($_REQUEST['table'])) die(json_encode(array('alert' => 'Programming error: Table does not exist')));
+  $sql = 'SELECT DonationTypeID FROM '.$_REQUEST['table'].' WHERE';
+  //$sql = 'SELECT '.(empty($_REQUEST['col'])?'*':$_REQUEST['col']).' FROM '.$_REQUEST['table'].' WHERE';
+  $result = sqlquery_checked('SHOW KEYS FROM '.$_REQUEST['table']." WHERE Key_name = 'PRIMARY'");
+  while ($key = mysqli_fetch_object($result)) {
+    if (empty($_REQUEST[$key->Column_name])) die(json_encode(array('alert' => 'Programming error: AJAX Unique call lacks key value(s)')));
+    $sql .= (substr($sql,-5)=='WHERE' ? ' ' : ' AND ').$key->Column_name."='".escape_quotes($_REQUEST[$key->Column_name])."'";
+  }
+  $result = sqlquery_checked($sql);
+  if (mysqli_num_rows($result)>0) {
+    die (json_encode(mysqli_fetch_assoc($result)));
+  } else {
+    die(json_encode(array('alert' => 'Record not found.')));
   }
   break;
-case "Custom":
-  if (isset($_REQUEST['sql']) && stripos($_REQUEST['sql'],"select")==0) {
+case 'Custom':
+  if (isset($_REQUEST['sql']) && stripos($_REQUEST['sql'],'select')==0) {
     $result = sqlquery_checked($_REQUEST['sql']);
-    $fields = mysqli_num_fields($result);
-    $rows = mysqli_num_rows($result);
-    while ($row_array = mysqli_fetch_row($result)) {
-      for ($field=0; $field<$fields; $field++) {
-        $arr[][mysqli_field_name($result,$field)] = $row_array[$field];
-      }
-    }
-    die (json_encode($arr));
+    die (json_encode(mysqli_fetch_all($result)));
   }
   break;
 
 default:
-  die(json_encode(array("alert" => "Programming error: NO REQUEST RECOGNIZED")));
+  die(json_encode(array('alert' => 'Programming error: NO REQUEST RECOGNIZED')));
 }
 ?>
