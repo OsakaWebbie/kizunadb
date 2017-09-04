@@ -15,9 +15,9 @@ if (!empty($_POST['newcategory'])) {
       "FROM category c LEFT JOIN percat p ON c.CategoryID=p.CategoryID and p.PersonID=${_POST['pid']} ".
       "ORDER BY case when p.PersonID is null then 1 else 0 end, c.Category");
   while ($row = mysqli_fetch_object($result)) {
-    if ($row->PersonID && !$_POST['catid']) {
+    if ($row->PersonID && !isset($_POST['cat'.$row->CategoryID])) {
       sqlquery_checked("DELETE FROM percat WHERE CategoryID=".$row->CategoryID." AND PersonID=${_POST['pid']}");
-    } elseif (!$row->PersonID && $_POST['catid']) {
+    } elseif (!$row->PersonID && isset($_POST['cat'.$row->CategoryID])) {
       sqlquery_checked("INSERT INTO percat(CategoryID,PersonID) VALUES(".$row->CategoryID.",${_POST['pid']})");
     }
   }
@@ -377,13 +377,13 @@ echo "<div id=\"cats-in\">";
 while ($row = mysqli_fetch_object($result)) {
   if (!($row->PersonID)) {
     echo "</div><div id=\"cats-out\">";
-    echo "<label for=\"".$row->CategoryID."\" class=\"label-n-input\"><input type=\"checkbox\" name=\"".$row->CategoryID."\">".$row->Category."</label>\n";
+    echo "<label for=\"".$row->CategoryID."\" class=\"label-n-input\"><input type=\"checkbox\" name=\"cat".$row->CategoryID."\">".$row->Category."</label>\n";
     break;
   }
-  echo "<label for=\"".$row->CategoryID."\" class=\"label-n-input\"><input type=\"checkbox\" name=\"".$row->CategoryID."\" checked>".$row->Category."</label>\n";
+  echo "<label for=\"".$row->CategoryID."\" class=\"label-n-input\"><input type=\"checkbox\" name=\"cat".$row->CategoryID."\" checked>".$row->Category."</label>\n";
 }
 while ($row = mysqli_fetch_object($result)) {
-  echo "<label for=\"".$row->CategoryID."\" class=\"label-n-input\"><input type=\"checkbox\" name=\"".$row->CategoryID."\">".$row->Category."</label>\n";
+  echo "<label for=\"".$row->CategoryID."\" class=\"label-n-input\"><input type=\"checkbox\" name=\"cat".$row->CategoryID."\">".$row->Category."</label>\n";
 }
 echo "</div>";  //end of cats-out
 ?>
