@@ -2,10 +2,11 @@
 include("functions.php");
 include("accesscontrol.php");
 
+
 if (isset($_POST['edit'])) {
   if (isset($_POST['plid'])) {
     $sql = "UPDATE pledge SET DonationTypeID=".$_POST['dtype'].",PledgeDesc='".$_POST['desc']."',".
-    "StartDate='".$_POST['startdate']."',EndDate=".($_POST['enddate']?"'".$_POST['enddate']."'":"NULL").",".
+    "StartDate='".$_POST['startdate']."',EndDate='".(!empty($_POST['enddate'])?$_POST['enddate']:'0000-00-00')."',".
     "Amount=".str_replace(",","",$_POST['amount']).",TimesPerYear=".$_POST['tpy']." ".
     "WHERE PledgeID=".$_POST['plid']." LIMIT 1";
     $result = sqlquery_checked($sql);
@@ -13,8 +14,8 @@ if (isset($_POST['edit'])) {
     $result = sqlquery_checked($sql);
   } else {
     $sql = "INSERT INTO pledge (PersonID,DonationTypeID,PledgeDesc,StartDate,EndDate,Amount,TimesPerYear) ".
-    "VALUES (".$_POST['pid'].",'".$_POST['dtype']."','".$_POST['desc']."','".$_POST['startdate']."',".
-    ($_POST['enddate']?"'".$_POST['enddate']."'":"NULL").",".$_POST['amount'].",".$_POST['tpy'].")";
+    "VALUES (".$_POST['pid'].",'".$_POST['dtype']."','".$_POST['desc']."','".$_POST['startdate']."','".
+    (!empty($_POST['enddate'])?$_POST['enddate']:"0000-00-00")."',".$_POST['amount'].",".$_POST['tpy'].")";
     $result = sqlquery_checked($sql);
   }
   echo "<SCRIPT FOR=window EVENT=onload LANGUAGE=\"Javascript\">\n";
@@ -39,12 +40,15 @@ if (isset($_POST['edit'])) {
   }
 }
 
-if (isset($_GET['plid'])) {
+
+// ENTERING FOR THE FIRST TIME, EITHER TO EDIT OR ADD NEW PLEDGE
+if (isset($_GET['plid'])) {  // EDITING
   $sql = "SELECT pledge.*, FullName, Furigana FROM pledge LEFT JOIN person ON person.PersonID=pledge.PersonID ".
       "WHERE PledgeID=".$_GET['plid'];
   $result = sqlquery_checked($sql);
   if (mysqli_num_rows($result) == 0) die("<b>Failed to find a record for Pledge ID ".$_GET['plid'].".</b>");
   $old = mysqli_fetch_object($result);
+  $pagetitle = sprintf(_("Edit Pledge for %s"),readable_name($old->FullName,$old->Furigana));
   $result = sqlquery_checked("SELECT COUNT(DonationID) count, MIN(DonationDate) first, MAX(DonationDate) last ".
   "FROM donation WHERE PledgeID=".$_GET['plid']);
   $donation = mysqli_fetch_object($result);
@@ -59,9 +63,11 @@ if (isset($_GET['plid'])) {
   $result = sqlquery_checked($sql);
   if (mysqli_num_rows($result) == 0) die("<b>Failed to find a record for Person ID ".$_GET['pid'].".</b>");
   $rec = mysqli_fetch_object($result);
+  $pagetitle = sprintf(_("New Pledge Entry for %s"),readable_name($rec->FullName,$rec->Furigana));
 }
 
-header1(sprintf($plid?_("Edit Pledge for %s"):_("New Pledge Entry for %s"),readable_name($old->FullName,$old->Furigana)));
+header1($pagetitle);
+
 ?>
 <link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
 <script type="text/JavaScript" src="js/jquery.js"></script>
@@ -84,7 +90,7 @@ function edit_validate() {
   f = document.editform;  //just an abbreviation
   f.edit.disable = true;  //to prevent double submit
 
-  if (f.dtype.value == "NULL") {
+  if (f.dtype.value == "0") {
     alert("<?=_("Please choose a Donation Type.")?>");
     f.dtype.select();
     return false;
@@ -112,9 +118,11 @@ function edit_validate() {
     f.enddate.select();
     return false;
   }
-<?php if ($donation->count > 0) { ?>
+<?php if (isset($donation) and $donation->count > 0) { ?>
   if (f.dtype.value != "<?=$old->DonationTypeID?>") {
-    if (!confirm("<?=sprintf(_("Changing the Donation Type will also change the Donation Type for the %s donations recorded in fulfillment of this pledge (from %s to %s). Okay to do this?"),$donation->count,$donation->first,$donation->last)?>")) {
+    if (!confirm("<?=sprintf(_("Changing the Donation Type will also change the Donation Type ".
+            "for the %s donations recorded in fulfillment of this pledge (from %s to %s). Okay to do this?"),
+            $donation->count,$donation->first,$donation->last)?>")) {
       $("#dtype").val(<?=$old->DonationTypeID?>);
       return false;
     }
@@ -130,37 +138,38 @@ function del_validate() {
 </script>
 <?php
 header2(1);
-echo "<pre>".print_r($donation,true)."</pre>";
-if ($message) echo "<h3>$message</h3>\n";
+
+//echo "<pre>".print_r($donation,true)."</pre>";
+if (!empty($message)) echo "<h3>$message</h3>\n";
 ?>
 <form name="editform" enctype="multipart/form-data" method="post" action="<?=$_SERVER['PHP_SELF']?>"
 onsubmit="return edit_validate();"><br>
-<input type="hidden" name="pid" value="<?=($_GET['plid'] ? $old->PersonID : $_GET['pid'])?>">
-<?php if ($_GET['plid']) echo "<input type=\"hidden\" name=\"plid\" value=\"".$_GET['plid']."\">"; ?>
+<input type="hidden" name="pid" value="<?=(isset($_GET['plid']) ? $old->PersonID : $_GET['pid'])?>">
+<?php if (isset($_GET['plid'])) echo "<input type=\"hidden\" name=\"plid\" value=\"".$_GET['plid']."\">"; ?>
 <input type="hidden" name="<?=($_GET['plid'] ? "updatepledge" : "insertpledge")?> value="yes">
 
 <label class="label-n-input"><?=_("Donation Type")?>: <select id="dtype" name="dtype" size="1"><?php
-if (!$plid) {
-  echo "<option value=\"NULL\">Select...</option>\n";
+if (!isset($_GET['plid'])) {
+  echo "<option value=\"0\">Select...</option>\n";
 }
 $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
 while ($row = mysqli_fetch_object($result)) {
-    echo "<option value=\"".$row->DonationTypeID."\"".(($_GET['plid'] && $row->DonationTypeID==$old->DonationTypeID)?
+    echo "<option value=\"".$row->DonationTypeID."\"".((isset($_GET['plid']) && $row->DonationTypeID==$old->DonationTypeID)?
           " selected":"")." style=\"background-color:#".$row->BGColor."\">".$row->DonationType."</option>\n";
 }
 ?></select></label>
 <label class="label-n-input"><?=_("Description")?>: <input id="desc" name="desc" type="text" style="width:30em"
 maxlength="50" value="<?=$old->PledgeDesc?>" /></label>
 <label class="label-n-input"><?=_("Start Date")?>: <input type="text" id="startdate" name="startdate" style="width:6em"
-value="<?=$_GET['plid'] ? $old->StartDate : date("Y-m-d",mktime(gmdate("H")+9))?>" /></label>
+value="<?=isset($_GET['plid']) ? $old->StartDate : date("Y-m-d",mktime(gmdate("H")+9))?>" /></label>
 <label class="label-n-input"><?=_("End Date")?>: <input type="text" id="enddate" name="enddate" style="width:6em"
-value="<?=$old->EndDate?>"> <span class="comment"><?=_("(leave blank if no specified end to pledge)")?></span></label>
+value="<?=($old->EndDate!='0000-00-00'?$old->EndDate:'')?>"> <span class="comment"><?=_("(leave blank if no specified end to pledge)")?></span></label>
 <span style="white-space:nowrap"><label class="label-n-input" style="margin-right:0"><?=_("Amount")?>: <?=$_SESSION['currency_mark']?><input id="amount"
 name="amount" type="text" style="width:8em" maxlength="12" value="<?php
-if ($_GET['plid']) echo number_format($old->Amount,$_SESSION['currency_decimals']); ?>" /></label>
+if (isset($_GET['plid'])) echo number_format($old->Amount,$_SESSION['currency_decimals']); ?>" /></label>
  / <select name="tpy" size="1">
 <?php
-if ($_GET['plid']) {
+if (isset($_GET['plid'])) {
   $tpy = $old->TimesPerYear;
 } elseif (isset($_SESSION['pledge-tpy'])) {
   $tpy = $_SESSION['pledge-tpy'];
@@ -174,7 +183,7 @@ if ($_GET['plid']) {
 </select></span>
 <div><input type="submit" value="<?=_("Save Changes")?>" name="edit" /></div>
 </form>
-<?php if ($_GET['plid']) { //delete form only applies if edit rather than new
+<?php if (isset($_GET['plid'])) { //delete form only applies if edit rather than new
 ?>
 <form name="delform" enctype="multipart/form-data" method="post" action="<?=$_SERVER["PHP_SELF"]?>"
 onsubmit="return del_validate();">
@@ -184,6 +193,6 @@ onsubmit="return del_validate();">
 <input type="submit" value="<?=_("Delete This Pledge")?>" name="del" />
 </form>
 <?php
-} // endif plid
+} // endif plid is passed (to include delete option)
 footer();
 ?>
