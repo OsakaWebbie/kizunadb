@@ -745,7 +745,7 @@ $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
 
   // ********** PLEDGES **********
 
-  $period[1] = " "._("(one time)");
+  $period[0] = " "._("(one time)");
   $period[1] = "/"._("year");
   $period[4] = "/"._("quarter");
   $period[12] = "/"._("month");
