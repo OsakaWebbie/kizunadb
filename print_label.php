@@ -25,7 +25,7 @@ $sql = "SELECT ".($_POST['name_type']=="label" ? "DISTINCT LabelName" :
 "IF(NonJapan, CONCAT(Title,' ',FullName), CONCAT(FullName,Title))")." AS Name, NonJapan, postalcode.*, Address ".
 "FROM person p LEFT JOIN household h ON p.HouseholdID=h.HouseholdID ".
 "LEFT JOIN postalcode ON h.PostalCode=postalcode.PostalCode WHERE p.PersonID IN (".$pid_list.") ".
-"AND p.HouseholdID IS NOT NULL AND p.HouseholdID>0 AND h.Address IS NOT NULL AND h.Address!='' ".
+"AND p.HouseholdID>0 AND h.Address!='' ".
 "AND (h.NonJapan=1 OR h.PostalCode!='') ORDER BY ".($_POST['nj_separate']=="yes" ? "NonJapan," : "").
 "FIND_IN_SET(PersonID,'".$pid_list."')";
 $result = sqlquery_checked($sql);
