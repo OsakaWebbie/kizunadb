@@ -200,13 +200,13 @@ for ($i=1; isset($_REQUEST["blanktarget".$i]); $i++) {
     $where .= ($where!=""?" AND":" WHERE");
     switch($target) {
     case "Birthdate":
-      $where .= "$not ($ptable.$target IS NULL OR $ptable.$target='0000-00-00')";
+      $where .= "$not $ptable.$target='0000-00-00'";
       break;
     case "Address":
     case "LabelName":
     case "Phone":
     case "FAX":
-      $where .= "$not ($target = '' OR $target IS NULL)";
+      $where .= "$not $target=''";
       break;
     default:
       $where .= "$not ($ptable.$target = '')";

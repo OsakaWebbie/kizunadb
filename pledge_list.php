@@ -47,20 +47,22 @@ if ($psubtotals) {
 $show_subtotals = 0;
 if ($subtotals && ($sort || $sort == "DonationType")) {
   $show_subtotals = 1;
-  $sql .= " ORDER BY DonationType ".$desc.",Furigana";
+  $sql .= " ORDER BY DonationType $desc, Furigana";
   $sort = "DonationType";  //for the table heading code to catch
 } elseif ($sort && $sort != "Furigana") {
-  $sql .= " ORDER BY ".$sort." ".$desc.",Furigana";
+  $sql .= " ORDER BY $sort $desc, Furigana";
 } else {
-  $sql .= " ORDER BY Furigana ".$desc;
-  $_POST['sort'] = "Furigana";  //for the table heading code to catch
+  $sql .= " ORDER BY Furigana $desc";
+  $sort = "Furigana";  //for the table heading code to catch
 }
 $href = $_SERVER['PHP_SELF']."?closed=$closed&subtotals=$subtotals&sort=";
 $result = sqlquery_checked($sql);
 
+$period[0] = '';
 $period[1] = _("year");
 $period[4] = _("quarter");
 $period[12] = _("month");
+$periods[0] = _('');
 $periods[1] = _("years");
 $periods[4] = _("quarters");
 $periods[12] = _("months");
@@ -131,7 +133,7 @@ while ($row = mysqli_fetch_object($result)) {
   number_format($row->Amount,$_SESSION['currency_decimals'])."/".
   $period[$row->TimesPerYear]."</td>\n";
   echo "<td valign=middle nowrap style=\"padding:2px 4px 2px 4px;\">".$row->StartDate."&#xFF5E;".
-  ($row->EndDate ? $row->EndDate : "")."</td>\n";
+  ($row->EndDate!='0000-00-00' ? $row->EndDate : '')."</td>\n";
   echo "<td valign=middle align=center nowrap style=\"padding:2px 4px 2px 4px;".
   ($row->Balance<0 ? "color:red" : "")."\">".
   $_SESSION['currency_mark']." ".
@@ -139,6 +141,9 @@ while ($row = mysqli_fetch_object($result)) {
   echo "<td valign=middle align=center nowrap style=\"padding:2px 4px 2px 4px;".
   ($row->Balance<0 ? "color:red" : "")."\">";
   echo ceil($row->Months);
+  if ($row->TimesPerYear == 0) {
+
+  }
   if ($row->TimesPerYear != 12) {
     echo "<br />(".ceil(($row->Months)/12*$row->TimesPerYear)." ".
     $periods[$row->TimesPerYear].")";

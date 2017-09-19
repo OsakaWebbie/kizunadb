@@ -149,7 +149,7 @@ header2(0);
   <div id="eventselect">
     <label class="label-n-input"><?=_("Event")?>:
       <select size="1" id="eventid" name="eid">
-        <option value="NULL" selected><?=_("Select...")?></option>
+        <option value="0" selected><?=_("Select...")?></option>
 <?php
 $result = sqlquery_checked("SELECT EventID,Event,UseTimes,IF(EventEndDate AND EventEndDate<CURDATE(),'inactive','active') AS Active FROM event ORDER BY Event");
 while ($row = mysqli_fetch_object($result)) {

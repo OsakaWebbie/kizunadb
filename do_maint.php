@@ -226,13 +226,13 @@ echo _(" If you don't want to do this, just press your browser's Back button. ".
   $usetimes = ($_POST['usetimes'] ? "1" : "0");
   if ($_POST['eventid'] == "new") {
     sqlquery_checked("INSERT INTO event (Event,EventStartDate,EventEndDate,UseTimes,Remarks) ".
-    "VALUES ('".h2d($_POST['event'])."','".$_POST['eventstartdate']."',".($_POST['eventenddate']?"'".$_POST['eventenddate']."'":"NULL").",$usetimes,'".h2d($_POST['remarks'])."')");
+    "VALUES ('".h2d($_POST['event'])."','".$_POST['eventstartdate']."','".($_POST['eventenddate']?$_POST['eventenddate']:"'0000-00-00'")."',$usetimes,'".h2d($_POST['remarks'])."')");
     if (mysqli_affected_rows($db) == 1) {
       $message = _("New event successfully added.");
     }
   } else {
     sqlquery_checked("UPDATE event SET UseTimes=$usetimes,Event='".h2d($_POST['event'])."',EventStartDate='".$_POST['eventstartdate']."',".
-      "EventEndDate=".($_POST['eventenddate']?"'".$_POST['eventenddate']."'":"NULL").",Remarks='".h2d($_POST['remarks'])."' WHERE EventID=".$_POST['eventid']);
+      "EventEndDate='".($_POST['eventenddate']?$_POST['eventenddate']:"'0000-00-00'")."',Remarks='".h2d($_POST['remarks'])."' WHERE EventID=".$_POST['eventid']);
     if (mysqli_affected_rows($db) == 1) {
       $message = _("Event information successfully updated.");
     }

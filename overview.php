@@ -208,7 +208,7 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
   if ($_POST['donations'] && $_SESSION['donations'] == "yes") {
     $sql = "SELECT pl.PledgeID, pl.DonationTypeID, pl.PledgeDesc, dt.BGColor FROM pledge pl ".
       "LEFT JOIN donationtype dt ON pl.DonationTypeID=dt.DonationTypeID WHERE PersonID=".$person->PersonID.
-      " AND (EndDate IS NULL OR EndDate>CURDATE()) ORDER BY PledgeDesc";
+      " AND (EndDate='0000-00-00' OR EndDate>CURDATE()) ORDER BY PledgeDesc";
     $result = sqlquery_checked($sql);
     if (mysqli_num_rows($result) > 0) {
       echo "<h2 class=\"pledgetitle\">"._("Pledges")."</h2>\n";

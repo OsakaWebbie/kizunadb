@@ -702,7 +702,7 @@ $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
       } else {
         $fcstart = $fcend = "";
       }
-      echo '<tr style="background-color:#'.(!empty($_GET['editdonation'])&&($row->DonationID==$_GET['did'])?'404040':'FFFFFF');
+      echo '<tr style="background-color:#'.(!empty($_GET['editdonation'])&&($row->DonationID==$_GET['did'])?'404040':$row->BGColor);
       echo ($row_index > $_SESSION['displaydefault_donationnum']) ? ';display:none" class="olddonation">' : '">';
       echo '<td style="text-align:center;white-space:nowrap">'.$fcstart.$row->DonationDate.$fcend."</td>\n";
       if ($row->PledgeID) {
@@ -806,7 +806,7 @@ $result = sqlquery_checked("SELECT EventID,Event,UseTimes,IF(EventEndDate AND Ev
 //echo "<div style=\"display:inline-block\">\n";
 echo "  <label class=\"label-n-input\">"._("Event").": ";
 echo "    <select size=\"1\" id=\"eventid\" name=\"eid\">\n";
-echo "      <option value=\"NULL\" selected>"._("Select...")."</option>\n";
+echo "      <option value=\"0\" selected>"._("Select...")."</option>\n";
 while ($row = mysqli_fetch_object($result)) {
 //  echo "      <option value=\"".$row->EventID."\" class=\"".(($row->UseTimes==1)?"times ":"days ").$row->Active."\"".
 //  ($row->Active=="active"?"":" style=\"display:none\"").">".$row->Event."</option>\n";

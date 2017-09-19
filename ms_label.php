@@ -12,7 +12,7 @@ header2(0);
 /* CHECK FOR RECORDS WITH NO HOUSEHOLD OR ADDRESS */
 $sql = "SELECT p.PersonID, FullName, Furigana ".
     "FROM person p LEFT JOIN household h ON p.HouseholdID=h.HouseholdID ".
-    "WHERE p.PersonID IN (".$pid_list.") AND (p.HouseholdID=0 OR h.Address IS NULL OR h.Address='' ".
+    "WHERE p.PersonID IN (".$pid_list.") AND (p.HouseholdID=0 OR h.Address='' ".
     "OR (h.NonJapan=0 AND h.PostalCode='')) ORDER BY FIND_IN_SET(PersonID,'".$pid_list."')";
 $result = sqlquery_checked($sql);
 if ($num = mysqli_num_rows($result) > 0) {
@@ -27,13 +27,13 @@ if ($num = mysqli_num_rows($result) > 0) {
 }
 /* GET NUMBERS OF ENTRIES THAT WOULD BE PRINTED */
 $sql = "SELECT count(PersonID) FROM person p LEFT JOIN household h ON p.HouseholdID=h.HouseholdID ".
-    "WHERE p.PersonID IN (".$pid_list.") AND NOT (p.HouseholdID=0 OR h.Address IS NULL OR h.Address='' ".
+    "WHERE p.PersonID IN (".$pid_list.") AND NOT (p.HouseholdID=0 OR h.Address='' ".
     "OR (h.NonJapan=0 AND h.PostalCode=''))";
 $result = sqlquery_checked($sql);
 $row = mysqli_fetch_object($result);
 $num_individuals = $row->num;
 $sql = "SELECT count(DISTINCT h.HouseholdID) FROM person p LEFT JOIN household h ON p.HouseholdID=h.HouseholdID ".
-    "WHERE p.PersonID IN (".$pid_list.") AND NOT (p.HouseholdID=0 OR h.Address IS NULL OR h.Address='' ".
+    "WHERE p.PersonID IN (".$pid_list.") AND NOT (p.HouseholdID=0 OR h.Address='' ".
     "OR (h.NonJapan=0 AND h.PostalCode=''))";
 $result = sqlquery_checked($sql);
 $row = mysqli_fetch_object($result);

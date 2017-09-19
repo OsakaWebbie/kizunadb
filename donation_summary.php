@@ -11,7 +11,7 @@ if ($_GET['summarytype'] == "DonationType") {
   $sql = "SELECT dt.DonationType, SUM(d.Amount) AS Amounts FROM donationtype dt";
   $sql .= " LEFT JOIN donation d ON d.DonationTypeID=dt.DonationTypeID";
   $sql .= " AND (d.DonationDate BETWEEN '".$_GET['start']."' AND '".$_GET['end']."')";
-  $sql .= " OR d.DonationDate IS NULL";
+  $sql .= " OR d.DonationDate IS NULL"; //meaning there are no donations at all for this type, I guess - why is this here???
   $sql .= " GROUP BY dt.DonationType";
 } else {  //by person
   $sql = "SELECT d.PersonID, p.FullName, p.Furigana, SUM(d.Amount) AS Amounts FROM donation d";

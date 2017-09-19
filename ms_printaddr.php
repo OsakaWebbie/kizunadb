@@ -10,8 +10,8 @@ header2(0);
 /* CHECK FOR RECORDS WITH NO HOUSEHOLD OR ADDRESS */
 $sql = "SELECT p.PersonID, FullName, Furigana ".
     "FROM person p LEFT JOIN household h ON p.HouseholdID=h.HouseholdID ".
-    "WHERE p.PersonID IN (".$pid_list.") AND (p.HouseholdID IS NULL OR p.HouseholdID=0 ".
-    "OR h.Address IS NULL OR h.Address='' OR (h.NonJapan=0 AND h.PostalCode='')) ORDER BY FIND_IN_SET(PersonID,'".$pid_list."')";
+    "WHERE p.PersonID IN (".$pid_list.") AND (p.HouseholdID=0 OR h.Address IS NULL OR h.Address='' ".
+    "OR (h.NonJapan=0 AND h.PostalCode='')) ORDER BY FIND_IN_SET(PersonID,'".$pid_list."')";
 $result = sqlquery_checked($sql);
 if ($num = mysqli_num_rows($result) > 0) {
   echo "<div style=\"float:left;border:2px solid darkred;padding:4px;margin:4px\">"._("The following entries have no address:")."<br />\n";
