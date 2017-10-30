@@ -30,7 +30,8 @@ $sql = "SELECT ".($_POST['name_type']=="label" ? "DISTINCT LabelName" :
 "FIND_IN_SET(PersonID,'".$pid_list."')";
 $result = sqlquery_checked($sql);
 
-$fileroot = "/tmp/label".getmypid();  //the process ID
+$tmppath = '/var/www/tmp/';
+$fileroot = CLIENT.'-'.$_SESSION['userid'].'-label-'.date('His');
 
 /* PREPARE ARRAYS FOR SPECIAL CHARACTERS */
 $search_array = array("&","¡","£","©","®","¸","¿",
@@ -104,11 +105,30 @@ while ($row = mysqli_fetch_object($result)) {
 \null\newpage
 \end{document}
 <?php
-file_put_contents($fileroot.".tex",ob_get_contents());
+file_put_contents($tmppath.$fileroot.".tex",ob_get_contents());
 ob_end_clean();
 
 // RUN TEX COMMANDS TO MAKE PDF
 
+exec("cd $tmppath;/usr/local/bin/uplatex -interaction=batchmode --output-directory=$tmppath $fileroot", $output, $return);
+if (!is_file("$tmppath$fileroot.dvi")) {
+  die("Error processing '$tmppath$fileroot.tex':<br /><br /><pre>".print_r($output,TRUE)."</pre>");
+}
+//unlink("$tmppath$fileroot.tex");
+exec("cd $tmppath;/usr/local/bin/dvipdfmx $fileroot", $output, $return);
+//unlink("$tmppath$fileroot.dvi");
+if (!is_file("$tmppath$fileroot.pdf")) {
+  die("Error processing '$tmppath$fileroot.dvi':<br /><br /><pre>".print_r($output,TRUE)."</pre>");
+}
+
+// DELIVER PDF CONTENT TO BROWSER
+
+header("Content-Type: application/pdf");
+header('Content-Disposition: attachment; filename="labels_'.date('Y-m-d').'.pdf"');
+header("Content-Transfer-Encoding: binary");
+@readfile("$tmppath$fileroot.pdf");
+
+/*
 exec("cd /tmp;/usr/local/texlive/2011/bin/x86_64-linux/uplatex -interaction=batchmode --output-directory=/tmp $fileroot", $output, $return);
 if (!is_file("$fileroot.dvi")) {
   die("Error processing '$fileroot.tex':<br /><br /><pre>".print_r($output,TRUE)."</pre>");
@@ -124,4 +144,5 @@ header("Content-Type: application/pdf");
 header('Content-Disposition: attachment; filename="labels_'.date('Y-m-d').'.pdf"');
 header("Content-Transfer-Encoding: binary");
 @readfile("$fileroot.pdf");
+*/
 ?>
