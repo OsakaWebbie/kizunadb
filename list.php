@@ -256,9 +256,6 @@ if (mysqli_num_rows($result) == 0) {
   header("Location: search.php?text=".urlencode(_("Search resulted in no records.".($_SESSION['userid']=="karen"?urlencode("<pre>".$sql."</pre>"):""))));
   exit;
 } elseif (mysqli_num_rows($result) == 1) {
-  if ($_SESSION['userid']=="dev") {
-    die("<pre class=\"noprint\">".$sql."</pre>");
-  }
   $person = mysqli_fetch_object($result);
   header("Location: individual.php?pid=".$person->PersonID);
   exit;

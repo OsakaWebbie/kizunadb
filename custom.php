@@ -26,7 +26,7 @@ $rows = mysqli_num_rows($result);
 if ($custom->IsTable) {
   echo "<table id=\"mainTable\" class=\"tablesorter\">\n  <thead>\n    <tr>\n";
   for ($i=0; $i<$fields; $i++) {
-    echo ("      <th nowrap>".mysqli_field_name($result,$i)."</th>\n");
+    echo ("      <th nowrap>".mysqli_fetch_field_direct($result,$i)->name."</th>\n");
   }
   echo "    </tr>\n  </thead>\n  <tbody>\n";
   while ($row_array = mysqli_fetch_row($result)) {

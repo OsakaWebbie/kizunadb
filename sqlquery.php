@@ -15,18 +15,6 @@ if ($_POST['query']) {
 <script type="text/javascript">
 $(document).ready(function() {
   $("#mainTable").tablesorter({
-<?php
-/*  if ((strtoupper(substr($query,0,6)) == "SELECT") && (mb_eregi(".*order by (.*)",$query,$order))) {
-    $order_split = explode(",",$order[0]);
-    for ($i=0; $i<mysqli_num_fields($result); $i++) {
-      $meta = mysqli_fetch_field($result, $i);
-      if (mb_strpos($order_split[0],$meta->name)) {
-        echo "    sortList:[[".$i.",".(mb_strpos("desc",$order_split[0])?"1":"0")."]]";
-        break;
-      }
-    }
-  } */
-?>
   });
 });
 function getCSV() {
@@ -67,7 +55,7 @@ function getCSV() {
 <?php
     echo "<table id=\"mainTable\" class=\"tablesorter\">\n  <thead>\n    <tr>\n";
     for ($i=0; $i<$fields; $i++) {
-      echo ("      <th nowrap>".mysqli_field_name($result,$i)."</th>\n");
+      echo ("      <th nowrap>".mysqli_fetch_field_direct($result,$i)->name."</th>\n");
     }
     echo "    </tr>\n  </thead>\n  <tbody>\n";
     while ($row_array = mysqli_fetch_row($result)) {
@@ -75,7 +63,7 @@ function getCSV() {
       for ($i=0; $i<$fields; $i++) {
         if (substr($row_array[$i],0,2)=="<a") {
           echo ("    <td nowrap>".$row_array[$i]."</td>\n");
-        } elseif (mysqli_field_name($result,$i)=="PersonID") {
+        } elseif (mysqli_fetch_field_direct($result,$i)->name=="PersonID") {
           echo ("    <td><a href=\"individual.php?pid=".$row_array[$i]."\" target=\"_blank\">".$row_array[$i]."</a></td>\n");
         } else {
           echo ("    <td>".d2h($row_array[$i])."</td>\n");
