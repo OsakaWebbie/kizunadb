@@ -4,7 +4,9 @@ include("accesscontrol.php");
 header1("");
 ?>
 <link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
-<script type="text/JavaScript" src="js/jquery.js"></script>
+<script src="https://code.jquery.com/jquery-2.2.4.min.js"
+        integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+        crossorigin="anonymous"></script>
 <script type="text/JavaScript" src="js/jquery-ui.js"></script>
 <?php
 header2(0);
@@ -26,13 +28,13 @@ if ($num = mysqli_num_rows($result) > 0) {
   echo "</div>\n";
 }
 /* GET NUMBERS OF ENTRIES THAT WOULD BE PRINTED */
-$sql = "SELECT count(PersonID) FROM person p LEFT JOIN household h ON p.HouseholdID=h.HouseholdID ".
+$sql = "SELECT count(PersonID) num FROM person p LEFT JOIN household h ON p.HouseholdID=h.HouseholdID ".
     "WHERE p.PersonID IN (".$pid_list.") AND NOT (p.HouseholdID=0 OR h.Address='' ".
     "OR (h.NonJapan=0 AND h.PostalCode=''))";
 $result = sqlquery_checked($sql);
 $row = mysqli_fetch_object($result);
 $num_individuals = $row->num;
-$sql = "SELECT count(DISTINCT h.HouseholdID) FROM person p LEFT JOIN household h ON p.HouseholdID=h.HouseholdID ".
+$sql = "SELECT count(DISTINCT h.HouseholdID) num FROM person p LEFT JOIN household h ON p.HouseholdID=h.HouseholdID ".
     "WHERE p.PersonID IN (".$pid_list.") AND NOT (p.HouseholdID=0 OR h.Address='' ".
     "OR (h.NonJapan=0 AND h.PostalCode=''))";
 $result = sqlquery_checked($sql);

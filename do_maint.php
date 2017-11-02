@@ -226,7 +226,7 @@ echo _(" If you don't want to do this, just press your browser's Back button. ".
   $usetimes = ($_POST['usetimes'] ? "1" : "0");
   if ($_POST['eventid'] == "new") {
     sqlquery_checked("INSERT INTO event (Event,EventStartDate,EventEndDate,UseTimes,Remarks) ".
-    "VALUES ('".h2d($_POST['event'])."','".$_POST['eventstartdate']."','".($_POST['eventenddate']?$_POST['eventenddate']:"'0000-00-00'")."',$usetimes,'".h2d($_POST['remarks'])."')");
+    "VALUES ('".h2d($_POST['event'])."','".$_POST['eventstartdate']."','".($_POST['eventenddate']?$_POST['eventenddate']:"0000-00-00")."',$usetimes,'".h2d($_POST['remarks'])."')");
     if (mysqli_affected_rows($db) == 1) {
       $message = _("New event successfully added.");
     }

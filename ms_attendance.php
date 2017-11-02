@@ -4,11 +4,11 @@ include("accesscontrol.php");
 header1("");
 
 // A REQUEST TO ADD ADDENDANCE RECORD(S)?
-if ($newattendance) {
-  $pidarray = explode(",",$pid_list);
+if (!empty($_POST['newattendance'])) {
+  $pidarray = explode(",",$_POST['pid_list']);
   //make array of dates (single or range)
   $datearray = array();
-  if ($_POST["enddate"] != "") {  //need to do a range of dates
+  if (!empty($_POST["enddate"])) {  //need to do a range of dates
     if ($_POST["date"] > $_POST["enddate"]) die("Error: End Date is earlier than Start Date.");
     for ($day=$_POST["date"]; $day<=$_POST["enddate"]; $day=strftime("%Y-%m-%d", strtotime("$day +1 day"))) {
       if ($_POST["dow".date("w",strtotime($day))]) {
@@ -24,7 +24,7 @@ if ($newattendance) {
   $updated = 0;
   foreach ($datearray as $eachdate) {
     foreach ($pidarray as $eachpid) {
-      if ($_POST["starttime"] != "") {
+      if (!empty($_POST["starttime"])) {
         sqlquery_checked("INSERT INTO attendance(PersonID,EventID,AttendDate,StartTime,EndTime) ".
         "VALUES($eachpid,{$_POST["eid"]},'$eachdate','".$_POST["starttime"].":00','".$_POST["endtime"].":00') ".
         "ON DUPLICATE KEY UPDATE StartTime='".$_POST["starttime"].":00', EndTime='".$_POST["endtime"].":00'");
@@ -38,11 +38,11 @@ if ($newattendance) {
     }
   }
   header2(0);
-  echo "<h3>".sprintf(_("%s attendance records added."),$added);
-  if ($updated > 0) echo "<br \>".sprintf(_("%s existing records had times updated."),$updated);
-  if ($added+$updated > count($datearray)*count($pidarray)) echo "<br \>".sprintf(_("%s existing records were unchanged."),
+  echo '<h3>'.sprintf(_('%s attendance records added.'),$added);
+  if ($updated > 0) echo '<br>'.sprintf(_('%s existing records had times updated.'),$updated);
+  if ($added+$updated > count($datearray)*count($pidarray)) echo '<br>'.sprintf(_('%s existing records were unchanged.'),
       count($datearray)*count($pidarray) - $updated - $added);
-  echo "</h3>";
+  echo '</h3>';
   exit;
 }
 ?>
@@ -52,7 +52,9 @@ body { margin:20px; }
 #eventselect label.label-n-input { margin-right:0; }
 #dayofweek label { margin-right: 0.5em; }
 </style>
-<script type="text/JavaScript" src="js/jquery.js"></script>
+<script src="https://code.jquery.com/jquery-2.2.4.min.js"
+        integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+        crossorigin="anonymous"></script>
 <script type="text/JavaScript" src="js/jquery-ui.js"></script>
 <script type="text/JavaScript" src="js/jquery.ui.timepicker.js"></script>
 <script type="text/javascript">
@@ -153,7 +155,7 @@ header2(0);
 <?php
 $result = sqlquery_checked("SELECT EventID,Event,UseTimes,IF(EventEndDate AND EventEndDate<CURDATE(),'inactive','active') AS Active FROM event ORDER BY Event");
 while ($row = mysqli_fetch_object($result)) {
-  echo "        <option value=\"".$row->EventID."\" class=\"".(($row->UseTimes==1)?"times ":"days ").$row->Active."\">".
+  echo '        <option value="'.$row->EventID.'" class="'.(($row->UseTimes==1)?"times ":"days ").$row->Active.'">'.
       $row->Event."</option>\n";
 }
 ?>
