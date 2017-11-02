@@ -117,24 +117,24 @@ function getCSV() {
 <?php
 header2($_GET['nav']);
 echo "<h3>Aggregate Data for Events: ".$event_names;
-if ($_POST["startdate"] && $_POST["enddate"]) printf(_(", between %s and %s"),$_POST["startdate"],$_POST["enddate"]);
-elseif ($_POST["startdate"]) printf(_(", on or after %s"),$_POST["startdate"]);
-elseif ($_POST["enddate"]) printf(_(", on or before %s"),$_POST["enddate"]);
-if ($_POST['min']) printf(_(" (Minimum attendance %d times)"),$_POST['min']);
-if ($_POST['preselected']) printf(_(" (%d People/Orgs Pre-selected)"),substr_count($_POST['preselected'],",")+1);
+if (!empty($_POST["startdate"]) && !empty($_POST["enddate"])) printf(_(", between %s and %s"),$_POST["startdate"],$_POST["enddate"]);
+elseif (!empty($_POST["startdate"])) printf(_(", on or after %s"),$_POST["startdate"]);
+elseif (!empty($_POST["enddate"])) printf(_(", on or before %s"),$_POST["enddate"]);
+if (!empty($_POST['min'])) printf(_(" (Minimum attendance %d times)"),$_POST['min']);
+if (!empty($_POST['preselected'])) printf(_(" (%d People/Orgs Pre-selected)"),substr_count($_POST['preselected'],",")+1);
 echo "</h3>";
 
+$where = $having = '';
+if (!empty($_POST["startdate"])) $where .= " AND a.AttendDate >= '".$_POST["startdate"]."'";
+if (!empty($_POST["enddate"])) $where .= " AND a.AttendDate <= '".$_POST["enddate"]."'";
+if (!empty($_POST["min"])) $having .= " HAVING attendnum >= ".$_POST["min"];
+if (!empty($_POST['preselected'])) $where .= " AND a.PersonID IN (".$_POST['preselected'].")";
 $sql = "SELECT p.*, h.Address, h.Phone, pc.*, a.EventID, e.Event, MIN(a.AttendDate) AS first, ".
   "MAX(a.AttendDate) AS last, COUNT(a.AttendDate) AS attendnum, ".
   "IF(e.UseTimes=1,SUM(TIME_TO_SEC(SUBTIME(a.EndTime,a.StartTime))) DIV 60,-1) AS minutes ".
   "FROM attendance a LEFT JOIN person p ON p.PersonID=a.PersonID LEFT JOIN household h ON p.HouseholdID=h.HouseholdID ".
   "LEFT JOIN postalcode pc ON h.PostalCode=pc.PostalCode LEFT JOIN event e on e.EventID=a.EventID ".
-  "WHERE a.EventID in ($eids)";
-if ($_POST["startdate"]) $sql .= " AND a.AttendDate >= '".$_POST["startdate"]."'";
-if ($_POST["enddate"]) $sql .= " AND a.AttendDate <= '".$_POST["enddate"]."'";
-if ($_POST["min"]) $sql .= " AND attendnum >= ".$_POST["min"];
-if ($_POST['preselected']) $sql .= " AND a.PersonID IN (".$_POST['preselected'].")";
-$sql .= " GROUP BY a.PersonID,a.EventID ORDER BY p.Furigana, e.Event";
+  "WHERE a.EventID in ($eids) $where GROUP BY a.PersonID,a.EventID $having ORDER BY p.Furigana, e.Event";
 $result = sqlquery_checked($sql);
 if (mysqli_num_rows($result) == 0) {
   echo "<p>"._("There are no attendance records matching your criteria.")."</p>";
@@ -158,7 +158,7 @@ echo "<tr>";
 echo $tableheads;
 echo "</tr></thead>\n";
 
-$prev_pid = $pidnum = 0;
+$prev_pid = $pidnum = $totalnum = 0;
 $pid_list = "";
 $tbody = "<tbody>";
 while ($row = mysqli_fetch_object($result)) {
@@ -167,36 +167,36 @@ while ($row = mysqli_fetch_object($result)) {
     $pid_list .= ",".$row->PersonID;
     $pidnum++;
   }
-  $tbody .= "<tr>";
-  $tbody .= "<td class=\"personid\">".$row->PersonID."</td>\n";
-  $tbody .= "<td class=\"name-for-csv\" style=\"display:none\">".readable_name($row->FullName,$row->Furigana)."</td>";
+  $tbody .= '<tr>';
+  $tbody .= '<td class="personid">'.$row->PersonID."</td>\n";
+  $tbody .= '<td class="name-for-csv" style="display:none">'.readable_name($row->FullName,$row->Furigana).'</td>';
   $tbody .= "<td class=\"name-for-display\" nowrap><span style=\"display:none\">".$row->Furigana."</span>";
-  $tbody .= "<a href=\"individual.php?pid=".$row->PersonID."\">".
-    readable_name($row->FullName,$row->Furigana,0,0,"<br />")."</a></td>\n";
-  $tbody .= "<td class=\"photo\">";
-  $tbody .= ($row->Photo == 1) ? "<img border=0 src=\"photo.php?f=p".$row->PersonID."\" width=50>" : "";
+  $tbody .= '<a href="individual.php?pid='.$row->PersonID.'">'.
+    readable_name($row->FullName,$row->Furigana,0,0,'<br />')."</a></td>\n";
+  $tbody .= '<td class="photo">';
+  $tbody .= ($row->Photo == 1) ? '<img border=0 src="photo.php?f=p'.$row->PersonID.'" width=50>' : '';
   $tbody .= "</td>\n";
   if ($row->CellPhone && $row->Phone) {
-    $tbody .= "<td class=\"phone\">".$row->Phone."<br>".$row->CellPhone."</td>\n";
+    $tbody .= '<td class="phone">'.$row->Phone.'<br>'.$row->CellPhone."</td>\n";
   } else {
-    $tbody .= "<td class=\"phone\">".$row->Phone."".$row->CellPhone."</td>\n";
+    $tbody .= '<td class="phone">'.$row->Phone.$row->CellPhone."</td>\n";
   }
-  $tbody .= "<td class=\"email\">".email2link($row->Email)."</td>\n";
-  $tbody .= "<td class=\"address\">".$row->PostalCode.$row->Prefecture.$row->ShiKuCho.db2table($row->Address)."</td>\n";
-  $tbody .= "<td class=\"birthdate\">".(($row->Birthdate!="0000-00-00") ? ((substr($row->Birthdate,0,4) == "1900") ? substr($row->Birthdate,5) : $row->Birthdate) : "")."</td>\n";
-  $tbody .= "<td class=\"age\">".(($row->Birthdate!="0000-00-00") && (substr($row->Birthdate,0,4) != "1900") ? age($row->Birthdate) : "")."</td>\n";
-  $tbody .= "<td class=\"sex\">".$row->Sex."</td>\n";
-  $tbody .= "<td class=\"country\">".$row->Country."</td>\n";
-  $tbody .= "<td class=\"url\">".$row->URL."</td>\n";
-  $tbody .= "<td class=\"event\">".$row->Event."</td>\n";
-  $tbody .= "<td class=\"first\">".$row->first."</td>\n";
-  $tbody .= "<td class=\"last\">".$row->last."</td>\n";
-  $tbody .= "<td class=\"attendnum\">".$row->attendnum."</td>\n";
+  $tbody .= '<td class="email">'.email2link($row->Email)."</td>\n";
+  $tbody .= '<td class="address">'.$row->PostalCode.$row->Prefecture.$row->ShiKuCho.db2table($row->Address)."</td>\n";
+  $tbody .= '<td class="birthdate">'.(($row->Birthdate!='0000-00-00') ? ((substr($row->Birthdate,0,4) == '1900') ? substr($row->Birthdate,5) : $row->Birthdate) : '')."</td>\n";
+  $tbody .= '<td class="age">'.(($row->Birthdate!='0000-00-00') && (substr($row->Birthdate,0,4) != '1900') ? age($row->Birthdate) : '')."</td>\n";
+  $tbody .= '<td class="sex">'.$row->Sex."</td>\n";
+  $tbody .= '<td class="country">'.$row->Country."</td>\n";
+  $tbody .= '<td class="url">'.$row->URL."</td>\n";
+  $tbody .= '<td class="event">'.$row->Event."</td>\n";
+  $tbody .= '<td class="first">'.$row->first."</td>\n";
+  $tbody .= '<td class="last">'.$row->last."</td>\n";
+  $tbody .= '<td class="attendnum">'.$row->attendnum."</td>\n";
   $totalnum += $row->attendnum;
   if ($usetimes) {
-    $tbody .= "<td class=\"attendtime\">";
+    $tbody .= '<td class="attendtime">';
     if ($row->minutes!=-1) {
-      $tbody .= "<span style=\"display:none\">".sprintf("%06d",($row->minutes-$row->minutes%60)/60).":".sprintf("%02d",$row->minutes%60)."</span>";
+      $tbody .= '<span style="display:none">'.sprintf("%06d",($row->minutes-$row->minutes%60)/60).":".sprintf("%02d",$row->minutes%60)."</span>";
       $tbody .= (($row->minutes-$row->minutes%60)/60).":".sprintf("%02d",$row->minutes%60);
       $totalminutes += $row->minutes;
     }
