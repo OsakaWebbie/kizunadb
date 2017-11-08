@@ -230,11 +230,17 @@ function code_display($code) {
 }
 
 function url2link($text) {
-  return preg_replace('@(https?://([-\w\.]+)+(:\d+)?(/([\w/_\.]*((\?|#)[^<\.,;\s]+)?)?)?)@', '<a href="$1">$1</a>', $text);
+  // I have no idea how this works - I got it from https://gist.github.com/winzig/8894715 (2017/11/07)
+  // removing the part that looks for URLs with no protocol (because that was too greedy).
+  // I don't know why this matches on a multibyte domain name, but it does.
+  return preg_replace('~\b((?:https?:(?:/{1,3}|[a-z0-9%])|[a-z0-9.\-]+[.](?:[a-z]{2,13})/)'.
+      '(?:[^\s()<>{}\[\]]+|\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\))+(?:\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|'.
+      '\([^\s]+?\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’]))~iu',
+      '<a href="$1">$1</a>', $text);
 }
 
 function email2link($text) {
-  return preg_replace('/\b([a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4})\b/i', '<a href="mailto:$0">$0</a>', $text);
+  return preg_replace('/\b([a-z0-9._%+-]+@[\w.-]+\.[a-z]{2,13})\b/iu', '<a href="mailto:$0">$0</a>', $text);
 }
 
 // STUFF THAT GETS RUN RIGHT AWAY
