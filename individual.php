@@ -451,10 +451,10 @@ if (mysqli_num_rows($result) == 0) {
     echo "<td class=\"photo\">";
     echo ($row->Photo == 1) ? "<img border=0 src=\"photo.php?f=p".$row->PersonID."\" width=50>" : "";
     echo "</td>\n";
-    if ($row->CellPhone && $row->Phone) {
-      echo "<td class=\"phone\">".$row->Phone."<br>".$row->CellPhone."</td>\n";
+    if (!empty($row->CellPhone) && !empty($row->Phone)) {
+      echo '<td class="phone">'.$row->Phone.'<br>'.$row->CellPhone."</td>\n";
     } else {
-      echo "<td class=\"phone\">".$row->Phone."".$row->CellPhone."</td>\n";
+      echo '<td class="phone">'.(!empty($row->Phone)?$row->Phone:'').''.$row->CellPhone."</td>\n";
     }
     echo "<td class=\"email\">".email2link($row->Email)."</td>\n";
     echo "<td class=\"address\">".$row->PostalCode.$row->Prefecture.$row->ShiKuCho.db2table($row->Address)."</td>\n";
@@ -488,7 +488,6 @@ if ($per->Organization) {
   " INNER JOIN event ev ON ev.EventID = at.EventID GROUP BY at.PersonID,at.EventID) AS aq GROUP BY aq.PersonID) AS e".
   " ON e.PersonID = person.PersonID".
   " WHERE perorg.OrgID=".$_GET['pid']." ORDER BY person.Furigana";
-//echo "<pre>$sql</pre>";
   $result = sqlquery_checked($sql);
   if (mysqli_num_rows($result) == 0) {
     echo "<h3>"._("Current Members")."</h3>";
@@ -502,6 +501,7 @@ if ($per->Organization) {
     echo "<table id=\"member-table\" class=\"tablesorter\" width=\"100%\" border=\"1\">";
     echo "<thead><tr>".str_replace("target","targetMember",
     str_replace("ulSelectColumn","ulSelectColumnMember",$tableheads))."</tr></thead>\n<tbody>";
+    $mem_pids = '';
     while ($row = mysqli_fetch_object($result)) {
       $mem_pids .= ",".$row->PersonID;
       echo "<tr".($row->Leader ? " class=\"leader\"" : "").">";
@@ -513,23 +513,23 @@ if ($per->Organization) {
       echo "<td class=\"photo\">";
       echo ($row->Photo == 1) ? "<img border=0 src=\"photo.php?f=p".$row->PersonID."\" width=50>" : "";
       echo "</td>\n";
-      if ($row->CellPhone && $row->Phone) {
-        echo "<td class=\"phone\">".$row->Phone."<br>".$row->CellPhone."</td>\n";
+      if (!empty($row->CellPhone) && !empty($row->Phone)) {
+        echo '<td class="phone">'.$row->Phone.'<br>'.$row->CellPhone."</td>\n";
       } else {
-        echo "<td class=\"phone\">".$row->Phone."".$row->CellPhone."</td>\n";
+        echo '<td class="phone">'.(!empty($row->Phone)?$row->Phone:'').''.$row->CellPhone."</td>\n";
       }
-      echo "<td class=\"email\">".email2link($row->Email)."</td>\n";
-      echo "<td class=\"address\">".$row->PostalCode.$row->Prefecture.$row->ShiKuCho.db2table($row->Address)."</td>\n";
-      echo "<td class=\"birthdate\">".(($row->Birthdate!="0000-00-00") ? ((substr($row->Birthdate,0,4) == "1900") ? substr($row->Birthdate,5) : $row->Birthdate) : "")."</td>\n";
-      echo "<td class=\"age\">".(($row->Birthdate!="0000-00-00") && (substr($row->Birthdate,0,4) != "1900") ? age($row->Birthdate) : "")."</td>\n";
-      echo "<td class=\"sex\">".$row->Sex."</td>\n";
-      echo "<td class=\"country\">".$row->Country."</td>\n";
-      echo "<td class=\"url\">".$row->URL."</td>\n";
-      echo "<td class=\"remarks\">".email2link(url2link(d2h($row->Remarks)))."</td>\n";
-      echo "<td class=\"categories\">".d2h($row->Categories)."</td>\n";
-      echo "<td class=\"events\">".d2h($row->Events)."</td>\n";
-      echo "<td class=\"selectcol\">-</td>\n";
-      echo "<td class=\"delete\"><button id=\"action-PerOrgDelete_memid-".$row->PersonID."_orgid-".$_GET['pid']."\">"._("Del")."</button></td>\n";
+      echo '<td class="email">'.email2link($row->Email)."</td>\n";
+      echo '<td class="address">'.$row->PostalCode.$row->Prefecture.$row->ShiKuCho.db2table($row->Address)."</td>\n";
+      echo '<td class="birthdate">'.(($row->Birthdate!="0000-00-00") ? ((substr($row->Birthdate,0,4) == "1900") ? substr($row->Birthdate,5) : $row->Birthdate) : "")."</td>\n";
+      echo '<td class="age">'.(($row->Birthdate!="0000-00-00") && (substr($row->Birthdate,0,4) != "1900") ? age($row->Birthdate) : "")."</td>\n";
+      echo '<td class="sex">'.$row->Sex."</td>\n";
+      echo '<td class="country">'.$row->Country."</td>\n";
+      echo '<td class="url">'.$row->URL."</td>\n";
+      echo '<td class="remarks">'.email2link(url2link(d2h($row->Remarks)))."</td>\n";
+      echo '<td class="categories">'.d2h($row->Categories)."</td>\n";
+      echo '<td class="events">'.d2h($row->Events)."</td>\n";
+      echo '<td class="selectcol">-</td>'."\n";
+      echo '<td class="delete"><button id="action-PerOrgDelete_memid-'.$row->PersonID.'_orgid-'.$_GET['pid'].'">'._("Del")."</button></td>\n";
       echo "</tr>\n";
     }
     echo "  </tbody></table>";
@@ -537,7 +537,6 @@ if ($per->Organization) {
 } //end of "if this is an organization"
 echo "</div>";
 
-//} // end of "if not organization"  (commented out because I'm considering letting orgs belong to orgs)
 ?>
 
 <!-- Actions Section -->
@@ -561,8 +560,8 @@ if (!empty($_GET['editaction'])) {   // AN ACTION IN THE TABLE IS TO BE EDITED
 <?php
 $result = sqlquery_checked("SELECT * FROM actiontype ORDER BY ActionType");
 while ($row = mysqli_fetch_object($result)) {
-  echo "<option value=\"".$row->ActionTypeID."\"".((!empty($_GET['editaction']) && $row->ActionTypeID==$_GET['atype'])?
-        " selected":"")." style=\"background-color:#".$row->BGColor."\">".$row->ActionType."</option>\n";
+  echo '<option value="'.$row->ActionTypeID.'"'.((!empty($_GET['editaction']) && $row->ActionTypeID==$_GET['atype'])?
+        ' selected':'').' style="background-color:#'.$row->BGColor.'">'.$row->ActionType."</option>\n";
 }
 ?>
 </select></label>
@@ -635,12 +634,11 @@ if ($_SESSION['donations'] == "yes") {   // covers both DONATIONS and PLEDGES se
 
 <a name="donations"></a>
 <div class="section">
+<h3 class="section-title"><?=_('Donations')?></h3>
 <?php
-  echo "<h3 class=\"section-title\">"._("Donations")."</h3>\n";
-
   // FORM FOR ADD OR EDIT OF A DONATION
   if (!empty($_GET['editdonation'])) {   // A DONATION IN THE TABLE IS TO BE EDITED
-    echo "<span class='alert'><b>"._("Edit any fields you want to change, and Press 'SAVE' to save changes")."</b></span><br>";
+    echo '<span class="alert"><b>'._('Edit any fields you want to change, and Press "SAVE" to save changes').'</b></span><br>';
   }
   echo "<form name=\"donationform\" id=\"donationform\" method=\"POST\" action=\"${_SERVER['PHP_SELF']}?pid=${_GET['pid']}#donations\" onSubmit=\"return ValidateDonation()\">\n";
   echo "<input type=\"hidden\" name=\"pid\" value=\"${_GET['pid']}\">\n";
@@ -1140,7 +1138,7 @@ function ValidateDonation() {
     return false;
   }
 */
-  $("#dtype").prop( "disabled", false )
+  $("#dtype").prop( "disabled", false );
   return true;
 }
 

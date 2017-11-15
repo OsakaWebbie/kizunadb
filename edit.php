@@ -2,7 +2,7 @@
 include("functions.php");
 include("accesscontrol.php");
 
-if ($_GET['pid']) {
+if (!empty($_GET['pid'])) {
   $pid = $_GET['pid'];
   $sql = "SELECT p.*, h.*, pc.*, p.Photo AS PPhoto FROM person p LEFT JOIN household h ".
       "ON p.HouseholdID=h.HouseholdID LEFT JOIN postalcode pc ON h.PostalCode=".
@@ -20,9 +20,11 @@ if ($_GET['pid']) {
     $result = sqlquery_checked($sql);
     $hh = mysqli_fetch_object($result);
   }
+} else {
+  $pid = 0;
 }
 
-if ($_GET['hhid']) {
+if (!empty($_GET['hhid'])) {
   $sql = "SELECT h.* FROM household h LEFT JOIN postalcode pc ON h.PostalCode=".
       "pc.PostalCode WHERE HouseholdID=".$_GET['hhid'];
   $result = sqlquery_checked($sql);
@@ -154,8 +156,7 @@ $(document).ready(function(){
         $('#nametitle').val('御中');
         if ($('#labelname').val() == $('#fullname').val()+'様') {
           if (confirm('<?=_("Should I also change end of label name to \"御中\"?")?>')) {
-            $('#labelname').val($('#fullname').val()+'御中');
-            $('#labelname').keyup();
+            $('#labelname').val($('#fullname').val()+'御中').keyup();
           }
         }
       }
@@ -164,8 +165,7 @@ $(document).ready(function(){
         $('#nametitle').val('様');
         if ($('#labelname').val() == $('#fullname').val()+'御中') {
           if (confirm('<?=_("Should I also change end of label name to \"様\"?")?>')) {
-            $('#labelname').val($('#fullname').val()+'様');
-            $('#labelname').keyup();
+            $('#labelname').val($('#fullname').val()+'様').keyup();
           }
         }
       }
@@ -197,13 +197,11 @@ function newhh() {
 
 function check_nonjapan() {
   if(document.editform.nonjapan.checked) {
-    $("#address").height("5em");
-    $("#address").focus();
+    $("#address").height("5em").focus();
     $(".japanonly").hide();
     $(".nonjapanonly").show();
     if ($('#fullname').val()!='' && $('#labelname').val()=='') {
-      $('#labelname').val(($('#fullname').val()));
-      $('#labelname').keyup();
+      $('#labelname').val(($('#fullname').val())).keyup();
     }
   } else {
     $(".japanonly").show();
@@ -225,10 +223,10 @@ function validate() {
   f = document.editform;  //just an abbreviation
   f.edit.disable = true;  //to prevent double submit
 
-  if ((f.updateper.value == 0) && (f.updatehh.value == 0)) {
-    alert("<?=_("No info was modified.  If you want to exit this page, just use your BACK button.")?>");
-    return false;
-  }
+  //if ((f.updateper.value == 0) && (f.updatehh.value == 0)) {
+    //alert("<?=_("No info was modified.  If you want to exit this page, just use your BACK button.")?>");
+    //return false;
+  //}
   if (f.fullname.value.length == 0) {
     alert("<?=_("Please enter the name!")?>");
     f.fullname.select();
@@ -392,14 +390,14 @@ echo "<h1 id=\"title\">".($pid ? sprintf(_("Edit %s"),$rec->FullName) : _("New E
 </div>
 
 <div id="furigana_section">
-  <label class="label-n-input"><?=($_SESSION['furiganaisromaji']=="yes" ? _("Romaji") : _("Furigana"))?>:
-    <input name="furigana" id="furigana" type="text" style="width:15em;ime-mode:<?php
-    echo ($_SESSION['furiganaisromaji'=="yes"]?"disabled":"auto"); ?>" maxlength="100"
-    value="<?=$rec->Furigana?>" onchange="editform.updateper.value=1;" />
+  <label class="label-n-input"><?=($_SESSION['furiganaisromaji']=='yes' ? _('Romaji') : _('Furigana'))?>:
+    <input name="furigana" id="furigana" type="text" style="width:15em;ime-mode:<?=
+    ($_SESSION['furiganaisromaji']=='yes' ? 'disabled' : 'auto')?>" maxlength="100"
+           value="<?=$rec->Furigana?>" onchange="editform.updateper.value=1;" />
   </label><br />
-  <span class="comment"><?php
-echo ($_SESSION['furiganaisromaji']=="yes") ? _("(\"Last name, first name\" - don't forget the comma!)") : _("(for non-Japanese names: full name with last name first, for sorting)");
-?></span>
+  <span class="comment"><?=($_SESSION['furiganaisromaji']=='yes') ?
+        _('("Last name, first name" - don\'t forget the comma!)') :
+        _('(for non-Japanese names: full name with last name first, for sorting)')?></span>
 </div>
 
 <div id="title_section">

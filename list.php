@@ -95,8 +95,8 @@ for ($i=1; isset($_REQUEST["ctselect".$i]); $i++) {
   $cts = implode(",",$_REQUEST["ctselect".$i]);
   $not = ($_REQUEST["actioninout".$i]=="OUT") ? " NOT" : "";
   $where .= ($where!=""?" AND":" WHERE")." $not ($ptable.PersonID IN (SELECT PersonID FROM action WHERE ActionTypeID IN ($cts)";
-  if ($_REQUEST["ctstartdate".$i]) $where .= " AND ActionDate >= '".$_REQUEST["ctstartdate".$i]."'";
-  if ($_REQUEST["ctenddate".$i]) $where .= " AND ActionDate <= '".$_REQUEST["ctenddate".$i]."'";
+  if (!empty($_REQUEST["ctstartdate".$i])) $where .= " AND ActionDate >= '".$_REQUEST["ctstartdate".$i]."'";
+  if (!empty($_REQUEST["ctenddate".$i])) $where .= " AND ActionDate <= '".$_REQUEST["ctenddate".$i]."'";
   $where .= "))";
   $result = sqlquery_checked("SELECT ActionType FROM actiontype WHERE ActionTypeID IN ($cts) ORDER BY ActionType");
   $ctnames = "";
@@ -108,9 +108,9 @@ for ($i=1; isset($_REQUEST["ctselect".$i]); $i++) {
   } else {
     $criterialist .= "<li>".sprintf(_("Has at least one of these types of actions: %s"), mb_substr($ctnames,0,mb_strlen($ctnames)-2));
   }
-  if ($_REQUEST["ctstartdate".$i] && $_REQUEST["ctenddate".$i]) $criterialist .= sprintf(_(", between %s and %s"),$_REQUEST["ctstartdate".$i],$_REQUEST["ctenddate".$i]);
-  elseif ($_REQUEST["ctstartdate".$i]) $criterialist .= sprintf(_(", on or after %s"),$_REQUEST["ctstartdate".$i]);
-  elseif ($_REQUEST["ctenddate".$i]) $criterialist .= sprintf(_(", on or before %s"),$_REQUEST["ctenddate".$i]);
+  if (!empty($_REQUEST["ctstartdate".$i]) && !empty($_REQUEST["ctenddate".$i])) $criterialist .= sprintf(_(", between %s and %s"),$_REQUEST["ctstartdate".$i],$_REQUEST["ctenddate".$i]);
+  elseif (!empty($_REQUEST["ctstartdate".$i])) $criterialist .= sprintf(_(", on or after %s"),$_REQUEST["ctstartdate".$i]);
+  elseif (!empty($_REQUEST["ctenddate".$i])) $criterialist .= sprintf(_(", on or before %s"),$_REQUEST["ctenddate".$i]);
   $criterialist .= "</li>\n";
 }
 

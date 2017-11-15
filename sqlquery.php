@@ -4,7 +4,7 @@
 
 header1("SQL Query");
 
-if ($_POST['query']) {
+if (!empty($_POST['query'])) {
   $query = stripslashes($_POST['query']);
   $result = mysqli_query($db, $query);
 ?>
