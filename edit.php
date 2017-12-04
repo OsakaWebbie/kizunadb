@@ -22,17 +22,17 @@ if (!empty($_GET['pid'])) {
   }
 } else {
   $pid = 0;
-}
-
-if (!empty($_GET['hhid'])) {
-  $sql = "SELECT h.* FROM household h LEFT JOIN postalcode pc ON h.PostalCode=".
-      "pc.PostalCode WHERE HouseholdID=".$_GET['hhid'];
-  $result = sqlquery_checked($sql);
-  if (mysqli_num_rows($result) == 0) {
-    echo("<b>Failed to find a record for HouseholdID ".$_GET['hhid'].".</b>");
-    exit;
+  // new member to be added to existing household
+  if (!empty($_GET['hhid'])) {
+    $sql = "SELECT h.* FROM household h LEFT JOIN postalcode pc ON h.PostalCode=" .
+        "pc.PostalCode WHERE HouseholdID=" . $_GET['hhid'];
+    $result = sqlquery_checked($sql);
+    if (mysqli_num_rows($result) == 0) {
+      echo("<b>Failed to find a record for HouseholdID " . $_GET['hhid'] . ".</b>");
+      exit;
+    }
+    $rec = mysqli_fetch_object($result);
   }
-  $rec = mysqli_fetch_object($result);
 }
 
 if ($pid) {
@@ -270,23 +270,22 @@ function validate() {
       $('#address').focus();
       return false;
     }
-<?php } ?>
+<?php } //if romaji addresses ?>
   }
   if ((f.photofile.value) && (!jpg_regexp.test(f.photofile.value))) {
     alert("<?=_("Only JPG files can be accepted for photos.")?>");
     f.photofile.value = "";
     return false;
-  } 
+  }
 
-<?php if (!empty($hh) && $hh->count > 1) {
-  echo "  if ((f.householdid.value) && (f.householdid.value == f.orig_hhid.value) && (f.updatehh.value==1)) {\n";
-  echo "    if (!confirm(\"".sprintf(_("There are %s members in this household - changing this info will affect them all."),$hh->count);
-  echo _(" Do you want to continue? (If just this person has moved out, cancel and then select New Household.)")."\")) {\n";
-  echo "      return false;\n";
-  echo "    }\n";
-  echo "  }\n";
-}
-?>
+<?php if ($pid && !empty($hh) && $hh->count > 1) { ?>
+  if ((f.householdid.value) && (f.householdid.value == f.orig_hhid.value) && (f.updatehh.value==1)) {
+    if (!confirm('<?=sprintf(_("There are %s members in this household - changing this info will affect them all."),$hh->count).
+    _(" Do you want to continue? (If just this person has moved out, cancel and then select New Household.)")?>')) {
+      return false;
+    }
+  }
+<?php } //if household with multiple members ?>
   if (f.phone.value && !phone_regexp.test(f.phone.value)) {
     f.phone.value = fixchartypes(f.phone.value);
     if (f.phone.value && !phone_regexp.test(f.phone.value)) {
@@ -403,8 +402,8 @@ echo "<h1 id=\"title\">".($pid ? sprintf(_("Edit %s"),$rec->FullName) : _("New E
 </div>
 
 <div id="household_section">
-  <input type="hidden" name="householdid" value="<?=$pid?$rec->HouseholdID:''?>">
-  <input type="hidden" name="orig_hhid" value="<?=$pid?$rec->HouseholdID:''?>">
+  <input type="hidden" name="householdid" value="<?=!empty($rec->HouseholdID)?$rec->HouseholdID:''?>">
+  <input type="hidden" name="orig_hhid" value="<?=!empty($rec->HouseholdID)?$rec->HouseholdID:''?>">
   <div id="household_setup">
     <button id="existing_hh" type="button"
     onclick="window.open('selecthh.php?fullname='+document.editform.fullname.value+
@@ -431,7 +430,7 @@ echo "<h1 id=\"title\">".($pid ? sprintf(_("Edit %s"),$rec->FullName) : _("New E
         <label class="japanonly" for="pcromtext" id="pcromtextlabel">
           <?=_("Romaji for PostalCode-related text (<span class=\"highlight\">highlighted</span> above)")?>:<br />
           <textarea name="pcromtext" id="pcromtext" style="height:2.2em;width:300px;ime-mode:disabled;"
-          onchange="editform.updatehh.value=1;"><?=$pid?$rec->Romaji:''?></textarea>
+          onchange="editform.updatehh.value=1;"><?=!empty($rec->HouseholdID)?$rec->Romaji:''?></textarea>
         </label>
         <div class="comment"><?=_("(Community/town name on first line, then ward, city, etc. in reverse order)")?></div>
       </div>
@@ -447,18 +446,18 @@ echo "<h1 id=\"title\">".($pid ? sprintf(_("Edit %s"),$rec->FullName) : _("New E
       </label><br />
       <label for="postalcode" class="japanonly"><?=_("Postal Code")?>:
         <input name="postalcode" id="postalcode" type="text" style="width:5em;ime-mode:disabled;" maxlength="8"
-        value="<?=$pid?$rec->PostalCode:''?>" onchange="editform.updatehh.value=1;" />
+        value="<?=!empty($rec->HouseholdID)?$rec->PostalCode:''?>" onchange="editform.updatehh.value=1;" />
         <span class="comment">(<a href="<?=_("http://yubin.senmon.net/en/index.html")?>" target="_blank"><?=_("Lookup")?></a>)</span><br>
       </label>
       <label for="address" id="addresslabel">
         <span class="japanonly"><?=_("Rest of Address")?></span><span
         class="nonjapanonly"><?=_("Address")?></span>:<br />
         <textarea name="address" id="address" style="height:3em;width:300px;ime-mode:auto;"
-        onchange="editform.updatehh.value=1;"><?=$pid?$rec->Address:''?></textarea>
+        onchange="editform.updatehh.value=1;"><?=!empty($rec->HouseholdID)?$rec->Address:''?></textarea>
       </label>
       <label for="labelname" id="labelnamelabel"><?=_("Label Name")?>:<br />
         <textarea name="labelname" id="labelname" style="height:3em;width:300px;ime-mode:auto;"
-        onchange="editform.updatehh.value=1;"><?=$pid?$rec->LabelName:''?></textarea>
+        onchange="editform.updatehh.value=1;"><?=!empty($rec->HouseholdID)?$rec->LabelName:''?></textarea>
       </label>
 <?php if ($_SESSION['romajiaddresses'] == "yes") { ?>
       <span id="romajiaddress_section">
@@ -467,16 +466,16 @@ echo "<h1 id=\"title\">".($pid ? sprintf(_("Edit %s"),$rec->FullName) : _("New E
         <?=((!$pid || $rec->Address==$rec->RomajiAddress)?"checked=\"checked\"":"")?>><?=_("Mirror Japanese address")?></label><br>
         <textarea name="romajiaddress" id="romajiaddress" class="japanonly" style="height:2.2em;width:300px;ime-mode:disabled;"
         onchange="editform.updatehh.value=1;"
-        <?=(!$pid || $rec->Address==$rec->RomajiAddress)?" readonly=\"readonly\"":""?>><?=$pid?$rec->RomajiAddress:''?></textarea>
+        <?=(!$pid || $rec->Address==$rec->RomajiAddress)?" readonly=\"readonly\"":""?>><?=!empty($rec->HouseholdID)?$rec->RomajiAddress:''?></textarea>
       </span>
 <?php } ?>
     </div>
     <div id="householdfinal_section">
       <label for="phone" class="label-n-input"><?=_("Landline Phone")?>: <input name="phone"
-      type="text" style="width:10em;ime-mode:disabled;" maxlength="20" value="<?=$pid?$rec->Phone:''?>"
+      type="tel" style="width:10em;ime-mode:disabled;" maxlength="20" value="<?=!empty($rec->HouseholdID)?$rec->Phone:''?>"
       onchange="editform.updatehh.value=1;" /></label>
       <label for="fax" class="label-n-input"><?=_("FAX")?>: <input name="fax"
-      type="text" style="width:10em;ime-mode:disabled;" maxlength="20" value="<?=$pid?$rec->FAX:''?>"
+      type="tel" style="width:10em;ime-mode:disabled;" maxlength="20" value="<?=!empty($rec->HouseholdID)?$rec->FAX:''?>"
       onchange="editform.updatehh.value=1;" /></label>
       <label for="relation" class="label-n-input"><?=_("This person's relation to household")?>: <select
       name="relation" id="relation" size="1" onchange="editform.updateper.value=1;"><option
@@ -490,11 +489,11 @@ echo "<h1 id=\"title\">".($pid ? sprintf(_("Edit %s"),$rec->FullName) : _("New E
 </div>
 
 <label for="cellphone" class="label-n-input"><?=_("Cell Phone")?>: <input id="cellphone" name="cellphone"
-type="text" style="width:10em;ime-mode:disabled;" maxlength="20" value="<?=$pid?$rec->CellPhone:''?>"
+type="tel" style="width:10em;ime-mode:disabled;" maxlength="20" value="<?=$pid?$rec->CellPhone:''?>"
 onchange="editform.updateper.value=1;" /></label>
 
 <label for="email" class="label-n-input"><?=_("Email")?>: <input id="email" name="email"
-type="text" style="width:25em;ime-mode:disabled;" maxlength="70" value="<?=$pid?$rec->Email:''?>"
+type="email" style="width:25em;ime-mode:disabled;" maxlength="70" value="<?=$pid?$rec->Email:''?>"
 onchange="editform.updateper.value=1;" /></label>
 
 <label for="sex" class="label-n-input"><?=_("Sex")?>: <select name="sex" size="1"
@@ -508,7 +507,7 @@ value="<?php if ($pid && $rec->Birthdate != "0000-00-00") echo str_replace("1900
 onchange="editform.updateper.value=1;" /><span
 class="comment">&lt;--&nbsp;<?=_("YYYY-MM-DD, or just MM-DD if year unknown")?></span></label>
 
-<label for="URL" class="label-n-input"><?=_("URL")?>: <input name="URL" type="text"
+<label for="URL" class="label-n-input"><?=_("URL")?>: <input name="URL" type="url"
 style="width:30em;ime-mode:auto;" maxlength="150" value="<?=$pid?$rec->URL:''?>"
 onchange="editform.updateper.value=1;" /></label>
 
@@ -516,19 +515,44 @@ onchange="editform.updateper.value=1;" /></label>
 type="text" style="width:10em;ime-mode:auto;" maxlength="30" value="<?=$pid?$rec->Country:''?>"
 onchange="editform.updateper.value=1;" /></label>
 
-<label for="photofile" class="label-n-input"><?=_("Upload photo")?>: <input name="photofile"
-type="file" style="width:20em" onchange="editform.updateper.value=1;show_local_photo();" /><?php
+<label for="photofile" class="label-n-input"><?=_("Upload photo")?>: <input name="photofile" id="photofile"
+type="file" accept=".jpg,.jpeg" style="width:20em" onchange="editform.updateper.value=1;" />
+<button type="button" id="photoclear"><?=_('Clear file')?></button>
+<?php
+$photoimg = ($pid && $rec->PPhoto) ? '<img src="photo.php?f=p'.$pid.'" height="50"/>' : '';
 if ($pid && $rec->PPhoto) echo "<span class=\"comment\">".
-_("(photo already exists, but you can replace it if you want)")."</span>"; ?></label><br />
-
+_("(photo already exists, but you can replace it if you want)")."</span>"; ?></label>
+<output id="thumbnail"><?=(($pid && $rec->PPhoto)?'<img src="photo.php?f=p'.$pid.'" height="50"/>':'')?></output>
+<script> /* http://www.onlywebpro.com/2012/01/24/create-thumbnail-preview-of-images-using-html5-api/ */
+  if (window.FileReader) {
+    function handleFileSelect(evt) {
+      var files = evt.target.files;
+      var f = files[0];
+      var reader = new FileReader();
+      reader.onload = (function() {
+        return function(e) {
+          document.getElementById('thumbnail').innerHTML = ['<img src="', e.target.result,'" height="50"/>'].join('');
+        };
+      })(f);
+      reader.readAsDataURL(f);
+    }
+  } else {
+    <?=($_SESSION['userid']=='dev' ? "alert('This browser does not support FileReader');" : '')?>
+  }
+  document.getElementById('photofile').addEventListener('change', handleFileSelect, false);
+  $(document).ready(function(){
+    $("#photoclear").click(function(){
+      $("#photofile").val('');
+      document.getElementById('thumbnail').innerHTML = '<?=$photoimg?>';
+    });
+  });
+</script>
+<br>
 <input type="submit" name="edit" id="submit_button" value="<?=_("Save Changes")?>" />
 <label for="remarks" id="remarks_label"><?=_("Remarks")?>: <textarea name="remarks" id="remarks"
 onchange="editform.updateper.value=1;"><?=$pid?$rec->Remarks:''?></textarea></label>
 </form>
 
 <?php
-if ($pid) {
-mysqli_free_result($result);
-}
 print_footer();
 ?>

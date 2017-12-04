@@ -63,7 +63,7 @@ if (!empty($_POST['updatehh'])) {
     $result = sqlquery_checked($sql);
     if (mysqli_affected_rows($db) > 0) {
       $householdid = mysqli_insert_id($db);
-      $updateper = 1;   //even if no other personal data was changed, we need to add the new household id
+      $_POST['updateper'] = 1;   //even if no other personal data was changed, we need to add the new household id
       echo "The household record was inserted<br>";
     } else {
       echo "No household record was inserted for some reason.<br>";
@@ -77,8 +77,8 @@ if (!empty($_POST['updateper'])) {
   } else {
     $organization = "0";
   }
-  if (!isset($householdid) || $householdid=='') $householdid=0;
-  if (!isset($_POST['birthdate']) || $_POST['birthdate']=='') $_POST['birthdate']='0000-00-00';
+  if (empty($householdid)) $householdid=0;
+  if (empty($_POST['birthdate'])) $_POST['birthdate']='0000-00-00';
 
   if (!empty($_POST['pid'])) {
     $sql = "UPDATE person SET FullName='".h2d($_POST['fullname'])."', Furigana='".h2d($_POST['furigana'])."', Sex='".$_POST['sex']."', ".
