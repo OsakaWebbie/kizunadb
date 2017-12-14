@@ -4,10 +4,15 @@ error_reporting(E_ALL ^ E_NOTICE);
 ini_set('display_errors',0);
 
 function header1($title) {
-  echo "<!doctype html>\n<html>\n<head>\n<meta charset=\"utf-8\">\n";
-  echo "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n";
-  echo "<link rel=\"icon\" type=\"image/x-icon\" href=\"kizunadb.ico\">\n";
-  echo '<title>'.(isset($_SESSION['dbtitle']) ? $_SESSION['dbtitle'].': ' : '').$title."</title>\n";
+  ?>
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/x-icon" href="kizunadb.ico">
+<title><?=(isset($_SESSION['dbtitle']) ? $_SESSION['dbtitle'].': ' : '').$title?></title>
+  <?php
 }
 
 function header2($nav=0) {

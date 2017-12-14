@@ -2,19 +2,21 @@
 include("functions.php");
 include("accesscontrol.php");
 
-$sql = "SELECT * FROM photoprint WHERE PhotoPrintName='".urldecode($_GET['photo_print_name'])."'";
-$result = sqlquery_checked($sql);
+//echo '<pre>'.print_r($_GET).'</pre>';
+$result = sqlquery_checked("SELECT * FROM photoprint WHERE PhotoPrintName='".urldecode($_GET['photo_print_name'])."'");
 $print = mysqli_fetch_object($result);
 $table_width = floor(($print->PaperWidth - $print->PaperLeftMargin - $print->PaperRightMargin) * 96 / 25.4);  // assuming 96 dpi
 $num_col = floor(($table_width) / ($print->PhotoWidth + $print->Gutter));
 $col_width = floor($table_width / $num_col);
-$cell_padding = floor($print->Gutter / 2);
+$cellpadding = floor($print->Gutter / 2);
 $path = CLIENT_PATH."/photos/";
 ?>
+<!doctype html>
 <html>
 <head>
-<meta http-equiv="content-type" content="text/html;charset=<?=$_SESSION['charset']?>">
-<title></title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/x-icon" href="kizunadb.ico">
 <style>
 table {
     page-break-inside:avoid;
@@ -56,15 +58,18 @@ while ($row = mysqli_fetch_object($result)) {
       $member = mysqli_fetch_object($result);
       if ($member->Photo == 1) {
         $photo = "p{$member->PersonID}";
+        $filepath = $path.$photo.'.jpg';
         $caption = readable_name($member->FullName, $member->Furigana);
       } else if ($_GET['show_blanks']) {
         $photo = "no_photo";
+        $filepath = 'graphics/no_photo.jpg';
         $caption = $row->LabelName;
       } else {
         continue;
       }
-    } else if ($_GET['show_blanks']) {
+    } else if (!empty($_GET['show_blanks'])) {
       $photo = "no_photo";
+      $filepath = 'graphics/no_photo.jpg';
       $caption = ($_GET['data_type'] == "household" ? $row->LabelName : readable_name($row->FullName, $row->Furigana));
     } else {
       continue;
@@ -72,20 +77,22 @@ while ($row = mysqli_fetch_object($result)) {
   } else {
     if ($_GET['data_type'] == "household") {
       $photo = "h{$row->HouseholdID}";
+      $filepath = $path.$photo.'.jpg';
       $caption = $row->PhotoCaption;
     } else {
       $photo = "p{$row->PersonID}";
+      $filepath = $path.$photo.'.jpg';
       $caption = readable_name($row->FullName, $row->Furigana);
     }
   }
   if ($col == 1) {
-    echo "<table width=\"{$table_width}\" border=\"0\" cellpadding=\"0\" cellpadding=\"{$cellpadding}\">\n  <tr>\n";
+    echo "<table width=\"{$table_width}\" border=\"0\" cellpadding=\"{$cellpadding}\">\n  <tr>\n";
     $in_table = 1;
   }
   echo "    <td width=\"{$col_width}\" align=\"center\" valign=\"bottom\">\n";
 
   //some code to calculate max dimensions without distorting the aspect ratio
-  $jpgsize = GetImageSize($path.(is_file($path.$_GET['f'].".jpg") ? $_GET['f'] : "missing_file").".jpg");
+  $jpgsize = GetImageSize(is_file($filepath) ? $filepath : 'graphics/missing_file.jpg');
   $jpgwidth = $jpgsize[0];
   $jpgheight = $jpgsize[1];
   $x_ratio = $print->PhotoWidth / $jpgwidth;
@@ -101,8 +108,8 @@ while ($row = mysqli_fetch_object($result)) {
     $imgheight = $print->PhotoHeight;
   }
 
-  echo "      <img src=\"photo.php?f={$photo}\" height=\"{$imgheight}\" width=\"{$imgwidth}\" alt=\"Photo\"><br>\n";
-  echo "      <font class=caption>{$caption}</font>\n    </td>\n";
+  echo "      <img src=\"".($photo=='no_photo'?'graphics/no_photo.jpg':"photo.php?f={$photo}")."\" height=\"{$imgheight}\" width=\"{$imgwidth}\" alt=\"Photo\"><br>\n";
+  echo "      <span class=\"caption\">{$caption}</span>\n    </td>\n";
   if ($col == $num_col) {
     echo "  </tr>\n</table>\n";
     $col = 1;

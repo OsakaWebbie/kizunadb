@@ -6,12 +6,13 @@ print_header("Multiple Selection","#FFFFE0",0);
 $sql = "SELECT PhotoPrintName FROM photoprint ORDER BY PhotoPrintName";
 $result = sqlquery_checked($sql);
 ?>
-    <h3><font color="#8b4513">Select options for photo printing and click the button...</font></h3>
-    <form action="print_photos.php" method="post" name="optionsform" target="_blank">
+    <h3>Select options for photo printing and click the button...</h3>
+    <form action="print_photos.php" method="get" name="optionsform" target="_blank">
       <input type="hidden" name="pid_list" value="<?=$pid_list?>" border="0">
       <table width="639" border="0" cellspacing="0" cellpadding="5">
         <tr>
-          <td nowrap><input type="radio" name="data_type" value="person" checked tabindex="1" border="0">Use Individual Photos &amp; Names<br><input type="radio" name="data_type" value="household" border="0">Use Household Photos &amp; Captions</td>
+          <td nowrap><input type="radio" name="data_type" value="person" checked tabindex="1" border="0">Use Individual Photos &amp; Names<br>
+            <input type="radio" name="data_type" value="household" border="0">Use Household Photos &amp; Captions</td>
           <td>Layout:<select name="photo_print_name" size="1">
           <?php while ($row = mysqli_fetch_object($result)) {
   echo  "                <option value=\"".$row->PhotoPrintName."\">".$row->PhotoPrintName."</option>\n";
