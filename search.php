@@ -14,7 +14,6 @@ if (isset($_GET['ps'])) {
 
 header1(_("Search").(isset($psnum) ? sprintf(_(" (%d People/Orgs Pre-selected)"),$psnum) : "")); ?>
 
-<meta http-equiv="expires" content="0">
 <link rel="stylesheet" type="text/css" href="style.php?page=<?=$_SERVER['PHP_SELF']?>&jquery=1&multiselect=1" />
 <?php header2(1); ?>
 <h1 id="title"><?=$_SESSION['dbtitle'].": "._("Search").(isset($psnum) ? sprintf(_(" (%d People/Orgs Pre-selected)"),

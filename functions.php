@@ -155,15 +155,6 @@ function today() {
   return date("Y-m-d",mktime(gmdate("H")+9));
 }
 
-// Function showfile: for "including" a non-PHP file (HTML, JS, etc.)
-function showfile($filename) {
-  if (!$file = fopen($filename,"r")) {
-    echo "<br><font color=red>Could not open file '$filename'!</font><br>";
-  } else {
-    fpassthru($file);
-  }
-}
-
 // DEPRECATED
 function db2table($text) {
   return d2h($text);
@@ -179,11 +170,6 @@ function d2f($text) {
 
 function d2j($text) {  //makes carriage returns safe for JSON
   return preg_replace("/\r\n|\n|\r/","\\n",$text);
-}
-
-// DEPRECATED
-function post2form($text) {
-  return stripslashes($text);
 }
 
 function h2d($text) {
@@ -209,11 +195,6 @@ function readable_name($name,$furigana,$pid=0,$org=0,$break="",$reverse=0) {
     if (strpos($break,"<div>")) $text .= "</div>";
   }
   return $text;
-}
-
-// DEPRECATED
-function readable_name_2line($name,$furigana) {
-  return readable_name($name,$furigana,0,0,"<br />");
 }
 
 // Function age: takes birthdate in the form YYYY-MM-DD as argument, returns age
@@ -255,7 +236,7 @@ define('CLIENT',$hostarray[0]);
 define('CLIENT_PATH',"/var/www/kizunadb/client/".CLIENT);
 // Get client login credentials and connect to client database
 $configfile = CLIENT_PATH."/kizunadb.ini";
-if (!is_readable($configfile)) die("No configuration file. Notify the developer.");
+if (!is_readable($configfile)) die("No KizunaDB configuration file. Notify the developer.");
 $config = parse_ini_file($configfile);
 $db = mysqli_connect("localhost", "kizuna_".CLIENT, $config['password'], "kizuna_".CLIENT)
     or die("Failed to connect to database. Notify the developer.");

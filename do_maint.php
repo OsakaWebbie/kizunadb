@@ -7,7 +7,7 @@ header1("Maintenance Processing");
 <?php
 header2(1);
 
-$need_confirmation = 0;
+$need_confirmation = $confirmed = 0;
 if (isset($_POST['confirmed'])) $confirmed = $_POST['confirmed'];
 
 // ********** POSTAL CODE  **********
@@ -241,7 +241,7 @@ echo _(" If you don't want to do this, just press your browser's Back button. ".
 } elseif (!empty($_POST['event_del'])) {
 
   // if first time around, check for attendance records - if none, don't need confirmation
-  if (!$confirmed) {
+  if (empty($confirmed)) {
     $result = sqlquery_checked("SELECT count(AttendDate) AS num, min(AttendDate) AS first, max(AttendDate) AS last ".
     "FROM attendance WHERE EventID=".$_POST['eventid']);
     $row = mysqli_fetch_object($result);
@@ -254,7 +254,7 @@ echo _(" If you don't want to do this, just press your browser's Back button. ".
       $attend_last = $row->last;
     }
   }
-  if ($confirmed) {
+  if (!empty($confirmed)) {
     sqlquery_checked("DELETE FROM attendance WHERE EventID=".$_POST['eventid']);
     if (mysqli_affected_rows($db) > 0) {
       $message = sprintf(_("%s related attendance records deleted."),mysqli_affected_rows($db))."\\n";
@@ -267,12 +267,12 @@ echo _(" If you don't want to do this, just press your browser's Back button. ".
   //ask for confirmation
     echo "<h3 class=\"alert\">"._("Please Confirm Event Delete")."</font></h3>\n<p>";
     printf(_("There are %s attendance records for this event, during the time period %s thru %s."),
-        $attend_num, $attend_first, $attend_last);
+        $_POST['attend_num'], $_POST['attend_first'], $_POST['attend_last']);
     echo _(" In deleting the event, you will also delete all attendance data associated with it. ".
         " Are you sure you want to do this?  (If not, just press your browser's Back button.)"); ?>
 <form action="<?=$_SERVER['PHP_SELF']?>" method="post">
-  <input type="hidden" name="event_id" value="<?=$event_id?>">
-  <input type="hidden" name="event_del" value="<?=$event_del?>">
+  <input type="hidden" name="event_id" value="<?=$_POST['event_id']?>">
+  <input type="hidden" name="event_del" value="<?=$_POST['event_del']?>">
   <input type="hidden" name="confirmed" value="1">
   <input type="submit" value="<?=_("Yes, delete the event and attendance records")?>">
 </form>
@@ -295,10 +295,10 @@ echo _(" If you don't want to do this, just press your browser's Back button. ".
     " AND (Password=PASSWORD('".$_POST['old_pw']."') OR Password=OLD_PASSWORD('".$_POST['old_pw']."'))");
   if (mysqli_num_rows($result) == 0) {
     $message = _("Sorry, but your old password entry was incorrect, so the password was not changed.");
-  } elseif ($new_pw1 != $new_pw2) {
+  } elseif ($_POST['new_pw1'] != $_POST['new_pw2']) {
     $message = _("Sorry, but the two entries for the new password did not match. Password not changed.");
   } else {
-    sqlquery_checked("UPDATE user set Password = PASSWORD('$new_pw1') WHERE UserID = '".$_SESSION['userid']."'");
+    sqlquery_checked("UPDATE user set Password = PASSWORD('".$_POST['new_pw1']."') WHERE UserID = '".$_SESSION['userid']."'");
     if (mysqli_affected_rows($db) == 1) {
       $message = _("Password successfully changed.");
     }
@@ -313,7 +313,7 @@ echo _(" If you don't want to do this, just press your browser's Back button. ".
     if (mysqli_num_rows($result) > 0) {
       $row = mysqli_fetch_object($result);
       $message = sprintf(_("UserID '%s' is already in use by %s. Please choose a different UserID."),
-          $new_userid, $row->UserName);
+          $_POST['new_userid'], $row->UserName);
     } else {
       sqlquery_checked("INSERT INTO user (UserID,UserName,Password,Admin,Language,HideDonations,DashboardCode) ".
       "VALUES ('".$_POST['new_userid']."','".h2d($_POST['username'])."',PASSWORD('".$_POST['new_pw1']."'),$adm,".
@@ -324,12 +324,12 @@ echo _(" If you don't want to do this, just press your browser's Back button. ".
     }
   } else { //update
     $result = sqlquery_checked("SELECT UserName FROM user WHERE UserID='".$_POST['new_userid']."'");
-    if ($new_userid != $old_userid && mysqli_num_rows($result) > 0) {
+    if ($_POST['new_userid'] != $_POST['old_userid'] && mysqli_num_rows($result) > 0) {
       $row = mysqli_fetch_object($result);
       $message = sprintf(_("UserID '%s' is already in use by %s. Please choose a different UserID."),
           $_POST['new_userid'], $row->UserName);
     } else {
-      $sql = "UPDATE user SET ";
+      $sql = 'UPDATE user SET ';
       if ($_POST['new_userid'] != $_POST['old_userid']) {
         $sql .= "UserID='".$_POST['new_userid']."',";
       }
@@ -365,12 +365,12 @@ echo _(" If you don't want to do this, just press your browser's Back button. ".
 }
 
 //echo "about to check need_conf, which is currently $need_confirmation<br>";
-if (!$need_confirmation) {
+if (empty($need_confirmation)) {
   echo "<SCRIPT FOR=window EVENT=onload LANGUAGE=\"JavaScript\">\n";
   if (!empty($message)) {
-    echo "alert(\"".$message."\");\n";
+    echo "alert('".$message."');\n";
   }
-  echo "window.location = \"".((isset($_GET['page']) && $_GET['page']=='user_settings') ? 'user_settings' : 'db_settings').".php\";\n";
+  echo "window.location = '".((isset($_GET['page']) && $_GET['page']=='user_settings') ? 'user_settings' : 'db_settings').".php';\n";
   echo "</SCRIPT>\n";
   
 }

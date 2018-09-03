@@ -1,14 +1,14 @@
 <?php
 include("functions.php");
 include("accesscontrol.php");
-if ($_GET['xml']) {
+if (!empty($_GET['xml'])) {
   header('Content-Type: text/xml');
   header('Content-Disposition: attachment; filename="households.xml"');
   echo "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<householdlist>\n";
 } else {
 ?>
 <html><head>
-<meta http-equiv="Content-Type" content="text/html; charset=<?=$_SESSION['charset']?>">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>Formatted Household Data</title>
 <style>
 <?php

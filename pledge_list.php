@@ -127,7 +127,7 @@ while ($row = mysqli_fetch_object($result)) {
   }
   echo "<tr><td valign=middle nowrap style=\"padding:2px 4px 2px 4px;\">\n";
   echo "<a href=\"individual.php?pid=".$row->PersonID."\" target=\"_blank\">";
-  echo readable_name_2line($row->FullName, $row->Furigana)."</a></td>\n";
+  echo readable_name($row->FullName, $row->Furigana,0,0,"<br />")."</a></td>\n";
   echo "<td valign=middle nowrap style=\"padding:2px 4px 2px 4px;\">{$row->DonationType}</td>\n";
   echo "<td valign=middle align=right nowrap style=\"padding:2px 4px 2px 4px;\">".$_SESSION['currency_mark']." ".
   number_format($row->Amount,$_SESSION['currency_decimals'])."/".
