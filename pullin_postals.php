@@ -12,7 +12,7 @@ header2(1);
 
 if (!is_file("ken_all.csv")) {
   echo "You need to:\n";
-  echo "<ul><li>Get <a href=\"http://www.post.japanpost.jp/zipcode/dl/kogaki/lzh/ken_all.lzh\">the file</li>\n";
+  echo "<ul><li>Get <a href=\"https://www.post.japanpost.jp/zipcode/dl/kogaki/lzh/ken_all.lzh\">the file</li>\n";
   echo "<li>Put it in the codebase directory</li>\n";
   echo "<li>Extract it (lha -e ken_all.lzh)</li></ul>\n";
   exit;

@@ -1245,8 +1245,8 @@ msgid "Non-Japan Address"
 msgstr "外国の住所"
 
 #: edit.php:458
-msgid "http://yubin.senmon.net/en/index.html"
-msgstr "http://www.post.japanpost.jp/zipcode/index.html"
+msgid "https://yubin.senmon.net/en/index.html"
+msgstr "https://www.post.japanpost.jp/zipcode/index.html"
 
 #: edit.php:458
 msgid "Lookup"
