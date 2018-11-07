@@ -580,7 +580,7 @@ $result = sqlquery_checked("SELECT a.ActionID,a.ActionTypeID,t.ActionType,Action
     "a.Description,t.BGColor FROM action a,actiontype t WHERE a.ActionTypeID=t.ActionTypeID ".
     "AND a.PersonID=${_GET['pid']} ORDER BY a.ActionDate DESC, ActionID DESC");
 if (mysqli_num_rows($result) == 0) {
-  echo("<p>"._("No previous actions recorded.")."</p>");
+  echo("<p>"._("No actions recorded.")."</p>");
 } else {
   echo "<table id=\"action-table\" class=\"tablesorter\" width=\"100%\" border=\"1\"><thead><tr>";
   echo "<th>"._("Date")."</th><th>"._("Action Type")."</th><th>"._("Description")."</th><th></th><th></th>\n";
@@ -599,7 +599,9 @@ if (mysqli_num_rows($result) == 0) {
     echo '<td style="white-space:nowrap">'.$fcstart;
     echo $row->ActionDate."<span style=\"display:none\">".$row->ActionID."</span>".$fcend."</td>\n";
     echo '<td style="white-space:nowrap">'.$fcstart.$row->ActionType.$fcend."</td>\n";
-    echo "<td>".$fcstart."<span class=\"readmore\">".url2link(d2h($row->Description))."</span>".$fcend."</td>\n";
+    // temporarily disabling url2link() due to conflict with ReadMore
+    // echo "<td>".$fcstart."<span class=\"readmore\">".url2link(d2h($row->Description))."</span>".$fcend."</td>\n";
+    echo "<td>".$fcstart."<span class=\"readmore\">".d2h($row->Description)."</span>".$fcend."</td>\n";
     echo "<td class=\"button-in-table\">";
     echo "<form method=\"get\" action=\"${_SERVER['PHP_SELF']}?pid=${_GET['pid']}#actions\">\n";
     echo "<input type=\"hidden\" name=\"pid\" value=\"${_GET['pid']}\">";
@@ -686,7 +688,7 @@ $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
       "WHERE d.PersonID=${_GET['pid']} ORDER BY d.DonationDate DESC, d.DonationTypeID";
   $result = sqlquery_checked($sql);
   if (mysqli_num_rows($result) == 0) {
-    echo "<p>"._('No previous donations recorded.')."</p>";
+    echo "<p>"._('No donations recorded.')."</p>";
   } else {
     echo "<table id=\"donation-table\" class=\"tablesorter\" width=\"100%\" border=\"1\"><thead>";
     echo "<tr><th>"._("Date")."</th><th>"._("Pledge or Donation Type")."</th><th>"._("Amount")."</th><th>"._("Description").
