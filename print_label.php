@@ -69,7 +69,7 @@ $count = 0;
 while ($row = mysqli_fetch_object($result)) {
   if ($count == $print->NumRows*$print->NumCols) {
     $count = 0;
-    echo "\end{picture}\clearpage\n";
+    echo "\\end{picture}\\clearpage\n";
   }
   $posx = ($count%$print->NumCols)*$print->LabelWidth + $print->AddrMarginLeft;
   $posy = floor($count/$print->NumCols)*$print->LabelHeight + $print->LabelHeight/2;
