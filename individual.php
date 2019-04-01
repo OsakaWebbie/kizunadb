@@ -276,20 +276,19 @@ echo "<div id=\"info-block\">";
 echo "\n\n<!-- Personal Information Section -->\n\n";
 echo "<div id=\"personal-info\"><h3 class=\"info-title\">"._("Personal Information")."</h3>";
 if ($per->Organization) {
-  echo _("Organization");
-} else {
-  if ($per->Sex) {
-    echo "<div id=\"sex\">".(($per->Sex=="F")?_("Female"):_("Male"))."</div>\n";
+  echo "<div id=\"organization\">"._("Organization")."</div>\n";
+}
+if ($per->Sex) {
+  echo "<div id=\"sex\">".(($per->Sex=="F")?_("Female"):_("Male"))."</div>\n";
+}
+if ($per->Birthdate && (substr($per->Birthdate,0,4) != "0000")) {
+  echo "<div id=\"birthdate\">";
+  if (substr($per->Birthdate,0,4) == "1900") {
+    echo _("Birthday").": ".substr($per->Birthdate,5);
+  } else {
+    echo _("Age").": ".age($per->Birthdate)." ("._("birthdate")." ".$per->Birthdate.")";
   }
-  if ($per->Birthdate && (substr($per->Birthdate,0,4) != "0000")) {
-    echo "<div id=\"birthdate\">";
-    if (substr($per->Birthdate,0,4) == "1900") {
-      echo _("Birthday").": ".substr($per->Birthdate,5);
-    } else {
-      echo _("Age").": ".age($per->Birthdate)." ("._("birthdate")." ".$per->Birthdate.")";
-    }
-    echo "</div>";
-  }
+  echo "</div>";
 }
 if ($per->Email) echo "<div id=\"email\">"._("Email").": ".email2link($per->Email)."</div>\n";
 if ($per->CellPhone) echo "<div id=\"cellphone\">"._("Cell Phone").": ".$per->CellPhone."</div>\n";
@@ -489,6 +488,7 @@ if ($per->Organization) {
   " ON e.PersonID = person.PersonID".
   " WHERE perorg.OrgID=".$_GET['pid']." ORDER BY person.Furigana";
   $result = sqlquery_checked($sql);
+  $mem_pids = '';
   if (mysqli_num_rows($result) == 0) {
     echo "<h3>"._("Current Members")."</h3>";
     echo "<p>"._("No members. (Add them on a member's personal page or in Multi-Select.)")."</p>";
@@ -501,7 +501,6 @@ if ($per->Organization) {
     echo "<table id=\"member-table\" class=\"tablesorter\" width=\"100%\" border=\"1\">";
     echo "<thead><tr>".str_replace("target","targetMember",
     str_replace("ulSelectColumn","ulSelectColumnMember",$tableheads))."</tr></thead>\n<tbody>";
-    $mem_pids = '';
     while ($row = mysqli_fetch_object($result)) {
       $mem_pids .= ",".$row->PersonID;
       echo "<tr".($row->Leader ? " class=\"leader\"" : "").">";
