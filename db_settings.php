@@ -16,7 +16,7 @@ header1(_("Database Settings"));
 function stopRKey(evt) {
   var evt = (evt) ? evt : ((event) ? event : null);
   var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
-  if ((evt.keyCode == 13) && (node.type=="text"))  {return false;}
+  if ((evt.keyCode == 13) && (node.type=="text") && node.name!="textinput1")  {return false;}
 }
 document.onkeypress = stopRKey;
 
