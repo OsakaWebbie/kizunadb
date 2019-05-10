@@ -149,7 +149,7 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
     }
   } //if household to be printed
 
-/*** CONTACTS ***/
+/*** ACTIONS ***/
 
   if ($_POST['actions']) {
     $sql = "SELECT action.*, actiontype.ActionType, actiontype.BGColor FROM action"

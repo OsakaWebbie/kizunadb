@@ -292,7 +292,7 @@ while ($row = mysqli_fetch_object($result))  echo "    <option value=\"".$row->C
   <input type="submit" id="cat_del" name="cat_del" value="<?=_("Delete")?>" disabled></div>
 </fieldset></form>
 
-<!-- CONTACT TYPES -->
+<!-- ACTION TYPES -->
 
 <form action="do_maint.php" method="post" name="atform" id="atform" onSubmit="return validate('at');">
   <fieldset><legend><?=_("Action Types")?></legend>
