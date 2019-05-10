@@ -50,31 +50,47 @@ div#content {
 table { background-color: White;}
 
 /* MAIN MENU (WIDE SCREENS) */
-#nav-main {
-}
-#nav-main ul, #scrollnav ul {
+ul.nav {
   background-color:<?=(!empty($navbg)?$navbg:"rgb(88,57,7)")?>;
   list-style-type: none;
   margin:10px 10px 0 58px;
-  padding:3px 0 5px 0;
+  padding:7px 0 7px 0;
   border-radius: 15px;
   text-align: center;
-  min-height: 40px;
+  vertical-align: middle;
+  min-height: 30px;
 }
-#nav-main li, #scrollnav li {
+ul.nav li {
   display: inline-block;
+  position: relative;
 }
-#nav-main a, #scrollnav a {
+ul.nav-sub { /* second level menus */
+  display: none;
+  position: absolute;
+  z-index:100;
+  background-color:<?=(!empty($navbg)?$navbg:"rgb(88,57,7)")?>;
+  margin: -2px 0 0 15px;
+  border: 1px solid <?=(!empty($navlink)?$navlink:"LightSteelBlue")?>;
+  padding: 0;
+  border-radius: 0;
+  text-align: left;
+  min-height: 0;
+}
+ul.nav-sub li {
+  display: block;
+}
+ul.nav a {
   display: block;
   color: <?=(!empty($navlink)?$navlink:"LightSteelBlue")?>;
-  padding: 5px 10px;
+  padding: 10px 15px;
   margin: 0;
   font-family: arial, helvetica, sans-serif;
   font-weight: bold;
+  text-decoration: none;
   white-space:nowrap;
 }
-#nav-main li.menu-usersettings a span { font-weight:normal; white-space:wrap; }
-#nav-main a:hover {
+ul.nav span.username { font-weight:normal; white-space:wrap; }
+ul.nav a:hover {
   background-color: <?=(!empty($navbghover)?$navbghover:"rgb(132,78,12)")?>;
   color: <?=(!empty($navlinkhover)?$navlinkhover:"White")?>;
 }
@@ -87,7 +103,7 @@ table { background-color: White;}
   width: 100%;
   z-index: 9999;
 }
-#scrollnav ul {
+#scrollnav ul.nav {
   background-color: <?=(!empty($navbg)?rgba($navbg,"0.7"):rgba("#2C2C2C","0.7"))?>;
   margin:0;
   padding:5px;
@@ -150,25 +166,36 @@ table { background-color: White;}
   position: relative;
   display: none;
   margin-left:35px;
+  background-color: <?=(!empty($navbg)?$navbg:"rgb(88,57,7)")?>;
 }
-#nav-mobile ul {
+#nav-mobile ul.nav {
   display: none;
   list-style-type: none;
   position: absolute;
+  border-radius: 0;
   left: 0;
   right: 0;
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
-  background-color: <?=(!empty($navbg)?$navbg:"rgb(88,57,7)")?>;
+  margin: 0 auto;
+  padding: 0;
+  text-align: left;
 }
-#nav-mobile li {
+#nav-mobile ul.nav li {
   display: block;
-  padding: 5px 0;
+  padding: 5px 0 5px 10px;
   margin: 0 5px;
   border-bottom: solid 1px <?=(!empty($primarymedium)?$primarymedium:"SteelBlue")?>;
 }
-nav#nav-mobile li:last-child { border-bottom: none; }
+#nav-mobile ul.nav-sub { /* second level menus */
+  display: block;
+  position: static;
+  padding: 0 0 0 20px;
+  min-height: 0;
+  border: none;
+}
+#nav-mobile ul.nav-sub li {
+  display: block;
+}
+nav#nav-mobile ul.nav li:last-child { border-bottom: none; }
 nav#nav-mobile a {
   display: block;
   color: <?=(!empty($navlink)?$navlink:"LightSteelBlue")?>;
@@ -178,7 +205,7 @@ nav#nav-mobile a {
   font-weight: bold;
 }
 nav#nav-mobile li.menu-usersettings a span { font-weight:normal; white-space:wrap; }
-nav#nav-mobile a:hover {
+nav#nav-mobile a:hover, nav#nav-mobile a:active {
   background-color: <?=(!empty($navbghover)?$navbghover:"#583907")?>;
   color: <?=(!empty($navlinkhover)?$navlinkhover:"White")?>;
 }
@@ -436,7 +463,7 @@ body.individual #dayofweek, body.individual #attend-apply { display:block; }
 body.individual #dayofweek label, body.individual #attend-apply label { margin-right:0.5em; }
 
 /* specific to edit.php */
-body.edit input { margin-top:5px;}
+body.edit #editform input { margin-bottom:5px;}
 body.edit div#name_section,body.edit div#furigana_section,body.edit div#title_section {
   float:left;
   vertical-align:top;

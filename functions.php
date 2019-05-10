@@ -20,38 +20,60 @@ function header2($nav=0) {
   $fileroot = substr($_SERVER['PHP_SELF'],(strrpos($_SERVER['PHP_SELF'],"/")+1),(strrpos($_SERVER['PHP_SELF'],".")-strrpos($_SERVER['PHP_SELF'],"/")-1));
   echo "<body class=\"".$fileroot.($nav?" full":" simple")."\">\n";
 
-  if ($nav) {
-    $navmarkup = "<ul class=\"nav\">\n";
-    if ($_SESSION['hasdashboard']) {
-      $navmarkup .= "  <li><a href=\"dashboard.php\" target=\"_top\">"._("Dashboard")."</a></li>\n";
-    }
-    $navmarkup .= "  <li><a href=\"search.php\" target=\"_top\">"._("Search")."</a></li>\n";
-    $navmarkup .= "  <li><form action='list.php'><input name='textinput1' placeholder='"._('(quick search)')."' style='width:7em'></form></li>\n";
-    $navmarkup .= "  <li><a href=\"edit.php\" target=\"_top\">"._("New Person/Org")."</a></li>\n";
-    $navmarkup .= "  <li><a href=\"multiselect.php\" target=\"_top\">"._("Multi-Select")."</a></li>\n";
-    $navmarkup .= "  <li><a href=\"action.php\" target=\"_top\">"._("Actions")."</a></li>\n";
-    if (isset ($_SESSION['donations']) && $_SESSION['donations'] == "yes") {
-      $navmarkup .= "  <li><a href=\"donations.php\" target=\"_top\">"._("Donations &amp; Pledges")."</a></li>\n";
-    }
-    $navmarkup .= "  <li><a href=\"event_attend.php\" target=\"_top\">"._("Event Attendance")."</a></li>\n";
-    $navmarkup .= "  <li><a href=\"birthday.php\" target=\"_top\">"._("Birthdays")."</a></li>\n";
-    $navmarkup .= "  <li><a href=\"db_settings.php\" target=\"_top\">"._("DB Settings")."</a></li>\n";
-    if (isset ($_SESSION['admin']) && $_SESSION['admin'] == 1) {
-      $navmarkup .= "  <li><a href=\"sqlquery.php\" target=\"_top\">"._("(Freeform SQL)")."</a></li>\n";
-    }
-    $navmarkup .= "  <li><a class=\"switchlang\" href=\"#\">".
-        ($_SESSION['lang']=='en_US'?'日本語':'English')."</a></li>\n";
-    $navmarkup .= "  <li class=\"menu-usersettings\"><a href=\"user_settings.php\" target=\"_top\">"._("User Settings")."<span> (".$_SESSION['username'].")</span></a></li>\n";
-    $navmarkup .= "  <li><a href=\"index.php?logout=1\" target=\"_top\">"._("Log Out")."</a></li>\n</ul>\n";
-    echo "<nav id=\"scrollnav\"></nav>\n";  //only appears when scrolled
+  if ($nav) {  // build main desktop menu and create divs for menu for scrolling and mobile menu (duplicated by jQuery in footer)
+?>
+<nav id="scrollnav"></nav>
 
-    echo "<div id=\"main-container\">\n";
-    echo "<nav id=\"nav-main\">\n$navmarkup</nav>\n";  //main nav for large screens
-    echo "<div id=\"nav-trigger\"><img src=\"graphics/kizunadb-logo.png\" alt=\"Logo\"><span>Menu</span></div>\n";  //button for narrow screens
-    echo "<nav id=\"nav-mobile\"></nav>\n";  //vertical menu for narrow screens
-  }
+<div id="main-container">
+  <nav id="nav-main">
+    <ul class="nav">
+      <?=(!empty($_SESSION['hasdashboard']) ? '<li><a href="dashboard.php" target="_top">'._('Dashboard').'</a></li>' : '')?>
+      <li><form action="list.php"><input name="textinput1" placeholder="<?=_('(quick search)')?>" style="width:7em;vertical-align:baseline"></form></li>
+      <li class="hassub">
+        <a href="#"><?=_('People/Orgs')?> &#x25BC;</a>
+        <ul class="nav-sub">
+          <li><a href="search.php" target="_top"><?=_('Search')?></a></li>
+          <li><a href="edit.php" target="_top"><?=_('New Person/Org')?></a></li>
+        </ul>
+      </li>
+      <li class="hassub">
+        <a href="#"><?=_('Aux. Searches')?> &#x25BC;</a>
+        <ul class="nav-sub">
+          <li><a href="action.php" target="_top"><?=_('Actions')?></a></li>
+<?=(!empty($_SESSION['donations']) ? '          <li><a href="donations.php" target="_top">'._('Donations &amp; Pledges').'</a></li>' : '')?>
+          <li><a href="event_attend.php" target="_top"><?=_('Event Attendance')?></a></li>
+          <li><a href="birthday.php" target="_top"><?=_('Birthdays')?></a></li>
+        </ul>
+      </li>
+      <li class="hassub">
+        <a href="#"><?=_('Bucket').' (<span class="bucketcount">'.count($_SESSION['bucket']).'</span>)'?> &#x25BC;</a>
+        <ul class="nav-sub">
+<?=(!empty($_SESSION['bucket']) ? '          <li><a class="bucket-list" href="#">'._('List Bucket Contents').'</a></li>' : '')?>
+          <li><a class="ajaxlink bucket-set" href="#"><?=_('Put in Bucket')?></a></li>
+<?=(!empty($_SESSION['bucket']) ? '          <li><a class="ajaxlink bucket-add" href="#">'._('Add to Existing Bucket').'</a></li>' : '')?>
+          <li><a href="multiselect.php" target="_top"><?=_('Multi-Select').'/'._('Batch')?></a></li>
+          <li><a class="ajaxlink bucket-empty" href="#"><?=_('Empty Bucket')?></a></li>
+        </ul>
+      </li>
+      <li><a href="db_settings.php" target="_top"><?=_('DB Settings')?></a></li>
+<?=(!empty($_SESSION['admin']) ? '      <li><a href="sqlquery.php" target="_top">'._('(Raw SQL)').'</a></li>' : '')?>
+      <li><a class="switchlang" href="#"><?=($_SESSION['lang']=='en_US'?'日本語':'English')?></a></li>
+      <li class="menu-usersettings hassub">
+        <a href="#"><?=_('User')?><span class="username">: <?=$_SESSION['username']?></span> &#x25BC;</a>
+        <ul class="nav-sub">
+          <li><a href="user_settings.php" target="_top"><?=_('User Settings')?></a></li>
+          <li><a href="index.php?logout=1" target="_top"><?=_('Log Out')?></a></li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+  <div id="nav-trigger"><img src="graphics/kizunadb-logo.png" alt="Logo"><span>Menu</span></div>
+  <nav id="nav-mobile"></nav>
+  <input type="hidden" id="pids-for-bucket" value="">
+<?php
+  }  // end of if $nav
   echo "<div id=\"content\">\n";
-}
+}  // end of header2()
 
 // Function footer: sends final html
 function footer($nav=0) {
@@ -73,57 +95,115 @@ function footer($nav=0) {
     echo "</div>\n";
   } //end if announcements
 ?>
-    <script type="text/javascript">
-        if (window.jQuery) { //really simple files that don't have jQuery don't need this stuff either
-            $(function() {
-                $(window).scroll(function() {
-                    if ($(this).scrollTop() > 150 && !$('#scrollnav').hasClass('visible')) {
-                        $('#scrollnav').addClass('visible');
-                    } else if ($(this).scrollTop() <= 150 && $('#scrollnav').hasClass('visible')) {
-                        $('#scrollnav').removeClass('visible');
-                    }
-                });
+  <script type="text/javascript">
+    if (window.jQuery) { //really simple files that don't have jQuery don't need this stuff either
+      $(function() {
+        $(window).scroll(function() {
+          if ($(this).scrollTop() > 150 && !$('#scrollnav').hasClass('visible')) {
+            $('#scrollnav').addClass('visible');
+          } else if ($(this).scrollTop() <= 150 && $('#scrollnav').hasClass('visible')) {
+            $('#scrollnav').removeClass('visible');
+          }
+        });
 
-                $("#nav-mobile").html($("#nav-main").html());
-                $("#scrollnav").html($("#nav-main").html());
-                $("#nav-trigger").click(function(){
-                    if ($("nav#nav-mobile ul").hasClass("expanded")) {
-                        $("nav#nav-mobile ul.expanded").removeClass("expanded").slideUp(250);
-                        $(this).removeClass("open");
-                    } else {
-                        $("nav#nav-mobile ul").addClass("expanded").slideDown(250);
-                        $(this).addClass("open");
-                    }
-                });
+        $("#nav-mobile").html($("#nav-main").html());
+        $("#scrollnav").html($("#nav-main").html());
 
-                $('.switchlang').click(function(event) {
-                    event.preventDefault();
-                    $.ajax({
-                        type: "POST",
-                        url: "ajax_actions.php?action=SwitchLang&lang=<?=$_SESSION['lang']=='en_US'?'ja_JP':'en_US' ?>",
-                        success: function() {
-                            location.reload(true);
-                        }
-                    });
-                });
-              <?php if (isset($_SESSION['announcements'])) { ?>
-                $('#announcements').dialog({
-                    modal: true,
-                    buttons: [{
-                        text: "<?=_("OK, I got it!") ?>",
-                        click: function() {
-                            $( this ).dialog( "close" );
-                        }
-                    }],
-                    width: 460
-                });
-              <?php
-              unset($_SESSION['announcements']); //now that it's shown, get rid of it
-              }
-              ?>
+        $("#nav-trigger").click(function(){
+          if ($("nav#nav-mobile ul").hasClass("expanded")) {
+            $("nav#nav-mobile ul.expanded").removeClass("expanded").slideUp(250);
+            $(this).removeClass("open");
+          } else {
+            $("nav#nav-mobile ul").addClass("expanded").slideDown(250);
+            $(this).addClass("open");
+          }
+        });
+
+        $('.switchlang').click(function(event) {
+            event.preventDefault();
+            $.ajax({
+                type: "POST",
+                url: "ajax_actions.php?action=SwitchLang&lang=<?=$_SESSION['lang']=='en_US'?'ja_JP':'en_US' ?>",
+                success: function() {
+                    location.reload(true);
+                }
             });
+        });
+
+        /* event handling for submenus (must be JS because of menu links that don't refresh the page) */
+        $(".hassub").mouseenter(function(){ $("ul",this).show(); }).mouseleave(function(){ $("ul",this).hide(); });
+
+        $('.ajaxlink').click(function(event) {
+          $(this).closest('ul').hide();
+          $("nav#nav-mobile ul.expanded").removeClass("expanded").slideUp(250);
+          $("#nav-trigger").removeClass("open");
+        });
+
+        /* Bucket management */
+        replaceWithWrapper($("#pids-for-bucket")[0], "value", function(obj, property, value) {
+          if ($('#pids-for-bucket').val() === '') {
+            $('#bucket-set, #bucket-add').hide();
+          } else {
+            $('#bucket-set, #bucket-add').show();
+          }
+        });
+        $('.bucket-set').click(function(event) {
+          event.preventDefault();
+          $.post("bucket.php", { set:$('#pids-for-bucket').val() }, function(r) {
+              if (!isNaN(r)) { $('span.bucketcount').html(r); }
+              else { alert(r); }
+          }, "text");
+        });
+        $('.bucket-add').click(function(event) {
+          event.preventDefault();
+          $.post("bucket.php", { add:$('#pids-for-bucket').val() }, function(r) {
+            if (!isNaN(r)) { $('span.bucketcount').html(r); }
+            else { alert(r); }
+          }, "text");
+        });
+        $('.bucket-empty').click(function(event) {
+          event.preventDefault();
+          $.post("bucket.php", { empty:"1" }, function(r) {
+            if (!isNaN(r)) { $('span.bucketcount').html(r); }
+            else { alert(r); }
+          }, "text");
+        });
+
+      <?php if (isset($_SESSION['announcements'])) { ?>
+        $('#announcements').dialog({
+            modal: true,
+            buttons: [{
+                text: "<?=_("OK, I got it!") ?>",
+                click: function() {
+                    $( this ).dialog( "close" );
+                }
+            }],
+            width: 460
+        });
+        <?php
+        unset($_SESSION['announcements']); //now that it's shown, get rid of it
         }
-    </script>
+        ?>
+      });
+    }
+
+    /* for use in detecting changes to #pids-for-bucket value; from https://stackoverflow.com/a/41589301/1436451 */
+    function replaceWithWrapper(obj, property, callback) {
+      Object.defineProperty(obj, property, new function() {
+        var _value = obj[property];
+        return {
+          set: function(value) {
+            _value = value;
+            callback(obj, property, value)
+          },
+          get: function() {
+            return _value;
+          }
+        }
+      });
+    }
+
+  </script>
 </body>
 </html>
 <?php

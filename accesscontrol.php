@@ -36,6 +36,7 @@ if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
       $_SESSION['admin'] = $user->Admin;
       $_SESSION['lang'] = $user->Language;
       $_SESSION['hasdashboard'] = $user->DashboardCode ? 1 : 0;
+      $_SESSION['bucket'] = array();
 
       //GET ANNOUNCEMENTS IF ANY
       $result = sqlquery_checked("SELECT MAX(LoginTime) Last FROM loginlog WHERE UserID='".$user->UserID."'");
