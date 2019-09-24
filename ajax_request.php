@@ -115,6 +115,24 @@ case 'User':
     }
   }
   break;
+case 'UserLogin':
+  if (isset($_REQUEST['userid']) && $_REQUEST['userid']!="") {
+    $result = sqlquery_checked("SELECT * FROM user WHERE UserID='".$_REQUEST['userid']."'");
+    $logintime = sqlquery_checked("SELECT LoginTime from loginlog WHERE UserID='".$_REQUEST['userid']."' ORDER BY LoginTime DESC LIMIT 1");
+    if (mysqli_num_rows($result)>0) {
+      $row = mysqli_fetch_object($result);
+      $ltime = mysqli_fetch_object($logintime);
+      $arr = array('userid' => $row->UserID, 'new_userid' => $row->UserID, 'old_userid' => $row->UserID,
+          'username' => $row->UserName, 'language' => $row->Language, 'new_pw1' => '', 'new_pw2' => '',
+	        'dashboard' => $row->DashboardCode, 'login' => $ltime->LoginTime);
+      $arr['admin'] = $row->Admin ? 'checkboxValue' : '';
+      $arr['hidedonations'] = $row->HideDonations ? 'checkboxValue' : '';
+      die (json_encode($arr));
+    } else {
+      die(json_encode(array('alert' => 'Record not found.')));
+    }
+  }
+  break;
 case 'Unique':
   if (empty($_REQUEST['table'])) die(json_encode(array('alert' => 'Programming error: Table does not exist')));
   $sql = 'SELECT DonationTypeID FROM '.$_REQUEST['table'].' WHERE';

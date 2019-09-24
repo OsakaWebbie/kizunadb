@@ -167,7 +167,7 @@ $(document).ready(function(){
       $("#user_del").prop('disabled', true);
     } else {
       showSpinner($('#userid'));
-      $.getJSON("ajax_request.php?req=User&userid="+$('#userid').val(), function(data) {
+      $.getJSON("ajax_request.php?req=UserLogin&userid="+$('#userid').val(), function(data) {
         hideSpinner($('#userid'));
         if (data.alert === "NOSESSION") {
           alert("<?=_("Your login has timed out - please refresh the page.")?>");
@@ -176,6 +176,7 @@ $(document).ready(function(){
           $('#userform').populate(data, {resetForm:false});
           $("#language").val(data.language);
           $("#user_del").prop('disabled', false);
+          $("#login_time").html(data.login);
         }
       });
     }
@@ -415,7 +416,9 @@ while ($row = mysqli_fetch_object($result))  echo "    <option value=\"".$row->U
   id="new_pw1" name="new_pw1" style="width:10em">
   <span class="comment"><?=_("(leave blank if not changing password)")?></span></label>
   <label class="label-n-input"><?=_("New Password again")?>: <input type="password"
-  id="new_pw2" name="new_pw2" style="width:10em"></label><br />
+  id="new_pw2" name="new_pw2" style="width:10em"></label>
+  <span class="comment" id="login_time"> <?=_("LoginTime")?> </span>
+  <br />
   <label class="label-n-input"><?=_("PHP for Dashboard")?>: <textarea id="dashboard" name="dashboard" style="height:3em;width:70%"></textarea></label>
   <br /><input type="submit" id="user_add_upd" name="user_add_upd" value="<?=_("Add or Update")?>">
   <input type="submit" id="user_del" name="user_del" value="<?=_("Delete")?>" disabled>
