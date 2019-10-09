@@ -417,9 +417,12 @@ while ($row = mysqli_fetch_object($result))  echo "    <option value=\"".$row->U
   <span class="comment"><?=_("(leave blank if not changing password)")?></span></label>
   <label class="label-n-input"><?=_("New Password again")?>: <input type="password"
   id="new_pw2" name="new_pw2" style="width:10em"></label>
-  <span class="comment" id="login_time">Last Login: <?=_("LoginTime")?> </span>
   <br />
   <label class="label-n-input"><?=_("PHP for Dashboard")?>: <textarea id="dashboard" name="dashboard" style="height:3em;width:70%"></textarea></label>
+  <br/>
+  Last Login:<span class="comment" id="login_time"> <?=_("LoginTime")?> </span>
+  Total Logins:<span class="comment" id="login_num"> <?=_("LoginNum")?> </span>
+  Logins by Year:<span class="comment" id="login_years"> <?=_("LoginYears")?> </span>
   <br /><input type="submit" id="user_add_upd" name="user_add_upd" value="<?=_("Add or Update")?>">
   <input type="submit" id="user_del" name="user_del" value="<?=_("Delete")?>" disabled>
 </fieldset></form>
