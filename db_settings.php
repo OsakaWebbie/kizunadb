@@ -178,7 +178,7 @@ $(document).ready(function(){
           $("#user_del").prop('disabled', false);
           $("#login").html(data.login);
           $("#login_num").html(data.login_num);
-          $("#login_year").html(data.login_year);
+          $("#login_years").html(JSON.stringify(data.login_years, null, 4));
         }
       });
     }

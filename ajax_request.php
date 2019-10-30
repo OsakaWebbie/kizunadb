@@ -124,13 +124,16 @@ case 'UserLogin':
       $ltime = mysqli_fetch_object($logintime);
       $a = array();
       $i = 0;
-      foreach ($ltime as $login) {
-          $date = date('Y', $login['LoginTime']);
-          $i = $i + 1;
-          if (is_null($lastDate) || $lastDate !== $date) {
-              $a += array($date => $i);
-          }
-          $lastDate = $date;
+      $n = 0;
+      while ($login = mysqli_fetch_object($logintime)){
+        $date = substr($login->LoginTime,0,4);
+        $i++;
+        $n++;
+        if (($lastDate !== NULL && $lastDate !== $date) || $n == mysqli_num_rows($logintime)) {
+          $a[$date]= $i;
+          $i = 0;
+        }
+        $lastDate = $date;
       }
       $arr = array('userid' => $row->UserID, 'new_userid' => $row->UserID, 'old_userid' => $row->UserID,
           'username' => $row->UserName, 'language' => $row->Language, 'new_pw1' => '', 'new_pw2' => '',
