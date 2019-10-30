@@ -176,7 +176,9 @@ $(document).ready(function(){
           $('#userform').populate(data, {resetForm:false});
           $("#language").val(data.language);
           $("#user_del").prop('disabled', false);
-          $("#login_time").html(data.login);
+          $("#login").html(data.login);
+          $("#login_num").html(data.login_num);
+          $("#login_year").html(data.login_year);
         }
       });
     }
@@ -420,7 +422,7 @@ while ($row = mysqli_fetch_object($result))  echo "    <option value=\"".$row->U
   <br />
   <label class="label-n-input"><?=_("PHP for Dashboard")?>: <textarea id="dashboard" name="dashboard" style="height:3em;width:70%"></textarea></label>
   <br/>
-  Last Login:<span class="comment" id="login_time"> <?=_("LoginTime")?> </span>
+  Last Login:<span class="comment" id="login"> <?=_("LoginTime")?> </span>
   Total Logins:<span class="comment" id="login_num"> <?=_("LoginNum")?> </span>
   Logins by Year:<span class="comment" id="login_years"> <?=_("LoginYears")?> </span>
   <br /><input type="submit" id="user_add_upd" name="user_add_upd" value="<?=_("Add or Update")?>">

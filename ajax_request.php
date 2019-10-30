@@ -118,13 +118,26 @@ case 'User':
 case 'UserLogin':
   if (isset($_REQUEST['userid']) && $_REQUEST['userid']!="") {
     $result = sqlquery_checked("SELECT * FROM user WHERE UserID='".$_REQUEST['userid']."'");
-    $logintime = sqlquery_checked("SELECT LoginTime from loginlog WHERE UserID='".$_REQUEST['userid']."' ORDER BY LoginTime DESC LIMIT 1");
+    $logintime = sqlquery_checked("SELECT LoginTime from loginlog WHERE UserID='".$_REQUEST['userid']."' ORDER BY LoginTime DESC");
     if (mysqli_num_rows($result)>0) {
       $row = mysqli_fetch_object($result);
       $ltime = mysqli_fetch_object($logintime);
+      $a = array();
+      $i = 0;
+      foreach ($ltime as $login) {
+          $date = date('Y', $login['LoginTime']);
+          $i = $i + 1;
+          if (is_null($lastDate) || $lastDate !== $date) {
+              $a += array($date => $i);
+          }
+          $lastDate = $date;
+      }
+      $d=strtotime("2019-09-02 10:41:47");
+      echo "Created date is " . date("Y-m-d h:i:sa", $d);
       $arr = array('userid' => $row->UserID, 'new_userid' => $row->UserID, 'old_userid' => $row->UserID,
           'username' => $row->UserName, 'language' => $row->Language, 'new_pw1' => '', 'new_pw2' => '',
-	        'dashboard' => $row->DashboardCode, 'login' => $ltime->LoginTime);
+	        'dashboard' => $row->DashboardCode, 'login' => $ltime->LoginTime, 'login_num' => mysqli_num_rows($logintime),
+          'login_years' => $a);
       $arr['admin'] = $row->Admin ? 'checkboxValue' : '';
       $arr['hidedonations'] = $row->HideDonations ? 'checkboxValue' : '';
       die (json_encode($arr));
