@@ -176,9 +176,9 @@ $(document).ready(function(){
           $('#userform').populate(data, {resetForm:false});
           $("#language").val(data.language);
           $("#user_del").prop('disabled', false);
-          $("#login").html(data.login);
+          $("#login").html(data.login); //it seems populate doesn't work well with non-inputs, so adding these by hand
           $("#login_num").html(data.login_num);
-          $("#login_years").html(JSON.stringify(data.login_years, null, 4));
+          $("#login_years").html(JSON.stringify(data.login_years, null, 4)); //login_years is an array of year => num_logins
         }
       });
     }

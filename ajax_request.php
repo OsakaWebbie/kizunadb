@@ -115,29 +115,32 @@ case 'User':
     }
   }
   break;
-case 'UserLogin':
+case 'UserLogin': //added query for login time, number of logins and logins per year to normal User case
   if (isset($_REQUEST['userid']) && $_REQUEST['userid']!="") {
     $result = sqlquery_checked("SELECT * FROM user WHERE UserID='".$_REQUEST['userid']."'");
     $logintime = sqlquery_checked("SELECT LoginTime from loginlog WHERE UserID='".$_REQUEST['userid']."' ORDER BY LoginTime DESC");
     if (mysqli_num_rows($result)>0) {
       $row = mysqli_fetch_object($result);
-      $ltime = mysqli_fetch_object($logintime);
       $a = array();
       $i = 0;
       $n = 0;
+      $ltime = "";
       while ($login = mysqli_fetch_object($logintime)){
-        $date = substr($login->LoginTime,0,4);
-        $i++;
-        $n++;
+        $date = substr($login->LoginTime,0,4); //year only for counting logins per
+        $i++; //logins per year
+        $n++; //row counter
+        if ($lastDate == NULL){
+          $ltime = $login->LoginTime; //last login time
+        }
         if (($lastDate !== NULL && $lastDate !== $date) || $n == mysqli_num_rows($logintime)) {
-          $a[$date]= $i;
+          $a[$date]= $i; //add year and num of logins to array
           $i = 0;
         }
         $lastDate = $date;
       }
       $arr = array('userid' => $row->UserID, 'new_userid' => $row->UserID, 'old_userid' => $row->UserID,
           'username' => $row->UserName, 'language' => $row->Language, 'new_pw1' => '', 'new_pw2' => '',
-	        'dashboard' => $row->DashboardCode, 'login' => $ltime->LoginTime, 'login_num' => mysqli_num_rows($logintime),
+	        'dashboard' => $row->DashboardCode, 'login' => $ltime, 'login_num' => mysqli_num_rows($logintime),
           'login_years' => $a);
       $arr['admin'] = $row->Admin ? 'checkboxValue' : '';
       $arr['hidedonations'] = $row->HideDonations ? 'checkboxValue' : '';
