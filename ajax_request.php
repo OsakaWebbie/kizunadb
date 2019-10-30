@@ -132,8 +132,6 @@ case 'UserLogin':
           }
           $lastDate = $date;
       }
-      $d=strtotime("2019-09-02 10:41:47");
-      echo "Created date is " . date("Y-m-d h:i:sa", $d);
       $arr = array('userid' => $row->UserID, 'new_userid' => $row->UserID, 'old_userid' => $row->UserID,
           'username' => $row->UserName, 'language' => $row->Language, 'new_pw1' => '', 'new_pw2' => '',
 	        'dashboard' => $row->DashboardCode, 'login' => $ltime->LoginTime, 'login_num' => mysqli_num_rows($logintime),
