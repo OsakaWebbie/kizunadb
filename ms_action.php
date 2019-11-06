@@ -34,7 +34,7 @@ if (!empty($_POST['save_action'])) {
     }
     if (!$has_prev) {
       $sql = "INSERT INTO action (PersonID,ActionTypeID,ActionDate,Description) VALUES (".
-           $pid_array[$i].",${_POST['atid']},'${_POST['adate']}','${_POST['desc']}')";
+           $pid_array[$i].",${_POST['atid']},'${_POST['adate']}','".h2d($_POST['desc'])."')";
       $result = sqlquery_checked($sql);
     }
   }
