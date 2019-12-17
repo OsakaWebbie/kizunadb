@@ -34,7 +34,7 @@ if (!empty($_POST['save_action'])) {
     }
     if (!$has_prev) {
       $sql = "INSERT INTO action (PersonID,ActionTypeID,ActionDate,Description) VALUES (".
-           $pid_array[$i].",${_POST['atid']},'${_POST['adate']}','${_POST['desc']}')";
+           $pid_array[$i].",${_POST['atid']},'${_POST['adate']}','".h2d($_POST['desc'])."')";
       $result = sqlquery_checked($sql);
     }
   }
@@ -46,15 +46,15 @@ if (!empty($_POST['save_action'])) {
     $temprow = mysqli_fetch_object($tempresult);
 ?>
 <form action="<?=$_SERVER['PHP_SELF']?>" method="post" name="confirmform" target="_self">
-<input type="hidden" name="pid_list" value="$prev_pidlist">
-<input type="hidden" name="atid" value="$atid">
-<input type="hidden" name="adate" value="$adate">
-<input type="hidden" name="desc" value="$desc">
+<input type="hidden" name="pid_list" value="<?=$prev_pidlist?>">
+<input type="hidden" name="atid" value="<?=$atid?>">
+<input type="hidden" name="adate" value="<?=$adate?>">
+<input type="hidden" name="desc" value="<?=$desc?>">
 <?php
     echo sprintf(_('However, the following %s people already had a action of type "%s" on %s.'),
     $prev_num,$temprow->ActionType,$_POST['adate'])."<br />\n";
     echo _('Do you still want the additional records added?');
-    echo '<input type="submit" name="save_action" value="'._('Yes, add them anyway!')."></form>\n";
+    echo '<input type="submit" name="save_action" value="'._('Yes, add them anyway!').'"></form><br/>';
     echo _('(You can click on a name to view their individual info - it will open in a new window/tab.)');
     echo '<table><tr><th>'._('Name').'</th><th>'._('Description')."</th></tr>\n".$prev_info."</table>\n";
   }

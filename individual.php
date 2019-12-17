@@ -376,13 +376,13 @@ echo "<div id=\"cats-in\">";
 while ($row = mysqli_fetch_object($result)) {
   if (!($row->PersonID)) {
     echo "</div><div id=\"cats-out\">";
-    echo "<label for=\"".$row->CategoryID."\" class=\"label-n-input\"><input type=\"checkbox\" name=\"cat".$row->CategoryID."\">".$row->Category."</label>\n";
+    echo "<label for=\"".$row->CategoryID."\" class=\"label-n-input\"><input type=\"checkbox\" id=\"".$row->CategoryID."\" name=\"cat".$row->CategoryID."\">".$row->Category."</label>\n";
     break;
   }
-  echo "<label for=\"".$row->CategoryID."\" class=\"label-n-input\"><input type=\"checkbox\" name=\"cat".$row->CategoryID."\" checked>".$row->Category."</label>\n";
+  echo "<label for=\"".$row->CategoryID."\" class=\"label-n-input\"><input type=\"checkbox\" id=\"".$row->CategoryID."\" name=\"cat".$row->CategoryID."\" checked>".$row->Category."</label>\n";
 }
 while ($row = mysqli_fetch_object($result)) {
-  echo "<label for=\"".$row->CategoryID."\" class=\"label-n-input\"><input type=\"checkbox\" name=\"cat".$row->CategoryID."\">".$row->Category."</label>\n";
+  echo "<label for=\"".$row->CategoryID."\" class=\"label-n-input\"><input type=\"checkbox\" id=\"".$row->CategoryID."\" name=\"cat".$row->CategoryID."\">".$row->Category."</label>\n";
 }
 echo "</div>";  //end of cats-out
 ?>
