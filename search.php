@@ -12,7 +12,7 @@ if (isset($_GET['ps'])) {
   $psnum = substr_count($preselected,",")+1;
 }
 
-header1(_("Search").(isset($psnum) ? sprintf(_(" (%d People/Orgs Pre-selected)"),$psnum) : "")); ?>
+header1(_("Search")); ?>
 
 <link rel="stylesheet" type="text/css" href="style.php?page=<?=$_SERVER['PHP_SELF']?>&jquery=1&multiselect=1" />
 <?php header2(1); ?>

@@ -95,6 +95,15 @@ ul.nav a:hover {
   color: <?=(!empty($navlinkhover)?$navlinkhover:"White")?>;
 }
 
+ul.nav a.disabledlink {
+  opacity: 0.5;
+  pointer-events: none;
+}
+ul.nav a.disabledlink:hover {
+  background-color:<?=(!empty($navbg)?$navbg:"rgb(88,57,7)")?>;
+  color: <?=(!empty($navlink)?$navlink:"LightSteelBlue")?>;
+}
+
 /* MENU THAT APPEARS WHEN SCROLLING (WIDE SCREENS) */
 #scrollnav {
   position: fixed;

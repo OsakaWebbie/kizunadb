@@ -3,249 +3,249 @@ include("functions.php");
 include("accesscontrol.php");
 
 $criterialist = "<ul id=\"criteria\">";
-$sql = "SELECT ".(!empty($_REQUEST['countonly']) ?
+$sql = "SELECT ".(!empty($_GET['countonly']) ?
   "person.PersonID " :
   "person.*, household.AddressComp, household.Phone, GROUP_CONCAT(Category ORDER BY Category SEPARATOR '\\n') AS categories ");
-$sql .= "FROM person LEFT JOIN household ON person.HouseholdID=household.HouseholdID ".(!empty($_REQUEST['countonly']) ? "" :
+$sql .= "FROM person LEFT JOIN household ON person.HouseholdID=household.HouseholdID ".(!empty($_GET['countonly']) ? "" :
     "LEFT JOIN percat ON person.PersonID=percat.PersonID LEFT JOIN category ON percat.CategoryID=category.CategoryID");
 $join = $where = "";
 $ptable = $grouptable = "person";
 $closing = '';
 
-if ($_REQUEST['filter'] == "Organizations") {
-  $where .= " WHERE Organization>0";
-  $criterialist .= "<li>"._("Organizations only");
-} elseif ($_REQUEST['filter'] == "People") {
-  $where .= " WHERE Organization=0";
-  $criterialist .= "<li>"._("People only (no organizations)");
-} elseif ($_REQUEST['filter'] == "OrgsOfPeople") {
-    $sql = "SELECT DISTINCT p1.*, h1.AddressComp, h1.Phone, GROUP_CONCAT(Category ORDER BY Category SEPARATOR '\\n') AS categories ".
-    "FROM person p1 LEFT JOIN household h1 ON p1.HouseholdID=h1.HouseholdID ".
-    "LEFT JOIN percat ON p1.PersonID=percat.PersonID ".
-    "LEFT JOIN category ON percat.CategoryID=category.CategoryID WHERE p1.PersonID IN (SELECT OrgID FROM perorg po ".
-    "INNER JOIN person p2 ON po.PersonID=p2.PersonID LEFT JOIN household ON p2.HouseholdID=household.HouseholdID";
-  $criterialist .= "<li>"._("Organizations with members who have the following criteria...");
-  $ptable = "p2";
-  $grouptable = "p1";
-  $closing = ")";
-} elseif ($_REQUEST['filter'] == "PeopleOfOrgs") {
-    $sql = "SELECT DISTINCT p1.*, h1.AddressComp, h1.Phone, GROUP_CONCAT(Category ORDER BY Category SEPARATOR '\\n') AS categories ".
-    "FROM person p1 LEFT JOIN household h1 ON p1.HouseholdID=h1.HouseholdID ".
-    "LEFT JOIN percat ON p1.PersonID=percat.PersonID ".
-    "LEFT JOIN category ON percat.CategoryID=category.CategoryID WHERE p1.PersonID IN (SELECT po.PersonID FROM perorg po ".
-    "INNER JOIN person o ON po.OrgID=o.PersonID LEFT JOIN household ON o.HouseholdID=household.HouseholdID";
-  $criterialist .= "<li>"._("People whose related organizations have the following criteria...");
-  $ptable = "o";
-  $grouptable = "p1";
-  $closing = ")";
+if (!empty($_GET['filter'])) {
+  if ($_GET['filter'] == "Organizations") {
+    $where .= " WHERE Organization>0";
+    $criterialist .= "<li>" . _("Organizations only");
+  } elseif ($_GET['filter'] == "People") {
+    $where .= " WHERE Organization=0";
+    $criterialist .= "<li>" . _("People only (no organizations)");
+  } elseif ($_GET['filter'] == "OrgsOfPeople") {
+    $sql = "SELECT DISTINCT p1.*, h1.AddressComp, h1.Phone, GROUP_CONCAT(Category ORDER BY Category SEPARATOR '\\n') AS categories " .
+        "FROM person p1 LEFT JOIN household h1 ON p1.HouseholdID=h1.HouseholdID " .
+        "LEFT JOIN percat ON p1.PersonID=percat.PersonID " .
+        "LEFT JOIN category ON percat.CategoryID=category.CategoryID WHERE p1.PersonID IN (SELECT OrgID FROM perorg po " .
+        "INNER JOIN person p2 ON po.PersonID=p2.PersonID LEFT JOIN household ON p2.HouseholdID=household.HouseholdID";
+    $criterialist .= "<li>" . _("Organizations with members who have the following criteria...");
+    $ptable = "p2";
+    $grouptable = "p1";
+    $closing = ")";
+  } elseif ($_GET['filter'] == "PeopleOfOrgs") {
+    $sql = "SELECT DISTINCT p1.*, h1.AddressComp, h1.Phone, GROUP_CONCAT(Category ORDER BY Category SEPARATOR '\\n') AS categories " .
+        "FROM person p1 LEFT JOIN household h1 ON p1.HouseholdID=h1.HouseholdID " .
+        "LEFT JOIN percat ON p1.PersonID=percat.PersonID " .
+        "LEFT JOIN category ON percat.CategoryID=category.CategoryID WHERE p1.PersonID IN (SELECT po.PersonID FROM perorg po " .
+        "INNER JOIN person o ON po.OrgID=o.PersonID LEFT JOIN household ON o.HouseholdID=household.HouseholdID";
+    $criterialist .= "<li>" . _("People whose related organizations have the following criteria...");
+    $ptable = "o";
+    $grouptable = "p1";
+    $closing = ")";
+  }
 }
-for ($i=1; isset($_REQUEST["textinput".$i]); $i++) {
-  if ($_REQUEST["textinput".$i] != "") {
-    $search = str_replace("%","\%",h2d($_REQUEST["textinput".$i]));
-    $target = $_REQUEST["texttarget".$i];
-    $not = ($_REQUEST["textinout".$i]=="OUT") ? " NOT" : "";
-    $where .= ($where!=""?" AND":" WHERE");
-    $in = ($not=="") ? _("in") : _("not in");
-    switch($target) {
-    case "Name":
-      $where .= "$not ($ptable.FullName LIKE '%".$search."%' OR $ptable.Furigana LIKE '%".$search."%' OR LabelName LIKE '%".$search."%')";
-      if ($_SESSION['furiganaisromaji']) {
-        $criterialist .= "<li>".sprintf(_("\"%s\" $in Name, Romaji, or Label"), $search)."</li>\n";
-      } else {
-        $criterialist .= "<li>".sprintf(_("\"%s\" $in Name, Furigana, or Label"), $search)."</li>\n";
-      }
-      break;
-    case "Address":
-      $where .= "$not household.AddressComp LIKE '%".$search."%' "
-      .($_SESSION['romajiaddresses']=="yes" ? "OR household.RomajiAddressComp LIKE '%".$search."%'" : "");
-      $criterialist .= "<li>".sprintf(_("\"%s\" $in Address"), $search)."</li>\n";
-      break;
-    case "Phone":
-      $where .= "$not (household.Phone LIKE '%".$search."%' OR $ptable.CellPhone LIKE '%".$search."%' OR FAX LIKE '%".$search."%')";
-      $criterialist .= "<li>".sprintf(_("\"%s\" $in Phone or FAX"), $search)."</li>\n";
-      break;
-    case "PersonID":
-      $where .= "$not ($ptable.PersonID = ".$search.")";
-      $criterialist .= "<li>".sprintf(_("\"%s\" $in Phone or FAX"), $search)."</li>\n";
-      break;
-    default:
-      $where .= "$not ($ptable.$target LIKE '%".$search."%')";
-      $criterialist .= "<li>".sprintf(_("\"%s\" $in %s"), $search, _($target))."</li>\n";
+for ($i=1; !empty($_GET['textinput'.$i]); $i++) {
+  $search = str_replace("%","\%",h2d($_GET['textinput'.$i]));
+  $target = empty($_GET['texttarget'.$i]) ? 'Name' : $_GET['texttarget'.$i];
+  $not = (!empty($_GET['textinout'.$i]) && $_GET['textinout'.$i]=="OUT") ? ' NOT' : "";
+  $where .= $where==''?' WHERE ':' AND ';
+  $in = $not ? _('in') : _('not in');
+  switch($target) {
+  case 'Name':
+    $where .= "$not ($ptable.FullName LIKE '%".$search."%' OR $ptable.Furigana LIKE '%".$search."%' OR LabelName LIKE '%".$search."%')";
+    if ($_SESSION['furiganaisromaji']) {
+      $criterialist .= "<li>".sprintf(_("\"%s\" $in Name, Romaji, or Label"), $search)."</li>\n";
+    } else {
+      $criterialist .= "<li>".sprintf(_("\"%s\" $in Name, Furigana, or Label"), $search)."</li>\n";
     }
+    break;
+  case 'Address':
+    $where .= "$not household.AddressComp LIKE '%".$search."%' "
+    .($_SESSION['romajiaddresses']=="yes" ? "OR household.RomajiAddressComp LIKE '%".$search."%'" : "");
+    $criterialist .= "<li>".sprintf(_("\"%s\" $in Address"), $search)."</li>\n";
+    break;
+  case 'Phone':
+    $where .= "$not (household.Phone LIKE '%".$search."%' OR $ptable.CellPhone LIKE '%".$search."%' OR FAX LIKE '%".$search."%')";
+    $criterialist .= "<li>".sprintf(_("\"%s\" $in Phone or FAX"), $search)."</li>\n";
+    break;
+  case 'PersonID':
+    $where .= "$not ($ptable.PersonID = ".$search.")";
+    $criterialist .= "<li>".sprintf(_("\"%s\" $in Phone or FAX"), $search)."</li>\n";
+    break;
+  default:
+    $where .= "$not ($ptable.$target LIKE '%".$search."%')";
+    $criterialist .= "<li>".sprintf(_("\"%s\" $in %s"), $search, _($target))."</li>\n";
   }
 }
 
-for ($i=1; isset($_REQUEST["catselect".$i]); $i++) {
-  $cats = implode(",",$_REQUEST["catselect".$i]);
-  $not = ($_REQUEST["catinout".$i]=="OUT") ? " NOT" : "";
-  $where .= ($where!=""?" AND":" WHERE")." $not ($ptable.PersonID IN (SELECT PersonID FROM percat WHERE CategoryID IN ($cats)))";
+for ($i=1; !empty($_GET['catselect'.$i]); $i++) {
+  $cats = implode(',',$_GET['catselect'.$i]);
+  $not = ($_GET['catinout'.$i]=='OUT') ? ' NOT' : '';
+  $where .= ($where==''?' WHERE ':' AND ')." $not ($ptable.PersonID IN (SELECT PersonID FROM percat WHERE CategoryID IN ($cats)))";
   $result = sqlquery_checked("SELECT Category FROM category WHERE CategoryID IN ($cats) ORDER BY Category");
-  $catnames = "";
+  $catnames = '';
   while ($row = mysqli_fetch_object($result)) {
-    $catnames .= d2h($row->Category).", ";
+    $catnames .= d2h($row->Category).', ';
   }
   if ($not) {
-    $criterialist .= "<li>".sprintf(_("In none of these categories: %s"), mb_substr($catnames,0,mb_strlen($catnames)-2))."</li>\n";
+    $criterialist .= '<li>'.sprintf(_('In none of these categories: %s'), mb_substr($catnames,0,mb_strlen($catnames)-2))."</li>\n";
   } else {
-    $criterialist .= "<li>".sprintf(_("In at least one of these categories: %s"), mb_substr($catnames,0,mb_strlen($catnames)-2))."</li>\n";
+    $criterialist .= '<li>'.sprintf(_('In at least one of these categories: %s'), mb_substr($catnames,0,mb_strlen($catnames)-2))."</li>\n";
   }
 }
 
-for ($i=1; isset($_REQUEST["ctselect".$i]); $i++) {
-  $cts = implode(",",$_REQUEST["ctselect".$i]);
-  $not = ($_REQUEST["actioninout".$i]=="OUT") ? " NOT" : "";
-  $where .= ($where!=""?" AND":" WHERE")." $not ($ptable.PersonID IN (SELECT PersonID FROM action WHERE ActionTypeID IN ($cts)";
-  if (!empty($_REQUEST["ctstartdate".$i])) $where .= " AND ActionDate >= '".$_REQUEST["ctstartdate".$i]."'";
-  if (!empty($_REQUEST["ctenddate".$i])) $where .= " AND ActionDate <= '".$_REQUEST["ctenddate".$i]."'";
-  $where .= "))";
+for ($i=1; !empty($_GET['ctselect'.$i]); $i++) {
+  $cts = implode(',',$_GET['ctselect'.$i]);
+  $not = ($_GET['actioninout'.$i]=="OUT") ? " NOT" : "";
+  $where .= ($where==''?' WHERE ':' AND ')." $not ($ptable.PersonID IN (SELECT PersonID FROM action WHERE ActionTypeID IN ($cts)";
+  if (!empty($_GET['ctstartdate'.$i])) $where .= " AND ActionDate >= '".$_GET['ctstartdate'.$i]."'";
+  if (!empty($_GET['ctenddate'.$i])) $where .= " AND ActionDate <= '".$_GET['ctenddate'.$i]."'";
+  $where .= '))';
   $result = sqlquery_checked("SELECT ActionType FROM actiontype WHERE ActionTypeID IN ($cts) ORDER BY ActionType");
-  $ctnames = "";
+  $ctnames = '';
   while ($row = mysqli_fetch_object($result)) {
-    $ctnames .= d2h($row->ActionType).", ";
+    $ctnames .= d2h($row->ActionType).', ';
   }
   if ($not) {
-    $criterialist .= "<li>".sprintf(_("Has none of these types of actions: %s"), mb_substr($ctnames,0,mb_strlen($ctnames)-2));
+    $criterialist .= '<li>'.sprintf(_('Has none of these types of actions: %s'), mb_substr($ctnames,0,mb_strlen($ctnames)-2));
   } else {
-    $criterialist .= "<li>".sprintf(_("Has at least one of these types of actions: %s"), mb_substr($ctnames,0,mb_strlen($ctnames)-2));
+    $criterialist .= '<li>'.sprintf(_('Has at least one of these types of actions: %s'), mb_substr($ctnames,0,mb_strlen($ctnames)-2));
   }
-  if (!empty($_REQUEST["ctstartdate".$i]) && !empty($_REQUEST["ctenddate".$i])) $criterialist .= sprintf(_(", between %s and %s"),$_REQUEST["ctstartdate".$i],$_REQUEST["ctenddate".$i]);
-  elseif (!empty($_REQUEST["ctstartdate".$i])) $criterialist .= sprintf(_(", on or after %s"),$_REQUEST["ctstartdate".$i]);
-  elseif (!empty($_REQUEST["ctenddate".$i])) $criterialist .= sprintf(_(", on or before %s"),$_REQUEST["ctenddate".$i]);
+  if (!empty($_GET['ctstartdate'.$i]) && !empty($_GET['ctenddate'.$i])) $criterialist .= sprintf(_(', between %s and %s'),$_GET['ctstartdate'.$i],$_GET['ctenddate'.$i]);
+  elseif (!empty($_GET['ctstartdate'.$i])) $criterialist .= sprintf(_(', on or after %s'),$_GET['ctstartdate'.$i]);
+  elseif (!empty($_GET['ctenddate'.$i])) $criterialist .= sprintf(_(', on or before %s'),$_GET['ctenddate'.$i]);
   $criterialist .= "</li>\n";
 }
 
-for ($i=1; isset($_REQUEST["seqctqual".$i]) && isset($_REQUEST["seqctelim".$i]); $i++) {
-  $qualcts = implode(",",$_REQUEST["seqctqual".$i]);
-  $elimcts = implode(",",$_REQUEST["seqctelim".$i]);
-  $minmax = ($_REQUEST["seqorder".$i]=="AFTER") ? "MAX" : "MIN";
-  /*$join = " INNER JOIN (SELECT PersonID,ActionTypeID,$minmax(ActionDate) FROM action".
-  " WHERE ActionTypeID IN ($qualcts,$elimcts) GROUP BY PersonID) AS seq ON person.PersonID=seq.PersonID";
-  $where .= ($where!=""?" AND":" WHERE")." seq.ActionTypeID IN ($qualcts)";*/
-  $operator = ($_REQUEST["seqorder".$i]=="AFTER") ? ">" : "<";
+for ($i=1; isset($_GET['seqctqual'.$i]) && isset($_GET['seqctelim'.$i]); $i++) {
+  $qualcts = implode(',',$_GET['seqctqual'.$i]);
+  $elimcts = implode(',',$_GET['seqctelim'.$i]);
+  $minmax = ($_GET['seqorder'.$i]=='AFTER') ? 'MAX' : 'MIN';
+  $operator = ($_GET["seqorder".$i]=="AFTER") ? ">" : "<";
   $join = " inner join (select pq.PersonID,$minmax(ActionDate) as qualdate from person pq".
   " inner join action aq on pq.PersonID = aq.PersonID where aq.ActionTypeID in ($qualcts) group by pq.PersonID) qual".
   " on $ptable.PersonID=qual.PersonID left outer join (select pe.personID,$minmax(ActionDate) as elimdate from person pe".
   " inner join action ae on pe.PersonID = ae.PersonID where ae.ActionTypeID in ($elimcts) group by pe.PersonID) elim".
   " on qual.PersonID=elim.PersonID";
-  $where .= ($where!=""?" AND":" WHERE")." (elim.elimdate is null or qual.qualdate $operator elim.elimdate)";
+  $where .= ($where==''?' WHERE ':' AND ')." (elim.elimdate is null or qual.qualdate $operator elim.elimdate)";
   $result = sqlquery_checked("SELECT ActionType FROM actiontype WHERE ActionTypeID IN ($qualcts) ORDER BY ActionType");
   $ctqualnames = "";
   while ($row = mysqli_fetch_object($result)) {
     $ctqualnames .= d2h($row->ActionType).", ";
   }
   $result = sqlquery_checked("SELECT ActionType FROM actiontype WHERE ActionTypeID IN ($elimcts) ORDER BY ActionType");
-  $ctelimnames = "";
+  $ctelimnames = '';
   while ($row = mysqli_fetch_object($result)) {
-    $ctelimnames .= d2h($row->ActionType).", ";
+    $ctelimnames .= d2h($row->ActionType).', ';
   }
-  if ($_REQUEST["seqorder".$i]=="AFTER") {
-    $criterialist .= "<li>".sprintf(_("Has at least one action of type(s) [%s] and none later of type(s) [%s]"),
+  if ($_GET['seqorder'.$i]=='AFTER') {
+    $criterialist .= '<li>'.sprintf(_('Has at least one action of type(s) [%s] and none later of type(s) [%s]'),
     mb_substr($ctqualnames,0,mb_strlen($ctqualnames)-2), mb_substr($ctelimnames,0,mb_strlen($ctelimnames)-2))."</li>\n";
   } else {
-    $criterialist .= "<li>".sprintf(_("Has at least one action of type(s) [%s] and none earlier of type(s) [%s]"),
+    $criterialist .= '<li>'.sprintf(_('Has at least one action of type(s) [%s] and none earlier of type(s) [%s]'),
     mb_substr($ctqualnames,0,mb_strlen($ctqualnames)-2), mb_substr($ctelimnames,0,mb_strlen($ctelimnames)-2))."</li>\n";
   }
 }
 
-for ($i=1; isset($_REQUEST["dtselect".$i]); $i++) {
-  $dts = implode(",",$_REQUEST["dtselect".$i]);
-  $not = ($_REQUEST["donationinout".$i]=="OUT") ? " NOT" : "";
-  $where .= ($where!=""?" AND":" WHERE")." $not ($ptable.PersonID IN (SELECT PersonID FROM donation WHERE DonationTypeID IN ($dts)";
-  if ($_REQUEST["dtstartdate".$i]) $where .= " AND DonationDate >= '".$_REQUEST["dtstartdate".$i]."'";
-  if ($_REQUEST["dtenddate".$i]) $where .= " AND DonationDate <= '".$_REQUEST["dtenddate".$i]."'";
-  $where .= "))";
+for ($i=1; isset($_GET['dtselect'.$i]); $i++) {
+  $dts = implode(',',$_GET['dtselect'.$i]);
+  $not = ($_GET['donationinout'.$i]=="OUT") ? " NOT" : "";
+  $where .= ($where==''?' WHERE ':' AND ')." $not ($ptable.PersonID IN (SELECT PersonID FROM donation WHERE DonationTypeID IN ($dts)";
+  if ($_GET['dtstartdate'.$i]) $where .= " AND DonationDate >= '".$_GET['dtstartdate'.$i]."'";
+  if ($_GET['dtenddate'.$i]) $where .= " AND DonationDate <= '".$_GET['dtenddate'.$i]."'";
+  $where .= '))';
   $result = sqlquery_checked("SELECT DonationType FROM donationtype WHERE DonationTypeID IN ($dts) ORDER BY DonationType");
-  $dtnames = "";
+  $dtnames = '';
   while ($row = mysqli_fetch_object($result)) {
-    $ctnames .= d2h($row->DonationType).", ";
+    $ctnames .= d2h($row->DonationType).', ';
   }
   if ($not) {
-    $criterialist .= "<li>".sprintf(_("Has not donated any of these donation types: %s"), mb_substr($ctnames,0,mb_strlen($dtnames)-2));
+    $criterialist .= '<li>'.sprintf(_('Has not donated any of these donation types: %s'), mb_substr($ctnames,0,mb_strlen($dtnames)-2));
   } else {
-    $criterialist .= "<li>".sprintf(_("Has donated at least one of these donation types: %s"), mb_substr($ctnames,0,mb_strlen($dtnames)-2));
+    $criterialist .= '<li>'.sprintf(_('Has donated at least one of these donation types: %s'), mb_substr($ctnames,0,mb_strlen($dtnames)-2));
   }
-  if ($_REQUEST["dtstartdate".$i] && $_REQUEST["dtenddate".$i]) $criterialist .= sprintf(_(", between %s and %s"),$_REQUEST["dtstartdate".$i],$_REQUEST["dtenddate".$i]);
-  elseif ($_REQUEST["dtstartdate".$i]) $criterialist .= sprintf(_(", on or after %s"),$_REQUEST["dtstartdate".$i]);
-  elseif ($_REQUEST["dtenddate".$i]) $criterialist .= sprintf(_(", on or before %s"),$_REQUEST["dtenddate".$i]);
+  if ($_GET['dtstartdate'.$i] && $_GET['dtenddate'.$i]) $criterialist .= sprintf(_(', between %s and %s'),$_GET['dtstartdate'.$i],$_GET['dtenddate'.$i]);
+  elseif ($_GET['dtstartdate'.$i]) $criterialist .= sprintf(_(', on or after %s'),$_GET["dtstartdate".$i]);
+  elseif ($_GET['dtenddate'.$i]) $criterialist .= sprintf(_(', on or before %s'),$_GET["dtenddate".$i]);
   $criterialist .= "</li>\n";
 }
 
-for ($i=1; isset($_REQUEST["eventselect".$i]); $i++) {
-  $events = implode(",",$_REQUEST['eventselect'.$i]);
-  $not = ($_REQUEST["attendinout".$i]=="OUT") ? " NOT" : "";
-  $where .= ($where!=""?" AND":" WHERE")." $not ($ptable.PersonID IN (SELECT PersonID FROM attendance WHERE EventID IN ($events)";
-  if ($_REQUEST["astartdate".$i]) $where .= " AND AttendDate >= '".$_REQUEST["astartdate".$i]."'";
-  if ($_REQUEST["aenddate".$i]) $where .= " AND AttendDate <= '".$_REQUEST["aenddate".$i]."'";
-  $where .= "))";
+for ($i=1; isset($_GET['eventselect'.$i]); $i++) {
+  $events = implode(',',$_GET['eventselect'.$i]);
+  $not = ($_GET['attendinout'.$i]=='OUT') ? ' NOT' : '';
+  $where .= ($where==''?' WHERE ':' AND ')." $not ($ptable.PersonID IN (SELECT PersonID FROM attendance WHERE EventID IN ($events)";
+  if ($_GET['astartdate'.$i]) $where .= " AND AttendDate >= '".$_GET['astartdate'.$i]."'";
+  if ($_GET['aenddate'.$i]) $where .= " AND AttendDate <= '".$_GET['aenddate'.$i]."'";
+  $where .= '))';
   $result = sqlquery_checked("SELECT Event FROM event WHERE EventID IN ($events) ORDER BY Event");
   $eventnames = "";
   while ($row = mysqli_fetch_object($result)) {
     $eventnames .= d2h($row->Event).", ";
   }
   if ($not) {
-    $criterialist .= "<li>".sprintf(_("Has not attended any of these events: %s"), mb_substr($eventnames,0,mb_strlen($eventnames)-2));
+    $criterialist .= '<li>'.sprintf(_('Has not attended any of these events: %s'), mb_substr($eventnames,0,mb_strlen($eventnames)-2));
   } else {
-    $criterialist .= "<li>".sprintf(_("Has attended one or more of these events: %s"), mb_substr($eventnames,0,mb_strlen($eventnames)-2));
+    $criterialist .= '<li>'.sprintf(_('Has attended one or more of these events: %s'), mb_substr($eventnames,0,mb_strlen($eventnames)-2));
   }
-  if ($_REQUEST["astartdate".$i] && $_REQUEST["aenddate".$i]) $criterialist .= sprintf(_(", between %s and %s"),$_REQUEST["astartdate".$i],$_REQUEST["aenddate".$i]);
-  elseif ($_REQUEST["astartdate".$i]) $criterialist .= sprintf(_(", on or after %s"),$_REQUEST["astartdate".$i]);
-  elseif ($_REQUEST["aenddate".$i]) $criterialist .= sprintf(_(", on or before %s"),$_REQUEST["aenddate".$i]);
+  if ($_GET['astartdate'.$i] && $_GET['aenddate'.$i]) $criterialist .= sprintf(_(', between %s and %s'),$_GET['astartdate'.$i],$_GET['aenddate'.$i]);
+  elseif ($_GET['astartdate'.$i]) $criterialist .= sprintf(_(', on or after %s'),$_GET['astartdate'.$i]);
+  elseif ($_GET['aenddate'.$i]) $criterialist .= sprintf(_(', on or before %s'),$_GET['aenddate'.$i]);
   $criterialist .= "</li>\n";
 }
 
-for ($i=1; isset($_REQUEST["blanktarget".$i]); $i++) {
-  if ($_REQUEST["blanktarget".$i] != "") {
-    $target = $_REQUEST["blanktarget".$i];
-    $not = ($_REQUEST["blankinout".$i]=="OUT") ? " NOT" : "";
-    $where .= ($where!=""?" AND":" WHERE");
+for ($i=1; isset($_GET['blanktarget'.$i]); $i++) {
+  if ($_GET['blanktarget'.$i] != '') {
+    $target = $_GET['blanktarget'.$i];
+    $not = ($_GET['blankinout'.$i]=='OUT') ? ' NOT' : '';
+    $where .= $where==''?' WHERE ':' AND ';
     switch($target) {
-    case "Birthdate":
+    case 'Birthdate':
       $where .= "$not $ptable.$target='0000-00-00'";
       break;
-    case "Address":
-    case "LabelName":
-    case "Phone":
-    case "FAX":
+    case 'Address':
+    case 'LabelName':
+    case 'Phone':
+    case 'FAX':
       $where .= "$not $target=''";
       break;
     default:
       $where .= "$not ($ptable.$target = '')";
     }
     if ($not) {
-      $criterialist .= "<li>".sprintf(_("\"%s\" is not blank"), _($target))."</li>\n";
+      $criterialist .= '<li>'.sprintf(_('"%s" is not blank'), _($target))."</li>\n";
     } else {
-      $criterialist .= "<li>".sprintf(_("\"%s\" is blank"), _($target))."</li>\n";
+      $criterialist .= '<li>'.sprintf(_('"%s" is blank'), _($target))."</li>\n";
     }
   }
 }
 
-if ($_REQUEST['freesql'] != "") {
-  $where .= ($where!=""?" AND ":" WHERE ").$_REQUEST['freesql'];
-  $criterialist .= "<li>".$_REQUEST['freesql']."</li>\n";
+if (!empty($_GET['freesql'])) {
+  $where .= ($where==''?' WHERE ':' AND ').$_GET['freesql'];
+  $criterialist .= "<li>".$_GET['freesql']."</li>\n";
 }
 
-if (isset($_GET['ps'])) {
-  list($psid,$psnum) = explode(":",$_GET['ps']);
+if (!empty($_GET['bucket']) && $_SESSION['bucket']) {
+  $preselected = implode(',',$_SESSION['bucket']);
+  $psnum = count($_GET['bucket']);
+} elseif (isset($_GET['ps'])) {  //deprecated
+  list($psid,$psnum) = explode(':',$_GET['ps']);
   $tempres = sqlquery_checked("SELECT Pids FROM preselect WHERE PSID='$psid'");
   $psobj = mysqli_fetch_object($tempres);
-  if ($psobj && $psobj->Pids!="") $preselected = $psobj->Pids;
-} else if (isset($_REQUEST['preselected']) && $_REQUEST['preselected']!="") {
-  $preselected = $_REQUEST['preselected'];
-  $psnum = substr_count($preselected,",")+1;
+  if ($psobj && $psobj->Pids!='') $preselected = $psobj->Pids;
+} elseif (isset($_GET['preselected']) && $_GET['preselected']!="") {  //deprecated
+  $preselected = $_GET['preselected'];
+  $psnum = substr_count($preselected,',')+1;
 }
+
 if (isset($preselected) && $preselected != '') {
-  $where .= ($where!=""?" AND ":" WHERE ")."$grouptable.PersonID IN ($preselected)";
-  $criterialist .= "<li>".sprintf(_(" (%d People/Orgs Pre-selected)"),$psnum)."</li>\n";
+  $where .= ($where==''?' WHERE ':' AND ').$grouptable.'.PersonID IN ('.implode(',',$_SESSION['bucket']).')';
+  $criterialist .= '<li>'.sprintf(_(' (%d People/Orgs Pre-selected)'),$psnum)."</li>\n";
 }
 
 $sql .= $join . $where . $closing . " GROUP BY $grouptable.PersonID ORDER BY Furigana";
-$criterialist .= "</ul>";
+$criterialist .= "</ul>\n";
 
 if (!$result = mysqli_query($db, $sql)) {
-  header1(_("Error"));
+  header1(_('Error'));
   echo '<link rel="stylesheet" href="style.php" type="text/css" />';
   header2(1);
-  echo $test;
   echo $criterialist;
   echo "<div style=\"border: 2px solid darkred;background-color:#ffe0e0;color:darkred;padding-left:5px;margin:20px 0;\">$sql</div>";
   echo "<div style=\"font-weight:bold;margin:10px 0\">The query had an error:<br>".mysqli_errno($db).": ".mysqli_error($db)."</div>";
@@ -307,36 +307,34 @@ $tableheads .= "</th>\n";
 <link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />
 <?php
 header2(1);
-echo "<h3>".sprintf(_("%d results of these criteria:"),mysqli_num_rows($result)).(!empty($_REQUEST['countonly']) ? "&nbsp;&nbsp;&nbsp;<a href=\"".
+?>
+<div style="float:left; vertical-align:bottom">
+<?php
+echo "<h3>".sprintf(_("%d results of these criteria:"),mysqli_num_rows($result)).(!empty($_GET['countonly']) ? "&nbsp;&nbsp;&nbsp;<a href=\"".
 str_replace("countonly=yes","countonly=",$_SERVER['REQUEST_URI'])."\">"._("(Show results)")."</a>" : "")."</h3>\n";
 echo $criterialist;
-
-$psid = uniqid();
 ?>
-<div id="actions">
-  <?php if ($_SESSION['userid']=="karen") { ?><a href="multiselect.php?ps=<?=$psid.":".mysqli_num_rows($result)?>"><?=_("Go to Multi-Select with these entries preselected")?></a> (new method)&nbsp;&nbsp;<?php } ?>
-  <form action="multiselect.php" method="post" target="_top">
-  <input type="hidden" id="preselected" name="preselected" value="">
-  <input type="submit" value="<?=_("Go to Multi-Select with these entries preselected")?>">
-  </form>
-<?php if (empty($_REQUEST['countonly'])) {  //can't do CSV if there is no table ?>
+</div>
+<div style="float:right; vertical-align:bottom">
+<?php if (empty($_GET['countonly'])) {  //can't do CSV if there is no table ?>
   <form action="download.php" method="post" target="_top">
   <input type="hidden" id="csvtext" name="csvtext" value="">
   <input type="submit" id="csvfile" name="csvfile" value="<?=_("Download a CSV file of this table")?>" onclick="getCSV();">
   </form>
 <?php } //end if not count only ?>
 </div>
+<div style="clear:both"></div>
 <?php
-$pid_list = '';
-if (!empty($_REQUEST['countonly'])) {  //if count only, just get pids for multi-select
-  while ($row = mysqli_fetch_object($result)) $pid_list .= ",".$row->PersonID;
+$pids = array();
+if (!empty($_GET['countonly'])) {  //if count only, just get pids for multi-select
+  while ($row = mysqli_fetch_object($result)) $pids[] = $row->PersonID;
 } else {  //if not count only, build the whole table
   echo "<table id=\"mainTable\" class=\"tablesorter\"><thead>";
   echo "<tr>";
   echo $tableheads;
   echo "</tr></thead><tbody>\n";
   while ($row = mysqli_fetch_object($result)) {
-    $pid_list .= ",".$row->PersonID;
+    $pids[] = $row->PersonID;
     echo "<tr>";
     echo "<td class=\"personid\">".$row->PersonID."</td>\n";
     echo "<td class=\"name-for-csv\" style=\"display:none\">".readable_name($row->FullName,$row->Furigana)."</td>";
@@ -364,9 +362,8 @@ if (!empty($_REQUEST['countonly'])) {  //if count only, just get pids for multi-
   }
   echo "</tr></tbody></table>\n";
 }
-echo $_SESSION['userid']=="dev"?"<pre class=\"noprint\">".$sql."</pre>":"";
-echo "<div id=\"pids\" style=\"display:none\">".substr($pid_list,1)."</div>\n";
-sqlquery_checked("INSERT INTO preselect(PSID,Pids) VALUES('".$psid."','".substr($pid_list,1)."')");
+echo $_SESSION['userid']=="dev"?"<pre class=\"noprint\">SQL: ".$sql."\n".
+    "PIDS: ".implode(',',$pids)."\nBUCKET: ".implode(',',$_SESSION['bucket'])."</pre>":"";
 ?>
 <script type="text/javascript" src="js/jquery.js"></script>
 <script type="text/javascript" src="js/tablesorter.js"></script>
@@ -375,7 +372,8 @@ sqlquery_checked("INSERT INTO preselect(PSID,Pids) VALUES('".$psid."','".substr(
 <script type="text/javascript" src="js/jquery.clickmenu.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
-  $("#preselected").val($("#pids").text());
+  $("#preselected").val($("#pids").text());  //to be deprecated
+  $('#pids-for-bucket').val('<?=implode(',',$pids)?>');
   
   $("#mainTable").tablesorter({
     sortList:[[2,0]],

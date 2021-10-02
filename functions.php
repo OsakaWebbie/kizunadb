@@ -46,13 +46,13 @@ function header2($nav=0) {
         </ul>
       </li>
       <li class="hassub">
-        <a href="#"><?=_('Bucket').' (<span class="bucketcount">'.count($_SESSION['bucket']).'</span>)'?> &#x25BC;</a>
+        <a href="#"><?=_('Batch/Bucket').' (<span class="bucketcount">'.count($_SESSION['bucket']).'</span>)'?> &#x25BC;</a>
         <ul class="nav-sub">
-<?=(!empty($_SESSION['bucket']) ? '          <li><a class="bucket-list" href="#">'._('List Bucket Contents').'</a></li>' : '')?>
-          <li><a class="ajaxlink bucket-set" href="#"><?=_('Put in Bucket')?></a></li>
-<?=(!empty($_SESSION['bucket']) ? '          <li><a class="ajaxlink bucket-add" href="#">'._('Add to Existing Bucket').'</a></li>' : '')?>
+          <li class="bucket-list"><a class="bucket-list" href="list.php?bucket=1"><?=_('List Bucket contents')?></a></li>
           <li><a href="multiselect.php" target="_top"><?=_('Multi-Select').'/'._('Batch')?></a></li>
-          <li><a class="ajaxlink bucket-empty" href="#"><?=_('Empty Bucket')?></a></li>
+          <li class="bucket-set"><a class="ajaxlink bucket-set" href="#"><?=_('Set Bucket to these results')?></a></li>
+          <li class="bucket-add"><a class="ajaxlink bucket-add" href="#"><?=_('Add to existing Bucket')?></a></li>
+          <li class="bucket-empty"><a class="ajaxlink bucket-empty" href="#" onclick="bucketEmpty();"><?=_('Empty the Bucket')?></a></li>
         </ul>
       </li>
       <li><a href="db_settings.php" target="_top"><?=_('DB Settings')?></a></li>
@@ -67,6 +67,26 @@ function header2($nav=0) {
       </li>
     </ul>
   </nav>
+
+  <script type="text/javascript">
+  function bucketEmpty() {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+      if(xhr.readyState === 4 && xhr.status === 200) {  //no error
+        if (!isNaN(xhr.responseText)) {  // return string is a number (expecting 0)
+          var elements = document.getElementsByClassName('bucketcount');
+          [].forEach.call(elements, function (el) { el.innerHTML = xhr.responseText; });
+        } else {
+          alert(xhr.responseText);
+        }
+      }
+    };
+    xhr.open('POST', 'bucket.php');
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhr.send('empty=1');
+  }
+  </script>
+
   <div id="nav-trigger"><img src="graphics/kizunadb-logo.png" alt="Logo"><span>Menu</span></div>
   <nav id="nav-mobile"></nav>
   <input type="hidden" id="pids-for-bucket" value="">
@@ -131,7 +151,8 @@ function footer($nav=0) {
         });
 
         /* event handling for submenus (must be JS because of menu links that don't refresh the page) */
-        $(".hassub").mouseenter(function(){ $("ul",this).show(); }).mouseleave(function(){ $("ul",this).hide(); });
+        $(".hassub").mouseenter(function() { $("ul",this).show(); })
+        .mouseleave(function(){ $("ul",this).hide(); });
 
         $('.ajaxlink').click(function(event) {
           $(this).closest('ul').hide();
@@ -139,36 +160,55 @@ function footer($nav=0) {
           $("#nav-trigger").removeClass("open");
         });
 
-        /* Bucket management */
-        replaceWithWrapper($("#pids-for-bucket")[0], "value", function(obj, property, value) {
-          if ($('#pids-for-bucket').val() === '') {
-            $('#bucket-set, #bucket-add').hide();
-          } else {
-            $('#bucket-set, #bucket-add').show();
-          }
+        /* BUCKET MANAGEMENT */
+
+        function hideshow_bucketmenu() {
+          var bucketempty = ($('span.bucketcount').html() === '0');
+          var pidsempty = ($('#pids-for-bucket').val() === '');
+          $('.bucket-list,.bucket-empty').toggleClass('disabledlink', bucketempty);
+          $('.bucket-set').toggleClass('disabledlink', pidsempty);
+          $('.bucket-add').toggleClass('disabledlink', bucketempty && pidsempty);
+        }
+        hideshow_bucketmenu();  // run it once now to deal with initial status of page
+
+        // To prevent the href=# from scrolling to the top
+        $('.disabledLink').click(function(event) {
+          event.preventDefault();
         });
+
+        // When the bucketizable list of PIDs changes, make sure the menu reflects the new status
+        $("#pids-for-bucket").change(function() {
+          hideshow_bucketmenu();
+        });
+
+        // Make the bucket contain only the new PIDs (any previous contents are replaced)
         $('.bucket-set').click(function(event) {
-          event.preventDefault();
+          //event.preventDefault();
           $.post("bucket.php", { set:$('#pids-for-bucket').val() }, function(r) {
-              if (!isNaN(r)) { $('span.bucketcount').html(r); }
-              else { alert(r); }
-          }, "text");
-        });
-        $('.bucket-add').click(function(event) {
-          event.preventDefault();
-          $.post("bucket.php", { add:$('#pids-for-bucket').val() }, function(r) {
-            if (!isNaN(r)) { $('span.bucketcount').html(r); }
+            if (!isNaN(r)) {
+              $('span.bucketcount').html(r);
+              hideshow_bucketmenu();
+            }
             else { alert(r); }
           }, "text");
         });
-        $('.bucket-empty').click(function(event) {
+
+        // Add the new PIDs to the bucket contents
+        $('.bucket-add').click(function(event) {
+          //event.preventDefault();
+          $.post("bucket.php", { add:$('#pids-for-bucket').val() }, function(r) {
+            if (!isNaN(r)) $('span.bucketcount').html(r); else alert(r);
+          }, "text");
+        });
+        /*$('.bucket-empty').click(function(event) {
           event.preventDefault();
           $.post("bucket.php", { empty:"1" }, function(r) {
             if (!isNaN(r)) { $('span.bucketcount').html(r); }
             else { alert(r); }
           }, "text");
-        });
+        });*/
 
+      /* ANNOUNCEMENTS OF NEW FEATURES OR MAJOR CHANGES */
       <?php if (isset($_SESSION['announcements'])) { ?>
         $('#announcements').dialog({
             modal: true,
