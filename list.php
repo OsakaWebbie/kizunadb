@@ -11,7 +11,14 @@ $sql .= "FROM person LEFT JOIN household ON person.HouseholdID=household.Househo
 $join = $where = "";
 $ptable = $grouptable = "person";
 $closing = '';
-
+if (!empty($_GET['qs'])) {
+  $where .= " WHERE person.FullName LIKE '%".$_GET['qs']."%' OR person.Furigana LIKE '%".$_GET['qs']."%'".
+      " OR person.Email LIKE '%".$_GET['qs']."%' OR person.CellPhone LIKE '%".$_GET['qs']."%'".
+      " OR person.Country LIKE '%".$_GET['qs']."%' OR person.URL LIKE '%".$_GET['qs']."%'".
+      " OR person.Remarks LIKE '%".$_GET['qs']."%' OR person.Birthdate LIKE '%".$_GET['qs']."%'".
+      " OR household.AddressComp LIKE '%".$_GET['qs']."%' OR household.RomajiAddressComp LIKE '%".$_GET['qs']."%'".
+      " OR household.Phone LIKE '%".$_GET['qs']."%' OR household.LabelName LIKE '%".$_GET['qs']."%'";
+}
 if (!empty($_GET['filter'])) {
   if ($_GET['filter'] == "Organizations") {
     $where .= " WHERE Organization>0";
@@ -222,21 +229,8 @@ if (!empty($_GET['freesql'])) {
 }
 
 if (!empty($_GET['bucket']) && $_SESSION['bucket']) {
-  $preselected = implode(',',$_SESSION['bucket']);
-  $psnum = count($_GET['bucket']);
-} elseif (isset($_GET['ps'])) {  //deprecated
-  list($psid,$psnum) = explode(':',$_GET['ps']);
-  $tempres = sqlquery_checked("SELECT Pids FROM preselect WHERE PSID='$psid'");
-  $psobj = mysqli_fetch_object($tempres);
-  if ($psobj && $psobj->Pids!='') $preselected = $psobj->Pids;
-} elseif (isset($_GET['preselected']) && $_GET['preselected']!="") {  //deprecated
-  $preselected = $_GET['preselected'];
-  $psnum = substr_count($preselected,',')+1;
-}
-
-if (isset($preselected) && $preselected != '') {
   $where .= ($where==''?' WHERE ':' AND ').$grouptable.'.PersonID IN ('.implode(',',$_SESSION['bucket']).')';
-  $criterialist .= '<li>'.sprintf(_(' (%d People/Orgs Pre-selected)'),$psnum)."</li>\n";
+  $criterialist .= '<li>'._('In the Bucket')."</li>\n";
 }
 
 $sql .= $join . $where . $closing . " GROUP BY $grouptable.PersonID ORDER BY Furigana";
@@ -253,7 +247,7 @@ if (!$result = mysqli_query($db, $sql)) {
 }
 
 if (mysqli_num_rows($result) == 0) {
-  header("Location: search.php?text=".urlencode(_("Search resulted in no records.".($_SESSION['userid']=="karen"?urlencode("<pre>".$sql."</pre>"):""))));
+  header("Location: search.php?text=".urlencode(_("Search resulted in no records.".($_SESSION['userid']=="dev"?urlencode("<pre>".$sql."</pre>"):""))));
   exit;
 } elseif (mysqli_num_rows($result) == 1) {
   $person = mysqli_fetch_object($result);

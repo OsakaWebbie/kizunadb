@@ -273,7 +273,6 @@ if (!$summary) {
   }
   $result = sqlquery_checked($sql);
 }
-//if ($_SESSION['userid']=="karen") echo "<p>".$sql."</p>";
 
 if (!$summary) {
   echo "<h3>".sprintf(_("%d results of these criteria:"),mysqli_num_rows($result))."</h3>\n";

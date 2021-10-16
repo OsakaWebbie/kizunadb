@@ -28,7 +28,8 @@ function header2($nav=0) {
   <nav id="nav-main">
     <ul class="nav">
       <?=(!empty($_SESSION['hasdashboard']) ? '<li><a href="dashboard.php" target="_top">'._('Dashboard').'</a></li>' : '')?>
-      <li><form action="list.php"><input name="textinput1" placeholder="<?=_('(quick search)')?>" style="width:7em;vertical-align:baseline"></form></li>
+      <li class="not-on-scroll"><form action="list.php" style="display:inline"><input class="qs-text" name="qs" maxlength="30" placeholder="<?=_('(quick search)')?>"
+          style="width:7em;vertical-align:baseline" autofocus></form>(<span class="qs-hits">-</span>)</li>
       <li class="hassub">
         <a href="#"><?=_('People/Orgs')?> &#x25BC;</a>
         <ul class="nav-sub">
@@ -128,6 +129,8 @@ function footer($nav=0) {
 
         $("#nav-mobile").html($("#nav-main").html());
         $("#scrollnav").html($("#nav-main").html());
+        $("#nav-mobile li.not-on-scroll").remove();
+        $("#scrollnav li.not-on-scroll").remove();
 
         $("#nav-trigger").click(function(){
           if ($("nav#nav-mobile ul").hasClass("expanded")) {
@@ -160,16 +163,33 @@ function footer($nav=0) {
           $("#nav-trigger").removeClass("open");
         });
 
+        /* QUICK SEARCH */
+        var timeoutID = null;  //using setTimeout to only send after user pauses typing slightly
+        $(".qs-text").keyup(function() {
+          if ($(this).val().length > 2) {
+            if (timeoutID != null) clearTimeout(timeoutID);
+            timeoutID = setTimeout(function() { $.get("ajax_request.php?req=Quicksearch&qs="+encodeURIComponent($(".qs-text").val()), function(data) {
+              if (data.alert === "NOSESSION") {
+                alert("<?=_("Your login has timed out - please refresh the page.")?>");
+              } else {
+                $('.qs-hits').text(data);
+              }
+            }); },300);
+          } else {
+            $('.qs-hits').text('-');
+          }
+        });
+
         /* BUCKET MANAGEMENT */
 
-        function hideshow_bucketmenu() {
+        function hideshow_bucket_commands() {
           var bucketempty = ($('span.bucketcount').html() === '0');
           var pidsempty = ($('#pids-for-bucket').val() === '');
           $('.bucket-list,.bucket-empty').toggleClass('disabledlink', bucketempty);
           $('.bucket-set').toggleClass('disabledlink', pidsempty);
           $('.bucket-add').toggleClass('disabledlink', bucketempty && pidsempty);
         }
-        hideshow_bucketmenu();  // run it once now to deal with initial status of page
+        hideshow_bucket_commands();  // run it once now to deal with initial status of page
 
         // To prevent the href=# from scrolling to the top
         $('.disabledLink').click(function(event) {
@@ -178,7 +198,7 @@ function footer($nav=0) {
 
         // When the bucketizable list of PIDs changes, make sure the menu reflects the new status
         $("#pids-for-bucket").change(function() {
-          hideshow_bucketmenu();
+          hideshow_bucket_commands();
         });
 
         // Make the bucket contain only the new PIDs (any previous contents are replaced)
@@ -187,7 +207,7 @@ function footer($nav=0) {
           $.post("bucket.php", { set:$('#pids-for-bucket').val() }, function(r) {
             if (!isNaN(r)) {
               $('span.bucketcount').html(r);
-              hideshow_bucketmenu();
+              hideshow_bucket_commands();
             }
             else { alert(r); }
           }, "text");
@@ -200,13 +220,14 @@ function footer($nav=0) {
             if (!isNaN(r)) $('span.bucketcount').html(r); else alert(r);
           }, "text");
         });
-        /*$('.bucket-empty').click(function(event) {
-          event.preventDefault();
-          $.post("bucket.php", { empty:"1" }, function(r) {
-            if (!isNaN(r)) { $('span.bucketcount').html(r); }
-            else { alert(r); }
+
+        // Remove the new PIDs from the existing bucket contents
+        $('.bucket-del').click(function(event) {
+          //event.preventDefault();
+          $.post("bucket.php", { add:$('#pids-for-bucket').val() }, function(r) {
+            if (!isNaN(r)) $('span.bucketcount').html(r); else alert(r);
           }, "text");
-        });*/
+        });
 
       /* ANNOUNCEMENTS OF NEW FEATURES OR MAJOR CHANGES */
       <?php if (isset($_SESSION['announcements'])) { ?>
@@ -253,7 +274,7 @@ function footer($nav=0) {
 function print_header($title,$color,$nav) {
   header1($title);
   header2($nav);
-  echo "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\" bgcolor=\"white\"><tr><td>";
+  echo "<table><tr><td>";
 }
 
 //DEPRECATED
@@ -262,12 +283,52 @@ function print_footer() {
   footer();
 }
 
+/*** LOAD SCRIPTS - common location for version #, and makes sure only loaded once ***/
+/*** pass array of script name roots ***/
+function load_scripts($scripts) {
+  foreach ($scripts as $script) {
+    if (!empty($loaded[$script])) {
+      switch ($script) {
+        case 'jquery':
+          echo '<script type="text/JavaScript" src="js/jquery-3.6.0.js"></script>'."\n";
+          break;
+        case 'jqueryui':
+          echo '<script type="text/JavaScript" src="js/jquery-ui.js"></script>'."\n";
+          break;
+        case 'tablesorter':
+          echo '<script type="text/JavaScript" src="js/jquery.tablesorter.js"></script>'."\n";
+          break;
+        case 'table2csv':
+          echo '<script type="text/JavaScript" src="js/table2CSV.js"></script>'."\n";
+          break;
+        case 'timepicker':
+          echo '<script type="text/JavaScript" src="js/jquery.ui.timepicker.js"></script>'."\n";
+          break;
+        case 'readmore':
+          echo '<script type="text/JavaScript" src="js/jquery.readmore.js"></script>'."\n";
+          break;
+        case 'expanding':
+          echo '<script type="text/JavaScript" src="js/expanding.js"></script>'."\n";
+          break;
+      }
+      $loaded[$script] = 1;
+    }
+  }
+}
+
+function load_jqueryui() {
+  if (!empty($jqueryui_loaded)) {
+    echo '<script type="text/JavaScript" src="js/jquery.js"></script>'."\n";
+    $jqueryui_loaded = 1;
+  }
+}
+
 // function sqlquery_checked: shorten the repeated checks for SQL errors
 function sqlquery_checked($sql) {
   global $db;
   $result = mysqli_query($db, $sql);
   if ($result === false ){
-     die("<pre style=\"font-size:15px;\"><strong>SQL Error in file ".$_SERVER['PHP_SELF'].": ".mysqli_error($db)."</strong><br>$sql</pre>");
+     die('<xmp style="white-space:pre-wrap;font-size:15px;font-weight:bold">SQL Error in file '.$_SERVER['PHP_SELF'].': '.mysqli_error($db).'</xmp><xmp style="white-space:pre-wrap">'.$sql.'</xmp>');
   }
   return $result;
 }

@@ -19,8 +19,7 @@ while ($row = mysqli_fetch_object($result)) {
 
 <h1 id="title"><?=_("Donations & Pledges").(isset($_POST['pid_list']) ? sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($_POST['pid_list'],",")+1) : "")?></h1>
 <form id="dform" method="get">
-<input type="hidden" name="preselected" value="<?=isset($_POST['pid_list'])?$_POST['pid_list']:""?>">
-<fieldset><legend><?=_("Donations")?></legend>
+<fieldset><legend><?=_('Search Criteria').' ('._('optional').')'?></legend>
   <div id="typefilter">
     <label><?=_("Donation Types")?>: </label>
     <select id="dtselect" name="dtype[]" multiple="multiple" size="1">
@@ -49,37 +48,40 @@ while ($row = mysqli_fetch_object($result)) {
     "<input type=\"radio\" name=\"cutofftype\" value=\"=\">",
     "￥<input type=\"text\" name=\"cutoff\" style=\"width:6em\">")?></span>
   </div>
-  <div class="actions">
-    <span class="actiontypes">
-      <label class="proctype"><input type="radio" name="proc" value="" checked><?=_("All donations")?></label>
-      <label class="proctype"><input type="radio" name="proc" value="proc"><?=_("Processed only")?></label>
-      <label class="proctype"><input type="radio" name="proc" value="unproc"><?=_("Unprocessed only")?></label>
-    </span>
-    <span class="actiontypes">
-      <label class="actiontype"><input type="radio" name="listtype" value="Normal" checked><?=_("Continuous List (can sort freely)")?></label>
-      <label class="actiontype"><input type="radio" name="listtype" value="DonationType"><?=_("Group by Donation Type w/ subtotals")?></label>
-      <label class="actiontype"><input type="radio" name="listtype" value="PersonID"><?=_("Group by Person/Org w/ subtotals")?></label>
-      <label class="actiontype" style="margin-left:3em"><input type="checkbox" name="subtotalsort"><?=_("Order groups by subtotal")?></label>
-    </span>
-    <input type="submit" id="show_list" name="show_list" value="<?=_("Donation List")?>" />
-  </div>
-  <div class="actions">
-    <span class="actiontypes">
-      <label class="actiontype"><input type="radio" name="summarytype" value="DonationType" checked><?=_("By Donation Type")?></label>
-      <span style="display:block"><label class="actiontype" style="display:inline"><input type="radio"
-      name="summarytype" value="PersonID"><?=_("By Person/Org")?></label>
-      <label style="display:inline;margin-left:1em"><?=sprintf(_("(top %s donors)"),"<input type=\"text\" name=\"limit\"".
-      " style=\"width:2em\">")?></label></span>
-    </span>
-    <input type="submit" id="show_summary" name="show_summary" value="<?=_("Donation Summary")?>">
-  </div>
+</fieldset>
+<fieldset><legend><?=_("Donation List")?></legend>
+  <span class="actiontypes">
+    <label class="proctype"><input type="radio" name="proc" value="" checked><?=_("All donations")?></label>
+    <label class="proctype"><input type="radio" name="proc" value="proc"><?=_("Processed only")?></label>
+    <label class="proctype"><input type="radio" name="proc" value="unproc"><?=_("Unprocessed only")?></label>
+  </span>
+  <span class="actiontypes">
+    <label class="actiontype"><input type="radio" name="listtype" value="Normal" checked><?=_("Continuous List (can sort freely)")?></label>
+    <label class="actiontype"><input type="radio" name="listtype" value="DonationType"><?=_("Group by Donation Type w/ subtotals")?></label>
+    <label class="actiontype"><input type="radio" name="listtype" value="PersonID"><?=_("Group by Person/Org w/ subtotals")?></label>
+    <label class="actiontype" style="margin-left:3em"><input type="checkbox" name="subtotalsort"><?=_("Order groups by subtotal")?></label>
+  </span>
+  <input type="submit" id="show_don_frame" name="don_frame" value="<?=_("Donation List").' ('._('below').')'?>" formaction="donation_list.php" formtarget="ResultFrame">
+  <input type="submit" id="show_don_tab" name="don_tab" value="<?=_("Donation List").' ('._('new tab').')'?>" formaction="donation_list.php" formtarget="_blank">
+</fieldset>
+<fieldset><legend><?=_("Donation Summary")?></legend>
+  <span class="actiontypes">
+    <label class="actiontype"><input type="radio" name="summarytype" value="DonationType" checked><?=_("By Donation Type")?></label>
+    <span style="display:block"><label class="actiontype" style="display:inline"><input type="radio"
+    name="summarytype" value="PersonID"><?=_("By Person/Org")?></label>
+    <label style="display:inline;margin-left:1em"><?=sprintf(_("(top %s donors)"),"<input type=\"text\" name=\"limit\"".
+    " style=\"width:2em\">")?></label></span>
+  </span>
+  <input type="submit" id="show_summary" name="show_summary" value="<?=_("Donation Summary").' ('._('below').')'?>" formaction="donation_summary.php" formtarget="ResultFrame">
+  <input type="submit" id="show_summary" name="show_summary" value="<?=_("Donation Summary").' ('._('new tab').')'?>" formaction="donation_summary.php" formtarget="_blank">
 </fieldset>
 <fieldset><legend><?=_("Pledges")?></legend>
   <label class="label-n-input"><input type="checkbox" name="closed" value="yes"><?=_("Include closed pledges")?></label>
   <label class="label-n-input"><input type="checkbox" name="psubtotals" value="yes"><?=_("Donation-Type Subtotals")?></label>
-  <input type="submit" id="show_pledges" name="show_p" value="<?=_("Pledge List")?>">
+  <input type="submit" id="show_pledges_frame" name="pledge_frame" value="<?=_("Pledge List").' ('._('below').')'?>" formaction="pledge_list.php" formtarget="ResultFrame">
+  <input type="submit" id="show_pledges_tab" name="pledge_tab" value="<?=_("Pledge List").' ('._('new tab').')'?>" formaction="pledge_list.php" formtarget="_blank">
 </fieldset>
-<p><?=sprintf(_("Show in: %sframe below&nbsp; %snew window"),
+<p><?=sprintf(_("Show: %shere&nbsp; %sin new tab"),
 "<input type=\"radio\" id=\"radio_frame\" name=\"ftarget\" value=\"ResultFrame\" checked>",
 "<input type=\"radio\" id=\"radio_window\" name=\"ftarget\" value=\"_blank\">")?></p>
 </form>
@@ -108,16 +110,8 @@ while ($row = mysqli_fetch_object($result)) {
     $('input[name=ftarget]').change(function() {
       $('#dform').attr({target:$('input[name=ftarget]:checked').val()});
     });
-    $("#show_list").click(function(){
-      $('#dform').attr({action:"donation_list<?=($_SESSION['userid']=="karen" && CLIENT=="dev"?"_new":"")?>.php?nav="+(($('input[name=ftarget]:checked').val()=="_blank")?"1":"0")});
-      $('#dform').submit();
-    });
     $("#show_summary").click(function(){
       $('#dform').attr({action:"donation_list<?=($_SESSION['userid']=="karen" && CLIENT=="dev"?"_new":"")?>.php?nav="+(($('input[name=ftarget]:checked').val()=="_blank")?"1":"0")});
-      $('#dform').submit();
-    });
-    $("#show_pledges").click(function(){
-      $('#dform').attr({action:"pledge_list.php?nav="+(($('input[name=ftarget]:checked').val()=="_blank")?"1":"0")});
       $('#dform').submit();
     });
   });
@@ -153,7 +147,7 @@ while ($row = mysqli_fetch_object($result)) {
   }
 
 
-$('#dform').submit(function(e) {
+/*$('#dform').submit(function(e) {
     e.preventDefault(); //prevent default action
     var post_url = $(this).attr("action"); //get form action url
     var form_data = $(this).serialize(); //Encode form elements for submission
@@ -161,7 +155,7 @@ $('#dform').submit(function(e) {
     $.get( post_url, form_data, function( response ) {
       $("#server-results").html( response );
     });
-  });
+  });*/
 </script>
 <?php
 footer();

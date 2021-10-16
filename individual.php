@@ -766,22 +766,22 @@ $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
       "ORDER BY pl.StartDate DESC";
   $result = sqlquery_checked($sql);
   if (mysqli_num_rows($result) == 0) {
-    echo("<p align=\"center\">No pledges. &nbsp; &nbsp; &nbsp;<a href=\"edit_pledge.php?pid=${_GET['pid']}\">"._("Create New Pledge")."</a></p>");
+    echo("<p>No pledges. &nbsp; &nbsp; &nbsp;<a href=\"edit_pledge.php?pid=${_GET['pid']}\">"._("Create New Pledge")."</a></p>");
   } else {
-    echo "<table width=\"100%\" border=\"1\"><thead>\n";
+    echo "<table><thead>\n";
     echo "<tr><th>"._("Type")."</th><th>"._("Description")."</th><th>"._("Amount")."</th><th>"._("Dates")."</th>";
     echo "<th>Balance</th><th></th></tr>\n</thead><tbody>\n";
     while ($row = mysqli_fetch_object($result)) {
       echo "<tr>\n";
-      echo "<td align=\"center\">".$row->DonationType."</td>\n";
-      echo "<td align=\"center\">".db2table($row->PledgeDesc)."</td>\n";
-      echo "<td align=\"center\" nowrap>".$_SESSION['currency_mark']." ".
+      echo "<td>".$row->DonationType."</td>\n";
+      echo "<td>".db2table($row->PledgeDesc)."</td>\n";
+      echo "<td nowrap>".$_SESSION['currency_mark']." ".
           number_format($row->Amount,$_SESSION['currency_decimals']).$period[$row->TimesPerYear]."</td>\n";
-      echo "<td align=\"center\" nowrap>".$row->StartDate."&#xFF5E;".($row->EndDate!='0000-00-00' ? $row->EndDate : "")."</td>\n";
-      echo "<td align=\"center\" nowrap".($row->Balance<0 ? " style=\"color:red\"" : "").">".
+      echo "<td nowrap>".$row->StartDate."&#xFF5E;".($row->EndDate!='0000-00-00' ? $row->EndDate : "")."</td>\n";
+      echo "<td nowrap".($row->Balance<0 ? " style=\"color:red\"" : "").">".
           $_SESSION['currency_mark']." ".number_format($row->Balance,$_SESSION['currency_decimals']).
           (($row->Balance<0 && $row->TimesPerYear>0) ? "<br>(".number_format(((0-$row->Balance)/$row->Amount*12/$row->TimesPerYear),0)." months)" : "")."</td>\n";
-      echo "<td align=\"center\" nowrap><a href=\"edit_pledge.php?plid=".$row->PledgeID."\">"._("Edit/Del")."</a></td>\n";
+      echo "<td nowrap><a href=\"edit_pledge.php?plid=".$row->PledgeID."\">"._("Edit/Del")."</a></td>\n";
       echo "</tr>\n";
     }
     echo "</tbody></table><a href=\"edit_pledge.php?pid=${_GET['pid']}\">"._("Create New Pledge")."</a>";

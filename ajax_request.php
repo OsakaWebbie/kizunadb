@@ -131,6 +131,19 @@ case 'Unique':
     die(json_encode(array('alert' => 'Record not found.')));
   }
   break;
+case 'Quicksearch':
+  $qs = preg_replace('#[\'"%;]#','',$_GET['qs']);
+  $sql = "SELECT count(DISTINCT person.PersonID) hits from person LEFT JOIN household ON person.HouseholdID=household.HouseholdID".
+      " WHERE person.FullName LIKE '%".$qs."%' OR person.Furigana LIKE '%".$qs."%'".
+      " OR person.Email LIKE '%".$qs."%' OR person.CellPhone LIKE '%".$qs."%'".
+      " OR person.Country LIKE '%".$qs."%' OR person.URL LIKE '%".$qs."%'".
+      " OR person.Remarks LIKE '%".$qs."%' OR person.Birthdate LIKE '%".$qs."%'".
+      " OR household.AddressComp LIKE '%".$qs."%' OR household.RomajiAddressComp LIKE '%".$qs."%'".
+      " OR household.Phone LIKE '%".$qs."%' OR household.LabelName LIKE '%".$qs."%'";
+    $result = sqlquery_checked($sql);
+    $row = mysqli_fetch_object($result);
+    die ($row->hits);
+    break;
 case 'Custom':
   if (isset($_REQUEST['sql']) && stripos($_REQUEST['sql'],'select')==0) {
     $result = sqlquery_checked($_REQUEST['sql']);

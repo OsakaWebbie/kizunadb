@@ -63,6 +63,7 @@ ul.nav {
 ul.nav li {
   display: inline-block;
   position: relative;
+  color: <?=(!empty($navlink)?$navlink:"LightSteelBlue")?>;
 }
 ul.nav-sub { /* second level menus */
   display: none;
