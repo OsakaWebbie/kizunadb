@@ -355,7 +355,7 @@ echo "<h2 id=\"links\"><a href=\"edit.php?pid=".$_GET['pid']."\">"._("Edit This 
 if ($per->HouseholdID) {
   echo "<a href=\"household.php?hhid=".$per->HouseholdID."\">"._("Go to Household Page")."</a>";
 }
-echo "<a href=\"multiselect.php?pspid=${_GET['pid']}\">"._("Go to Multi-Select")."</a>";
+echo '<a href="multiselect.php?preselected='.$_GET['pid'].'">'._('Go to Multi-Select')."</a>";
 echo "</h2>";
 ?>
 

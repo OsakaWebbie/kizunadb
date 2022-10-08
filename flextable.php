@@ -20,7 +20,7 @@ Structure of each object in cols array:
   sel: expression for SELECT (can be person.NameCombo)
   label: label for column header
   show (TRUE): initially show this column - often based on client config settings
-  ctl (TRUE): allow user to hide/show this column
+  colsel (TRUE): allow user to hide/show this column
   sort (0): use 1, 2, etc. to indicate initial sorting
   classes (''): e.g. sorter-false sorter-digit
   total (FALSE): put a sum of this column in the table footer
@@ -28,25 +28,58 @@ Structure of each object in cols array:
 
 function flextable($opt) {
 
-  echo '<xmp>'.var_dump($opt).'</xmp>';
-  //return;
-
   /***** FILL IN DEFAULTS *****/
 
   if (empty($opt->ids)) die('"ids" property missing.');
   if (!isset($opt->keyfield)) $opt->keyfield = 'person.PersonID';
-  if (!isset($opt->joins)) $opt->joins = '';
   if (!isset($opt->header)) $opt->header = '';
   if (!isset($opt->rowcolor)) $opt->rowcolor = '';
-  foreach ($opt->cols AS $col) {
+
+  // additional standard person/household columns if not already present
+  $selects = '|'.implode('|',array_column($opt->cols, 'sel')).'|';
+  //echo "Selects: $selects<br>";
+  if (strpos($selects,'person.PersonID')===FALSE) $opt->cols[] = (object) [ 'sel' => 'person.PersonID', 'show'=>FALSE ];
+  if (strpos($selects,'person.FullName')===FALSE) $opt->cols[] = (object) [ 'sel' => 'person.FullName', 'show'=>FALSE ];
+  if (strpos($selects,'person.Furigana')===FALSE) $opt->cols[] = (object) [ 'sel' => 'person.Furigana', 'show'=>FALSE ];
+  if (strpos($selects,'person.Email')===FALSE) $opt->cols[] = (object) [ 'sel' => 'person.Email', 'show'=>FALSE ];
+  if (strpos($selects,'person.CellPhone')===FALSE) $opt->cols[] = (object) [ 'sel' => 'person.CellPhone', 'show'=>FALSE ];
+  if (strpos($selects,'person.HouseholdID')===FALSE) $opt->cols[] = (object) [ 'sel' => 'person.HouseholdID', 'show'=>FALSE ];
+  if (strpos($selects,'household.Phone')===FALSE) $opt->cols[] = (object) [ 'sel' => 'household.Phone', 'show'=>FALSE ];
+  if (strpos($selects,'household.AddressComp')===FALSE) $opt->cols[] = (object) [ 'sel' => 'household.AddressComp',
+      'label' => 'Address', 'show'=>FALSE ];
+  if (strpos($selects,'|person.Birthdate|')===FALSE) $opt->cols[] = (object) [ 'sel' => 'person.Birthdate',
+      'show'=>FALSE, 'classes'=>'center' ];
+  if (strpos($selects,'TIMESTAMPDIFF(YEAR,person.Birthdate')===FALSE)
+      $opt->cols[] = (object) [ 'sel' => "IF(person.Birthdate='0000-00-00','',TIMESTAMPDIFF(YEAR,person.Birthdate,CURDATE()))",
+      'label' => 'Age', 'show'=>FALSE, 'classes'=>'center', 'table'=>'person' ];
+  if (strpos($selects,'person.Sex')===FALSE) $opt->cols[] = (object) [ 'sel' => 'person.Sex', 'show'=>FALSE ];
+  if (strpos($selects,'person.Country')===FALSE) $opt->cols[] = (object) [ 'sel' => 'person.Country', 'show'=>FALSE ];
+  if (strpos($selects,'person.URL')===FALSE) $opt->cols[] = (object) [ 'sel' => 'person.URL', 'show'=>FALSE ];
+  if (strpos($selects,'person.Remarks')===FALSE) $opt->cols[] = (object) [ 'sel' => 'person.Remarks', 'show'=>FALSE ];
+  if (strpos($selects,'GROUP_CONCAT(Category')===FALSE) $opt->cols[] = (object) [
+      'sel' => "GROUP_CONCAT(Category ORDER BY Category SEPARATOR '\\n')", 'label' => 'Categories', 'show'=>FALSE,
+      'join'=>'LEFT JOIN percat ON person.PersonID=percat.PersonID LEFT JOIN category ON percat.CategoryID=category.CategoryID' ];
+
+  foreach ($opt->cols AS $index => $col) {
     if (empty($col->sel)) die('"sel" property missing from a column.');
-    if (empty($col->label)) $col->label = 'person.PersonID';
+    if (empty($col->label)) {
+      if (strpos($col->sel,'(') === FALSE) { //not an expression but just simple column
+        //add spaces between words for label
+        $col->label = _(preg_replace('#(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z])#',' $1',
+            strpos($col->sel,'.')===FALSE ? $col->sel : substr($col->sel,strpos($col->sel,'.')+1)));
+      } else {
+        die('"label" property required for expression column: '.$col->sel);
+      }
+
+    }
     if (!isset($col->show)) $col->show = TRUE;
-    if (!isset($col->ctl)) $col->ctl = TRUE;
+    if (!isset($col->colsel)) $col->colsel = TRUE;
     if (!isset($col->sort)) $col->sort = 0;
     if (!isset($col->classes)) $col->classes = '';
     if (!isset($col->total)) $col->total = FALSE;
+    if ($col->sel == 'person.Name') $namecol_index = $index;
   }
+
   $opt->ids = trim($opt->ids, ',');
   list ($keytable,$keycol) = explode('.',$opt->keyfield,2);
 
@@ -54,33 +87,56 @@ function flextable($opt) {
 
   $sql = 'SELECT ';
   $groupby = '';
+  $joins = ($opt->keyfield=='person.PersonID') ? '' : 'LEFT JOIN person ON person.PersonID='.$keytable.'.PersonID '.
+      'LEFT JOIN household ON household.HouseholdID=person.HouseholdID ';
 
-  // loop through requested columns
+  // Columns and expressions for SELECT
   foreach ($opt->cols AS $col) {
-    if ($col->sel=='person.NameCombo') {  // special case that needs CSV-friendly column
-      $sql .= 'person.PersonID, person.FullName, person.Furigana, ';
-    } else {
+    if ($col->sel=='person.Name') continue;
+    elseif ($col->show || $col->sel=='person.PersonID' || $col->sel=='person.FullName' || $col->sel=='person.Furigana' || $col->sel=='person.HouseholdID') {
       $sql .= $col->sel." AS '".str_replace(' ','',$col->label)."', ";
+      if (!empty($col->join) && strpos($joins,$col->join)===FALSE) $joins .= $col->join.' ';
     }
   }
-  if (strpos($sql,$opt->keyfield) === FALSE) $sql .= $opt->keyfield.', ';
+  if (strpos($selects,'|'.$opt->keyfield.'|') === FALSE) $sql .= $opt->keyfield.', ';
   $sql = substr($sql,0,-2);  // remove last comma and space
   if (preg_match('#(GROUP_CONCAT|MAX|MIN|COUNT|SUM|AVERAGE)#i',$sql)===1) $groupby = ' GROUP BY '.$opt->keyfield;
-  $sql .= ' FROM '.$keytable.' '.$opt->joins.' WHERE '.$opt->keyfield.' IN ('.$opt->ids.')'.$groupby;
+  $sql .= ' FROM '.$keytable.' '.$joins.' WHERE '.$opt->keyfield.' IN ('.$opt->ids.')'.$groupby;
+  //echo '<h4>Passed parameters:</h4><xmp>'.var_dump($opt).'</xmp>';
+  //echo '<h4>SQL:</h4><xmp style="white-space:pre-wrap">'.$sql.'</xmp>';
   $result = sqlquery_checked($sql);
-  echo '<xmp style="white-space:pre-wrap">'.$sql.'</xmp>';
 
-  /***** BUTTONS: hide/show options, bucket links, multi-select link, and CSV *****/
+  /***** BUTTONS: column selector, bucket links, multi-select link, and CSV *****/
 
   ?>
-  <h3><?=$opt->heading?>
-    <button id="<?=$opt->tableid?>-colsel"><?=_('Show/Hide Columns'.' ▼')?></button>
-    <button id="<?=$opt->tableid?>-bucket"><?=_('Bucket').' ('.count($_SESSION['bucket']).') ▼'?></button>
-    <a href="">
-      <button id="<?=$opt->tableid?>-ms" onclick="location.href = 'multiselect.php?';" title="<?=_('Go to Multi-Select with these entries preselected')?>"><?=_('To Multi-Select')?></button>
-    </a>
-    <button id="<?=$opt->tableid?>-csv"><?=_('Download CSV')?></button>
-  </h3>
+  <div>
+    <h3 style="display:inline-block; margin-right:2em"><?=$opt->heading?></h3>
+    <div class="button-block" style="display:inline-block">
+      <button id="<?=$opt->tableid?>-colsel-toggle" class="dropdown-closed"><?=_('Column Selector')?></button>
+      <div class="hassub">
+        <button id="<?=$opt->tableid?>-bucket-toggle" class="dropdown-closed"><?=_('Bucket')?></button>
+        <ul id="<?=$opt->tableid?>-bucket" class="nav-sub" style="display:none">
+          <li class="bucket-add"><a id="<?=$opt->tableid?>-bucket-add" class="ajaxlink bucket-add" href="#"><?=_('Add to Bucket')?></a></li>
+          <li class="bucket-rem"><a id="<?=$opt->tableid?>-bucket-rem" class="ajaxlink bucket-rem" href="#"><?=_('Remove from Bucket')?></a></li>
+          <li class="bucket-set"><a id="<?=$opt->tableid?>-bucket-set" class="ajaxlink bucket-set" href="#"><?=_('Set Bucket to these')?></a></li>
+        </ul>
+      </div>
+      <button id="<?=$opt->tableid?>-ms" title="<?=_('Go to Multi-Select with these entries preselected')?>"><?=_('To Multi-Select')?></button>
+      <button id="<?=$opt->tableid?>-csv"><?=_('Download CSV')?></button>
+    </div>
+  </div>
+
+  <div id="<?=$opt->tableid?>-colsel" style="display:none; padding:5px 15px 15px 15px">
+    <form style="line-height:2em">
+  <?php
+  foreach ($opt->cols as $index => $col ) {
+    echo '<label><input type="checkbox" id="'.classize($col->label).'-show" name="'.classize($col->label).'-show" class="colsel-checkbox"';
+    if ($col->show) echo ' checked';
+    echo '>' . $col->label . "</label>\n";
+  }
+  ?>
+    </form>
+  </div>
   <?php
 
   /***** TABLE *****/
@@ -89,75 +145,156 @@ function flextable($opt) {
   <table id="<?=$opt->tableid?>-table" class="tablesorter">
     <thead><tr>
       <?php
+
+      /***** TABLE HEAD *****/
+
       foreach ($opt->cols AS $col) {
-        if ($col->sel=='person.NameCombo') {
-          echo '<th class="name-for-csv" style="display:none">'._($col->label).' ('.($_SESSION['furiganaisromaji']=='yes' ? _('Romaji') : _('Furigana')).')</th>';
-          echo '<th class="name-for-display">'._($col->label).' ('.($_SESSION['furiganaisromaji']=='yes' ? _('Romaji') : _('Furigana')).')</th>';
+        if ($col->sel=='person.Name') {
+          echo '<th class="name-for-csv loaded" style="display:none">'._($col->label).' ('.($_SESSION['furiganaisromaji']=='yes' ? _('Romaji') : _('Furigana')).')</th>';
+          echo '<th class="name-for-display loaded">'._($col->label).' ('.($_SESSION['furiganaisromaji']=='yes' ? _('Romaji') : _('Furigana')).')</th>';
         } else {
-          echo '<th class="'.str_replace(' ','-',strtolower($col->label)).'"'.($col->show?'':' style="display:none"').'>'._($col->label).'</th>';
+          echo '<th class="'.str_replace(' ','-',strtolower($col->label)).($col->show?' loaded':'').'"'.
+              ($col->show?'':' style="display:none"').'>'._($col->label).'</th>';
         }
       }
       ?>
     </tr></thead>
     <tbody>
     <?php
-    $id_array = explode(',',$opt->ids);
+
+    /***** TABLE BODY *****/
+
+    $pids = ','; //need boundary for duplicate check
     while ($row = mysqli_fetch_object($result)) {
-      //echo "<xmp>".var_dump($row)."</xmp>";
-      $thisid = $row->$keycol;
+      if (!empty($row->PersonID) && strpos($pids,','.$row->PersonID.',') === FALSE) $pids .= $row->PersonID.',';
       echo "  <tr>\n";
       foreach ($opt->cols as $col) {
-        if ($col->sel == 'person.NameCombo') {
-          echo '    <td class="name-for-csv key-'.$thisid.'" style="display:none">'.readable_name($row->FullName,$row->Furigana).'</td>';
-          echo '<td class="name-for-display key-'.$thisid.'" nowrap><span style="display:none">'.$row->Furigana.'</span>';
-          echo '<a href="individual.php?pid='.$row->PersonID."\">".readable_name($row->FullName,$row->Furigana,0,0,"<br>")."</a></td>\n";
+        // determine SQL table and set class for this cell
+        if (!empty($col->table)) {  // explicitly specified (needed in the case of expressions)
+          $table = $col->table;
+        } elseif (strpos($col->sel, '.') === FALSE) {  // no table in SELECT, so assume $keytable
+          $table = $keytable;
+        } else {  // assume table.Column format
+          $table = substr($col->sel, 0, strpos($col->sel, '.'));
+        }
+        if ($table == 'person') $cellclass = 'pid' . $row->PersonID;
+        elseif ($table == 'household') $cellclass = 'hid' . $row->HouseholdID;
+        else $cellclass = 'key' . $row->$keycol;
+
+        if ($col->sel == 'person.Name') {
+          echo '    <td class="name-for-csv pid-'.$row->PersonID.'" style="display:none">'.readable_name($row->FullName,$row->Furigana)."</td>\n";
+          echo '    <td class="name-for-display pid-'.$row->PersonID.'" nowrap><span style="display:none">'.$row->Furigana.'</span>'.
+              '<a href="individual.php?pid='.$row->PersonID.'">'.readable_name($row->FullName,$row->Furigana,0,0,'<br>')."</a></td>\n";
         } else {
-          echo '    <td class="'.str_replace(' ', '-', strtolower($col->label)).' key-'.$thisid.'"' . ($col->show ? '' : ' style="display:none"') . '>' .
-              $row->{str_replace(' ','',$col->label)} . "</td>\n";
+          echo '    <td class="' . $cellclass . '"' . ($col->show ? '' : ' style="display:none"') . '>';
+          if ($col->show || $col->sel=='person.PersonID' || $col->sel=='person.FullName' || $col->sel=='person.Furigana' || $col->sel=='person.HouseholdID') {
+            if ($col->sel == 'person.Photo') echo ($row->Photo == 1) ? '<img src="photo.php?f=p' . $row->PersonID . '" width=50>' : '';
+            else echo $row->{str_replace(' ', '', $col->label)};
+          }
+          echo "</td>\n";
         }
       }
       echo "  </tr>\n";
     }
+    $pids = trim($pids,',');
     ?>
-
     </tbody>
   </table>
+  <div id="<?=$opt->tableid?>-pids" style="display:none"><?=$pids?></div>
 
-  <script>
+  <?php
+  //echo '<h4>Passed parameters:</h4><xmp>'.var_dump($opt).'</xmp>';
+  //echo '<h4>SQL:</h4><xmp style="white-space:pre-wrap">'.$sql.'</xmp>';
 
-<?php
-load_scripts(array('jquery','jqueryui','tablesorter','table2csv'));
+  global $scripts_loaded;
+  load_scripts(array('jquery','jqueryui','tablesorter','table2csv'));
+  ?>
 
-/***** "SEND" INFO TO JAVASCRIPT *****/
+<script>
+  /***** "SEND" INFO TO JAVASCRIPT *****/
 
-?>
+  var $opt = <?=json_encode($opt)?>;
+  //console.log($opt);
 
+  $(function() {
+    /*** jQuery UI styling ***/
+    $('button[id^=<?=$opt->tableid?>]').button();
+    $('#<?=$opt->tableid?>-colsel input').checkboxradio();
 
-    var $opt = <?=json_encode($opt)?>;
-    console.log($opt);
+    $('#<?=$opt->tableid?>-table').tablesorter();
 
-    if ($('script[src="js/jquery.tablesorter.js"]').length === 0) {
-      $.getScript('js/jquery.tablesorter.js');
-      alert("loaded tablesorter");
-    }
+    /*** actions for row of buttons ***/
 
-    $(function() {
-      $('#pids-for-bucket').val('<?=implode(',',$pids)?>');
-
-      $("#<?=$opt->tableid?>").tablesorter({
-        sortList:[[2,0]],
-        headers:{14:{sorter:false}}
-      });
-
+    // column selector
+    $('#<?=$opt->tableid?>-colsel-toggle').click(function() {
+      if ($('#<?=$opt->tableid?>-colsel').is(":hidden")) {
+        $(this).removeClass('dropdown-closed').addClass('dropdown-open');
+      } else {
+        $(this).removeClass('dropdown-open').addClass('dropdown-closed');
+      }
+      $('#<?=$opt->tableid?>-colsel').slideToggle();
     });
 
-    function getCSV() {
-      $(".name-for-display, .selectcol").hide();
-      $(".name-for-csv").show();
+
+   // link to go directly to multiselect without bucket
+    $('#<?=$opt->tableid?>-ms').click(function() {
+      location.href = 'multiselect.php?preselected=<?=$pids?>';
+    });
+
+    // Add these PIDs to the existing bucket
+    $('#<?=$opt->tableid?>-bucket-add').click(function(event) {
+      $.post("bucket.php", { add:$('#<?=$opt->tableid?>-pids').text() }, function(r) {
+        if (!isNaN(r)) {
+          $('span.bucketcount').html(r);
+          $('.bucket-list,.bucket-empty,.bucket-rem').toggleClass('disabledlink', ($('span.bucketcount').html() === '0'));
+        }
+        else { alert(r); }
+      }, "text");
+    });
+
+    // Remove these PIDs from the existing bucket
+    $('#<?=$opt->tableid?>-bucket-rem').click(function(event) {
+      $.post("bucket.php", { rem:$('#<?=$opt->tableid?>-pids').text() }, function(r) {
+        if (!isNaN(r)) {
+          $('span.bucketcount').html(r);
+          $('.bucket-list,.bucket-empty,.bucket-rem').toggleClass('disabledlink', ($('span.bucketcount').html() === '0'));
+        }
+        else { alert(r); }
+      }, "text");
+    });
+
+    // Make the bucket contain only these PIDs (any previous contents are replaced)
+    $('#<?=$opt->tableid?>-bucket-set').click(function(event) {
+      $.post("bucket.php", { set:$('#<?=$opt->tableid?>-pids').text() }, function(r) {
+        if (!isNaN(r)) {
+          $('span.bucketcount').html(r);
+          $('.bucket-list,.bucket-empty,.bucket-rem').toggleClass('disabledlink', ($('span.bucketcount').html() === '0'));
+        }
+        else { alert(r); }
+      }, "text");
+    });
+
+    // export CSV
+    $('#<?=$opt->tableid?>-csv').click(function() {
+      $("#<?=$opt->tableid?>-table .name-for-display").hide();
+      $("#<?=$opt->tableid?>-table .name-for-csv").show();
       $('#<?=$opt->tableid?>-csv').val($('#<?=$opt->tableid?>-table').table2CSV({delivery:'value'}));
-      $(".name-for-csv").hide();
-      $(".name-for-display, .selectcol").show();
-    }
-  </script>
+      $("#<?=$opt->tableid?>-table .name-for-csv").hide();
+      $("#<?=$opt->tableid?>-table .name-for-display").show();
+    });
+  });
+
+</script>
   <?php
+}
+
+/*** adds spaces to make label more readable ***/
+function tableof($text) {
+  return _(preg_replace('#(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z])#',' ',
+      strpos($col->sel,'.')===FALSE ? $col->sel : substr($col->sel,strpos($col->sel,'.'))));
+}
+
+/*** adds spaces to make label more readable ***/
+function classize($text) {
+  return preg_replace('#[^a-z-]#','',str_replace(' ','-',strtolower($text)));
 }

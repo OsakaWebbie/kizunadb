@@ -29,15 +29,7 @@ echo "var ar = new Array();\n";
 $ar_index = 0;
 $presel_html = "";
 $presel_num = 0;
-if (isset($_GET['pspid'])) {
-  $preselected = $_GET['pspid'];
-  $psnum = 1;
-} else if (isset($_GET['ps'])) {
-  list($psid,$psnum) = explode(":",$_GET['ps']);
-  $tempres = sqlquery_checked("SELECT Pids FROM preselect WHERE PSID='$psid'");
-  $psobj = mysqli_fetch_object($tempres);
-  if ($psobj && $psobj->Pids!="") $preselected = $psobj->Pids;
-} else if (isset($_REQUEST['preselected']) && $_REQUEST['preselected']!="") {
+if (!empty($_REQUEST['preselected'])) {
   $preselected = $_REQUEST['preselected'];
   $psnum = substr_count($preselected,",")+1;
 }

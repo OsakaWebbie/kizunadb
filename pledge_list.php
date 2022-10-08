@@ -2,11 +2,9 @@
 include("functions.php");
 include("accesscontrol.php");
 
-header1(_("Pledge List"));
-?>
-<link rel="stylesheet" href="style.php?table=1" type="text/css" />
-<?php
-header2(!empty($_GET['pledge_tab'])?1:0);
+head_content(_("Pledge List"), (!empty($_GET['pledge_tab'])?1:0), 'jqueryui');
+load_scripts(['jquery','jqueryui']);
+//header2(!empty($_GET['pledge_tab'])?1:0);
 
 /* $sql = "SELECT pl.*, FullName, Furigana, DonationType,
 SUM(IFNULL(d.Amount,0)) - (pl.Amount * pl.TimesPerYear / 12 * PERIOD_DIFF(DATE_FORMAT(IF(pl.EndDate='0000-00-00' OR CURDATE()<pl.EndDate,CURDATE(), pl.EndDate), '%Y%m'), DATE_FORMAT(pl.StartDate, '%Y%m'))) AS Balance,
@@ -54,43 +52,41 @@ if ($num_pledges == 0) {
 $tableopt = (object) [
   'ids' => '',
   'keyfield' => 'pledge.PledgeID',
-  'joins' => 'LEFT JOIN person ON person.PersonID=pledge.PersonID '.
-      'LEFT JOIN donationtype ON pledge.DonationTypeID=donationtype.DonationTypeID '.
-      'LEFT JOIN donation ON pledge.PledgeID=donation.PledgeID',
   'tableid' => 'pledges',
   'heading' => !empty($_GET['closed']) ? _('All Pledges') : _('Open Pledges').' ('.$num_pledges.')',
   'cols' => array() ];
-$tableopt->cols[] = (object) [
-  'sel' => 'person.NameCombo',
-  'label' => _('Name')
-];
-if ($dtgrouped) {
-  $tableopt->cols[] = (object) [ 'sel' => 'donationtype.DonationType', 'label' => _('Donation Type') ];
+$tableopt->cols[] = (object) [ 'sel' => 'person.Name', 'label' => 'Name', 'colsel'=>FALSE ];
+$tableopt->cols[] = (object) [ 'sel' => 'person.Photo', 'show'=>FALSE, 'class' => 'align-center' ];
+if (!$dtgrouped) {
+  $tableopt->cols[] = (object) [ 'sel' => 'donationtype.DonationType', 'label' => 'Donation Type',
+      'join' => 'LEFT JOIN donationtype ON pledge.DonationTypeID=donationtype.DonationTypeID' ];
 };
 $tableopt->cols[] = (object) [
   'sel' => "CONCAT(StartDate,'～',IF(EndDate!='0000-00-00',EndDate,''))",
-  'label' => _('Dates') ];
+  'label' => 'Dates' ];
 $tableopt->cols[] = (object) [
   'sel' => 'PledgeDesc',
-  'label' => _('Description') ];
+  'label' => 'Description' ];
 $tableopt->cols[] = (object) [
   'sel' => "CONCAT('".$_SESSION['currency_mark']."',FORMAT(pledge.Amount,".$_SESSION['currency_decimals']."))",
-  'label' => _('Amount'),
-  'classes' => 'right' ];
+  'label' => 'Amount',
+  'class' => 'align-right' ];
 $tableopt->cols[] = (object) [
   'sel' => "CASE TimesPerYear WHEN 12 THEN 'Month' WHEN 4 THEN 'Quarter' WHEN 1 THEN 'Year' ELSE '' END",
-  'label' => _("Interval"),
-  'classes' => 'center' ];
+  'label' => 'Interval',
+  'class' => 'align-center' ];
 $tableopt->cols[] = (object) [
   'sel' => "CONCAT('".$_SESSION['currency_mark']."',FORMAT(SUM(donation.Amount) - (pledge.Amount * TimesPerYear/12 * PERIOD_DIFF(DATE_FORMAT(IF(EndDate='0000-00-00' ".
       "OR CURDATE()<EndDate,CURDATE(), EndDate), '%Y%m'), DATE_FORMAT(StartDate, '%Y%m'))),".$_SESSION['currency_decimals']."))",
-  'label' => _('Balance'),
-  'classes' => 'right' ];
+  'label' => 'Balance',
+  'join' => 'LEFT JOIN donation ON pledge.PledgeID=donation.PledgeID',
+  'class' => 'align-right' ];
 $tableopt->cols[] = (object) [
   'sel' => "ROUND((SUM(IFNULL(donation.Amount,0)) - (pledge.Amount * TimesPerYear / 12 * PERIOD_DIFF(DATE_FORMAT(IF(EndDate='0000-00-00' ".
       "OR CURDATE()<EndDate,CURDATE(), EndDate), '%Y%m'), DATE_FORMAT(StartDate, '%Y%m')))) / pledge.Amount * 12 / TimesPerYear)",
-  'label' => _('Months'),
-  'classes' => 'center' ];
+  'label' => 'Months',
+    'join' => 'LEFT JOIN donation ON pledge.PledgeID=donation.PledgeID',
+  'class' => 'align-center' ];
 
 $current_dtype = '';
 while ($row = mysqli_fetch_object($result)) {

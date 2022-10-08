@@ -20,6 +20,8 @@ if (!empty($_POST['set'])) {
   $_SESSION['bucket'] = explode(',',$_POST['set']);
 } elseif (!empty($_POST['add'])) {
   $_SESSION['bucket'] = array_unique(array_merge($_SESSION['bucket'],explode(',',$_POST['add'])));
+} elseif (!empty($_POST['rem'])) {
+  $_SESSION['bucket'] = array_diff($_SESSION['bucket'],explode(',',$_POST['rem']));
 } elseif (!empty($_POST['empty'])) {
   $_SESSION['bucket'] = array();
 }

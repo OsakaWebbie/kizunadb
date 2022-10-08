@@ -18,6 +18,7 @@ caption {
 	outline: 0;
 	font-size: 100%;
 	vertical-align: baseline;
+	font-family:Arial,"ＭＳ Ｐゴシック",sans-serif;
 }
 /* table, tbody, tfoot, thead, tr, th, td, iframe {
 	margin: 0;
@@ -62,7 +63,7 @@ table {
 img,
 a img {border: 0px;}
 
-input,textarea,select,button { font-family: inherit; font-size: inherit; }
+input,textarea,select { font-family: inherit; font-size: inherit; }
 
 pre {
   font-size:1em;

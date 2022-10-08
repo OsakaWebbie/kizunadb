@@ -18,21 +18,22 @@ if (!empty($_GET['qs'])) {
       " OR person.Remarks LIKE '%".$_GET['qs']."%' OR person.Birthdate LIKE '%".$_GET['qs']."%'".
       " OR household.AddressComp LIKE '%".$_GET['qs']."%' OR household.RomajiAddressComp LIKE '%".$_GET['qs']."%'".
       " OR household.Phone LIKE '%".$_GET['qs']."%' OR household.LabelName LIKE '%".$_GET['qs']."%'";
+  $criterialist .= '<li>'.sprintf(_('Quick search: "%s" in any of multiple fields'), $_GET['qs'])."</li>\n";
 }
 if (!empty($_GET['filter'])) {
   if ($_GET['filter'] == "Organizations") {
     $where .= " WHERE Organization>0";
-    $criterialist .= "<li>" . _("Organizations only");
+    $criterialist .= "<li>" . _("Organizations only")."</li>\n";
   } elseif ($_GET['filter'] == "People") {
     $where .= " WHERE Organization=0";
-    $criterialist .= "<li>" . _("People only (no organizations)");
+    $criterialist .= "<li>" . _("People only (no organizations)")."</li>\n";
   } elseif ($_GET['filter'] == "OrgsOfPeople") {
     $sql = "SELECT DISTINCT p1.*, h1.AddressComp, h1.Phone, GROUP_CONCAT(Category ORDER BY Category SEPARATOR '\\n') AS categories " .
         "FROM person p1 LEFT JOIN household h1 ON p1.HouseholdID=h1.HouseholdID " .
         "LEFT JOIN percat ON p1.PersonID=percat.PersonID " .
         "LEFT JOIN category ON percat.CategoryID=category.CategoryID WHERE p1.PersonID IN (SELECT OrgID FROM perorg po " .
         "INNER JOIN person p2 ON po.PersonID=p2.PersonID LEFT JOIN household ON p2.HouseholdID=household.HouseholdID";
-    $criterialist .= "<li>" . _("Organizations with members who have the following criteria...");
+    $criterialist .= "<li>" . _("Organizations with members who have the following criteria...")."</li>\n";
     $ptable = "p2";
     $grouptable = "p1";
     $closing = ")";
@@ -42,7 +43,7 @@ if (!empty($_GET['filter'])) {
         "LEFT JOIN percat ON p1.PersonID=percat.PersonID " .
         "LEFT JOIN category ON percat.CategoryID=category.CategoryID WHERE p1.PersonID IN (SELECT po.PersonID FROM perorg po " .
         "INNER JOIN person o ON po.OrgID=o.PersonID LEFT JOIN household ON o.HouseholdID=household.HouseholdID";
-    $criterialist .= "<li>" . _("People whose related organizations have the following criteria...");
+    $criterialist .= "<li>" . _("People whose related organizations have the following criteria...")."</li>\n";
     $ptable = "o";
     $grouptable = "p1";
     $closing = ")";

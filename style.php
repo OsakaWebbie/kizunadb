@@ -47,7 +47,6 @@ div#content {
   background-color: White;
   z-index: 1;
 }
-table { background-color: White;}
 
 /* MAIN MENU (WIDE SCREENS) */
 ul.nav {
@@ -60,7 +59,7 @@ ul.nav {
   vertical-align: middle;
   min-height: 30px;
 }
-ul.nav li {
+ul.nav li, div.hassub {
   display: inline-block;
   position: relative;
   color: <?=(!empty($navlink)?$navlink:"LightSteelBlue")?>;
@@ -80,7 +79,7 @@ ul.nav-sub { /* second level menus */
 ul.nav-sub li {
   display: block;
 }
-ul.nav a {
+ul.nav a, div.hassub a {
   display: block;
   color: <?=(!empty($navlink)?$navlink:"LightSteelBlue")?>;
   padding: 10px 15px;
@@ -91,16 +90,16 @@ ul.nav a {
   white-space:nowrap;
 }
 ul.nav span.username { font-weight:normal; white-space:wrap; }
-ul.nav a:hover {
+ul.nav a:hover, div.hassub a:hover {
   background-color: <?=(!empty($navbghover)?$navbghover:"rgb(132,78,12)")?>;
   color: <?=(!empty($navlinkhover)?$navlinkhover:"White")?>;
 }
 
-ul.nav a.disabledlink {
+ul.nav a.disabledlink, div.hassub a.disabledlink {
   opacity: 0.5;
   pointer-events: none;
 }
-ul.nav a.disabledlink:hover {
+ul.nav a.disabledlink:hover, div.hassub a.disabledlink:hover {
   background-color:<?=(!empty($navbg)?$navbg:"rgb(88,57,7)")?>;
   color: <?=(!empty($navlink)?$navlink:"LightSteelBlue")?>;
 }
@@ -252,6 +251,9 @@ a:link,a:visited { color:<?=(!empty($link)?$link:"#333399")?>; }
 a:hover,a:active { color:<?=(!empty($linkhover)?$linkhover:"DarkBlue")?>; }
 a.more { cursor:pointer; color:<?=(!empty($linkmore)?$linkmore:"Black")?>; text-decoration:underline; }
 
+.dropdown-closed::after { content: ' ▼'; }
+.dropdown-open::after { content: ' ▲'; }
+
 .alert { color:<?=(!empty($alert)?$alert:"Red")?>; }
 .comment { font-size:0.8em; font-style:italic; }
 .highlight { background-color:<?=(!empty($highlight)?$highlight:"LightSteelBlue")?>; }
@@ -270,6 +272,38 @@ td.button-in-table { text-align:center; }
 
 div#actions { margin:8px 0; text-align:center; }
 div#actions form { display:inline; margin:2px 15px; }
+
+/* TABLES (including tablesorter) */
+
+table { background-color: White; text-align: left; }
+table tbody td {
+padding: 4px;
+vertical-align: top;
+border: 1px solid <?=(!empty($primarylight)?$primarylight:"LightSteelBlue")?>;
+}
+
+.tablesorter-header, .tablesorter-footer {
+background-color: <?=(!empty($primarylight)?$primarylight:"LightSteelBlue")?>;
+border: 1px solid White;
+background-repeat: no-repeat;
+background-position: center right;
+padding: 4px 20px 4px 4px;
+}
+.tablesorter-headerUnSorted {
+background-image: url(css/images/tablesorter_bg.gif);
+cursor: pointer;
+}
+.tablesorter-headerAsc {
+background-image: url(css/images/tablesorter_asc.gif);
+}
+.tablesorter-headerDesc {
+background-image: url(css/images/tablesorter_desc.gif);
+}
+.tablesorter-headerAsc, .tablesorter-headerDesc {
+background-color: <?=(!empty($secondarydark)?$secondarydark:"rgb(132,78,12)")?>;
+color: White;
+}
+
 
 /* specialized classes and IDs */
 

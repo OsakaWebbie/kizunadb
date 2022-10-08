@@ -3,6 +3,21 @@
 error_reporting(E_ALL ^ E_NOTICE);
 ini_set('display_errors',0);
 
+function head_content($title, $nav=0, $extracss='') {
+  header1($title);
+  echo '<link rel="stylesheet" href="style.php" type="text/css">'."\n";
+  foreach (explode(',',$extracss) as $css) {
+    switch ($css) {
+      case 'jqueryui':
+        echo '<link rel="stylesheet" href="css/jquery-ui-13.css" type="text/css">'."\n";
+        break;
+      case 'tablesorter':
+        echo '<link rel="stylesheet" href="css/tablesorter.css" type="text/css">'."\n";
+        break;
+    }
+  } //end foreach css
+  header2($nav);
+}
 function header1($title) {
   ?>
 <!doctype html>
@@ -51,9 +66,7 @@ function header2($nav=0) {
         <ul class="nav-sub">
           <li class="bucket-list"><a class="bucket-list" href="list.php?bucket=1"><?=_('List Bucket contents')?></a></li>
           <li><a href="multiselect.php" target="_top"><?=_('Multi-Select').'/'._('Batch')?></a></li>
-          <li class="bucket-set"><a class="ajaxlink bucket-set" href="#"><?=_('Set Bucket to these results')?></a></li>
-          <li class="bucket-add"><a class="ajaxlink bucket-add" href="#"><?=_('Add to existing Bucket')?></a></li>
-          <li class="bucket-empty"><a class="ajaxlink bucket-empty" href="#" onclick="bucketEmpty();"><?=_('Empty the Bucket')?></a></li>
+          <li class="bucket-empty"><a class="ajaxlink bucket-empty" href="#"><?=_('Empty the Bucket')?></a></li>
         </ul>
       </li>
       <li><a href="db_settings.php" target="_top"><?=_('DB Settings')?></a></li>
@@ -68,25 +81,6 @@ function header2($nav=0) {
       </li>
     </ul>
   </nav>
-
-  <script type="text/javascript">
-  function bucketEmpty() {
-    var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function() {
-      if(xhr.readyState === 4 && xhr.status === 200) {  //no error
-        if (!isNaN(xhr.responseText)) {  // return string is a number (expecting 0)
-          var elements = document.getElementsByClassName('bucketcount');
-          [].forEach.call(elements, function (el) { el.innerHTML = xhr.responseText; });
-        } else {
-          alert(xhr.responseText);
-        }
-      }
-    };
-    xhr.open('POST', 'bucket.php');
-    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.send('empty=1');
-  }
-  </script>
 
   <div id="nav-trigger"><img src="graphics/kizunadb-logo.png" alt="Logo"><span>Menu</span></div>
   <nav id="nav-mobile"></nav>
@@ -154,7 +148,7 @@ function footer($nav=0) {
         });
 
         /* event handling for submenus (must be JS because of menu links that don't refresh the page) */
-        $(".hassub").mouseenter(function() { $("ul",this).show(); })
+        $(".hassub").click(function() { $("ul",this).show(); })
         .mouseleave(function(){ $("ul",this).hide(); });
 
         $('.ajaxlink').click(function(event) {
@@ -182,51 +176,23 @@ function footer($nav=0) {
 
         /* BUCKET MANAGEMENT */
 
-        function hideshow_bucket_commands() {
-          var bucketempty = ($('span.bucketcount').html() === '0');
-          var pidsempty = ($('#pids-for-bucket').val() === '');
-          $('.bucket-list,.bucket-empty').toggleClass('disabledlink', bucketempty);
-          $('.bucket-set').toggleClass('disabledlink', pidsempty);
-          $('.bucket-add').toggleClass('disabledlink', bucketempty && pidsempty);
-        }
-        hideshow_bucket_commands();  // run it once now to deal with initial status of page
-
-        // To prevent the href=# from scrolling to the top
-        $('.disabledLink').click(function(event) {
-          event.preventDefault();
-        });
-
-        // When the bucketizable list of PIDs changes, make sure the menu reflects the new status
-        $("#pids-for-bucket").change(function() {
-          hideshow_bucket_commands();
-        });
-
-        // Make the bucket contain only the new PIDs (any previous contents are replaced)
-        $('.bucket-set').click(function(event) {
-          //event.preventDefault();
-          $.post("bucket.php", { set:$('#pids-for-bucket').val() }, function(r) {
+        // Make the bucket contain only these PIDs (any previous contents are replaced)
+        $('.bucket-empty').click(function() {
+          $.post("bucket.php", { empty:1 }, function(r) {
             if (!isNaN(r)) {
               $('span.bucketcount').html(r);
-              hideshow_bucket_commands();
+              $('.bucket-list,.bucket-empty,.bucket-rem').toggleClass('disabledlink', ($('span.bucketcount').html() === '0'));
             }
             else { alert(r); }
           }, "text");
         });
 
-        // Add the new PIDs to the bucket contents
-        $('.bucket-add').click(function(event) {
-          //event.preventDefault();
-          $.post("bucket.php", { add:$('#pids-for-bucket').val() }, function(r) {
-            if (!isNaN(r)) $('span.bucketcount').html(r); else alert(r);
-          }, "text");
-        });
+        //set initial state of bucket links
+        $('.bucket-list,.bucket-empty,.bucket-rem').toggleClass('disabledlink', ($('span.bucketcount').html() === '0'));
 
-        // Remove the new PIDs from the existing bucket contents
-        $('.bucket-del').click(function(event) {
-          //event.preventDefault();
-          $.post("bucket.php", { add:$('#pids-for-bucket').val() }, function(r) {
-            if (!isNaN(r)) $('span.bucketcount').html(r); else alert(r);
-          }, "text");
+        // To prevent the href=# from scrolling to the top
+        $('.disabledLink').click(function(event) {
+          event.preventDefault();
         });
 
       /* ANNOUNCEMENTS OF NEW FEATURES OR MAJOR CHANGES */
@@ -285,15 +251,17 @@ function print_footer() {
 
 /*** LOAD SCRIPTS - common location for version #, and makes sure only loaded once ***/
 /*** pass array of script name roots ***/
+$scripts_loaded = array();
 function load_scripts($scripts) {
+  global $scripts_loaded;
   foreach ($scripts as $script) {
-    if (!empty($loaded[$script])) {
+    if (empty($scripts_loaded[$script])) {
       switch ($script) {
         case 'jquery':
           echo '<script type="text/JavaScript" src="js/jquery-3.6.0.js"></script>'."\n";
           break;
         case 'jqueryui':
-          echo '<script type="text/JavaScript" src="js/jquery-ui.js"></script>'."\n";
+          echo '<script type="text/JavaScript" src="js/jquery-ui-13.min.js"></script>'."\n";
           break;
         case 'tablesorter':
           echo '<script type="text/JavaScript" src="js/jquery.tablesorter.js"></script>'."\n";
@@ -311,7 +279,7 @@ function load_scripts($scripts) {
           echo '<script type="text/JavaScript" src="js/expanding.js"></script>'."\n";
           break;
       }
-      $loaded[$script] = 1;
+      $scripts_loaded[$script] = 1;
     }
   }
 }
