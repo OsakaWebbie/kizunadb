@@ -162,7 +162,7 @@ $(document).ready(function(){
     if ($("#userid").val() == "new") {
       $("#username, #new_userid, #old_userid, #new_pw1, #new_pw2, #dashboard").val("");
       $("#language").val($_SESSION['lang']);
-      $("#admin").prop("checked", true);
+      $("#admin").prop("checked", false);
       $("#hidedonations").prop("checked", <?=($_SESSION['hidedonations_default']=="yes" ? "true" : "false")?>);
       $("#user_del").prop('disabled', true);
     } else {
@@ -416,7 +416,7 @@ while ($row = mysqli_fetch_object($result))  echo "    <option value=\"".$row->U
   <span class="comment"><?=_("(leave blank if not changing password)")?></span></label>
   <label class="label-n-input"><?=_("New Password again")?>: <input type="password"
   id="new_pw2" name="new_pw2" style="width:10em"></label><br />
-  <label class="label-n-input"><?=_("PHP for Dashboard")?>: <textarea id="dashboard" name="dashboard" style="height:3em;width:70%"></textarea></label>
+  <label class="label-n-input"><?=_("Dashboard Files")?>: <textarea id="dashboard" name="dashboard" style="height:2em;width:80%"></textarea></label>
   <br /><input type="submit" id="user_add_upd" name="user_add_upd" value="<?=_("Add or Update")?>">
   <input type="submit" id="user_del" name="user_del" value="<?=_("Delete")?>" disabled>
 </fieldset></form>
