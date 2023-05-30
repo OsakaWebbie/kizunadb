@@ -315,7 +315,7 @@ echo _(" If you don't want to do this, just press your browser's Back button. ".
       $message = sprintf(_("UserID '%s' is already in use by %s. Please choose a different UserID."),
           $_POST['new_userid'], $row->UserName);
     } else {
-      sqlquery_checked("INSERT INTO user (UserID,UserName,Password,Admin,Language,HideDonations,DashboardCode) ".
+      sqlquery_checked("INSERT INTO user (UserID,UserName,Password,Admin,Language,HideDonations,Dashboard) ".
       "VALUES ('".$_POST['new_userid']."','".h2d($_POST['username'])."',PASSWORD('".$_POST['new_pw1']."'),$adm,".
       "'".$_POST['language']."',$hd,'".h2d($_POST['dashboard'])."')");
       if (mysqli_affected_rows($db) == 1) {
@@ -337,7 +337,7 @@ echo _(" If you don't want to do this, just press your browser's Back button. ".
       if ($_POST['new_pw1'] != "") {
         $sql .= "Password=PASSWORD('".$_POST['new_pw1']."'),";
       }
-      $sql .= "Admin=$adm,Language='".$_POST['language']."',HideDonations=$hd,DashboardCode='".h2d($_POST['dashboard']).
+      $sql .= "Admin=$adm,Language='".$_POST['language']."',HideDonations=$hd,Dashboard='".h2d($_POST['dashboard']).
 	  "' WHERE UserID='".$_POST['old_userid']."'";
       $result = sqlquery_checked($sql);
       if (mysqli_affected_rows($db) == 1) {

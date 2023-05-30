@@ -1,37 +1,19 @@
 <?php
 include("functions.php");
 include("accesscontrol.php");
-mysqli_select_db("kizuna_common");
+mysqli_select_db($db,"kizuna_common");
 
 setlocale(LC_ALL, 'ja_JP.UTF8');
 header1(_("Update of Auxiliary Postal Code Data"));
 ?> <link rel="stylesheet" type="text/css" href="style.php" /> <?php
 header2(1);
 
-//if (!is_file("http://www.post.japanpost.jp/zipcode/dl/kogaki/lzh/ken_all.lzh")) die("Can't find file on post office website.");
-
 if (!is_file("ken_all.csv")) {
   echo "You need to:\n";
-  echo "<ul><li>Get <a href=\"https://www.post.japanpost.jp/zipcode/dl/kogaki/lzh/ken_all.lzh\">the file</li>\n";
-  echo "<li>Put it in the codebase directory</li>\n";
-  echo "<li>Extract it (lha -e ken_all.lzh)</li></ul>\n";
+  echo "<ul><li>Get <a href=\"https://www.post.japanpost.jp/zipcode/dl/kogaki-zip.html\">the file and unzip it</li>\n";
+  echo "<li>Put the CSV file in the codebase directory</li>\n";
   exit;
-  //if(!copy('http://www.post.japanpost.jp/zipcode/dl/kogaki/lzh/ken_all.lzh','temp.lzh')) {
-    //$errors= error_get_last();
-    //echo "COPY ERROR: ".$errors['type'];
-    //echo "<br />\n".$errors['message'];
-    //exit;
-  //}
-  //if (!is_file("temp.lzh")) die("Failed to copy file from post office website.");
-  //echo "file copied.\n";
-  //exec("lha -e . temp.lzh") or die("unzip failed.");
-  //if (!is_file("ken_all.csv")) die("Failed to extract ken_all.csv.");
-  //unlink("temp.lzh");
-  //exit;
-//get absolute path
-//$path = substr($_SERVER["SCRIPT_FILENAME"],0,strrpos($_SERVER["SCRIPT_FILENAME"],"/")+1);
-
-}  //end of section that gets file externally (which doesn't currently work)
+}
 
 sqlquery_checked("DROP TABLE IF EXISTS auxpostalcode");
 $sql = "CREATE TABLE auxpostalcode (`PostalCode` varchar(8) NOT NULL default '',".
