@@ -32,6 +32,49 @@ header1(_("User Settings"));
   <input type="submit" id="pw_upd" name="pw_upd" value="<?=_("Change Password")?>">
 </fieldset></form>
 
+<!-- DASHBOARD -->
+
+<?php
+$result = sqlquery_checked("SELECT Dashboard FROM user WHERE UserID='".$_SESSION['userid']."'");
+$row = mysqli_fetch_object($result);
+$dash_current = explode(',', $row->Dashboard);
+
+// build array of all available modules
+$dash_all = array();
+$files = glob(CLIENT_PATH.'/dashboard/'.'*.php');
+foreach ($files as $file) {
+  $tokens = token_get_all(file_get_contents($file));
+  foreach( $tokens as $token )  if (in_array($token[0], array(T_COMMENT)))  break; //get just first comment
+  $dash_desc = '';
+  $dash_finance = 0;
+  $file = substr(basename($file),0,-4);
+  //echo '<pre>'.print_r($token,TRUE).'</pre>';
+  preg_match('#@description=(.*)\n#', $token[1], $tmp);
+  //echo '<pre>desc? '.print_r($tmp,TRUE).'</pre>';
+  if (!empty($tmp))  $dash_desc = $tmp[1];
+  preg_match('#@finance=(.*)\n#', $token[1], $tmp);
+  //echo '<pre>finance? '.print_r($tmp,TRUE).'</pre>';
+  if (!empty($tmp[1]))  $dash_finance = 1;
+  $dash_all[$file] = ['desc'=>$dash_desc, 'finance'=>$dash_finance];
+}
+//echo '<pre>'.print_r($dash_all,TRUE).'</pre>';
+//echo '<pre>'.print_r($dash_current,TRUE).'</pre>';
+
+// display current and optional modules
+?>
+<ul id="dash-selected" class="ui-sortable">
+  <?php
+  foreach
+  ?>
+</ul>
+<ul id="dash-unselected" class="ui-sortable">
+  <?php
+  foreach
+  ?>
+</ul>
+
+?>
+
 <script type="text/JavaScript" src="js/jquery.js"></script>
 <script type="text/JavaScript" src="js/jquery-ui.js"></script>
 <script type="text/JavaScript" src="js/functions.js"></script>
