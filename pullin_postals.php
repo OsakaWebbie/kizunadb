@@ -16,6 +16,11 @@ if (!is_file($filename.'.CSV')) {
   echo "<li>Put the CSV file in the codebase directory</li>\n";
   exit;
 }
+if (!is_writable('.')) {
+  echo "Code directory needs to be writable to create 'needfix' files.\n";
+  echo "Best to run this in dev VM and use an SQL dump (via tool or CLI) to copy the final data.\n";
+  exit;
+}
 
 if (empty($_GET['dryrun']) && empty($_GET['append'])) {
   sqlquery_checked("DROP TABLE IF EXISTS auxpostalcode");
@@ -42,7 +47,6 @@ define('RCHO',6);
 // prepared statement for inserting data
 $insert = mysqli_stmt_init($db);
 mysqli_stmt_prepare($insert,"INSERT INTO auxpostalcode(PostalCode,Prefecture,ShiKuCho,RomajiPref,RomajiShiKuCho) VALUES (?,?,?,?,?)");
-//mysqli_stmt_bind_param($insert, 'sssss', $data[PC],$data[PREF],$newcho,$data[RPREF],$romaji);
 mysqli_stmt_bind_param($insert, 'sssss', $pc,$pref,$newcho,$rpref,$romaji);
 
 // prepared statements for dup processing
@@ -127,7 +131,6 @@ while (($line = fgets($handle, 1024)) !== FALSE) {
           && $machi_pos > 0 && $machi_pos < mb_strlen($data[CHO]-1)) {
         // machi character in center of string
         $data[CHO] = mb_substr($data[CHO],0,$machi_pos+1).'　'.mb_substr($data[CHO],$machi_pos+1);
-        /* TEST */ echo "<p>Added a space to make '{$data[CHO]}'</p>";
       } else {
         fwrite($needjpspaces_handle, $line."\n", 1024);
         $num_needjpspaces++;
