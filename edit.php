@@ -91,7 +91,7 @@ $(document).ready(function(){
               $('#pcrom_display').text($('#postalcode').val());
               if (data.fromaux) {
                 $('#pcromtext_section').show();
-                $('#pcromtext').val('').focus();
+                $('#pcromtext').val(d2h(data.rom));
                 $('#pctext_display').addClass('highlight');
               }
 <?php } ?>
@@ -429,10 +429,10 @@ echo "<h1 id=\"title\">".($pid ? sprintf(_("Edit %s"),$rec->FullName) : _("New E
       <div id="pcromtext_section" style="display:none">
         <label class="japanonly" for="pcromtext" id="pcromtextlabel">
           <?=_("Romaji for PostalCode-related text (<span class=\"highlight\">highlighted</span> above)")?>:<br />
-          <textarea name="pcromtext" id="pcromtext" style="height:2.2em;width:300px;ime-mode:disabled;"
+          <textarea name="pcromtext" id="pcromtext" style="height:2.2em;width:400px;ime-mode:disabled;"
           onchange="editform.updatehh.value=1;"><?=!empty($rec->HouseholdID)?$rec->Romaji:''?></textarea>
         </label>
-        <div class="comment"><?=_("(Community/town name on first line, then ward, city, etc. in reverse order)")?></div>
+        <div class="comment"><?=_("(Adjust formatting and punctuation as desired; see reference below)")?></div>
       </div>
       <div id="rom_address_display" class="japanonly">
         <span id="banchirom_display"></span>&nbsp;<span id="pcromtext_display"></span>&nbsp;<span id="pcrom_display"></span>
