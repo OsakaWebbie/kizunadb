@@ -21,12 +21,12 @@ function validate() {
 </script>
 <?php header2(1);
 
-if (!$hhid) {
+if (empty($hhid)) {
   echo "HouseholdID not passed.  You cannot call this page directly.";
   exit;
 }
 
-if ($newphoto) {
+if (!empty($newphoto)) {
   if (is_uploaded_file($_FILES['photofile']['tmp_name'])) {
     $photofile = CLIENT_PATH."/photos/h".$hhid.".jpg";
     echo "File path is $photofile.<br />";
@@ -94,10 +94,10 @@ if ($hh->NonJapan) {    // There is a non-Japanese address
   echo "No address listed.<br />\n";
 }
 if ($hh->Phone or $hh->FAX) echo "&nbsp;<br />\n";
-if ($hh->Phone) echo "Phone: <font color=#C00000><b>".$hh->Phone."</b></font><br />\n";
-if ($hh->FAX) echo "FAX: <font color=#00C000>".$hh->FAX."</font><br />\n";
-echo " &nbsp;<br /> &nbsp;<br /><font color=#0000C0>(To change the above information, select any<br />\n";
-echo "member below and click &quot;Edit This Record&quot;.)</font><br />&nbsp;<br />&nbsp;<br />\n";
+if ($hh->Phone) echo "Phone: <span style='color:#C00000'><b>".$hh->Phone."</b></span><br />\n";
+if ($hh->FAX) echo "FAX: <span style='color:#00C000'>".$hh->FAX."</span><br />\n";
+echo " &nbsp;<br /> &nbsp;<br /><span style='color:#0000C0'>(To change the above information, select any<br />\n";
+echo "member below and click &quot;Edit This Record&quot;.)</span><br />&nbsp;<br />&nbsp;<br />\n";
 echo "</td></tr></table>\n";
 echo "<div class=\"section\"><h3 class=\"section-title\">"._("Household Members")."</h3>";
 

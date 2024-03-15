@@ -28,7 +28,8 @@ if (empty($_GET['dryrun']) && empty($_GET['append'])) {
   CREATE TABLE auxpostalcode (
     PostalCode varchar(8) NOT NULL default '',
     Prefecture varchar(12) NOT NULL default '',
-    ShiKuCho varchar(50) NOT NULL default '',
+    ShiKu varchar(50) NOT NULL default '',
+    Cho varchar(50) NOT NULL default '',
     RomajiPref varchar(30) NOT NULL default '',
     RomajiShiKuCho varchar(255) NOT NULL default '',
     PRIMARY KEY PostalCode (PostalCode)) ENGINE=MyISAM DEFAULT CHARSET=utf8;
@@ -45,19 +46,13 @@ define('RSHI',5);
 define('RCHO',6);
 
 // prepared statement for inserting data
-$insert = mysqli_stmt_init($db);
-mysqli_stmt_prepare($insert,"INSERT INTO auxpostalcode(PostalCode,Prefecture,ShiKuCho,RomajiPref,RomajiShiKuCho) VALUES (?,?,?,?,?)");
-mysqli_stmt_bind_param($insert, 'sssss', $pc,$pref,$newcho,$rpref,$romaji);
-
-// prepared statements for dup processing
-/*$select = mysqli_stmt_init($db);
-mysqli_stmt_prepare($select,"SELECT * FROM auxpostalcode WHERE PostalCode=?");
-mysqli_stmt_bind_param($select, 's', $data[PC]);
-
-$update = mysqli_stmt_init($db);
-mysqli_stmt_prepare($update,"UPDATE auxpostalcode SET ShiKuCho=?, RomajiShiKuCho=? WHERE PostalCode=?");
-mysqli_stmt_bind_param($update, 'sss', $newcho, $romaji, $data[PC]);*/
-
+if (empty($_GET['dryrun'])) {
+  $insert = mysqli_stmt_init($db);
+  if (!mysqli_stmt_prepare($insert,"INSERT INTO auxpostalcode(PostalCode,Prefecture,ShiKu,Cho,RomajiPref,RomajiShiKuCho) VALUES (?,?,?,?,?,?)"))
+    echo "mysqli_stmt_prepare failed<br>";
+  if (!mysqli_stmt_bind_param($insert, 'ssssss', $pc,$pref,$shiku,$cho,$rpref,$romaji))
+    echo "mysqli_stmt_bind_param failed (probably due to prepare failure)<br>";
+}
 
 $handle = fopen($filename.'.CSV', "r");
 $needjpspaces_handle = fopen($filename.'_needjpspaces.CSV', "w");
@@ -86,19 +81,21 @@ while (($line = fgets($handle, 1024)) !== FALSE) {
   for ($i=0; $i<7; $i++) {
     $data[$i] = trim($data[$i],'"');
   }
+  $newshi = $data[SHI];
+  $newcho = $data[CHO];
 
   // postal code: insert dash
   $data[PC] = mb_substr($data[PC],0,3)."-".mb_substr($data[PC],3,4);
 
   // Handle duplicate postal codes
-  $dup = FALSE;
+  $hasdup = FALSE;
   if (in_array($data[PC],$prev_pc)) {
     $num_dups++;
     if (is_numeric(substr($data[RCHO],0,1))) {
       //just a continuation of a parenthetical phrase
       continue;
     } else {
-      $dup = TRUE;  // some other reason for duplication - handle later
+      $hasdup = TRUE;  // some other reason for duplication - handle later
     }
   }
 
@@ -128,7 +125,7 @@ while (($line = fgets($handle, 1024)) !== FALSE) {
     if (strpos($data[RCHO],' ') !== FALSE && strpos($data[CHO],'　') === FALSE) {
       $machi_pos = mb_strpos($data[CHO],'町');
       if (preg_match('/[A-Z]+(MACHI|CHO) [A-Z]+/',$data[RCHO]) && $machi_pos !== FALSE
-          && $machi_pos > 0 && $machi_pos < mb_strlen($data[CHO]-1)) {
+          && $machi_pos > 0 && $machi_pos < mb_strlen($data[CHO])-1) {
         // machi character in center of string
         $data[CHO] = mb_substr($data[CHO],0,$machi_pos+1).'　'.mb_substr($data[CHO],$machi_pos+1);
       } else {
@@ -267,28 +264,50 @@ while (($line = fgets($handle, 1024)) !== FALSE) {
     $i--;
   }
 
+  // if ShiKu has a 郡 and then a 町, 村, or the single oddball '大', move those things to Cho
+  if (mb_strpos($data[SHI],'郡')!==FALSE
+      && (mb_substr($data[SHI],-1)=='町' || mb_substr($data[SHI],-1)=='村' || mb_substr($data[SHI],-1)=='大')) {
+    // to avoid "上郡町" in Hyogo, we index from the left (there are no gun entities with "郡" in their name)
+    $data[CHO] = mb_substr($data[SHI], mb_strpos($data[SHI],'郡')+1) . $data[CHO];
+    $data[SHI] = mb_substr($data[SHI], 0,mb_strpos($data[SHI],'郡')+1);
+  }
+
   $romaji = ucwords(strtolower($romaji));
 
   //handle duplicate postal codes
-  if ($dup) {
+  if ($hasdup) {
     if (!empty($_GET['dryrun']))  continue;  //dup processing depends on database table use
 
     $dupquery = sqlquery_checked("SELECT * FROM auxpostalcode WHERE PostalCode='{$data[PC]}'");
     /* TEST */ if (mysqli_num_rows($dupquery)==0) echo '<h3>'.$data[PC].' not in DB! (2nd cho="'.$data[CHO].'")</h3>';
-    $dup = mysqli_fetch_object($dupquery);
-    if (!empty($dup) && $dup->ShiKuCho != '' && mb_strpos($data[SHI].$data[CHO], $dup->ShiKuCho) === FALSE) {  //needs shortening
-      $len = mb_strlen($dup->ShiKuCho) - 1;
-      while ($len > 0) {  // look for longest piece of Japanese in common
-        if (mb_strpos($data[SHI].$data[CHO],mb_substr($dup->ShiKuCho,0,$len)) === 0) {  //short enough
-          $newcho = mb_substr($dup->ShiKuCho,0,$len);
-          break;
+    $duprow = mysqli_fetch_object($dupquery);
+    if (!empty($duprow) && $duprow->ShiKu.$duprow->Cho != '' && mb_strpos($data[SHI].$data[CHO], $duprow->ShiKu.$duprow->Cho) === FALSE) {  //needs shortening
+      if ($duprow->ShiKu != $data[SHI]) {  // even the Shi/Ku/Gun part has differences
+        $len = mb_strlen($duprow->ShiKu) - 1;
+        while ($len > 0) {  // look for longest piece of Japanese in common
+          if (mb_strpos($data[SHI],mb_substr($duprow->ShiKu,0,$len)) === 0) {  //short enough
+            $newshi = mb_substr($duprow->ShiKu,0,$len);
+            break;
+          }
+          $len--;
         }
-        $len--;
+        if ($len==0) $newshi = '';  //nothing matched even in Shi! The post office is weird
+        //echo '<h3>Dup '.$data[PC].' with different ShiKu: 1st="'.$duprow->ShiKu.'", 2nd="'.$data[SHI].'". Result="'.$newshi.'".</h3>';
+        $newcho = '';  // if ShiKu is different, Cho is irrelevant
+      } else {
+        $len = mb_strlen($duprow->Cho) - 1;
+        while ($len > 0) {  // look for longest piece of Japanese in common
+          if (mb_strpos($data[CHO],mb_substr($duprow->Cho,0,$len)) === 0) {  //short enough
+            $newcho = mb_substr($duprow->Cho,0,$len);
+            break;
+          }
+          $len--;
+        }
+        if ($len==0) $newcho = '';  //nothing matched
       }
-      if ($len==0) $newcho = '';  //nothing matched
 
       // now do the romaji
-      $dbrom_array = explode(',',$dup->RomajiShiKuCho,2);
+      $dbrom_array = explode(',',$duprow->RomajiShiKuCho,2);
       $newrom_array = explode(',',$romaji,2);
       $len = strlen($dbrom_array[0]) - 1;
       while ($len > 1) {  // 1 not 0 to avoid coincidentally matching single letter
@@ -300,21 +319,23 @@ while (($line = fgets($handle, 1024)) !== FALSE) {
       }
       if ($len < 2) unset($newrom_array[0]);  //nothing matched
       $romaji = trim(implode(',',$newrom_array));
-      sqlquery_checked("UPDATE auxpostalcode SET ShiKuCho='$newcho', RomajiShiKuCho='$romaji' WHERE PostalCode='{$data[PC]}'");
+      sqlquery_checked("UPDATE auxpostalcode SET ShiKu='$newshi', Cho='$newcho', RomajiShiKuCho='$romaji' WHERE PostalCode='{$data[PC]}'");
     }  // end if existing entry needs to be shortened
 
   } else {  // not duplicate, so go ahead and insert to the database
     $pc = $data[PC];
     $pref = $data[PREF];
-    $newcho = $data[SHI].$data[CHO];
+    $shiku = $data[SHI];
+    $cho = $data[CHO];
     $rpref = $data[RPREF];
     if (empty($_GET['dryrun'])) {
       if (!mysqli_stmt_execute($insert)) {
         // hmm, insert failed
         printf("<p><br>Insert failed: %s</p>", mysqli_error($db));
+        echo "<p>PC='$pc', PREF='$pref', SHIKU='$shiku', CHO='$cho', RPREF='$rpref', ROMAJI='$romaji'</p>\n";
         fwrite($needfix_handle, $line."\n", 1024);
         $num_needfix++;
-        echo "<p><strong>FIX:</strong> $line</p>";
+        echo "<p><strong>NEEDFIX:</strong> $line</p>";
         continue;
       } else {  // success
         $num_inserted++;
@@ -335,9 +356,9 @@ if (filesize($filename.'_needfix.CSV') == 0) unlink($filename.'_needfix.CSV');
 //if (empty($_GET['dryrun']) && empty($_GET['keepfile']))  unlink($filename);
 
 echo "</p><h2><br>In theory, all was completed.</h2><p>".
-"$num_total total entries processed.<br>$num_inserted entries inserted into database.<br>".
-"$num_dups duplicates found and handled.<br>$num_needjpspaces entries need JP spaces (see CSV).<br>".
-"$num_needromspaces entries need romaji spaces (see CSV).<br>$num_needfix entries need other fixes (see CSV).<br>".
-'Edit the new CSV files, then run again with "?append=1&utf=1&file=(the-filename-root)".</p>';
+    "$num_total total entries processed.<br>$num_inserted entries inserted into database.<br>".
+    "$num_dups duplicates found and handled.<br>$num_needjpspaces entries need JP spaces (see CSV).<br>".
+    "$num_needromspaces entries need romaji spaces (see CSV).<br>$num_needfix entries need other fixes (see CSV).<br>".
+    'Edit the new CSV files, then run again with "?append=1&utf=1&file=(the-filename-root)".</p>';
 footer();
 ?>

@@ -12,6 +12,23 @@ $join = $where = "";
 $ptable = $grouptable = "person";
 $closing = '';
 
+if (!isset($_REQUEST['filter'])) $_REQUEST['filter'] = 'Records';
+if (!isset($_REQUEST['textinout1'])) $_REQUEST['textinout1'] = 'IN';
+if (!isset($_REQUEST['texttarget1'])) $_REQUEST['texttarget1'] = 'Name';
+if (!isset($_REQUEST['catinout1'])) $_REQUEST['catinout1'] = 'IN';
+if (!isset($_REQUEST['actioninout1'])) $_REQUEST['actioninout1'] = 'IN';
+if (!isset($_REQUEST['ctstartdate1'])) $_REQUEST['ctstartdate1'] = '';
+if (!isset($_REQUEST['ctenddate1'])) $_REQUEST['ctenddate1'] = '';
+if (!isset($_REQUEST['seqorder1'])) $_REQUEST['seqorder1'] = 'AFTER';
+if (!isset($_REQUEST['donationinout1'])) $_REQUEST['donationinout1'] = 'IN';
+if (!isset($_REQUEST['dtstartdate1'])) $_REQUEST['dtstartdate1'] = '';
+if (!isset($_REQUEST['dtenddate1'])) $_REQUEST['dtenddate1'] = '';
+if (!isset($_REQUEST['attendinout1'])) $_REQUEST['attendinout1'] = 'IN';
+if (!isset($_REQUEST['astartdate1'])) $_REQUEST['astartdate1'] = '';
+if (!isset($_REQUEST['aenddate1'])) $_REQUEST['aenddate1'] = '';
+if (!isset($_REQUEST['blanktarget1'])) $_REQUEST['blanktarget1'] = '';
+if (!isset($_REQUEST['freesql'])) $_REQUEST['freesql'] = '';
+
 if ($_REQUEST['filter'] == "Organizations") {
   $where .= " WHERE Organization>0";
   $criterialist .= "<li>"._("Organizations only");
