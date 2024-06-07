@@ -3,11 +3,14 @@ include("functions.php");
 include("accesscontrol.php");
 
 if (!empty($_GET['oncall'])) {  // code to only be run when specifically requested
-  if (strpos($_SESSION['dashboard_oncall'],$_GET['oncall']) !== FALSE
-      && file_exists(CLIENT_PATH . '/dashboard/' . $_GET['oncall'] . '.php')) {
-    include(CLIENT_PATH . '/dashboard/' . $_GET['oncall'] . '.php');
-  } else echo '<div>On-call file "' . $_GET['oncall'] . '.php" was not found.<br>Path: '.CLIENT_PATH . '/dashboard/' . $_GET['oncall'] . '.php</div>';
-  exit;
+  if (strpos($_SESSION['dashboard_oncall'],$_GET['oncall']) !== FALSE) {
+    if (file_exists(CLIENT_PATH . '/dashboard/' . $_GET['oncall'] . '.php')) {
+      include(CLIENT_PATH . '/dashboard/' . $_GET['oncall'] . '.php');
+    } else {
+      echo '<div>On-call file "' . $_GET['oncall'] . '.php" was not found.<br>Path: '.CLIENT_PATH . '/dashboard/' . $_GET['oncall'] . '.php</div>';
+    }
+    exit;
+  }
 }
 
 if ($_SESSION['admin'] && isset($_GET['user'])) {  /* to test or view other user's dashboards */
