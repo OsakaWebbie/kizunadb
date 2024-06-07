@@ -13,13 +13,23 @@ $sql = "SELECT * FROM addrprint WHERE AddrPrintName='".urldecode($_POST['addr_pr
 $result = sqlquery_checked($sql);
 $print = mysqli_fetch_object($result);
 
+// check for custom code - each file must have a function with the same name to be called inside the loop
+if (!empty($print->Custom)) {
+  $customfiles = explode(',', $print->Custom);
+  foreach ($customfiles as $file) {
+    if (file_exists(CLIENT_PATH . '/dashboard/' . $file . '.php')) {
+      include(CLIENT_PATH . '/dashboard/' . $file . '.php');
+    }
+  }
+}
 $sql = "SELECT ".($_POST['name_type']=="label" ? "DISTINCT LabelName" :
-"IF(NonJapan, CONCAT(Title,' ',FullName), CONCAT(FullName,Title))")." AS Name, NonJapan, postalcode.*, Address ".
+"IF(NonJapan, CONCAT(Title,' ',FullName), CONCAT(FullName,Title))")." AS Name, ".
+    "NonJapan, postalcode.*, Address, PersonID, h.HouseholdID ".
 "FROM person p LEFT JOIN household h ON p.HouseholdID=h.HouseholdID ".
-"LEFT JOIN postalcode ON h.PostalCode=postalcode.PostalCode WHERE p.PersonID IN (".$pid_list.") ".
-"AND p.HouseholdID IS NOT NULL AND p.HouseholdID>0 AND h.Address IS NOT NULL AND h.Address!='' ".
-"AND (h.NonJapan=1 OR h.PostalCode!='') ORDER BY ".($_POST['nj_separate']=="yes" ? "NonJapan," : "").
-"FIND_IN_SET(PersonID,'".$pid_list."')";
+"LEFT JOIN postalcode ON h.PostalCode=postalcode.PostalCode WHERE p.PersonID IN (".$_POST['pid_list'].") ".
+    "AND p.HouseholdID IS NOT NULL AND p.HouseholdID>0 AND h.Address IS NOT NULL AND h.Address!='' ".
+    "AND (h.NonJapan=1 OR h.PostalCode!='') ".
+    "ORDER BY ".($_POST['nj_separate']=="yes" ? "NonJapan," : "")."FIND_IN_SET(PersonID,'".$_POST['pid_list']."')";
 $result = sqlquery_checked($sql);
 if (mysqli_num_rows($result)==0) {
   die(_("No addresses to print. Just close this tab and check your selection."));
@@ -35,14 +45,14 @@ $kanji_array = array("〇","一","二","三","四","五","六","七","八","九"
 $search_array = array("&","¡","£","©","®","¸","¿",
     "À","Á","Â","Ã","Ä","Å","Æ","Ç","È","É","Ê","Ë","Ì","Í","Î","Ï","Ñ",
     "Ò","Ó","Ô","Õ","Ö","Ø","Ù","Ú","Û","Ü","Ý","ß","à","á","â","ã","ä","å","æ","ç","è","é","ê","ë","ì","í","î","ï","ñ",
-    "ò","ó","ô","õ","ö","ø","ù","ú","û","ü","ý","ÿ");
+    "ò","ó","ô","õ","ö","ø","ù","ú","û","ü","ý","ÿ",'御中','先生');
 $replace_array = array("\\&","!`","\\pounds","\\textcopyright","\\textregistered","\\c{}","\\textcopyright",
     "\\`{A}","\\'{A}","\\^{A}","\\~{A}","\\\"{A}","\\AA{}","\\AE{}","\\c{C}","\\`{E}","\\'{E}","\\^{E}","\\\"{E}",
     "\\`{I}","\\'{I}","\\^{I}","\\\"{I}","\\~{N}",
     "\\`{O}","\\'{O}","\\^{O}","\\~{O}","\\\"{O}","\\O","\\`{U}","\\'{U}","\\^{U}","\\\"{U}","\\'{Y}","\\ss{}",
     "\\`{a}","\\'{a}","\\^{a}","\\~{a}","\\\"{a}","\\aa{}","\\ae{}","\\c{c}","\\`{e}","\\'{e}","\\^{e}","\\\"{e}",
     "\\`{i}","\\'{i}","\\^{i}","\\\"{i}","\\~{n}",
-    "\\`{o}","\\'{o}","\\^{o}","\\~{o}","\\\"{o}","\\o","\\`{u}","\\'{u}","\\^{u}","\\\"{u}","\\'{y}","\\\"{y}");
+    "\\`{o}","\\'{o}","\\^{o}","\\~{o}","\\\"{o}","\\o","\\`{u}","\\'{u}","\\^{u}","\\\"{u}","\\'{y}","\\\"{y}",'\mbox{御中}','\mbox{先生}');
 //echo "<pre>".print_r($search_array,TRUE)."\n\n".print_r($replace_array,TRUE)."\n\n";
 //echo str_replace($search_array, $replace_array, "Test")."</pre>";
 //exit;
@@ -70,10 +80,23 @@ echo "\xEF\xBB\xBF";  //UTF-8 Byte Order Mark
 \gtfamily
 <?php
 while ($row = mysqli_fetch_object($result)) {
+
+  // call function(s) in custom code
+  if (!empty($print->Custom)) {
+    $files = explode(',', $print->Custom);
+    foreach ($files as $file) {
+      if (file_exists(CLIENT_PATH . '/dashboard/'.$file.'.php') && is_callable($file.'_loop_start')) {
+        $function = $file.'_loop_start';
+        if ($function() == 'SKIP') continue 2;
+      }
+    }
+  }
+?>
+\begin{picture}(<?=$print->PaperWidth?>,<?=$print->PaperHeight?>)(3,3)
+<?php
   if ($row->NonJapan == 1) {
 ?>
 %% NON-JAPAN PAGE %%
-\begin{picture}(<?=$print->PaperWidth?>,<?=$print->PaperHeight?>)(3,3)
 %% Return Address %%
 \put(<?=$print->NJRetAddrLeftMargin?>,<?=$print->NJRetAddrTopMargin?>){%
 <?=$print->NJRetAddrContent?>}
@@ -82,16 +105,13 @@ while ($row = mysqli_fetch_object($result)) {
 {\makebox(<?=$print->NJAddrPositionX-$print->PaperLeftMargin?>,<?=$print->NJAddrHeight?>)[rt]{
 \begin{minipage}<t>[t]{<?=$print->NJAddrHeight?>mm}%
 \fontsize{<?=$print->NJAddrPointSize?>}{<?=$print->NJAddrPointSize*1.1?>}\selectfont
-<?=preg_replace("\r\n|\r|\n","\n\n\\hangindent=10mm\n",str_replace($search_array,$replace_array,$row->Name))."\n\n"?>
-<?=preg_replace("\r\n|\r|\n","\n\n\\hangindent=10mm\n",str_replace($search_array,$replace_array,$row->Address))."\n"?>
+<?=preg_replace("/\r\n|\r|\n/","\n\n\\hangindent=10mm\n",str_replace($search_array,$replace_array,$row->Name))."\n\n"?>
+<?=preg_replace("/\r\n|\r|\n/","\n\n\\hangindent=10mm\n",str_replace($search_array,$replace_array,$row->Address))."\n"?>
 \end{minipage}}}
-\end{picture}
-\clearpage  
 <?php
   } else {  //Japanese address
 ?>
 %% JAPAN PAGE %%
-\begin{picture}(<?=$print->PaperWidth?>,<?=$print->PaperHeight?>)(3,3)
 <?php
     if ($_POST['po_stamp']!='none') {  //Post Office stamp requested
       if ($_POST['po_stamp']=='betsunou') {
@@ -140,8 +160,8 @@ while ($row = mysqli_fetch_object($result)) {
 \fontsize{<?=$print->AddrPointSize?>}{<?=$print->AddrPointSize*1.2?>}\selectfont
 \hangindent=<?=($print->AddrLineLength*0.4)?>mm
 \mbox{<?=$row->Prefecture.$row->ShiKuCho?>}
-\mbox{<?=preg_replace("\r\n|\r|\n","}\n\n\\hangindent=".($print->AddrLineLength*0.4)."mm\n\\mbox{",
-($_POST['kanji_numbers']=='yes' ? str_replace($number_array,$kanji_array,$row->Address) : $row->Address))?>}
+\mbox{<?=preg_replace("/\r\n|\r|\n/","}\n\n\\hangindent=".($print->AddrLineLength*0.4)."mm\n\\mbox{",
+(!empty($_POST['kanji_numbers']) ? str_replace($number_array,$kanji_array,$row->Address) : $row->Address))?>}
 \end{minipage}}}
 
 %% Name %%
@@ -150,7 +170,7 @@ while ($row = mysqli_fetch_object($result)) {
 \begin{minipage}<t>[t]{<?=$print->NameLineLength?>mm}
 \fontsize{<?=$print->NamePointSize?>}{<?=$print->NamePointSize*1.2?>}\selectfont
 \hangindent=<?=($print->NameLineLength*0.1)?>mm
-<?=preg_replace("\r\n|\r|\n","\n\n\\hangindent=".($print->NameLineLength*0.1)."mm\n",
+<?=preg_replace("/\r\n|\r|\n/","\n\n\\hangindent=".($print->NameLineLength*0.1)."mm\n",
 str_replace($search_array,$replace_array,$row->Name))?>
 \end{minipage}}}
 <?php
@@ -165,8 +185,8 @@ str_replace($search_array,$replace_array,$row->Name))?>
 \fontsize{<?=$print->AddrPointSize?>}{<?=$print->AddrPointSize*1.2?>}\selectfont
 \hangindent=<?=($print->AddrLineLength*0.4)?>mm
 \mbox{<?=$row->Prefecture.$row->ShiKuCho?>}
-\mbox{<?=preg_replace("\r\n|\r|\n","}\n\n\\hangindent=".($print->AddrLineLength*0.4)."mm\n\\mbox{",
-($_POST['kanji_numbers']=='yes' ? str_replace($number_array,$kanji_array,$row->Address) : $row->Address))?>}
+\mbox{<?=preg_replace("/\r\n|\r|\n/","}\n\n\\hangindent=".($print->AddrLineLength*0.4)."mm\n\\mbox{",
+(!empty($_POST['kanji_numbers']) ? str_replace($number_array,$kanji_array,$row->Address) : $row->Address))?>}
 \end{minipage}}}
 
 %% Name %%
@@ -175,7 +195,7 @@ str_replace($search_array,$replace_array,$row->Name))?>
 \begin{minipage}<y>[t]{<?=$print->NameLineLength?>mm}
 \fontsize{<?=$print->NamePointSize?>}{<?=$print->NamePointSize*1.2?>}\selectfont
 \hangindent=<?=($print->NameLineLength*0.1)?>mm
-<?=preg_replace("\r\n|\r|\n","\n\n\\hangindent=".($print->NameLineLength*0.1)."mm\n",
+<?=preg_replace("/\r\n|\r|\n/","\n\n\\hangindent=".($print->NameLineLength*0.1)."mm\n",
 str_replace($search_array,$replace_array,$row->Name))?>
 \end{minipage}}}
 <?php
@@ -184,10 +204,24 @@ str_replace($search_array,$replace_array,$row->Name))?>
 %% Return Address %%
 \put(<?=$print->PaperLeftMargin?>,<?=$print->PaperBottomMargin?>){%
 <?=$print->RetAddrContent?>}
+<?php
+  }  //end Japanese address
+
+  // call function(s) in custom code
+  if (!empty($print->Custom)) {
+    $files = explode(',', $print->Custom);
+    foreach ($files as $file) {
+      if (file_exists(CLIENT_PATH . '/dashboard/'.$file.'.php') && is_callable($file.'_page_end')) {
+        $function = $file.'_page_end';
+        $function();
+      }
+    }
+  }
+
+?>
 \end{picture}
 \clearpage
 <?php
-  }  //end Japanese address
 }  //end while looping through addresses
 ?>
 \end{document}

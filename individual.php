@@ -392,7 +392,7 @@ echo "</div>";  //end of cats-out
 <!-- Organization Section -->
 <?php //if ($per->Organization==0) { ?>
 
-<a name="org"></a>
+<a id="org"></a>
 <div class="section" id="orgsection">
 <h3 class="section-title"><?=_("Related Organizations")?></h3>
 
@@ -540,7 +540,7 @@ echo "</div>";
 
 <!-- Actions Section -->
 
-<a name="actions"></a>
+<a id="actions"></a>
 <div class="section">
 <?php
 echo "<h3 class=\"section-title\">"._("Actions")."</h3>\n";
@@ -581,7 +581,7 @@ $result = sqlquery_checked("SELECT a.ActionID,a.ActionTypeID,t.ActionType,Action
 if (mysqli_num_rows($result) == 0) {
   echo("<p>"._("No actions recorded.")."</p>");
 } else {
-  echo "<table id=\"action-table\" class=\"tablesorter\" width=\"100%\" border=\"1\"><thead><tr>";
+  echo "<table id='action-table' class='tablesorter'><thead><tr>";
   echo "<th>"._("Date")."</th><th>"._("Action Type")."</th><th>"._("Description")."</th><th></th><th></th>\n";
   echo "</tr></thead><tbody>\n";
   $row_index = 0;
@@ -633,7 +633,7 @@ if ($_SESSION['donations'] == "yes") {   // covers both DONATIONS and PLEDGES se
 
 <!-- Donations Section -->
 
-<a name="donations"></a>
+<a id="donations"></a>
 <div class="section">
 <h3 class="section-title"><?=_('Donations')?></h3>
 <?php
@@ -671,7 +671,7 @@ $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
   echo "<label class=\"label-n-input\">"._("Amount").": ".$_SESSION['currency_mark'];
   echo "<input type=\"text\" name=\"amount\" style=\"width:6em\" value=\"".(!empty($_GET['editdonation'])?$_GET['amount']:"")."\"></label>";
   echo "<label class=\"label-n-input\">"._("Description").": ";
-  echo "<input type=\"text\" name=\"desc\" style=\"width:12em\" value=\"".(!empty($_GET['editdonation'])?$_GET['desc']:"")."\"></label>";
+  echo "<input type=\"text\" name=\"desc\" style=\"width:30em\" value=\"".(!empty($_GET['editdonation'])?$_GET['desc']:"")."\"></label>";
   echo "<label class=\"label-n-input\">";
   echo "<input type=\"checkbox\" name=\"proc\"".(!empty($_GET['editdonation'])?($_GET['proc']?" checked":""):"").">"._("Processed")."</label>";
   if (!empty($_GET['editdonation'])) {
@@ -689,7 +689,7 @@ $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
   if (mysqli_num_rows($result) == 0) {
     echo "<p>"._('No donations recorded.')."</p>";
   } else {
-    echo "<table id=\"donation-table\" class=\"tablesorter\" width=\"100%\" border=\"1\"><thead>";
+    echo "<table id='donation-table' class='tablesorter'><thead>";
     echo "<tr><th>"._("Date")."</th><th>"._("Pledge or Donation Type")."</th><th>"._("Amount")."</th><th>"._("Description").
     "</th><th>"._("Proc.")."</th><th></th><th></th></tr>\n</thead><tbody>\n";
     $row_index = 0;
@@ -752,48 +752,54 @@ $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
 
 <!-- Pledges Section -->
 
-<a name="pledges"></a>
+<a id="pledges"></a>
 <div class="section">
 <?php
   echo "<h3 class=\"section-title\">"._("Pledges")."</h3>\n";
 
-  $sql = "SELECT pl.*, dt.DonationType, SUM(IFNULL(d.Amount,0)) - (pl.Amount * (IF(pl.TimesPerYear=0,".
-      "IF(CURDATE()<pl.EndDate,0,1),pl.TimesPerYear / 12 * PERIOD_DIFF(DATE_FORMAT(IF(pl.EndDate='0000-00-00' ".
-      "OR CURDATE()<pl.EndDate,CURDATE(), pl.EndDate), '%Y%m'), DATE_FORMAT(pl.StartDate, '%Y%m')))))".
-      "Balance FROM pledge pl LEFT JOIN donationtype dt ON pl.DonationTypeID=dt.DonationTypeID ".
-      "LEFT JOIN donation d ON pl.PledgeID=d.PledgeID ".
-      "WHERE pl.PersonID=${_GET['pid']} GROUP BY pl.PledgeID ".
-      "ORDER BY pl.StartDate DESC";
+  $sql = <<<SQL
+SELECT pl.*, dt.DonationType, SUM(IFNULL(d.Amount,0)) - (pl.Amount * (IF(pl.TimesPerYear=0,
+IF(CURDATE()<pl.StartDate,0,1),pl.TimesPerYear / 12 * PERIOD_DIFF(DATE_FORMAT(IF(pl.EndDate='0000-00-00'
+OR CURDATE()<pl.EndDate,CURDATE(), pl.EndDate), '%Y%m'), DATE_FORMAT(pl.StartDate, '%Y%m')))))
+Balance FROM pledge pl LEFT JOIN donationtype dt ON pl.DonationTypeID=dt.DonationTypeID
+LEFT JOIN donation d ON pl.PledgeID=d.PledgeID
+WHERE pl.PersonID={$_GET['pid']} GROUP BY pl.PledgeID
+ORDER BY
+  CASE WHEN EndDate='0000-00-00' THEN 1 ELSE 2 END,
+  CASE WHEN pl.TimesPerYear=0 AND SUM(IFNULL(d.Amount,0)) - (pl.Amount * IF(CURDATE()<pl.StartDate,0,1)) < 0 THEN 1 ELSE 2 END,
+  pl.StartDate DESC
+SQL;
   $result = sqlquery_checked($sql);
   if (mysqli_num_rows($result) == 0) {
-    echo("<p align=\"center\">No pledges. &nbsp; &nbsp; &nbsp;<a href=\"edit_pledge.php?pid=${_GET['pid']}\">"._("Create New Pledge")."</a></p>");
+    echo("<p style='text-align:center'>No pledges. &nbsp; &nbsp; &nbsp;<a href=\"edit_pledge.php?pid=${_GET['pid']}\">"._("Create New Pledge")."</a></p>");
   } else {
-    echo "<table width=\"100%\" border=\"1\"><thead>\n";
-    echo "<tr><th>"._("Type")."</th><th>"._("Description")."</th><th>"._("Amount")."</th><th>"._("Dates")."</th>";
+    echo "<table id='pledge-table' class='tablesorter'><thead>\n";
+    echo "<tr><th>"._("Donation Type")."</th><th>"._("Description")."</th><th>"._("Amount")."</th><th>"._("Dates")."</th>";
     echo "<th>Balance</th><th></th></tr>\n</thead><tbody>\n";
     while ($row = mysqli_fetch_object($result)) {
-      echo "<tr>\n";
-      echo "<td align=\"center\">".$row->DonationType."</td>\n";
-      echo "<td align=\"center\">".db2table($row->PledgeDesc)."</td>\n";
-      echo "<td align=\"center\" nowrap>".$_SESSION['currency_mark']." ".
+      echo '<tr'.($row->EndDate!='0000-00-00' && $row->EndDate < today() ? ' style="background-color:#E0E0E0"' : '').">\n";
+      echo "<td>".$row->DonationType."</td>\n";
+      echo "<td>".db2table($row->PledgeDesc)."</td>\n";
+      echo "<td style='text-align:center' nowrap>".$_SESSION['currency_mark']." ".
           number_format($row->Amount,$_SESSION['currency_decimals']).$period[$row->TimesPerYear]."</td>\n";
-      echo "<td align=\"center\" nowrap>".$row->StartDate."&#xFF5E;".($row->EndDate!='0000-00-00' ? $row->EndDate : "")."</td>\n";
-      echo "<td align=\"center\" nowrap".($row->Balance<0 ? " style=\"color:red\"" : "").">".
-          $_SESSION['currency_mark']." ".number_format($row->Balance,$_SESSION['currency_decimals']).
-          (($row->Balance<0 && $row->TimesPerYear>0) ? "<br>(".number_format(((0-$row->Balance)/$row->Amount*12/$row->TimesPerYear),0)." months)" : "")."</td>\n";
-      echo "<td align=\"center\" nowrap><a href=\"edit_pledge.php?plid=".$row->PledgeID."\">"._("Edit/Del")."</a></td>\n";
+      echo '<td nowrap>'.$row->StartDate.($row->TimesPerYear!=0 ? '&#xFF5E;'.($row->EndDate!='0000-00-00' ? $row->EndDate : '') : '')."</td>\n";
+      echo '<td style="text-align:center" nowrap>'.($row->Balance<0 ? '<span style="color:red">' : '').
+          $_SESSION['currency_mark'].' '.number_format($row->Balance,$_SESSION['currency_decimals']).
+          (($row->Balance<0 && $row->TimesPerYear>0) ? "<br>(".number_format(((0-$row->Balance)/$row->Amount*12/$row->TimesPerYear),0)." months)" : "").
+          ($row->Balance<0 ? '</span>' : '')."</td>\n";
+      echo "<td style='text-align:center' nowrap><a href=\"edit_pledge.php?plid=".$row->PledgeID."\">"._("Edit/Del")."</a></td>\n";
       echo "</tr>\n";
     }
     echo "</tbody></table><a href=\"edit_pledge.php?pid=${_GET['pid']}\">"._("Create New Pledge")."</a>";
   }
   echo "</div>";
 
-}  // end of donation & pledge section (conditional, only if set in config record)
+}  // end of donation & pledge section (conditional, only if set in config record and permitted for this user)
 ?>
 
 <!-- Attendance Section -->
 
-<a name="attendance"></a>
+<a id="attendance"></a>
 <div class="section">
 <?php
 echo "<h3 class=\"section-title\">"._("Event Attendance")."</h3>\n";
@@ -876,7 +882,7 @@ if (mysqli_num_rows($result) == 0) {
 </div>
 
 <!-- Uploads Section -->
-<a name="uploads"></a>
+<a id="uploads"></a>
 <div class="section">
 <?php
 echo "<h3 class=\"section-title\">"._("Uploaded Files")."</h3>\n";
@@ -952,6 +958,8 @@ if($_SESSION['lang']=="ja_JP") {
   $("#attendendtime").timepicker();
 
   $("#action-table").tablesorter({ sortList:[[0,1]], headers:{3:{sorter:false},4:{sorter:false}} });
+  $("#donation-table").tablesorter({ sortList:[[0,1]], headers:{5:{sorter:false},6:{sorter:false}} });
+  $("#pledge-table").tablesorter({ headers:{5:{sorter:false}} });
   $("#attend-table").tablesorter({ sortList:[[1,1]], headers:{3:{sorter:false}} });
   $("#upload-table").tablesorter({ sortList:[[0,1]], headers:{3:{sorter:false}} });
 

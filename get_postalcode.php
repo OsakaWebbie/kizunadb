@@ -2,7 +2,7 @@
 include("functions.php");
 session_start();
 if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
-  die("{ 'alert':'NOSESSION' }");
+  die('{ "alert":"NOSESSION" }');
 }
 
 if (isset($_GET['pc']) && $_GET['pc']!="") {
@@ -15,7 +15,7 @@ if (isset($_GET['pc']) && $_GET['pc']!="") {
     $row = mysqli_fetch_object($result);
     echo '{ "pref":"'.$row->Prefecture.'","shi":"'.$row->ShiKuCho.'"';
     if ($_SESSION['romajiaddresses']) echo ',"rom":"'.d2j($row->Romaji)."\"";
-    die ("}");
+    die ('}');
   } elseif ($_GET['aux']) {
     $sql = "SELECT * FROM kizuna_common.auxpostalcode WHERE PostalCode='".$_GET['pc']."'";
 //echo "gonna try aux - sql is:<br />$sql<br />";
@@ -29,6 +29,6 @@ if (isset($_GET['pc']) && $_GET['pc']!="") {
       die(',"fromaux":"yes"}');
     }
   }
-  echo "{ 'alert':'PCNOTFOUND' }";
+  die('{ "alert":"PCNOTFOUND" }');
 }
 ?>

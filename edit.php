@@ -66,6 +66,18 @@ $(document).ready(function(){
   $('#postalcode').keyup(function(){  //fill other fields when applicable Postal Code is typed
     var newPostalCode = $('#postalcode').val();
     if (newPostalCode != oldPostalCode) {
+      if ($('#postalcode_display').text() != '') {
+        $('#postalcode_display').text('');
+        $('#pctext_display').text('');
+        $('#prefecture').val('');
+        $('#shikucho').val('');
+        <?php if ($_SESSION['romajiaddresses'] == "yes") { ?>
+        $('#pcromtext_display').text('');
+        $('#pcrom_display').text('');
+        $('#pcromtext_section').hide();
+        $('#pcromtext_display').removeClass('highlight');
+        <?php } ?>
+      }
       oldPostalCode = newPostalCode;
       if (pc_regexp.test($('#postalcode').val())) {
         $.ajax({
@@ -77,7 +89,7 @@ $(document).ready(function(){
           success: function(data, status, z) {
             if (data.alert === "NOSESSION") {
               alert("<?=_("Your session has timed out - please refresh the page.")?>");
-            } else if (data.alert != "PCNOTFOUND")  {
+            } else if (data.alert !== "PCNOTFOUND")  {
               $('#postalcode_display').text('〒' + $('#postalcode').val());
               $('#pctext_display').text(data.pref + data.shi);
               $('#prefecture').val(data.pref);
@@ -98,17 +110,6 @@ $(document).ready(function(){
             }
           }
         });
-      } else if ($('#postalcode_display').text() != '') {
-        $('#postalcode_display').text('');
-        $('#pctext_display').text('');
-        $('#prefecture').val('');
-        $('#shikucho').val('');
-<?php if ($_SESSION['romajiaddresses'] == "yes") { ?>
-        $('#pcromtext_display').text('');
-        $('#pcrom_display').text('');
-        $('#pcromtext_section').hide();
-        $('#pcromtext_display').removeClass('highlight');
-<?php } ?>
       }
     }
   });
