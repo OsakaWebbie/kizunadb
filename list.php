@@ -73,8 +73,8 @@ for ($i=1; isset($_REQUEST["textinput".$i]); $i++) {
       }
       break;
     case "Address":
-      $where .= "$not household.AddressComp LIKE '%".$search."%' "
-      .($_SESSION['romajiaddresses']=="yes" ? "OR household.RomajiAddressComp LIKE '%".$search."%'" : "");
+      $where .= "$not (household.AddressComp LIKE '%".$search."%' "
+      .($_SESSION['romajiaddresses']=="yes" ? "OR household.RomajiAddressComp LIKE '%".$search."%')" : ")");
       $criterialist .= "<li>".sprintf(_("\"%s\" $in Address"), $search)."</li>\n";
       break;
     case "Phone":
