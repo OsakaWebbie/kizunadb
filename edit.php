@@ -448,7 +448,9 @@ echo "<h1 id=\"title\">".($pid ? sprintf(_("Edit %s"),$rec->FullName) : _("New E
       <label for="postalcode" class="japanonly"><?=_("Postal Code")?>:
         <input name="postalcode" id="postalcode" type="text" style="width:5em;ime-mode:disabled;" maxlength="8"
         value="<?=!empty($rec->HouseholdID)?$rec->PostalCode:''?>" onchange="editform.updatehh.value=1;" />
-        <span class="comment">(<a href="<?=_("https://yubin.senmon.net/en/index.html")?>" target="_blank"><?=_("Lookup")?></a>)</span><br>
+        <span class="comment">(<?=_("Postal Code")?> <?=_("Lookup")?>:
+          <a href="<?=_("https://yubin.senmon.net")?>" target="_blank"><?=_("Japanese")?></a>&nbsp;
+          <a href="<?=_("https://yubin.senmon.net/en")?>" target="_blank"><?=_("Romaji")?></a> )</span><br>
       </label>
       <label for="address" id="addresslabel">
         <span class="japanonly"><?=_("Rest of Address")?></span><span
