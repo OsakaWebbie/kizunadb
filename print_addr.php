@@ -26,7 +26,7 @@ if (!empty($print->Custom)) {
 }
 $sql = "SELECT ".($_POST['name_type']=="label" ? "DISTINCT LabelName" :
 "IF(NonJapan, CONCAT(Title,' ',FullName), CONCAT(FullName,Title))")." AS Name, ".
-    "NonJapan, postalcode.*, Address, PersonID, h.HouseholdID ".
+    "NonJapan, postalcode.*, Address, h.HouseholdID ".
 "FROM person p LEFT JOIN household h ON p.HouseholdID=h.HouseholdID ".
 "LEFT JOIN postalcode ON h.PostalCode=postalcode.PostalCode WHERE p.PersonID IN (".$_POST['pid_list'].") ".
     "AND p.HouseholdID IS NOT NULL AND p.HouseholdID>0 AND h.Address IS NOT NULL AND h.Address!='' ".
