@@ -145,12 +145,27 @@ function print_footer() {
 // function sqlquery_checked: shorten the repeated checks for SQL errors
 function sqlquery_checked($sql) {
   global $db;
-  $result = mysqli_query($db, $sql);
-  if ($result === false ){
-     die("<pre style=\"font-size:15px;\"><strong>SQL Error in file ".$_SERVER['PHP_SELF'].": ".mysqli_error($db)."</strong><br>$sql</pre>");
+
+  try {
+    $result = mysqli_query($db, $sql);
+
+    // Handle PHP 7.x where mysqli_query returns false on error
+    if ($result === false) {
+      throw new Exception(mysqli_error($db));
+    }
+
+    return $result;
+
+  } catch (Exception $e) {
+    // This catches both:
+    // - PHP 8.x: mysqli_sql_exception thrown automatically
+    // - PHP 7.x: our manually thrown Exception
+
+    // Use your existing error formatting
+    die('<xmp style="white-space:pre-wrap;font-size:15px;font-weight:bold">SQL Error in file '.$_SERVER['PHP_SELF'].': '.$e->getMessage().'</xmp><xmp style="white-space:pre-wrap">'.$sql.'</xmp>');
   }
-  return $result;
 }
+
 
 function today() {
   return date("Y-m-d",mktime(gmdate("H")+9));
