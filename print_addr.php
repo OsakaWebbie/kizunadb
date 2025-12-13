@@ -2,10 +2,10 @@
 include("functions.php");
 include("accesscontrol.php");
 
-if (!$_POST['pid_list']) {
+if (empty($_POST['pid_list'])) {
   die(_("There were no Person IDs passed."));
 }
-if (!$_POST['addr_print_name']) {
+if (empty($_POST['addr_print_name'])) {
   die(_("There was no layout type passed."));
 }
 
@@ -31,7 +31,7 @@ $sql = "SELECT ".($_POST['name_type']=="label" ? "DISTINCT LabelName" :
 "LEFT JOIN postalcode ON h.PostalCode=postalcode.PostalCode WHERE p.PersonID IN (".$_POST['pid_list'].") ".
     "AND p.HouseholdID IS NOT NULL AND p.HouseholdID>0 AND h.Address IS NOT NULL AND h.Address!='' ".
     "AND (h.NonJapan=1 OR h.PostalCode!='') ".
-    "ORDER BY ".($_POST['nj_separate']=="yes" ? "NonJapan," : "")."FIND_IN_SET(PersonID,'".$_POST['pid_list']."')";
+    "ORDER BY ".(!empty($_POST['nj_separate']) ? "NonJapan," : "")."FIND_IN_SET(PersonID,'".$_POST['pid_list']."')";
 $result = sqlquery_checked($sql);
 if (mysqli_num_rows($result)==0) {
   die(_("No addresses to print. Just close this tab and check your selection."));
@@ -114,7 +114,7 @@ while ($row = mysqli_fetch_object($result)) {
 ?>
 %% JAPAN PAGE %%
 <?php
-    if ($_POST['po_stamp']!='none') {  //Post Office stamp requested
+    if (!empty($_POST['po_stamp']) && $_POST['po_stamp']!='none') {  //Post Office stamp requested
       if ($_POST['po_stamp']=='betsunou') {
 ?>
 \put(<?=$print->PaperLeftMargin?>,<?=$print->PCTopMargin-18?>){%
@@ -231,12 +231,19 @@ ob_end_clean();
 
 // RUN TEX COMMANDS TO MAKE PDF
 
-exec("cd $tmppath;/usr/local/bin/uplatex -interaction=batchmode --output-directory=$tmppath $fileroot", $output, $return);
+if (is_file("/usr/bin/uplatex")) {
+  $commandpath = "/usr/bin/";
+} elseif (is_file("/usr/local/bin/uplatex")) {
+  $commandpath = "/usr/local/bin/";
+} else {
+  die("Error: cannot find needed commands (uplatex and dvipdfmx) in /usr/bin/ or /usr/local/bin/.");
+}
+exec("cd $tmppath;{$commandpath}uplatex -interaction=batchmode --output-directory=$tmppath $fileroot", $output, $return);
 if (!is_file("$tmppath$fileroot.dvi")) {
   die("Error processing '$tmppath$fileroot.tex':<br /><br /><pre>".print_r($output,TRUE)."</pre>");
 }
 //unlink("$tmppath$fileroot.tex");
-exec("cd $tmppath;/usr/local/bin/dvipdfmx $fileroot", $output, $return);
+exec("cd $tmppath;{$commandpath}dvipdfmx $fileroot", $output, $return);
 //unlink("$tmppath$fileroot.dvi");
 if (!is_file("$tmppath$fileroot.pdf")) {
   die("Error processing '$tmppath$fileroot.dvi':<br /><br /><pre>".print_r($output,TRUE)."</pre>");
