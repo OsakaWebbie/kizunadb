@@ -177,6 +177,7 @@ function db2table($text) {
 }
 
 function d2h($text) {
+  if ($text === NULL) $text = '';
   return nl2br(htmlspecialchars($text, ENT_QUOTES, mb_internal_encoding()));
 }
 

@@ -41,8 +41,8 @@ if (!empty($_POST['updatehh'])) {
       $sql .= "RomajiAddress='".h2d($_POST['romajiaddress'])."',RomajiAddressComp='".
       ($_POST['nonjapan'] ? "" : trim(h2d($_POST['romajiaddress']." ".$_POST['pcromtext'])." ".$_POST['postalcode']))."',";
     }
-    $sql .= "Phone='".$_POST['phone']."',FAX='".$_POST['fax']."',LabelName='".h2d($_POST['labelname'])."',UpdDate=CURDATE() ".
-    "WHERE HouseholdID=".$_POST['householdid']." LIMIT 1";
+    $sql .= "Phone='".$_POST['phone']."',FAX='".$_POST['fax']."',LabelName='".h2d($_POST['labelname'])."'".($_SESSION['userid']=='dev'?'':', UpdDate=CURDATE()').
+    " WHERE HouseholdID=".$_POST['householdid']." LIMIT 1";
     $result = sqlquery_checked($sql);
     if (mysqli_affected_rows($db) > 0) {
       echo "The household record was updated<br>";
@@ -85,7 +85,7 @@ if (!empty($_POST['updateper'])) {
         "HouseholdID=".$householdid.", Relation='".$_POST['relation']."', Title='".h2d($_POST['title'])."', ".
         "CellPhone='".h2d($_POST['cellphone'])."',Email='".h2d($_POST['email'])."',Birthdate='".$_POST['birthdate']."', ".
         "Country='".h2d($_POST['country'])."', URL='".h2d($_POST['URL'])."', Organization=".$organization.", ".
-        "Remarks='".h2d($_POST['remarks'])."', UpdDate=CURDATE() WHERE PersonID=".$_POST['pid']." LIMIT 1";
+        "Remarks='".h2d($_POST['remarks'])."'".($_SESSION['userid']=='dev'?'':', UpdDate=CURDATE()')." WHERE PersonID=".$_POST['pid']." LIMIT 1";
     $result = sqlquery_checked($sql);
     if (mysqli_affected_rows($db) > 0) echo "The person record was updated<br>\n";
   } else {
