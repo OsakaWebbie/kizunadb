@@ -294,12 +294,27 @@ function load_jqueryui() {
 // function sqlquery_checked: shorten the repeated checks for SQL errors
 function sqlquery_checked($sql) {
   global $db;
-  $result = mysqli_query($db, $sql);
-  if ($result === false ){
-     die('<xmp style="white-space:pre-wrap;font-size:15px;font-weight:bold">SQL Error in file '.$_SERVER['PHP_SELF'].': '.mysqli_error($db).'</xmp><xmp style="white-space:pre-wrap">'.$sql.'</xmp>');
+
+  try {
+    $result = mysqli_query($db, $sql);
+
+    // Handle PHP 7.x where mysqli_query returns false on error
+    if ($result === false) {
+      throw new Exception(mysqli_error($db));
+    }
+
+    return $result;
+
+  } catch (Exception $e) {
+    // This catches both:
+    // - PHP 8.x: mysqli_sql_exception thrown automatically
+    // - PHP 7.x: our manually thrown Exception
+
+    // Use your existing error formatting
+    die('<xmp style="white-space:pre-wrap;font-size:15px;font-weight:bold">SQL Error in file '.$_SERVER['PHP_SELF'].': '.$e->getMessage().'</xmp><xmp style="white-space:pre-wrap">'.$sql.'</xmp>');
   }
-  return $result;
 }
+
 
 function today() {
   return date("Y-m-d",mktime(gmdate("H")+9));
@@ -311,6 +326,7 @@ function db2table($text) {
 }
 
 function d2h($text) {
+  if ($text === NULL) $text = '';
   return nl2br(htmlspecialchars($text, ENT_QUOTES, mb_internal_encoding()));
 }
 

@@ -159,7 +159,7 @@ while ($row = mysqli_fetch_object($result)) {
 }
 ?></select></label>
 <label class="label-n-input"><?=_("Description")?>: <input id="desc" name="desc" type="text" style="width:30em"
-maxlength="50" value="<?=$old->PledgeDesc?>" /></label>
+maxlength="150" value="<?=$old->PledgeDesc?>" /></label>
 <label class="label-n-input"><?=_("Start Date")?>: <input type="text" id="startdate" name="startdate" style="width:6em"
 value="<?=isset($_GET['plid']) ? $old->StartDate : date("Y-m-d",mktime(gmdate("H")+9))?>" /></label>
 <label class="label-n-input"><?=_("End Date")?>: <input type="text" id="enddate" name="enddate" style="width:6em"

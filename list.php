@@ -11,75 +11,93 @@ $sql .= "FROM person LEFT JOIN household ON person.HouseholdID=household.Househo
 $join = $where = "";
 $ptable = $grouptable = "person";
 $closing = '';
-if (!empty($_GET['qs'])) {
-  $where .= " WHERE person.FullName LIKE '%".$_GET['qs']."%' OR person.Furigana LIKE '%".$_GET['qs']."%'".
-      " OR person.Email LIKE '%".$_GET['qs']."%' OR person.CellPhone LIKE '%".$_GET['qs']."%'".
-      " OR person.Country LIKE '%".$_GET['qs']."%' OR person.URL LIKE '%".$_GET['qs']."%'".
-      " OR person.Remarks LIKE '%".$_GET['qs']."%' OR person.Birthdate LIKE '%".$_GET['qs']."%'".
-      " OR household.AddressComp LIKE '%".$_GET['qs']."%' OR household.RomajiAddressComp LIKE '%".$_GET['qs']."%'".
-      " OR household.Phone LIKE '%".$_GET['qs']."%' OR household.LabelName LIKE '%".$_GET['qs']."%'";
-  $criterialist .= '<li>'.sprintf(_('Quick search: "%s" in any of multiple fields'), $_GET['qs'])."</li>\n";
+
+if (!isset($_REQUEST['filter'])) $_REQUEST['filter'] = 'Records';
+if (!isset($_REQUEST['textinout1'])) $_REQUEST['textinout1'] = 'IN';
+if (!isset($_REQUEST['texttarget1'])) $_REQUEST['texttarget1'] = 'Name';
+if (!isset($_REQUEST['catinout1'])) $_REQUEST['catinout1'] = 'IN';
+if (!isset($_REQUEST['actioninout1'])) $_REQUEST['actioninout1'] = 'IN';
+if (!isset($_REQUEST['ctstartdate1'])) $_REQUEST['ctstartdate1'] = '';
+if (!isset($_REQUEST['ctenddate1'])) $_REQUEST['ctenddate1'] = '';
+if (!isset($_REQUEST['seqorder1'])) $_REQUEST['seqorder1'] = 'AFTER';
+if (!isset($_REQUEST['donationinout1'])) $_REQUEST['donationinout1'] = 'IN';
+if (!isset($_REQUEST['dtstartdate1'])) $_REQUEST['dtstartdate1'] = '';
+if (!isset($_REQUEST['dtenddate1'])) $_REQUEST['dtenddate1'] = '';
+if (!isset($_REQUEST['attendinout1'])) $_REQUEST['attendinout1'] = 'IN';
+if (!isset($_REQUEST['astartdate1'])) $_REQUEST['astartdate1'] = '';
+if (!isset($_REQUEST['aenddate1'])) $_REQUEST['aenddate1'] = '';
+if (!isset($_REQUEST['blanktarget1'])) $_REQUEST['blanktarget1'] = '';
+if (!isset($_REQUEST['freesql'])) $_REQUEST['freesql'] = '';
+
+if (!empty($_REQUEST['qs'])) {
+  $where .= " WHERE person.FullName LIKE '%".$_REQUEST['qs']."%' OR person.Furigana LIKE '%".$_REQUEST['qs']."%'".
+      " OR person.Email LIKE '%".$_REQUEST['qs']."%' OR person.CellPhone LIKE '%".$_REQUEST['qs']."%'".
+      " OR person.Country LIKE '%".$_REQUEST['qs']."%' OR person.URL LIKE '%".$_REQUEST['qs']."%'".
+      " OR person.Remarks LIKE '%".$_REQUEST['qs']."%' OR person.Birthdate LIKE '%".$_REQUEST['qs']."%'".
+      " OR household.AddressComp LIKE '%".$_REQUEST['qs']."%' OR household.RomajiAddressComp LIKE '%".$_REQUESTT['qs']."%'".
+      " OR household.Phone LIKE '%".$_REQUEST['qs']."%' OR household.LabelName LIKE '%".$_REQUEST['qs']."%'";
+  $criterialist .= '<li>'.sprintf(_('Quick search: "%s" in any of multiple fields'), $_REQUEST['qs'])."</li>\n";
 }
-if (!empty($_GET['filter'])) {
-  if ($_GET['filter'] == "Organizations") {
-    $where .= " WHERE Organization>0";
-    $criterialist .= "<li>" . _("Organizations only")."</li>\n";
-  } elseif ($_GET['filter'] == "People") {
-    $where .= " WHERE Organization=0";
-    $criterialist .= "<li>" . _("People only (no organizations)")."</li>\n";
-  } elseif ($_GET['filter'] == "OrgsOfPeople") {
-    $sql = "SELECT DISTINCT p1.*, h1.AddressComp, h1.Phone, GROUP_CONCAT(Category ORDER BY Category SEPARATOR '\\n') AS categories " .
-        "FROM person p1 LEFT JOIN household h1 ON p1.HouseholdID=h1.HouseholdID " .
-        "LEFT JOIN percat ON p1.PersonID=percat.PersonID " .
-        "LEFT JOIN category ON percat.CategoryID=category.CategoryID WHERE p1.PersonID IN (SELECT OrgID FROM perorg po " .
-        "INNER JOIN person p2 ON po.PersonID=p2.PersonID LEFT JOIN household ON p2.HouseholdID=household.HouseholdID";
-    $criterialist .= "<li>" . _("Organizations with members who have the following criteria...")."</li>\n";
-    $ptable = "p2";
-    $grouptable = "p1";
-    $closing = ")";
-  } elseif ($_GET['filter'] == "PeopleOfOrgs") {
-    $sql = "SELECT DISTINCT p1.*, h1.AddressComp, h1.Phone, GROUP_CONCAT(Category ORDER BY Category SEPARATOR '\\n') AS categories " .
-        "FROM person p1 LEFT JOIN household h1 ON p1.HouseholdID=h1.HouseholdID " .
-        "LEFT JOIN percat ON p1.PersonID=percat.PersonID " .
-        "LEFT JOIN category ON percat.CategoryID=category.CategoryID WHERE p1.PersonID IN (SELECT po.PersonID FROM perorg po " .
-        "INNER JOIN person o ON po.OrgID=o.PersonID LEFT JOIN household ON o.HouseholdID=household.HouseholdID";
-    $criterialist .= "<li>" . _("People whose related organizations have the following criteria...")."</li>\n";
-    $ptable = "o";
-    $grouptable = "p1";
-    $closing = ")";
-  }
+if ($_REQUEST['filter'] == "Organizations") {
+  $where .= " WHERE Organization>0";
+  $criterialist .= "<li>"._("Organizations only");
+} elseif ($_REQUEST['filter'] == "People") {
+  $where .= " WHERE Organization=0";
+  $criterialist .= "<li>"._("People only (no organizations)");
+} elseif ($_REQUEST['filter'] == "OrgsOfPeople") {
+    $sql = "SELECT DISTINCT p1.*, h1.AddressComp, h1.Phone, GROUP_CONCAT(Category ORDER BY Category SEPARATOR '\\n') AS categories ".
+    "FROM person p1 LEFT JOIN household h1 ON p1.HouseholdID=h1.HouseholdID ".
+    "LEFT JOIN percat ON p1.PersonID=percat.PersonID ".
+    "LEFT JOIN category ON percat.CategoryID=category.CategoryID WHERE p1.PersonID IN (SELECT OrgID FROM perorg po ".
+    "INNER JOIN person p2 ON po.PersonID=p2.PersonID LEFT JOIN household ON p2.HouseholdID=household.HouseholdID";
+  $criterialist .= "<li>"._("Organizations with members who have the following criteria...");
+  $ptable = "p2";
+  $grouptable = "p1";
+  $closing = ")";
+} elseif ($_REQUEST['filter'] == "PeopleOfOrgs") {
+    $sql = "SELECT DISTINCT p1.*, h1.AddressComp, h1.Phone, GROUP_CONCAT(Category ORDER BY Category SEPARATOR '\\n') AS categories ".
+    "FROM person p1 LEFT JOIN household h1 ON p1.HouseholdID=h1.HouseholdID ".
+    "LEFT JOIN percat ON p1.PersonID=percat.PersonID ".
+    "LEFT JOIN category ON percat.CategoryID=category.CategoryID WHERE p1.PersonID IN (SELECT po.PersonID FROM perorg po ".
+    "INNER JOIN person o ON po.OrgID=o.PersonID LEFT JOIN household ON o.HouseholdID=household.HouseholdID";
+  $criterialist .= "<li>"._("People whose related organizations have the following criteria...");
+  $ptable = "o";
+  $grouptable = "p1";
+  $closing = ")";
 }
-for ($i=1; !empty($_GET['textinput'.$i]); $i++) {
-  $search = str_replace("%","\%",h2d($_GET['textinput'.$i]));
-  $target = empty($_GET['texttarget'.$i]) ? 'Name' : $_GET['texttarget'.$i];
-  $not = (!empty($_GET['textinout'.$i]) && $_GET['textinout'.$i]=="OUT") ? ' NOT' : "";
-  $where .= $where==''?' WHERE ':' AND ';
-  $in = $not ? _('in') : _('not in');
-  switch($target) {
-  case 'Name':
-    $where .= "$not ($ptable.FullName LIKE '%".$search."%' OR $ptable.Furigana LIKE '%".$search."%' OR LabelName LIKE '%".$search."%')";
-    if ($_SESSION['furiganaisromaji']) {
-      $criterialist .= "<li>".sprintf(_("\"%s\" $in Name, Romaji, or Label"), $search)."</li>\n";
-    } else {
-      $criterialist .= "<li>".sprintf(_("\"%s\" $in Name, Furigana, or Label"), $search)."</li>\n";
+for ($i=1; isset($_REQUEST["textinput".$i]); $i++) {
+  if ($_REQUEST["textinput".$i] != "") {
+    $search = str_replace("%","\%",h2d($_REQUEST["textinput".$i]));
+    $target = $_REQUEST["texttarget".$i];
+    $not = ($_REQUEST["textinout".$i]=="OUT") ? " NOT" : "";
+    $where .= ($where!=""?" AND":" WHERE");
+    $in = ($not=="") ? _("in") : _("not in");
+    switch($target) {
+    case "Name":
+      $where .= "$not ($ptable.FullName LIKE '%".$search."%' OR $ptable.Furigana LIKE '%".$search."%' OR LabelName LIKE '%".$search."%')";
+      if ($_SESSION['furiganaisromaji']) {
+        $criterialist .= "<li>".sprintf(_("\"%s\" $in Name, Romaji, or Label"), $search)."</li>\n";
+      } else {
+        $criterialist .= "<li>".sprintf(_("\"%s\" $in Name, Furigana, or Label"), $search)."</li>\n";
+      }
+      break;
+    case "Address":
+      $where .= "$not (household.AddressComp LIKE '%".$search."%' "
+      .($_SESSION['romajiaddresses']=="yes" ? "OR household.RomajiAddressComp LIKE '%".$search."%')" : ")");
+      $criterialist .= "<li>".sprintf(_("\"%s\" $in Address"), $search)."</li>\n";
+      break;
+    case "Phone":
+      $where .= "$not (household.Phone LIKE '%".$search."%' OR $ptable.CellPhone LIKE '%".$search."%' OR FAX LIKE '%".$search."%')";
+      $criterialist .= "<li>".sprintf(_("\"%s\" $in Phone or FAX"), $search)."</li>\n";
+      break;
+    case "PersonID":
+      $where .= "$not ($ptable.PersonID = ".$search.")";
+      $criterialist .= "<li>".sprintf(_("\"%s\" $in Phone or FAX"), $search)."</li>\n";
+      break;
+    default:
+      $where .= "$not ($ptable.$target LIKE '%".$search."%')";
+      $criterialist .= "<li>".sprintf(_("\"%s\" $in %s"), $search, _($target))."</li>\n";
     }
-    break;
-  case 'Address':
-    $where .= "$not household.AddressComp LIKE '%".$search."%' "
-    .($_SESSION['romajiaddresses']=="yes" ? "OR household.RomajiAddressComp LIKE '%".$search."%'" : "");
-    $criterialist .= "<li>".sprintf(_("\"%s\" $in Address"), $search)."</li>\n";
-    break;
-  case 'Phone':
-    $where .= "$not (household.Phone LIKE '%".$search."%' OR $ptable.CellPhone LIKE '%".$search."%' OR FAX LIKE '%".$search."%')";
-    $criterialist .= "<li>".sprintf(_("\"%s\" $in Phone or FAX"), $search)."</li>\n";
-    break;
-  case 'PersonID':
-    $where .= "$not ($ptable.PersonID = ".$search.")";
-    $criterialist .= "<li>".sprintf(_("\"%s\" $in Phone or FAX"), $search)."</li>\n";
-    break;
-  default:
-    $where .= "$not ($ptable.$target LIKE '%".$search."%')";
-    $criterialist .= "<li>".sprintf(_("\"%s\" $in %s"), $search, _($target))."</li>\n";
   }
 }
 

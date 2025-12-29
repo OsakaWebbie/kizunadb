@@ -30,12 +30,12 @@ case 'PC':
     $result = sqlquery_checked("SELECT * FROM postalcode WHERE PostalCode='".$_REQUEST['pc']."'");
     if (mysqli_num_rows($result)==0) {
       $aux = 1;
-      $result = sqlquery_checked("SELECT * FROM auxpostalcode WHERE PostalCode='".$_REQUEST['pc']."'");
+      $result = sqlquery_checked("SELECT * FROM kizuna_common.auxpostalcode WHERE PostalCode='".$_REQUEST['pc']."'");
       if (mysqli_num_rows($result)==0) {
         die(json_encode(array("alert" => _("Postal Code was not found - please double-check the number using the internet."))));
       } else {
-        sqlquery_checked("INSERT INTO postalcode(PostalCode,Prefecture,ShiKuCho)".
-        " SELECT PostalCode,Prefecture,ShiKuCho FROM auxpostalcode WHERE PostalCode='".$_REQUEST['pc']."'");
+        sqlquery_checked("INSERT INTO postalcode(PostalCode,Prefecture,ShiKuCho,Romaji)".
+        " SELECT PostalCode,Prefecture,CONCAT(ShiKu,Cho),CONCAT(RomajiShiKuCho,', ',RomajiPref) FROM kizuna_common.auxpostalcode WHERE PostalCode='".$_REQUEST['pc']."'");
         $result = sqlquery_checked("SELECT * FROM postalcode WHERE PostalCode='".$_REQUEST['pc']."'");
         if (mysqli_num_rows($result)==0) {
           die(json_encode(array("alert" => "Programming error: Failed to insert new Postal Code data.")));
@@ -44,7 +44,7 @@ case 'PC':
     }
     $row = mysqli_fetch_object($result);
     $arr = array("prefecture" => $row->Prefecture, "shikucho" => $row->ShiKuCho);
-    if ($_SESSION['romajiaddresses'] && !$aux) $arr["romaji"] = d2j($row->Romaji);
+    if ($_SESSION['romajiaddresses']) $arr["romaji"] = d2j($row->Romaji);
     die (json_encode($arr));
   }
   break;

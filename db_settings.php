@@ -45,10 +45,8 @@ $(document).ready(function(){
         showSpinner($('#postalcode'));
         $.getJSON("ajax_request.php?req=PC&pc="+$('#postalcode').val(), function(data) {
           hideSpinner($('#postalcode'));
-          if (data.alert === "NOSESSION") {
-            alert("<?=_("Your login has timed out - please refresh the page.")?>");
-          } else if (data.alert === "PCNOTFOUND") {
-            alert("<?=_("This postal code has not yet been used in an address.")?>");
+          if (data.alert) {
+            alert(data.alert);
           } else {
             $('#pctext').show();
             $('#postalcode').blur();

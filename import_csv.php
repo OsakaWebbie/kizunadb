@@ -14,7 +14,7 @@ header1(_("CSV Import"));
 ?> <link rel="stylesheet" type="text/css" href="style.php" /> <?php
 header2(1);
 
-if ($_GET['file']) { //file pre-placed on server
+if (!empty($_GET['file'])) { //file pre-placed on server
   if (!is_file(CLIENT_PATH."/".$_GET['file'].".csv")) {
     die("File ".CLIENT_PATH."/".$_GET['file'].".csv"." not found.");
   }
@@ -25,11 +25,11 @@ if ($_GET['file']) { //file pre-placed on server
   echo "I would process an upload here.";
 }
 
-if ($_GET['encoding'] && $_GET['encoding']!="UTF-8") {
+if (!empty($_GET['encoding']) && $_GET['encoding']!="UTF-8") {
   $csv = mb_convert_encoding($csv,"UTF-8",$_GET['encoding']);
 }
 $data = parse_csv($csv);
-if ($_GET['titlerow']) {
+if (!empty($_GET['titlerow'])) {
   $titlerow = array_shift($data);
   foreach($titlerow as $column => $title) {
     if (strtolower(substr($title,0,7)) == 'remarks') {
@@ -44,19 +44,17 @@ if ($_GET['titlerow']) {
   $remarkscolumnarray = explode(',',$_GET['remarks']);
 }
 
-if ($_GET['dryrun']) {
-  $num = $_GET['titlerow'] ? 1 : 0;
+if (!empty($_GET['dryrun'])) {
+  $num = !empty($_GET['titlerow']) ? 1 : 0;
   echo "<style>\nth,td { border:1px solid gray; padding:2px; margin:0; }\n</style>\n";
-  echo "<h3>Dry Run - all entries will be ".($_GET['org']?"organizations":"people")."</h3>\n<table><tr>";
-  if (isset($_GET['phone']) || isset($_GET['fax']) || isset($_GET['address'])) {
-    echo "<th>Row#</th><th>PostalCode</th><th>Address</th><th>Phone</th><th>FAX</th>";
-  }
+  echo "<h3>Dry Run - all entries will be ".(!empty($_GET['org'])?"organizations":"people")."</h3>\n<table><tr>";
+  echo "<th>Row#</th><th>PostalCode</th><th>Address</th><th>Phone</th><th>FAX</th>";
   echo "<th>Full Name</th><th>Furigana</th><th>Cell Phone</th><th>Email</th><th>Birthdate</th>".
   "<th>Sex</th><th>URL</th><th>Remarks</th></tr>\n";
 }
 
 foreach ($data as $record) {
-  if ($_GET['dryrun']) {
+  if (!empty($_GET['dryrun'])) {
     echo "<tr>";
     $num++;
     echo "<td>$num</td>";
@@ -104,12 +102,15 @@ foreach ($data as $record) {
     echo("<pre>".print_r($_GET,TRUE)."</pre>");
     exit;
     }
-  if ($_GET['birthdate']) {
+  if (!empty($_GET['birthdate'])) {
     $birthdate = str_replace('/','-',$record[$_GET['birthdate']]);
-  } elseif ($_GET['age']) {
+  } elseif (!empty($_GET['age'])) {
     $birthdate = date("Y")-$record[$_GET['age']].'-01-01';
-  } elseif ($_GET['birthday']) {
+  } elseif (!empty($_GET['birthday'])) {
     $birthdate = '1900-'.str_replace('/','-',$record[$_GET['birthday']]);
+  }
+  if (empty($birthdate)) {
+    $birthdate = '0000-00-00';
   }
   $remarks = "";
   foreach($remarkscolumnarray as $remarkscolumn) {
@@ -122,6 +123,12 @@ foreach ($data as $record) {
       $remarks .= trim($record[$remarkscolumnsplit[0]]);
     }
   }
+  $cellphone = isset($_GET['cellphone'])?h2d($record[$_GET['cellphone']]):'';
+  $sex = isset($_GET['sex'])?h2d($record[$_GET['sex']]):'';
+  $email = isset($_GET['email'])?h2d($record[$_GET['email']]):'';
+  $url = isset($_GET['url'])?h2d($record[$_GET['url']]):'';
+  $org = isset($_GET['org'])?'1':'0';
+  $title = $org==1 ? '御中' : '様';
 
   if ((isset($_GET['phone']) && $record[$_GET['phone']]!="") ||
   (isset($_GET['fax']) && $record[$_GET['fax']]!="") || (isset($_GET['address']) && $record[$_GET['address']]!="")) {
@@ -146,7 +153,7 @@ foreach ($data as $record) {
         if (!$pc = mysqli_fetch_object($addrcheck)) { //not in client table, so need to check aux
           $addrcheck = sqlquery_checked("SELECT * from kizuna_common.auxpostalcode WHERE PostalCode='".$postalcode."'");
           if ($pc = mysqli_fetch_object($addrcheck)) { //found in aux, so copy record
-            if (!$_GET['dryrun']) sqlquery_checked("INSERT INTO postalcode(PostalCode,Prefecture,ShiKuCho,Romaji)".
+            if (empty($_GET['dryrun'])) sqlquery_checked("INSERT INTO postalcode(PostalCode,Prefecture,ShiKuCho,Romaji)".
             " SELECT PostalCode,Prefecture,ShiKuCho,'".($_SESSION['romajiaddresses']=="yes"?"(edit on DB Maint. page)":"").
             "' FROM kizuna_common.auxpostalcode WHERE PostalCode='".$postalcode."' LIMIT 1");
           } else { //not in aux either
@@ -162,46 +169,46 @@ foreach ($data as $record) {
           }
         }
       }
+      $phone = isset($_GET['phone'])?h2d($record[$_GET['phone']]):'';
+      $fax = isset($_GET['fax'])?h2d($record[$_GET['fax']]):'';
     }
-      
+
     $sql = "INSERT INTO household (PostalCode,Address,Phone,FAX,LabelName,UpdDate) VALUES ('".h2d($postalcode)."',".
-    "'".h2d($address)."','".h2d($record[$_GET['phone']])."','".h2d($record[$_GET['fax']])."','".h2d($fullname)."',CURDATE())";
-    if ($_GET['dryrun']) {
-      echo "<td>$postalcode</td><td>".d2h($address)."</td><td>".$record[$_GET['phone']]."</td><td>".$record[$_GET['fax']]."</td>\n";
+    "'".h2d($address)."','$phone','$fax','".h2d($fullname).$title."',CURDATE())";
+    if (!empty($_GET['dryrun'])) {
+      echo "<td>$postalcode</td><td>".d2h($address)."</td><td>".$phone."</td><td>".$fax."</td>\n";
     } else {
       $result = sqlquery_checked($sql);
       $householdid = mysqli_insert_id($db);
     }
   } else {
     $householdid = 0;
-    if ($_GET['dryrun']) echo "<td></td><td></td><td></td><td></td>";
+    if (!empty($_GET['dryrun'])) echo "<td></td><td></td><td></td><td></td>";
   }
 
   $sql = "INSERT INTO person (FullName,Furigana,Organization,Title,HouseholdID,CellPhone,".
-  "Email,Birthdate,Sex,URL,Remarks,UpdDate) VALUES ('".h2d($fullname)."','".h2d($furigana)."',".
-  ($_GET['org']?"1":"0").",'様',$householdid,'".
-  h2d($record[$_GET['cellphone']])."','".h2d($record[$_GET['email']])."','".h2d($birthdate)."',".
-  "'".h2d($record[$_GET['sex']])."','".h2d($record[$_GET['url']])."','".h2d($remarks)."',CURDATE())";
-  if ($_GET['dryrun']) {
-    echo "<td>".$fullname."</td><td>".$furigana."</td>";
-    echo "<td>".$record[$_GET['cellphone']]."</td><td>".$record[$_GET['email']]."</td><td>".$birthdate."</td>";
-    echo "<td>".$record[$_GET['sex']]."</td><td>".$record[$_GET['url']]."</td><td>".d2h($remarks)."</td></tr>\n";
+  "Email,Birthdate,Sex,URL,Remarks,UpdDate) VALUES ('".h2d($fullname)."','".h2d($furigana)."',$org,'$title',$householdid,'$cellphone',".
+      "'$email','$birthdate','$sex','$url','".h2d($remarks)."',CURDATE())";
+  if (!empty($_GET['dryrun'])) {
+    echo "<td>$fullname</td><td>$furigana</td><td>$cellphone</td><td>$email</td><td>$birthdate</td>";
+    echo "<td>$sex</td><td>$url</td><td>".d2h($remarks)."</td></tr>\n";
   } else {
     sqlquery_checked($sql);
     echo $fullname." successfully added.<br />";
   }
-  if ($_GET['dryrun']) echo "</tr>\n";
+  if (!empty($_GET['dryrun'])) echo "</tr>\n";
 }
-if ($_GET['dryrun']) {
+if (!empty($_GET['dryrun'])) {
   echo "</table>\n";
 } else {
-  $sql = "UPDATE household h LEFT JOIN postalcode pc ON h.PostalCode=pc.PostalCode SET h.AddressComp=CONCAT(h.PostalCode,pc.
+  if ($householdid > 0) {
+    $sql = "UPDATE household h LEFT JOIN postalcode pc ON h.PostalCode=pc.PostalCode SET h.AddressComp=CONCAT(h.PostalCode,pc.
 Prefecture,pc.ShiKuCho,h.Address)";
-  sqlquery_checked($sql);
-  if ($_SESSION['romajiaddresses']=='yes') {
-    $sql = "UPDATE household h LEFT JOIN postalcode pc ON h.PostalCode=pc.PostalCode SET h.RomajiAddressComp=CONCAT(h.Addr
-ess,' ',pc.Romaji,' ',pc.PostalCode)";
     sqlquery_checked($sql);
+    if ($_SESSION['romajiaddresses']=='yes') {
+      $sql = "UPDATE household h LEFT JOIN postalcode pc ON h.PostalCode=pc.PostalCode SET h.RomajiAddressComp=CONCAT(h.Address,' ',pc.Romaji,' ',pc.PostalCode)";
+      sqlquery_checked($sql);
+    }
   }
 }
 

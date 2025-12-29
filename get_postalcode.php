@@ -2,7 +2,7 @@
 include("functions.php");
 session_start();
 if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
-  die("{ \"alert\":\"NOSESSION\" }");
+  die('{ "alert":"NOSESSION" }');
 }
 
 if (isset($_GET['pc']) && $_GET['pc']!="") {
@@ -13,9 +13,9 @@ if (isset($_GET['pc']) && $_GET['pc']!="") {
   if (mysqli_num_rows($result)>0) {
 //echo "found regular one, so will send it back<br />";
     $row = mysqli_fetch_object($result);
-    echo "{ \"pref\":\"".$row->Prefecture."\",\"shi\":\"".$row->ShiKuCho."\"";
-    if ($_SESSION['romajiaddresses']) echo ",\"rom\":\"".d2j($row->Romaji)."\"";
-    die ("}");
+    echo '{ "pref":"'.$row->Prefecture.'","shi":"'.$row->ShiKuCho.'"';
+    if ($_SESSION['romajiaddresses']) echo ',"rom":"'.d2j($row->Romaji)."\"";
+    die ('}');
   } elseif ($_GET['aux']) {
     $sql = "SELECT * FROM kizuna_common.auxpostalcode WHERE PostalCode='".$_GET['pc']."'";
 //echo "gonna try aux - sql is:<br />$sql<br />";
@@ -24,11 +24,11 @@ if (isset($_GET['pc']) && $_GET['pc']!="") {
     if (mysqli_num_rows($result)>0) {
 //echo "found aux one, so will send it back<br />";
       $row = mysqli_fetch_object($result);
-      echo "{ \"pref\":\"".$row->Prefecture."\",\"shi\":\"".$row->ShiKuCho."\"";
-      if ($_SESSION['romajiaddresses']) echo ",\"rom\":\"\"";
-      die(",\"fromaux\":\"yes\"}");
+      echo '{ "pref":"'.$row->Prefecture.'","shi":"'.$row->ShiKu.$row->Cho.'"';
+      if ($_SESSION['romajiaddresses']) echo ',"rom":"'.$row->RomajiShiKuCho.', '.$row->RomajiPref.'"';
+      die(',"fromaux":"yes"}');
     }
   }
-  echo "{ \"alert\":\"PCNOTFOUND\"}";
+  die('{ "alert":"PCNOTFOUND" }');
 }
 ?>

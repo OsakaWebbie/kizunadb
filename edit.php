@@ -66,6 +66,18 @@ $(document).ready(function(){
   $('#postalcode').keyup(function(){  //fill other fields when applicable Postal Code is typed
     var newPostalCode = $('#postalcode').val();
     if (newPostalCode != oldPostalCode) {
+      if ($('#postalcode_display').text() != '') {
+        $('#postalcode_display').text('');
+        $('#pctext_display').text('');
+        $('#prefecture').val('');
+        $('#shikucho').val('');
+        <?php if ($_SESSION['romajiaddresses'] == "yes") { ?>
+        $('#pcromtext_display').text('');
+        $('#pcrom_display').text('');
+        $('#pcromtext_section').hide();
+        $('#pcromtext_display').removeClass('highlight');
+        <?php } ?>
+      }
       oldPostalCode = newPostalCode;
       if (pc_regexp.test($('#postalcode').val())) {
         $.ajax({
@@ -77,7 +89,7 @@ $(document).ready(function(){
           success: function(data, status, z) {
             if (data.alert === "NOSESSION") {
               alert("<?=_("Your session has timed out - please refresh the page.")?>");
-            } else if (data.alert != "PCNOTFOUND")  {
+            } else if (data.alert !== "PCNOTFOUND")  {
               $('#postalcode_display').text('〒' + $('#postalcode').val());
               $('#pctext_display').text(data.pref + data.shi);
               $('#prefecture').val(data.pref);
@@ -91,24 +103,13 @@ $(document).ready(function(){
               $('#pcrom_display').text($('#postalcode').val());
               if (data.fromaux) {
                 $('#pcromtext_section').show();
-                $('#pcromtext').val('').focus();
+                $('#pcromtext').val(d2h(data.rom));
                 $('#pctext_display').addClass('highlight');
               }
 <?php } ?>
             }
           }
         });
-      } else if ($('#postalcode_display').text() != '') {
-        $('#postalcode_display').text('');
-        $('#pctext_display').text('');
-        $('#prefecture').val('');
-        $('#shikucho').val('');
-<?php if ($_SESSION['romajiaddresses'] == "yes") { ?>
-        $('#pcromtext_display').text('');
-        $('#pcrom_display').text('');
-        $('#pcromtext_section').hide();
-        $('#pcromtext_display').removeClass('highlight');
-<?php } ?>
       }
     }
   });
@@ -429,10 +430,10 @@ echo "<h1 id=\"title\">".($pid ? sprintf(_("Edit %s"),$rec->FullName) : _("New E
       <div id="pcromtext_section" style="display:none">
         <label class="japanonly" for="pcromtext" id="pcromtextlabel">
           <?=_("Romaji for PostalCode-related text (<span class=\"highlight\">highlighted</span> above)")?>:<br />
-          <textarea name="pcromtext" id="pcromtext" style="height:2.2em;width:300px;ime-mode:disabled;"
+          <textarea name="pcromtext" id="pcromtext" style="height:2.2em;width:400px;ime-mode:disabled;"
           onchange="editform.updatehh.value=1;"><?=!empty($rec->HouseholdID)?$rec->Romaji:''?></textarea>
         </label>
-        <div class="comment"><?=_("(Community/town name on first line, then ward, city, etc. in reverse order)")?></div>
+        <div class="comment"><?=_("(Adjust formatting and punctuation as desired; see reference below)")?></div>
       </div>
       <div id="rom_address_display" class="japanonly">
         <span id="banchirom_display"></span>&nbsp;<span id="pcromtext_display"></span>&nbsp;<span id="pcrom_display"></span>
@@ -447,7 +448,9 @@ echo "<h1 id=\"title\">".($pid ? sprintf(_("Edit %s"),$rec->FullName) : _("New E
       <label for="postalcode" class="japanonly"><?=_("Postal Code")?>:
         <input name="postalcode" id="postalcode" type="text" style="width:5em;ime-mode:disabled;" maxlength="8"
         value="<?=!empty($rec->HouseholdID)?$rec->PostalCode:''?>" onchange="editform.updatehh.value=1;" />
-        <span class="comment">(<a href="<?=_("https://yubin.senmon.net/en/index.html")?>" target="_blank"><?=_("Lookup")?></a>)</span><br>
+        <span class="comment">(<?=_("Postal Code")?> <?=_("Lookup")?>:
+          <a href="<?=_("https://yubin.senmon.net")?>" target="_blank"><?=_("Japanese")?></a>&nbsp;
+          <a href="<?=_("https://yubin.senmon.net/en")?>" target="_blank"><?=_("Romaji")?></a> )</span><br>
       </label>
       <label for="address" id="addresslabel">
         <span class="japanonly"><?=_("Rest of Address")?></span><span

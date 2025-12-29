@@ -1,6 +1,17 @@
 <?php
 include("functions.php");
 include("accesscontrol.php");
+
+if (!empty($_REQUEST['oncall'])) {  // code to only be run when specifically requested
+  if (file_exists(CLIENT_PATH . '/dashboard/' . $_REQUEST['oncall'] . '.php')) {
+    include(CLIENT_PATH . '/dashboard/' . $_REQUEST['oncall'] . '.php');
+  } else {
+    echo '<div>On-call file "' . $_REQUEST['oncall'] . '.php" was not found.<br>Path: '.CLIENT_PATH .
+        '/dashboard/' . $_REQUEST['oncall'] . '.php</div>';
+  }
+  exit;
+}
+
 if ($_SESSION['admin'] && isset($_GET['user'])) {  /* to test or view other user's dashboards */
   $user = $_GET['user'];
   $result = sqlquery_checked("SELECT UserName,Dashboard FROM user WHERE UserID='$user'");

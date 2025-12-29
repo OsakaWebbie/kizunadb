@@ -35,7 +35,7 @@ if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
       $_SESSION['username'] = $user->UserName;
       $_SESSION['admin'] = $user->Admin;
       $_SESSION['lang'] = $user->Language;
-      $_SESSION['hasdashboard'] = $user->DashboardCode ? 1 : 0;
+      $_SESSION['hasdashboard'] = !empty($user->Dashboard) ? 1 : 0;
       $_SESSION['bucket'] = array();
 
       //GET ANNOUNCEMENTS IF ANY
