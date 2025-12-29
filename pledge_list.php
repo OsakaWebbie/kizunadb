@@ -20,12 +20,64 @@ $subtotals = isset($_GET['subtotals']) ? $_GET['subtotals'] : '';
 $desc = isset($_GET['desc']) ? $_GET['desc'] : '';
 $psubtotals = isset($_GET['psubtotals']) ? $_GET['psubtotals'] : ''; */
 
-$dtgrouped = !empty($_GET['dtgrouped']);
+$dtgrouped = !empty($_GET['dtgrouped']) || !empty($_GET['psubtotals']);
+
+// Process filter parameters
+$dtype = isset($_REQUEST['dtype']) && is_array($_REQUEST['dtype']) ? $_REQUEST['dtype'] : array();
+$start = isset($_REQUEST['start']) ? h2d($_REQUEST['start']) : '';
+$end = isset($_REQUEST['end']) ? h2d($_REQUEST['end']) : '';
+$search = isset($_REQUEST['search']) ? h2d($_REQUEST['search']) : '';
+$cutoff = isset($_REQUEST['cutoff']) ? $_REQUEST['cutoff'] : '';
+$cutofftype = isset($_REQUEST['cutofftype']) ? $_REQUEST['cutofftype'] : '>=';
+
+// Build WHERE clause
+$where_conditions = array();
+
+// Existing closed pledge filter
+if (empty($_GET['closed'])) {
+  $where_conditions[] = "(EndDate='0000-00-00' OR EndDate>CURDATE())";
+}
+
+// Donation type filter
+if (!empty($dtype)) {
+  $dtype_clean = array_map('intval', $dtype);
+  $where_conditions[] = "pledge.DonationTypeID IN (" . implode(',', $dtype_clean) . ")";
+}
+
+// Date range - filter by StartDate
+if (!empty($start)) {
+  $where_conditions[] = "StartDate >= '$start'";
+}
+if (!empty($end)) {
+  $where_conditions[] = "StartDate <= '$end'";
+}
+
+// Description search
+if (!empty($search)) {
+  $where_conditions[] = "PledgeDesc LIKE '%$search%'";
+}
+
+// Amount filter
+if ($cutoff !== '') {
+  if (!in_array($cutofftype, array('>=', '<=', '='))) {
+    $cutofftype = '>=';
+  }
+  $where_conditions[] = "Amount $cutofftype " . (float)$cutoff;
+}
+
+// Combine conditions
+$where_clause = '';
+if (!empty($where_conditions)) {
+  $where_clause = ' WHERE ' . implode(' AND ', $where_conditions);
+}
+
+// Build SQL query
 if ($dtgrouped) {
-  $sql = "SELECT PledgeID,pledge.DonationTypeID,DonationType FROM pledge LEFT JOIN donationtype ON pledge.DonationTypeID=donationtype.DonationTypeID" .
-      (empty($_GET['closed'])?" WHERE EndDate='0000-00-00' OR EndDate>CURDATE()":'') . " ORDER BY DonationType";
+  $sql = "SELECT PledgeID, pledge.DonationTypeID, DonationType FROM pledge " .
+      "LEFT JOIN donationtype ON pledge.DonationTypeID=donationtype.DonationTypeID" .
+      $where_clause . " ORDER BY DonationType";
 } else {
-  $sql = "SELECT PledgeID FROM pledge" . (empty($_GET['closed'])?" WHERE EndDate='0000-00-00' OR EndDate>CURDATE()":'');
+  $sql = "SELECT PledgeID FROM pledge" . $where_clause;
 }
 
 /*$show_subtotals = 0;
@@ -88,17 +140,63 @@ $tableopt->cols[] = (object) [
     'join' => 'LEFT JOIN donation ON pledge.PledgeID=donation.PledgeID',
   'class' => 'align-center' ];
 
-$current_dtype = '';
-while ($row = mysqli_fetch_object($result)) {
-  if ($dtgrouped && $row->DonationType!=$current_dtype && $current_dtype!='') {
-    // We're doing subtotals and we've come to the end of a donation type
-
+if (!$dtgrouped) {
+  // Normal mode - single table with all pledges
+  while ($row = mysqli_fetch_object($result)) {
+    $tableopt->ids .= $row->PledgeID.',';
   }
-  $tableopt->ids .= $row->PledgeID.',';
-  if ($dtgrouped) $current_dtype = $row->DonationType;
+  require_once("flextable.php");
+  flextable($tableopt);
+} else {
+  // Grouped mode - separate table for each donation type
+  $groups = array();
+
+  // Collect pledges grouped by donation type
+  while ($row = mysqli_fetch_object($result)) {
+    if (!isset($groups[$row->DonationType])) {
+      $groups[$row->DonationType] = array(
+        'ids' => array(),
+        'name' => $row->DonationType,
+        'dtype_id' => $row->DonationTypeID
+      );
+    }
+    $groups[$row->DonationType]['ids'][] = $row->PledgeID;
+  }
+
+  require_once("flextable.php");
+
+  // Display a table for each donation type
+  $group_num = 0;
+  foreach ($groups as $dtype_name => $group) {
+    // Add separator between groups
+    if ($group_num > 0) {
+      echo '<hr>';
+    }
+    $group_num++;
+
+    // Calculate subtotal first so we can include it in the heading
+    $pledge_ids = implode(',', array_map('intval', $group['ids']));
+    $subtotal_sql = "SELECT SUM(Amount) as total, COUNT(*) as count FROM pledge WHERE PledgeID IN ($pledge_ids)";
+    $subtotal_result = sqlquery_checked($subtotal_sql);
+    $subtotal_row = mysqli_fetch_object($subtotal_result);
+
+    // Display heading with donation type and subtotal
+    echo '<h3>' . htmlspecialchars($dtype_name) . ' (' .
+         sprintf(_('%d pledges'), $subtotal_row->count) . ', ' .
+         _('total') . ' ' . $_SESSION['currency_mark'] .
+         number_format($subtotal_row->total, $_SESSION['currency_decimals']) .
+         ')</h3>';
+
+    // Create new tableopt for this group with unique table ID
+    $group_tableopt = clone $tableopt;
+    $group_tableopt->ids = implode(',', $group['ids']);
+    $group_tableopt->tableid = 'pledges-' . $group['dtype_id']; // Unique ID per donation type
+    $group_tableopt->heading = ''; // Remove heading as we have h3 above
+
+    // Call flextable for this group
+    flextable($group_tableopt);
+  }
 }
-require_once("flextable.php");
-flextable($tableopt);
 
 footer();
 exit;
