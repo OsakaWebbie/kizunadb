@@ -166,9 +166,9 @@ function footer($nav=0) {
               if (data.alert === "NOSESSION") {
                 alert("<?=_("Your login has timed out - please refresh the page.")?>");
               } else {
-                $('.qs-hits').text(data);
+                $('.qs-hits').text(data.hits);
               }
-            }); },300);
+            }, 'json'); },300);
           } else {
             $('.qs-hits').text('-');
           }

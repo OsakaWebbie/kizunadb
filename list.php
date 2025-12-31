@@ -30,12 +30,15 @@ if (!isset($_REQUEST['blanktarget1'])) $_REQUEST['blanktarget1'] = '';
 if (!isset($_REQUEST['freesql'])) $_REQUEST['freesql'] = '';
 
 if (!empty($_REQUEST['qs'])) {
-  $where .= " WHERE person.FullName LIKE '%".$_REQUEST['qs']."%' OR person.Furigana LIKE '%".$_REQUEST['qs']."%'".
-      " OR person.Email LIKE '%".$_REQUEST['qs']."%' OR person.CellPhone LIKE '%".$_REQUEST['qs']."%'".
-      " OR person.Country LIKE '%".$_REQUEST['qs']."%' OR person.URL LIKE '%".$_REQUEST['qs']."%'".
-      " OR person.Remarks LIKE '%".$_REQUEST['qs']."%' OR person.Birthdate LIKE '%".$_REQUEST['qs']."%'".
-      " OR household.AddressComp LIKE '%".$_REQUEST['qs']."%' OR household.RomajiAddressComp LIKE '%".$_REQUESTT['qs']."%'".
-      " OR household.Phone LIKE '%".$_REQUEST['qs']."%' OR household.LabelName LIKE '%".$_REQUEST['qs']."%'";
+  // Escape LIKE wildcards so they're treated as literal characters, then properly escape for SQL
+  $qs = str_replace(array('%', '_'), array('\%', '\_'), $_REQUEST['qs']);
+  $qs = h2d($qs);
+  $where .= " WHERE person.FullName LIKE '%".$qs."%' OR person.Furigana LIKE '%".$qs."%'".
+      " OR person.Email LIKE '%".$qs."%' OR person.CellPhone LIKE '%".$qs."%'".
+      " OR person.Country LIKE '%".$qs."%' OR person.URL LIKE '%".$qs."%'".
+      " OR person.Remarks LIKE '%".$qs."%' OR person.Birthdate LIKE '%".$qs."%'".
+      " OR household.AddressComp LIKE '%".$qs."%' OR household.RomajiAddressComp LIKE '%".$qs."%'".
+      " OR household.Phone LIKE '%".$qs."%' OR household.LabelName LIKE '%".$qs."%'";
   $criterialist .= '<li>'.sprintf(_('Quick search: "%s" in any of multiple fields'), $_REQUEST['qs'])."</li>\n";
 }
 if ($_REQUEST['filter'] == "Organizations") {

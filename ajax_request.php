@@ -2,7 +2,7 @@
 include("functions.php");
 session_start();
 if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
-  die(json_encode(array("alert" => _("Your login has timed out - please refresh the page."))));
+  die(json_encode(array("alert" => "NOSESSION")));
 }
 
 switch($_REQUEST['req']) {
@@ -132,7 +132,9 @@ case 'Unique':
   }
   break;
 case 'Quicksearch':
-  $qs = preg_replace('#[\'"%;]#','',$_GET['qs']);
+  // Escape LIKE wildcards so they're treated as literal characters, then properly escape for SQL
+  $qs = str_replace(array('%', '_'), array('\%', '\_'), $_GET['qs']);
+  $qs = h2d($qs);
   $sql = "SELECT count(DISTINCT person.PersonID) hits from person LEFT JOIN household ON person.HouseholdID=household.HouseholdID".
       " WHERE person.FullName LIKE '%".$qs."%' OR person.Furigana LIKE '%".$qs."%'".
       " OR person.Email LIKE '%".$qs."%' OR person.CellPhone LIKE '%".$qs."%'".
@@ -142,7 +144,7 @@ case 'Quicksearch':
       " OR household.Phone LIKE '%".$qs."%' OR household.LabelName LIKE '%".$qs."%'";
     $result = sqlquery_checked($sql);
     $row = mysqli_fetch_object($result);
-    die ($row->hits);
+    die(json_encode(array('hits' => $row->hits)));
     break;
 case 'Custom':
   if (isset($_REQUEST['sql']) && stripos($_REQUEST['sql'],'select')==0) {
