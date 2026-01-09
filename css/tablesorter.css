@@ -32,3 +32,13 @@ table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSo
   background-color: rgb(132,78,12);
   color: White;
 }
+
+/* Lazy column loading styles */
+.lazy-placeholder {
+  color: #999;
+  font-style: italic;
+}
+
+td.lazy-col {
+  background-color: #f9f9f9;
+}

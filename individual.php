@@ -207,61 +207,7 @@ if (mysqli_num_rows($result) == 0) {
 $per = mysqli_fetch_object($result);
 header1("$per->FullName");
 
-//array of column id, whether to hide in column picker, and whether to disable in sorter
-$cols[] = array("personid",1,1);
-$cols[] = array("name-for-csv",0,0);
-$cols[] = array("name-for-display",0,1);
-$cols[] = array("photo",1,1);
-$cols[] = array("phone",1,1);
-$cols[] = array("email",1,1);
-$cols[] = array("address",1,1);
-$cols[] = array("birthdate",1,1);
-$cols[] = array("age",1,1);
-$cols[] = array("sex",1,1);
-$cols[] = array("country",1,1);
-$cols[] = array("url",1,1);
-$cols[] = array("remarks",1,1);
-$cols[] = array("categories",1,1);
-$cols[] = array("events",1,1);
-$cols[] = array("selectcol",0,0);
-$cols[] = array("delete",0,0);
-$colsHidden = $hideInList = "";
-$orgColsHidden = $memberColsHidden = $sorterHeaders = '';
-foreach($cols as $i=>$col) {
-  if ($col[1]==0) {
-    $hideInList .= ",".($i+1);
-  } else {
-    if (stripos(",".$_SESSION['org_showcols'].",",",".$col[0].",") === FALSE)  $orgColsHidden .= ",".($i+1);
-    if (stripos(",".$_SESSION['member_showcols'].",",",".$col[0].",") === FALSE)  $memberColsHidden .= ",".($i+1);
-  }
-  if ($col[2]==0)  $sorterHeaders .= ",".$i.":{sorter:false}";
-}
-//remove leading commas
-$hideInList = substr($hideInList,1);
-$orgColsHidden = substr($orgColsHidden,1);
-$memberColsHidden = substr($memberColsHidden,1);
-$sorterHeaders = substr($sorterHeaders,1);
-
-$tableheads = "<th class=\"personid\">"._("ID")."</th>";
-$tableheads .= "<th class=\"name-for-csv\" style=\"display:none\">"._("Name")." (".($_SESSION['furiganaisromaji']=="yes" ? _("Romaji") : _("Furigana")).")</th>";
-$tableheads .= "<th class=\"name-for-display\">"._("Name")." (".($_SESSION['furiganaisromaji']=="yes" ? _("Romaji") : _("Furigana")).")</th>";
-$tableheads .= "<th class=\"photo\">"._("Photo")."</th>\n";
-$tableheads .= "<th class=\"phone\">"._("Phone")."</th>\n";
-$tableheads .= "<th class=\"email\">"._("Email")."</th>\n";
-$tableheads .= "<th class=\"address\">"._("Address")."</th>\n";
-$tableheads .= "<th class=\"birthdate\">"._("Born")."</th>\n";
-$tableheads .= "<th class=\"age\">"._("Age")."</th>\n";
-$tableheads .= "<th class=\"sex\">"._("Sex")."</th>\n";
-$tableheads .= "<th class=\"country\">"._("Country")."</th>\n";
-$tableheads .= "<th class=\"url\">"._("URL")."</th>\n";
-$tableheads .= "<th class=\"remarks\">"._("Remarks")."</th>\n";
-$tableheads .= "<th class=\"categories\">"._("Categories")."</th>\n";
-$tableheads .= "<th class=\"events\">"._("Events")."</th>\n";
-$tableheads .= "<th id=\"thSelectColumn\" class=\"selectcol\">";
-$tableheads .= "<ul id=\"ulSelectColumn\"><li><img src=\"graphics/selectcol.png\" alt=\"select columns\" ".
-        "title=\"select columns\" /><ul id=\"target\"></ul></li></ul>";
-$tableheads .= "</th>\n";
-$tableheads .= "<th></th>\n";  // for the Delete button
+// Legacy column definitions removed - tables now use flextable
 ?>
 
 <link rel="stylesheet" type="text/css" href="style.php?jquery=1&table=1" />
@@ -409,129 +355,384 @@ onclick="window.open('selectorg.php?txt='+encodeURIComponent(document.getElement
 </form>
 
 <?php
+// Include flextable for both organizations and members tables
+require_once("flextable.php");
+
 // TABLE OF ORGANIZATIONS
-$sql = "SELECT person.*,perorg.Leader,household.Address,postalcode.*,".
-    "ca.Categories, e.Events".
-    " FROM person INNER JOIN perorg on person.PersonID=perorg.OrgID".
-    " LEFT JOIN household ON person.HouseholdID=household.HouseholdID".
-    " LEFT JOIN postalcode ON household.PostalCode=postalcode.PostalCode".
-    " LEFT OUTER JOIN (SELECT pc.PersonID,GROUP_CONCAT(cat.Category ORDER BY cat.Category SEPARATOR '\\n')".
-    " AS Categories FROM percat AS pc".
-    " INNER JOIN category AS cat ON cat.CategoryID = pc.CategoryID GROUP BY pc.PersonID) AS ca".
-    " ON ca.PersonID = person.PersonID".
-    " LEFT OUTER JOIN (SELECT aq.PersonID,GROUP_CONCAT(CONCAT(Event,' [',attqty,'x]')".
-    " ORDER BY Event SEPARATOR '\\n') AS Events FROM (SELECT PersonID,Event,COUNT(*) AS attqty FROM attendance AS at".
-    " INNER JOIN event ev ON ev.EventID = at.EventID GROUP BY at.PersonID,at.EventID) AS aq".
-    " GROUP BY aq.PersonID) AS e ON e.PersonID = person.PersonID".
-    " WHERE perorg.PersonID=".$_GET['pid']." ORDER BY person.Furigana";
-//echo "<pre>$sql</pre>";
-$result = sqlquery_checked($sql);
-$org_pids = '';
-if (mysqli_num_rows($result) == 0) {
+// Get organization IDs where this person is a member
+$result = sqlquery_checked("SELECT OrgID FROM perorg WHERE PersonID=".$_GET['pid']);
+$org_pids = array();
+while ($row = mysqli_fetch_object($result)) {
+  $org_pids[] = $row->OrgID;
+}
+
+if (count($org_pids) == 0) {
   echo "<h3>"._("Current Organizations")."</h3>";
   echo "<p>"._("No organization associations. (You can add them here or in Multi-Select.)")."</p>";
 } else {
   echo "<form class=\"msform\" action=\"multiselect.php\" method=\"post\" target=\"_top\">\n";
-  echo "<h3 style=\"display:inline;margin-right:20px;\">"._("Current Organizations")." (".mysqli_num_rows($result).")</h3>";
-  echo "  <input type=\"hidden\" id=\"org_preselected\" name=\"preselected\" value=\"\">\n";
+  echo "<h3 style=\"display:inline;margin-right:20px;\">"._("Current Organizations")." (".count($org_pids).")</h3>";
+  echo "  <input type=\"hidden\" id=\"org_preselected\" name=\"preselected\" value=\"".implode(',', $org_pids)."\">\n";
   echo "  <input type=\"submit\" value=\""._("Go to Multi-Select with these entries preselected")."\">\n";
   echo "</form>\n";
-  echo "<table id=\"org-table\" class=\"tablesorter\">";
-  echo "<thead><tr>".str_replace("target","targetOrg",
-  str_replace("ulSelectColumn","ulSelectColumnOrg",$tableheads))."</tr></thead>\n<tbody>";
-  while ($row = mysqli_fetch_object($result)) {
-    $org_pids .= ",".$row->PersonID;
-    echo "<tr".($row->Leader ? " class=\"leader\"" : "").">";
-    echo "<td class=\"personid\">".$row->PersonID."</td>\n";
-    echo "<td class=\"name-for-csv\" style=\"display:none\">".readable_name($row->FullName,$row->Furigana)."</td>";
-    echo "<td class=\"name-for-display\"><span style=\"display:none\">".$row->Furigana."</span>";
-    echo "<a href=\"individual.php?pid=".$row->PersonID."\">".
-      readable_name($row->FullName,$row->Furigana)."</a>".($row->Leader ? _(" [Leader]") : "")."</td>\n";
-    echo "<td class=\"photo\">";
-    echo ($row->Photo == 1) ? "<img border=0 src=\"photo.php?f=p".$row->PersonID."\" width=50>" : "";
-    echo "</td>\n";
-    if (!empty($row->CellPhone) && !empty($row->Phone)) {
-      echo '<td class="phone">'.$row->Phone.'<br>'.$row->CellPhone."</td>\n";
-    } else {
-      echo '<td class="phone">'.(!empty($row->Phone)?$row->Phone:'').''.$row->CellPhone."</td>\n";
-    }
-    echo "<td class=\"email\">".email2link($row->Email)."</td>\n";
-    echo "<td class=\"address\">".$row->PostalCode.$row->Prefecture.$row->ShiKuCho.db2table($row->Address)."</td>\n";
-    echo "<td class=\"birthdate\">".(($row->Birthdate!="0000-00-00") ? ((substr($row->Birthdate,0,4) == "1900") ? substr($row->Birthdate,5) : $row->Birthdate) : "")."</td>\n";
-    echo "<td class=\"age\">".(($row->Birthdate!="0000-00-00") && (substr($row->Birthdate,0,4) != "1900") ? age($row->Birthdate) : "")."</td>\n";
-    echo "<td class=\"sex\">".$row->Sex."</td>\n";
-    echo "<td class=\"country\">".$row->Country."</td>\n";
-    echo "<td class=\"url\">".$row->URL."</td>\n";
-    echo "<td class=\"remarks\">".email2link(url2link(d2h($row->Remarks)))."</td>\n";
-    echo "<td class=\"categories\">".d2h($row->Categories)."</td>\n";
-    echo "<td class=\"events\">".d2h($row->Events)."</td>\n";
-    echo "<td class=\"selectcol\">-</td>\n";
-    echo "<td class=\"delete\"><button id=\"action-PerOrgDelete_memid-".$_GET['pid']."_orgid-".$row->PersonID."\">"._("Del")."</button></td>\n";
-    echo "</tr>\n";
-  }
-  echo "  </tbody></table>";
+
+  $showcols = ",".$_SESSION['org_showcols'].",";
+
+  $tableopt = (object)[
+    'ids' => implode(',', $org_pids),
+    'keyfield' => 'person.PersonID',
+    'tableid' => 'org',
+    'order' => 'Furigana',
+    'cols' => []
+  ];
+
+  // PersonID
+  $tableopt->cols[] = (object)[
+    'key' => 'personid',
+    'sel' => 'person.PersonID',
+    'label' => _('ID'),
+    'show' => (stripos($showcols, ',personid,') !== FALSE)
+  ];
+
+  // Name columns
+  $tableopt->cols[] = (object)[
+    'key' => 'name',
+    'sel' => 'person.Name',
+    'label' => _('Name'),
+    'show' => (stripos($showcols, ',name,') !== FALSE)
+  ];
+
+  $tableopt->cols[] = (object)[
+    'key' => 'fullname',
+    'sel' => 'person.FullName',
+    'label' => _('FullName'),
+    'show' => FALSE,
+    'classes' => 'name-for-csv',
+    'colsel' => FALSE
+  ];
+
+  $tableopt->cols[] = (object)[
+    'key' => 'furigana',
+    'sel' => 'person.Furigana',
+    'label' => ($_SESSION['furiganaisromaji']=="yes" ? _("Romaji") : _("Furigana")),
+    'show' => (stripos($showcols, ',furigana,') !== FALSE),
+    'sort' => 1
+  ];
+
+  // Photo
+  $tableopt->cols[] = (object)[
+    'key' => 'photo',
+    'sel' => 'person.Photo',
+    'label' => _('Photo'),
+    'show' => (stripos($showcols, ',photo,') !== FALSE),
+    'sortable' => false
+  ];
+
+  // Contact info
+  $tableopt->cols[] = (object)[
+    'key' => 'phones',
+    'sel' => 'Phones',
+    'label' => _('Phones'),
+    'show' => (stripos($showcols, ',phones,') !== FALSE),
+    'join' => 'LEFT JOIN household ON person.HouseholdID=household.HouseholdID',
+    'table' => 'person'
+  ];
+
+  $tableopt->cols[] = (object)[
+    'key' => 'email',
+    'sel' => 'person.Email',
+    'label' => _('Email'),
+    'show' => (stripos($showcols, ',email,') !== FALSE)
+  ];
+
+  // Address - computed from postalcode + household data
+  $tableopt->cols[] = (object)[
+    'key' => 'address',
+    'sel' => "CONCAT(IFNULL(household.PostalCode,''), IFNULL(postalcode.Prefecture,''), IFNULL(postalcode.ShiKuCho,''), IFNULL(household.Address,''))",
+    'label' => _('Address'),
+    'show' => (stripos($showcols, ',address,') !== FALSE),
+    'join' => 'LEFT JOIN household ON person.HouseholdID=household.HouseholdID LEFT JOIN postalcode ON household.PostalCode=postalcode.PostalCode',
+    'render' => 'multiline',
+    'table' => 'person'
+  ];
+
+  // Demographics
+  $tableopt->cols[] = (object)[
+    'key' => 'birthdate',
+    'sel' => 'person.Birthdate',
+    'label' => _('Born'),
+    'show' => (stripos($showcols, ',birthdate,') !== FALSE),
+    'classes' => 'center'
+  ];
+
+  $tableopt->cols[] = (object)[
+    'key' => 'age',
+    'sel' => "IF(person.Birthdate='0000-00-00','',TIMESTAMPDIFF(YEAR,person.Birthdate,CURDATE()))",
+    'label' => _('Age'),
+    'show' => (stripos($showcols, ',age,') !== FALSE),
+    'classes' => 'center',
+    'table' => 'person'
+  ];
+
+  $tableopt->cols[] = (object)[
+    'key' => 'sex',
+    'sel' => 'person.Sex',
+    'label' => _('Sex'),
+    'show' => (stripos($showcols, ',sex,') !== FALSE)
+  ];
+
+  $tableopt->cols[] = (object)[
+    'key' => 'country',
+    'sel' => 'person.Country',
+    'label' => _('Country'),
+    'show' => (stripos($showcols, ',country,') !== FALSE)
+  ];
+
+  $tableopt->cols[] = (object)[
+    'key' => 'url',
+    'sel' => 'person.URL',
+    'label' => _('URL'),
+    'show' => (stripos($showcols, ',url,') !== FALSE)
+  ];
+
+  $tableopt->cols[] = (object)[
+    'key' => 'remarks',
+    'sel' => 'person.Remarks',
+    'label' => _('Remarks'),
+    'show' => (stripos($showcols, ',remarks,') !== FALSE)
+  ];
+
+  // Categories
+  $tableopt->cols[] = (object)[
+    'key' => 'categories',
+    'sel' => "GROUP_CONCAT(Category ORDER BY Category SEPARATOR '\\n')",
+    'label' => _('Categories'),
+    'show' => (stripos($showcols, ',categories,') !== FALSE),
+    'lazy' => TRUE,
+    'join' => 'LEFT JOIN percat ON person.PersonID=percat.PersonID LEFT JOIN category ON percat.CategoryID=category.CategoryID'
+  ];
+
+  // Events - complex GROUP_CONCAT with attendance counts
+  $tableopt->cols[] = (object)[
+    'key' => 'events',
+    'sel' => "e.Events",
+    'label' => _('Events'),
+    'show' => (stripos($showcols, ',events,') !== FALSE),
+    'lazy' => TRUE,
+    'join' => "LEFT OUTER JOIN (SELECT aq.PersonID,GROUP_CONCAT(CONCAT(Event,' [',attqty,'x]') ORDER BY Event SEPARATOR '\\n') AS Events FROM (SELECT PersonID,Event,COUNT(*) AS attqty FROM attendance AS at INNER JOIN event ev ON ev.EventID = at.EventID GROUP BY at.PersonID,at.EventID) AS aq GROUP BY aq.PersonID) AS e ON e.PersonID = person.PersonID"
+  ];
+
+  // Leader indicator - join perorg to check if current person is leader of this org
+  $tableopt->cols[] = (object)[
+    'key' => 'leader',
+    'sel' => 'perorg.Leader',
+    'label' => 'Leader',
+    'show' => FALSE,
+    'colsel' => FALSE,
+    'join' => 'LEFT JOIN perorg ON person.PersonID=perorg.OrgID AND perorg.PersonID='.$_GET['pid']
+  ];
+
+  // Delete button
+  $tableopt->cols[] = (object)[
+    'key' => 'del',
+    'sel' => "CONCAT('<button id=\"action-PerOrgDelete_memid-".$_GET['pid']."_orgid-',person.PersonID,'\">"._("Del")."</button>')",
+    'label' => ' ',
+    'show' => TRUE,
+    'sortable' => false,
+    'colsel' => FALSE,
+    'classes' => 'delete'
+  ];
+
+  flextable($tableopt);
 }
 
 // TABLE OF MEMBERS
 if ($per->Organization) {
-  $sql = "SELECT person.*,perorg.Leader,household.Address,postalcode.*,".
-  "ca.Categories,e.Events ".
-  " FROM person INNER JOIN perorg on person.PersonID=perorg.PersonID".
-  " LEFT JOIN household ON person.HouseholdID=household.HouseholdID".
-  " LEFT JOIN postalcode ON household.PostalCode=postalcode.PostalCode".
-  " LEFT OUTER JOIN (SELECT pc.PersonID,GROUP_CONCAT(cat.Category ORDER BY cat.Category SEPARATOR '\\n') AS Categories".
-  " FROM percat AS pc INNER JOIN category AS cat ON cat.CategoryID = pc.CategoryID GROUP BY pc.PersonID) AS ca".
-  " ON ca.PersonID = person.PersonID".
-  " LEFT OUTER JOIN (SELECT aq.PersonID,GROUP_CONCAT(CONCAT(aq.Event,' [',aq.attqty,'x]')".
-  " ORDER BY Event SEPARATOR '\\n') AS Events FROM (SELECT PersonID,Event,COUNT(*) AS attqty FROM attendance at".
-  " INNER JOIN event ev ON ev.EventID = at.EventID GROUP BY at.PersonID,at.EventID) AS aq GROUP BY aq.PersonID) AS e".
-  " ON e.PersonID = person.PersonID".
-  " WHERE perorg.OrgID=".$_GET['pid']." ORDER BY person.Furigana";
-  $result = sqlquery_checked($sql);
-  $mem_pids = '';
-  if (mysqli_num_rows($result) == 0) {
+  // Get member PersonIDs for this organization
+  $result = sqlquery_checked("SELECT PersonID FROM perorg WHERE OrgID=".$_GET['pid']);
+  $mem_pids = array();
+  while ($row = mysqli_fetch_object($result)) {
+    $mem_pids[] = $row->PersonID;
+  }
+
+  if (count($mem_pids) == 0) {
     echo "<h3>"._("Current Members")."</h3>";
     echo "<p>"._("No members. (Add them on a member's personal page or in Multi-Select.)")."</p>";
   } else {
     echo "<form class=\"msform\" action=\"multiselect.php\" method=\"post\" target=\"_top\">\n";
-    echo "  <h3 style=\"display:inline;margin-right:20px;\">"._("Current Members")." (".mysqli_num_rows($result).")</h3>";
-    echo "  <input type=\"hidden\" id=\"mem_preselected\" name=\"preselected\" value=\"\">\n";
+    echo "  <h3 style=\"display:inline;margin-right:20px;\">"._("Current Members")." (".count($mem_pids).")</h3>";
+    echo "  <input type=\"hidden\" id=\"mem_preselected\" name=\"preselected\" value=\"".implode(',', $mem_pids)."\">\n";
     echo "  <input type=\"submit\" value=\""._("Go to Multi-Select with these entries preselected")."\">\n";
     echo "</form>\n";
-    echo "<table id=\"member-table\" class=\"tablesorter\">";
-    echo "<thead><tr>".str_replace("target","targetMember",
-    str_replace("ulSelectColumn","ulSelectColumnMember",$tableheads))."</tr></thead>\n<tbody>";
-    while ($row = mysqli_fetch_object($result)) {
-      $mem_pids .= ",".$row->PersonID;
-      echo "<tr".($row->Leader ? " class=\"leader\"" : "").">";
-      echo "<td class=\"personid\">".$row->PersonID."</td>\n";
-      echo "<td class=\"name-for-csv\" style=\"display:none\">".readable_name($row->FullName,$row->Furigana)."</td>";
-      echo "<td class=\"name-for-display\"><span style=\"display:none\">".$row->Furigana."</span>";
-      echo "<a href=\"individual.php?pid=".$row->PersonID."\">".
-        readable_name($row->FullName,$row->Furigana)."</a>".($row->Leader ? _(" [Leader]") : "")."</td>\n";
-      echo "<td class=\"photo\">";
-      echo ($row->Photo == 1) ? "<img border=0 src=\"photo.php?f=p".$row->PersonID."\" width=50>" : "";
-      echo "</td>\n";
-      if (!empty($row->CellPhone) && !empty($row->Phone)) {
-        echo '<td class="phone">'.$row->Phone.'<br>'.$row->CellPhone."</td>\n";
-      } else {
-        echo '<td class="phone">'.(!empty($row->Phone)?$row->Phone:'').''.$row->CellPhone."</td>\n";
-      }
-      echo '<td class="email">'.email2link($row->Email)."</td>\n";
-      echo '<td class="address">'.$row->PostalCode.$row->Prefecture.$row->ShiKuCho.db2table($row->Address)."</td>\n";
-      echo '<td class="birthdate">'.(($row->Birthdate!="0000-00-00") ? ((substr($row->Birthdate,0,4) == "1900") ? substr($row->Birthdate,5) : $row->Birthdate) : "")."</td>\n";
-      echo '<td class="age">'.(($row->Birthdate!="0000-00-00") && (substr($row->Birthdate,0,4) != "1900") ? age($row->Birthdate) : "")."</td>\n";
-      echo '<td class="sex">'.$row->Sex."</td>\n";
-      echo '<td class="country">'.$row->Country."</td>\n";
-      echo '<td class="url">'.$row->URL."</td>\n";
-      echo '<td class="remarks">'.email2link(url2link(d2h($row->Remarks)))."</td>\n";
-      echo '<td class="categories">'.d2h($row->Categories)."</td>\n";
-      echo '<td class="events">'.d2h($row->Events)."</td>\n";
-      echo '<td class="selectcol">-</td>'."\n";
-      echo '<td class="delete"><button id="action-PerOrgDelete_memid-'.$row->PersonID.'_orgid-'.$_GET['pid'].'">'._("Del")."</button></td>\n";
-      echo "</tr>\n";
-    }
-    echo "  </tbody></table>";
+
+    $showcols = ",".$_SESSION['member_showcols'].",";
+
+    $tableopt = (object)[
+      'ids' => implode(',', $mem_pids),
+      'keyfield' => 'person.PersonID',
+      'tableid' => 'member',
+      'order' => 'Furigana',
+      'cols' => []
+    ];
+
+    // PersonID
+    $tableopt->cols[] = (object)[
+      'key' => 'personid',
+      'sel' => 'person.PersonID',
+      'label' => _('ID'),
+      'show' => (stripos($showcols, ',personid,') !== FALSE)
+    ];
+
+    // Name columns
+    $tableopt->cols[] = (object)[
+      'key' => 'name',
+      'sel' => 'person.Name',
+      'label' => _('Name'),
+      'show' => (stripos($showcols, ',name,') !== FALSE)
+    ];
+
+    $tableopt->cols[] = (object)[
+      'key' => 'fullname',
+      'sel' => 'person.FullName',
+      'label' => _('FullName'),
+      'show' => FALSE,
+      'classes' => 'name-for-csv',
+      'colsel' => FALSE
+    ];
+
+    $tableopt->cols[] = (object)[
+      'key' => 'furigana',
+      'sel' => 'person.Furigana',
+      'label' => ($_SESSION['furiganaisromaji']=="yes" ? _("Romaji") : _("Furigana")),
+      'show' => (stripos($showcols, ',furigana,') !== FALSE),
+      'sort' => 1
+    ];
+
+    // Photo
+    $tableopt->cols[] = (object)[
+      'key' => 'photo',
+      'sel' => 'person.Photo',
+      'label' => _('Photo'),
+      'show' => (stripos($showcols, ',photo,') !== FALSE),
+      'sortable' => false
+    ];
+
+    // Contact info
+    $tableopt->cols[] = (object)[
+      'key' => 'phones',
+      'sel' => 'Phones',
+      'label' => _('Phones'),
+      'show' => (stripos($showcols, ',phones,') !== FALSE),
+      'join' => 'LEFT JOIN household ON person.HouseholdID=household.HouseholdID',
+      'table' => 'person'
+    ];
+
+    $tableopt->cols[] = (object)[
+      'key' => 'email',
+      'sel' => 'person.Email',
+      'label' => _('Email'),
+      'show' => (stripos($showcols, ',email,') !== FALSE)
+    ];
+
+    // Address - computed from postalcode + household data
+    $tableopt->cols[] = (object)[
+      'key' => 'address',
+      'sel' => "CONCAT(IFNULL(household.PostalCode,''), IFNULL(postalcode.Prefecture,''), IFNULL(postalcode.ShiKuCho,''), IFNULL(household.Address,''))",
+      'label' => _('Address'),
+      'show' => (stripos($showcols, ',address,') !== FALSE),
+      'join' => 'LEFT JOIN household ON person.HouseholdID=household.HouseholdID LEFT JOIN postalcode ON household.PostalCode=postalcode.PostalCode',
+      'render' => 'multiline',
+      'table' => 'person'
+    ];
+
+    // Demographics
+    $tableopt->cols[] = (object)[
+      'key' => 'birthdate',
+      'sel' => 'person.Birthdate',
+      'label' => _('Born'),
+      'show' => (stripos($showcols, ',birthdate,') !== FALSE),
+      'classes' => 'center'
+    ];
+
+    $tableopt->cols[] = (object)[
+      'key' => 'age',
+      'sel' => "IF(person.Birthdate='0000-00-00','',TIMESTAMPDIFF(YEAR,person.Birthdate,CURDATE()))",
+      'label' => _('Age'),
+      'show' => (stripos($showcols, ',age,') !== FALSE),
+      'classes' => 'center',
+      'table' => 'person'
+    ];
+
+    $tableopt->cols[] = (object)[
+      'key' => 'sex',
+      'sel' => 'person.Sex',
+      'label' => _('Sex'),
+      'show' => (stripos($showcols, ',sex,') !== FALSE)
+    ];
+
+    $tableopt->cols[] = (object)[
+      'key' => 'country',
+      'sel' => 'person.Country',
+      'label' => _('Country'),
+      'show' => (stripos($showcols, ',country,') !== FALSE)
+    ];
+
+    $tableopt->cols[] = (object)[
+      'key' => 'url',
+      'sel' => 'person.URL',
+      'label' => _('URL'),
+      'show' => (stripos($showcols, ',url,') !== FALSE)
+    ];
+
+    $tableopt->cols[] = (object)[
+      'key' => 'remarks',
+      'sel' => 'person.Remarks',
+      'label' => _('Remarks'),
+      'show' => (stripos($showcols, ',remarks,') !== FALSE)
+    ];
+
+    // Categories
+    $tableopt->cols[] = (object)[
+      'key' => 'categories',
+      'sel' => "GROUP_CONCAT(Category ORDER BY Category SEPARATOR '\\n')",
+      'label' => _('Categories'),
+      'show' => (stripos($showcols, ',categories,') !== FALSE),
+      'lazy' => TRUE,
+      'join' => 'LEFT JOIN percat ON person.PersonID=percat.PersonID LEFT JOIN category ON percat.CategoryID=category.CategoryID'
+    ];
+
+    // Events - complex GROUP_CONCAT with attendance counts
+    $tableopt->cols[] = (object)[
+      'key' => 'events',
+      'sel' => "e.Events",
+      'label' => _('Events'),
+      'show' => (stripos($showcols, ',events,') !== FALSE),
+      'lazy' => TRUE,
+      'join' => "LEFT OUTER JOIN (SELECT aq.PersonID,GROUP_CONCAT(CONCAT(Event,' [',attqty,'x]') ORDER BY Event SEPARATOR '\\n') AS Events FROM (SELECT PersonID,Event,COUNT(*) AS attqty FROM attendance AS at INNER JOIN event ev ON ev.EventID = at.EventID GROUP BY at.PersonID,at.EventID) AS aq GROUP BY aq.PersonID) AS e ON e.PersonID = person.PersonID"
+    ];
+
+    // Leader indicator - join perorg to check if this person is a leader of this org
+    $tableopt->cols[] = (object)[
+      'key' => 'leader',
+      'sel' => 'perorg.Leader',
+      'label' => 'Leader',
+      'show' => FALSE,
+      'colsel' => FALSE,
+      'join' => 'LEFT JOIN perorg ON person.PersonID=perorg.PersonID AND perorg.OrgID='.$_GET['pid']
+    ];
+
+    // Delete button
+    $tableopt->cols[] = (object)[
+      'key' => 'del',
+      'sel' => "CONCAT('<button id=\"action-PerOrgDelete_memid-',person.PersonID,'_orgid-".$_GET['pid']."\">"._("Del")."</button>')",
+      'label' => ' ',
+      'show' => TRUE,
+      'sortable' => false,
+      'colsel' => FALSE,
+      'classes' => 'delete'
+    ];
+
+    flextable($tableopt);
   }
 } //end of "if this is an organization"
 echo "</div>";
@@ -923,24 +1124,43 @@ echo "</div>";
 mysqli_free_result($result);
 ?>
 
-<script type="text/JavaScript" src="js/jquery.js"></script>
-<script type="text/JavaScript" src="js/jquery-ui.js"></script>
-<script type="text/JavaScript" src="js/jquery.ui.timepicker.js"></script>
-<script type="text/JavaScript" src="js/jquery.readmore.js"></script>
-<script type="text/JavaScript" src="js/tablesorter.js"></script>
-<script type="text/javascript" src="js/table2CSV.js"></script>
-<script type="text/javascript" src="js/jquery.columnmanager.pack.js"></script>
-<script type="text/javascript" src="js/jquery.clickmenu.js"></script>
-<script type="text/javascript" src="js/expanding.js"></script>
+<?php
+// Load additional scripts needed by individual.php
+// (jquery, jqueryui, tablesorter, table2CSV already loaded by flextable)
+load_scripts(['timepicker', 'readmore', 'expanding']);
+?>
 
 <script type="text/javascript">
-$("#org_preselected").val("<?=substr($org_pids,1)?>");
-<?php if ($per->Organization) { ?>$("#mem_preselected").val("<?=substr($mem_pids,1)?>");<?php } ?>
-
 $(document).ready(function(){
   $(document).ajaxError(function(e, xhr, settings, exception) {
     alert('Error calling ' + settings.url + ': ' + exception);
-  }); 
+  });
+
+  // Apply leader highlighting and text marking to org and member tables
+  function applyLeaderMarking(tableId) {
+    $('#' + tableId + ' tbody tr').each(function() {
+      var leaderCell = $(this).find('td.leader');
+      if (leaderCell.length && leaderCell.text() == '1') {
+        // Add leader class to row for background color
+        $(this).addClass('leader');
+
+        // Find the name cell - it's the one with a link to individual.php
+        // (Works regardless of which name column is visible or what language the interface is in)
+        var nameCell = $(this).find('td:visible a[href*="individual.php"]').first().parent();
+        if (nameCell.length) {
+          // Only add [Leader] if it's not already there
+          var cellHtml = nameCell.html();
+          if (cellHtml.indexOf('[Leader]') === -1) {
+            nameCell.append(' <?=_("[Leader]")?>');
+          }
+        }
+      }
+    });
+  }
+
+  // Apply on page load
+  applyLeaderMarking('org-table');
+  applyLeaderMarking('member-table');
 
   <?php
 if($_SESSION['lang']=="ja_JP") {
@@ -963,23 +1183,7 @@ if($_SESSION['lang']=="ja_JP") {
   $("#attend-table").tablesorter({ sortList:[[1,1]], headers:{3:{sorter:false}} });
   $("#upload-table").tablesorter({ sortList:[[0,1]], headers:{3:{sorter:false}} });
 
-  $("#org-table").tablesorter({ sortList:[[2,0]], headers:{<?=$sorterHeaders?>} });
-  $('#org-table').columnManager({listTargetID:'targetOrg',
-  onClass: 'advon',
-  offClass: 'advoff',
-  hideInList: [<?=$hideInList?>],
-  colsHidden: [<?=$orgColsHidden?>],
-  saveState: false});
-  $('#ulSelectColumnOrg').clickMenu({onClick: function(){}});
-
-  $("#member-table").tablesorter({ sortList:[[2,0]], headers:{<?=$sorterHeaders?>} });
-  $('#member-table').columnManager({listTargetID:'targetMember',
-  onClass: 'advon',
-  offClass: 'advoff',
-  hideInList: [<?=$hideInList?>],
-  colsHidden: [<?=$memberColsHidden?>],
-  saveState: false});
-  $('#ulSelectColumnMember').clickMenu({onClick: function(){}});
+  // Legacy columnmanager code removed - tables now use flextable
   
   $("#orgid").bind('input propertychange', function(e){  //display Organization name when applicable ID is typed
     if (/\D/g.test(this.value))  {

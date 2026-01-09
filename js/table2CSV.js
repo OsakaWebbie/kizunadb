@@ -51,7 +51,10 @@ jQuery.fn.table2CSV = function(options) {
         }
     }
     function formatData(input) {
-        // replace " with “
+        // remove hidden spans (used for sort keys)
+        var regexp = new RegExp(/<span[^\<]+display:\s*none[^\<]*>.*?<\/span>/gi);
+        var output = input.replace(regexp, "");
+        // replace straight quotes with smart quotes to avoid conflicts in CSV
         var regexp = new RegExp(/["]/g);
         var output = input.replace(regexp, "“");
         //HTML

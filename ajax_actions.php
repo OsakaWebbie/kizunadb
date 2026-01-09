@@ -4,9 +4,9 @@ include("accesscontrol.php");
 
 switch($_REQUEST['action']) {
 case "DonationProc":
-  if (!isset($_POST['proc_off']) || !isset($_POST['proc_on'])) die("Failed.");
-  if ($_POST['proc_on'] != "") sqlquery_checked("UPDATE donation set Processed=1 WHERE DonationID IN (".$_POST['proc_on'].")");
-  if ($_POST['proc_off'] != "") sqlquery_checked("UPDATE donation set Processed=0 WHERE DonationID IN (".$_POST['proc_off'].")");
+  if (!isset($_POST['checked_ids']) || !isset($_POST['unchecked_ids'])) die("Failed.");
+  if ($_POST['checked_ids'] != "") sqlquery_checked("UPDATE donation set Processed=1 WHERE DonationID IN (".$_POST['checked_ids'].")");
+  if ($_POST['unchecked_ids'] != "") sqlquery_checked("UPDATE donation set Processed=0 WHERE DonationID IN (".$_POST['unchecked_ids'].")");
   echo "*"._("Update successful.");
   break;
 case "AttendDelete":

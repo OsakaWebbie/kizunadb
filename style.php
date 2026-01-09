@@ -713,7 +713,7 @@ body.dashboard #attend_datesums h3 { display:none; }
 } // end IF USING THIS FILE
 
 if (isset($_GET['jquery'])) {
-  serve(is_file($path."jquery-ui.css") ? $path."jquery-ui.css" : "css/jquery-ui.css");
+  serve(is_file($path."jquery-ui-13.css") ? $path."jquery-ui-13.css" : "css/jquery-ui-13.css");
   serve(is_file($path."jquery-ui-timepicker.css") ? $path."jquery-ui-timepicker.css" : "css/jquery-ui-timepicker.css");
 }
 if (isset($_GET['table'])) {

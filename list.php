@@ -3,11 +3,8 @@ include("functions.php");
 include("accesscontrol.php");
 
 $criterialist = "<ul id=\"criteria\">";
-$sql = "SELECT ".(!empty($_GET['countonly']) ?
-  "person.PersonID " :
-  "person.*, household.AddressComp, household.Phone, GROUP_CONCAT(Category ORDER BY Category SEPARATOR '\\n') AS categories ");
-$sql .= "FROM person LEFT JOIN household ON person.HouseholdID=household.HouseholdID ".(!empty($_GET['countonly']) ? "" :
-    "LEFT JOIN percat ON person.PersonID=percat.PersonID LEFT JOIN category ON percat.CategoryID=category.CategoryID");
+$sql = "SELECT person.PersonID ";
+$sql .= "FROM person LEFT JOIN household ON person.HouseholdID=household.HouseholdID ";
 $join = $where = "";
 $ptable = $grouptable = "person";
 $closing = '';
@@ -255,7 +252,7 @@ if (!empty($_GET['bucket']) && $_SESSION['bucket']) {
   $criterialist .= '<li>'._('In the Bucket')."</li>\n";
 }
 
-$sql .= $join . $where . $closing . " GROUP BY $grouptable.PersonID ORDER BY Furigana";
+$sql .= $join . $where . $closing . " GROUP BY $grouptable.PersonID";
 $criterialist .= "</ul>\n";
 
 if (!$result = mysqli_query($db, $sql)) {
@@ -278,147 +275,188 @@ if (mysqli_num_rows($result) == 0) {
 }
 header1(_("Search Results").(!empty($_POST['preselected']) ? sprintf(_(" (%d People/Orgs Pre-selected)"),$psnum) : ""));
 
-$cols[] = array("personid",1,"digit");
-$cols[] = array("name-for-csv",0,"text");
-$cols[] = array("name-for-display",0,"text");
-$cols[] = array("photo",1,"text");
-$cols[] = array("phone",1,"text");
-$cols[] = array("email",1,"text");
-$cols[] = array("address",1,"text");
-$cols[] = array("birthdate",1,"isoDate");
-$cols[] = array("age",1,"digit");
-$cols[] = array("sex",1,"text");
-$cols[] = array("country",1,"text");
-$cols[] = array("url",1,"url");
-$cols[] = array("remarks",1,"text");
-$cols[] = array("categories",1,"text");
-$cols[] = array("selectcol",0,"");
-$colsHidden = $hideInList = "";
-foreach($cols as $i=>$col) {
-  if ($col[1]==0) $hideInList .= ",".($i+1);
-  elseif (stripos(",".$_SESSION['list_showcols'].",",",".$col[0].",") === FALSE)  $colsHidden .= ",".($i+1);
-}
-$hideInList = substr($hideInList,1);  //to remove the leading comma
-$colsHidden = substr($colsHidden,1);  //to remove the leading comma
-
-$tableheads = "<th class=\"personid\">"._("ID")."</th>";
-$tableheads .= "<th class=\"name-for-csv\" style=\"display:none\">"._("Name")." (".($_SESSION['furiganaisromaji']=="yes" ? _("Romaji") : _("Furigana")).")</th>";
-$tableheads .= "<th class=\"name-for-display\">"._("Name")." (".($_SESSION['furiganaisromaji']=="yes" ? _("Romaji") : _("Furigana")).")</th>";
-$tableheads .= "<th class=\"photo\">"._("Photo")."</th>\n";
-$tableheads .= "<th class=\"phone\">"._("Phone")."</th>\n";
-$tableheads .= "<th class=\"email\">"._("Email")."</th>\n";
-$tableheads .= "<th class=\"address\">"._("Address")."</th>\n";
-$tableheads .= "<th class=\"birthdate\">"._("Born")."</th>\n";
-$tableheads .= "<th class=\"age\">"._("Age")."</th>\n";
-$tableheads .= "<th class=\"sex\">"._("Sex")."</th>\n";
-$tableheads .= "<th class=\"country\">"._("Country")."</th>\n";
-$tableheads .= "<th class=\"url\">"._("URL")."</th>\n";
-$tableheads .= "<th class=\"remarks\">"._("Remarks")."</th>\n";
-$tableheads .= "<th class=\"categories\">"._("Categories")."</th>\n";
-$tableheads .= "<th id=\"thSelectColumn\" class=\"selectcol\">";
-$tableheads .= "<ul id=\"ulSelectColumn\"><li><img src=\"graphics/selectcol.png\" alt=\"select columns\" ".
-        "title=\"select columns\" /><ul id=\"targetall\"></ul></li></ul>";
-$tableheads .= "</th>\n";
 ?>
 <link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />
 <?php
 header2(1);
-?>
-<div style="float:left; vertical-align:bottom">
-<?php
-echo "<h3>".sprintf(_("%d results of these criteria:"),mysqli_num_rows($result)).(!empty($_GET['countonly']) ? "&nbsp;&nbsp;&nbsp;<a href=\"".
-str_replace("countonly=yes","countonly=",$_SERVER['REQUEST_URI'])."\">"._("(Show results)")."</a>" : "")."</h3>\n";
-echo $criterialist;
-?>
-</div>
-<div style="float:right; vertical-align:bottom">
-<?php if (empty($_GET['countonly'])) {  //can't do CSV if there is no table ?>
-  <form action="download.php" method="post" target="_top">
-  <input type="hidden" id="csvtext" name="csvtext" value="">
-  <input type="submit" id="csvfile" name="csvfile" value="<?=_("Download a CSV file of this table")?>" onclick="getCSV();">
-  </form>
-<?php } //end if not count only ?>
-</div>
-<div style="clear:both"></div>
-<?php
-$pids = array();
-if (!empty($_GET['countonly'])) {  //if count only, just get pids for multi-select
-  while ($row = mysqli_fetch_object($result)) $pids[] = $row->PersonID;
-} else {  //if not count only, build the whole table
-  echo "<table id=\"mainTable\" class=\"tablesorter\"><thead>";
-  echo "<tr>";
-  echo $tableheads;
-  echo "</tr></thead><tbody>\n";
-  while ($row = mysqli_fetch_object($result)) {
-    $pids[] = $row->PersonID;
-    echo "<tr>";
-    echo "<td class=\"personid\">".$row->PersonID."</td>\n";
-    echo "<td class=\"name-for-csv\" style=\"display:none\">".readable_name($row->FullName,$row->Furigana)."</td>";
-    echo "<td class=\"name-for-display\" nowrap><span style=\"display:none\">".$row->Furigana."</span>";
-    echo "<a href=\"individual.php?pid=".$row->PersonID."\">".
-      readable_name($row->FullName,$row->Furigana,0,0,"<br />")."</a></td>\n";
-    echo "<td class=\"photo\">";
-    echo ($row->Photo == 1) ? "<img border=0 src=\"photo.php?f=p".$row->PersonID."\" width=50>" : "";
-    echo "</td>\n";
-    if ($row->CellPhone && $row->Phone) {
-      echo "<td class=\"phone\">".$row->Phone."<br>".$row->CellPhone."</td>\n";
-    } else {
-      echo "<td class=\"phone\">".$row->Phone."".$row->CellPhone."</td>\n";
-    }
-    echo "<td class=\"email\">".email2link($row->Email)."</td>\n";
-    echo "<td class=\"address\">".d2h($row->AddressComp)."</td>\n";
-    echo "<td class=\"birthdate\">".(($row->Birthdate!="0000-00-00") ? ((substr($row->Birthdate,0,4) == "1900") ? substr($row->Birthdate,5) : $row->Birthdate) : "")."</td>\n";
-    echo "<td class=\"age\">".(($row->Birthdate!="0000-00-00") && (substr($row->Birthdate,0,4) != "1900") ? age($row->Birthdate) : "")."</td>\n";
-    echo "<td class=\"sex\">".$row->Sex."</td>\n";
-    echo "<td class=\"country\">".$row->Country."</td>\n";
-    echo "<td class=\"url\">".$row->URL."</td>\n";
-    echo "<td class=\"remarks\">".email2link(url2link(d2h($row->Remarks)))."</td>\n";
-    echo "<td class=\"categories\">".d2h($row->categories)."</td>\n";
-    echo "<td class=\"selectcol\">-</td>\n";
-  }
-  echo "</tr></tbody></table>\n";
-}
-echo $_SESSION['userid']=="dev"?"<pre class=\"noprint\">SQL: ".$sql."\n".
-    "PIDS: ".implode(',',$pids)."\nBUCKET: ".implode(',',$_SESSION['bucket'])."</pre>":"";
-?>
-<script type="text/javascript" src="js/jquery.js"></script>
-<script type="text/javascript" src="js/tablesorter.js"></script>
-<script type="text/javascript" src="js/table2CSV.js"></script>
-<script type="text/javascript" src="js/jquery.columnmanager.pack.js"></script>
-<script type="text/javascript" src="js/jquery.clickmenu.js"></script>
-<script type="text/javascript">
-$(document).ready(function() {
-  $("#preselected").val($("#pids").text());  //to be deprecated
-  $('#pids-for-bucket').val('<?=implode(',',$pids)?>');
-  
-  $("#mainTable").tablesorter({
-    sortList:[[2,0]],
-    headers:{14:{sorter:false}}
-  });
-  $('#mainTable').columnManager({listTargetID:'targetall',
-  onClass: 'advon',
-  offClass: 'advoff',
-  hideInList: [<?=$hideInList?>],
-  colsHidden: [<?=$colsHidden?>],
-  saveState: false});
-  $('#ulSelectColumn').clickMenu({onClick: function(){}});
-  
-  $('#ulSelectColumn').click(function() {
-    alert("fired");
-    if (($("div.outerbox").offsetLeft + $("div.outerbox").offsetWidth) > document.body.clientWidth) {
-      alert("too wide");
-      window.scrollBy(1000,0);  //should be plenty
-    }
-  });
-});
 
-function getCSV() {
-  $(".name-for-display, .selectcol").hide();
-  $(".name-for-csv").show();
-  $('#csvtext').val($('#mainTable').table2CSV({delivery:'value'}));
-  $(".name-for-csv").hide();
-  $(".name-for-display, .selectcol").show();
+// Build flextable options
+require_once("flextable.php");
+
+// Collect PersonIDs
+$person_ids = [];
+while ($row = mysqli_fetch_object($result)) {
+  $person_ids[] = $row->PersonID;
 }
-</script>
-<?php
+
+$tableopt = (object)[
+  'ids' => implode(',', $person_ids),
+  'keyfield' => 'person.PersonID',
+  'tableid' => 'searchresults',
+  'heading' => '',
+  'order' => 'Furigana',
+  'cols' => []
+];
+
+$showcols = ',' . $_SESSION['list_showcols'] . ',';
+
+// PersonID
+$tableopt->cols[] = (object)[
+  'key' => 'personid',
+  'sel' => 'person.PersonID',
+  'label' => _('ID'),
+  'show' => (stripos($showcols, ',personid,') !== FALSE),
+  'classes' => 'personid'
+];
+
+// Name (composite of FullName + Furigana with link and hidden Furigana for sorting)
+$tableopt->cols[] = (object)[
+  'key' => 'name',
+  'sel' => 'person.Name',
+  'label' => _('Name'),
+  'show' => (stripos($showcols, ',name,') !== FALSE),
+  'sort' => 1,
+  'classes' => 'name-for-display'  // Used by CSV export to hide before export
+];
+
+// Furigana (clean, usable for both display and CSV)
+$tableopt->cols[] = (object)[
+  'key' => 'furigana',
+  'sel' => 'person.Furigana',
+  'label' => ($_SESSION['furiganaisromaji']=='yes' ? _('Romaji') : _('Furigana')),
+  'show' => (stripos($showcols, ',furigana,') !== FALSE),
+  'colsel' => TRUE
+];
+
+// FullName (clean, for CSV export - hidden, lazy loaded)
+$tableopt->cols[] = (object)[
+  'key' => 'fullname',
+  'sel' => 'person.FullName',
+  'label' => _('FullName'),
+  'show' => FALSE,
+  'lazy' => TRUE,
+  'classes' => 'name-for-csv',  // Shown during CSV export, otherwise hidden
+  'colsel' => FALSE
+];
+
+// Photo
+$tableopt->cols[] = (object)[
+  'key' => 'photo',
+  'sel' => 'person.Photo',
+  'label' => _('Photo'),
+  'show' => (stripos($showcols, ',photo,') !== FALSE),
+  'sortable' => false
+];
+
+// Phones (composite of household.Phone + person.CellPhone)
+$tableopt->cols[] = (object)[
+  'key' => 'phones',
+  'sel' => 'Phones',
+  'label' => _('Phone'),
+  'show' => (stripos($showcols, ',phone,') !== FALSE),
+  'join' => 'LEFT JOIN household ON person.HouseholdID=household.HouseholdID',
+  'table' => 'person'
+];
+
+// Email
+$tableopt->cols[] = (object)[
+  'key' => 'email',
+  'sel' => 'person.Email',
+  'label' => _('Email'),
+  'show' => (stripos($showcols, ',email,') !== FALSE)
+];
+
+// Address
+$tableopt->cols[] = (object)[
+  'key' => 'address',
+  'sel' => 'household.AddressComp',
+  'label' => _('Address'),
+  'show' => (stripos($showcols, ',address,') !== FALSE),
+  'join' => 'LEFT JOIN household ON person.HouseholdID=household.HouseholdID',
+  'table' => 'household'
+];
+
+// Birthdate
+$tableopt->cols[] = (object)[
+  'key' => 'birthdate',
+  'sel' => 'person.Birthdate',
+  'label' => _('Born'),
+  'show' => (stripos($showcols, ',birthdate,') !== FALSE),
+  'classes' => 'center',
+  'render' => 'birthdate'  // Handles 1900 prefix (show MM-DD only)
+];
+
+// Age (calculated from Birthdate)
+$tableopt->cols[] = (object)[
+  'key' => 'age',
+  'sel' => "IF(person.Birthdate='0000-00-00' OR SUBSTRING(person.Birthdate,1,4)='1900', '', TIMESTAMPDIFF(YEAR, person.Birthdate, CURDATE()))",
+  'label' => _('Age'),
+  'show' => (stripos($showcols, ',age,') !== FALSE),
+  'classes' => 'center',
+  'render' => 'age'  // Hides age if birth year is 1900
+];
+
+// Sex
+$tableopt->cols[] = (object)[
+  'key' => 'sex',
+  'sel' => 'person.Sex',
+  'label' => _('Sex'),
+  'show' => (stripos($showcols, ',sex,') !== FALSE)
+];
+
+// Country
+$tableopt->cols[] = (object)[
+  'key' => 'country',
+  'sel' => 'person.Country',
+  'label' => _('Country'),
+  'show' => (stripos($showcols, ',country,') !== FALSE)
+];
+
+// URL
+$tableopt->cols[] = (object)[
+  'key' => 'url',
+  'sel' => 'person.URL',
+  'label' => _('URL'),
+  'show' => (stripos($showcols, ',url,') !== FALSE),
+  'render' => 'url'  // Applies url2link
+];
+
+// Remarks
+$tableopt->cols[] = (object)[
+  'key' => 'remarks',
+  'sel' => 'person.Remarks',
+  'label' => _('Remarks'),
+  'show' => (stripos($showcols, ',remarks,') !== FALSE),
+  'render' => 'remarks'  // Applies email2link and url2link
+];
+
+// Categories (lazy loaded)
+$tableopt->cols[] = (object)[
+  'key' => 'categories',
+  'sel' => "GROUP_CONCAT(Category ORDER BY Category SEPARATOR '\\n')",
+  'label' => _('Categories'),
+  'show' => (stripos($showcols, ',categories,') !== FALSE),
+  'lazy' => TRUE,
+  'join' => 'LEFT JOIN percat ON person.PersonID=percat.PersonID LEFT JOIN category ON percat.CategoryID=category.CategoryID'
+];
+
+// Events (lazy loaded)
+$tableopt->cols[] = (object)[
+  'key' => 'events',
+  'sel' => "GROUP_CONCAT(DISTINCT Event ORDER BY Event SEPARATOR '\\n')",
+  'label' => _('Events'),
+  'show' => (stripos($showcols, ',events,') !== FALSE),
+  'lazy' => TRUE,
+  'join' => 'LEFT JOIN attendance ON person.PersonID=attendance.PersonID LEFT JOIN event ON attendance.EventID=event.EventID'
+];
+
+// Display heading and criteria list
+echo '<div style="float:left; vertical-align:bottom">';
+echo '<h3>' . sprintf(_('%d results of these criteria:'), count($person_ids)) . '</h3>';
+echo $criterialist;
+echo '</div>';
+echo '<div style="clear:both"></div>';
+
+flextable($tableopt);
+
 footer();

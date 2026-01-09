@@ -6,170 +6,31 @@ if (!empty($_SESSION['bucket'])) {
   $preselecteds = implode(',',$_SESSION['bucket']);
 }
 
-$summary = $_REQUEST['show_summary'] ? 1 : 0;
-$type = $_REQUEST['show_list'] ? $_REQUEST['listtype'] : $_REQUEST['summarytype'];
-$title = $_REQUEST['show_list'].$_REQUEST['show_summary'].
-  (!empty($preselecteds) ? sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($preselecteds,",")+1) : "");
-header1($title);
+$summary = $_REQUEST['show_summary'] ?? 0;
+// Check if this is a list request (either don_frame or don_tab button was clicked)
+$is_list = isset($_REQUEST['don_frame']) || isset($_REQUEST['don_tab']);
+$type = $is_list ? ($_REQUEST['listtype'] ?? 'Normal') : ($_REQUEST['summarytype'] ?? 'DonationType');
 
-if ($summary) {
-  if ($type == "PersonID") {
-    $tableheads = "<th class=\"name-for-csv\" style=\"display:none\">"._("Name")."</th>\n";
-    $tableheads .= "<th class=\"furigana-for-csv\" style=\"display:none\">".
-    ($_SESSION['furiganaisromaji']=="yes" ? _("Romaji") : _("Furigana"))."</th>\n";
-    $tableheads .= "<th class=\"name-for-display\">"._("Name")." (".
-    ($_SESSION['furiganaisromaji']=="yes" ? _("Romaji") : _("Furigana")).")</th>\n";
-  } else {
-    $tableheads .= "<th class=\"dtype\">"._("Donation Type")."</th>\n";
-  }
-  $tableheads .= "<th class=\"amount-for-csv\" style=\"display:none\">"._("Amount")."</th>\n";
-  $tableheads .= "<th class=\"amount-for-display\">"._("Amount")."</th>\n";
-} else {    // full list
-  $cols[] = array("ddate",1);
-  if ($type != "PersonID") {
-    if ($type == "Normal") {
-      $cols[] = array("personid",1);
-      $cols[] = array("name-for-csv",0);
-      $cols[] = array("furigana-for-csv",0);
-    }
-    $cols[] = array("name-for-display",0);
-  }
-  if ($type == "Normal") {
-    $cols[] = array("phone",1);
-    $cols[] = array("email",1);
-    $cols[] = array("address",1);
-    $cols[] = array("country",1);
-    $cols[] = array("remarks",1);
-  }
-  if ($type != "DonationType") $cols[] = array("dtype",1);
-  $cols[] = array("pledge",1);
-  $cols[] = array("amount-for-csv",1);
-  $cols[] = array("amount-for-display",0);
-  $cols[] = array("desc",1);
-  $cols[] = array("proc",0);
-  if ($type == "Normal") $cols[] = array("selectcol",0);
-  $colsHidden = $hideInList = "";
-  foreach($cols as $i=>$col) {
-    if ($col[1]==0) $hideInList .= ",".($i+1);
-    elseif (stripos(",".$_SESSION['donationlist_showcols'].",",",".$col[0].",") === FALSE)  $colsHidden .= ",".($i+1);
-  }
-  $hideInList = substr($hideInList,1);  //to remove the leading comma
-  $colsHidden = substr($colsHidden,1);  //to remove the leading comma
-
-  $tableheads = "<th class=\"ddate\">"._("Date")."</th>\n";
-  if ($type != "PersonID") {
-    if ($type == "Normal") {
-      $tableheads .= "<th class=\"personid\">"._("ID")."</th>\n";
-      $tableheads .= "<th class=\"name-for-csv\" style=\"display:none\">"._("Name")."</th>\n";
-      $tableheads .= "<th class=\"furigana-for-csv\" style=\"display:none\">".
-      ($_SESSION['furiganaisromaji']=="yes" ? _("Romaji") : _("Furigana"))."</th>\n";
-    }
-    $tableheads .= "<th class=\"name-for-display\">"._("Name")." (".
-    ($_SESSION['furiganaisromaji']=="yes" ? _("Romaji") : _("Furigana")).")</th>\n";
-  }
-  if ($type == "Normal") {
-    $tableheads .= "<th class=\"phone\">"._("Phone")."</th>\n";
-    $tableheads .= "<th class=\"email\">"._("Email")."</th>\n";
-    $tableheads .= "<th class=\"address\">"._("Address")."</th>\n";
-    $tableheads .= "<th class=\"country\">"._("Home Country")."</th>\n";
-    $tableheads .= "<th class=\"remarks\">"._("Remarks")."</th>\n";
-  }
-  if ($type != "DonationType") $tableheads .= "<th class=\"dtype\">"._("Donation Type")."</th>\n";
-  $tableheads .= "<th class=\"pledge\">"._("Pledge?")."</th>\n";
-  $tableheads .= "<th class=\"amount-for-csv\" style=\"display:none\">"._("Amount")."</th>\n";
-  $tableheads .= "<th class=\"amount-for-display\">"._("Amount")."</th>\n";
-  $tableheads .= "<th class=\"desc\">"._("Description")."</th>\n";
-  $tableheads .= "<th class=\"proc\">"._("Proc.")."</th>\n";
-  if ($type == "Normal") $tableheads .= "<th id=\"thSelectColumn\" class=\"selectcol\">".
-      "<ul id=\"ulSelectColumn\"><li><img src=\"graphics/selectcol.png\" alt=\"select columns\" ".
-      "title=\"select columns\" /><ul id=\"targetall\"></ul></li></ul>";
-  $tableheads .= "</th>\n";
+// Determine nav: if don_frame (iframe), no nav; if don_tab (new tab), show nav
+if (isset($_REQUEST['nav'])) {
+  $show_nav = $_REQUEST['nav'];
+} elseif (isset($_REQUEST['don_frame'])) {
+  $show_nav = 0; // Iframe - no navigation
+} else {
+  $show_nav = 1; // New tab or direct access - show navigation
 }
+
+header1(_("Donation List"));
 ?>
-<link rel="stylesheet" href="style.php?table=1" type="text/css" />
-<script type="text/javascript" src="js/jquery.js"></script>
-<script type="text/javascript" src="js/tablesorter.js"></script>
-<script type="text/javascript" src="js/table2CSV.js"></script>
-<script type="text/javascript" src="js/jquery.columnmanager.pack.js"></script>
-<script type="text/javascript" src="js/jquery.clickmenu.js"></script>
-<style>
-td.amount-for-display { text-align:right; }
-</style>
-
-<script>
-$(function() {
-<?php if ($summary) { ?>
-  $("#summarytable").tablesorter({ sortList:[[<?=($type=="PersonID"?($_REQUEST['limit']?"4,1":"2,0"):"0,0")?>]] });
-<?php } else { ?>
-  $("#listtable").tablesorter({
-    sortList:[[4,0],[0,1]],
-    headers:{<?=(count($cols)-2)?>:{sorter:false},<?=(count($cols)-1)?>:{sorter:false}}
-  });
-  $(".grouptable").tablesorter({
-    sortList:[[0,1]],
-    headers:{<?=(count($cols)-1)?>:{sorter:false}}
-  });
-
-  $('#listtable').columnManager({listTargetID:'targetall',
-  onClass: 'advon',
-  offClass: 'advoff',
-  hideInList: [<?=$hideInList?>],
-  colsHidden: [<?=$colsHidden?>],
-  saveState: false});
-  $('#ulSelectColumn').clickMenu({onClick: function(){}});
-  
-  $(document).ajaxError(function(e, xhr, settings, exception) {
-    alert('Error calling ' + settings.url + ': ' + exception);
-  }); 
-
-  $('td.proc input[type=checkbox]').change(function() {
-    $("#updateproc").attr("disabled", false);
-  });
-  $("#allproc").click(function() {
-    $('td.proc input[type=checkbox]').prop("checked", true);
-    $("#updateproc").attr("disabled", false);
-  });
-  $("#updateproc").click(function() {
-    var proc_on = $('td.proc input[type=checkbox]').filter(":checked")
-      .map(function() { return this.id; })
-      .get().join(',');
-    var proc_off = $('td.proc input[type=checkbox]').not(":checked")
-      .map(function() { return this.id; })
-      .get().join(',');
-    $.post("ajax_actions.php",
-      { action:"DonationProc", proc_on:proc_on, proc_off:proc_off },
-      function(data) {
-        alert(data);
-        if (data.substr(0,1) == "*") {  //my clue that the update succeeded
-          $("#updateproc").attr("disabled", true);
-        }
-      }
-    );
-  });
-<?php } ?>
-});
-
-function getCSV() {
-  $(".name-for-display, .amount-for-display, .selectcol").hide();
-  $(".name-for-csv, .amount-for-csv, .furigana-for-csv").show();
-  if (document.getElementById('listtable')) {
-    $('#csvtext').val($('#listtable').table2CSV({delivery:'value'}));
-  } else {
-    $('#csvtext').val($('#summarytable').table2CSV({delivery:'value'}));
-  }
-  $(".name-for-csv, .amount-for-csv, .furigana-for-csv").hide();
-  $(".name-for-display, .amount-for-display, .selectcol").show();
-}
-</script>
+<link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />
 <?php
-header2($_GET['nav']);
-if ($_GET['nav']==1) echo "<h1 id=\"title\">".$title."</h1>\n";
-if ($_SESSION['userid']=="dev") echo "<pre>".print_r($_REQUEST,TRUE)."</pre>";
+header2($show_nav);
+if ($show_nav == 1) echo "<h1 id=\"title\">"._("Donation List")."</h1>\n";
 
 //construct WHERE clause from criteria
-$criteria = "<ul id=\"criteria\">";
 $wheredone = 0;
-if ($_REQUEST['dtype']) {
+$where = $having = $criteria = '';
+if ($_REQUEST['dtype'] ?? false) {
   $where .= ($wheredone?" AND":" WHERE")." d.DonationTypeID IN (".implode(",",$_REQUEST['dtype']).")";
   $result = sqlquery_checked("SELECT DonationType FROM donationtype WHERE DonationTypeID IN (".implode(",",$_REQUEST['dtype']).")");
   $dtarray = array();
@@ -210,19 +71,23 @@ if ($_REQUEST['cutoff']!="") {
   $criteria .= "<li>".sprintf(_("Amount %s %s"),$_REQUEST['cutofftype'],$_REQUEST['cutoff'])."</li>\n";
   $wheredone = 1;
 }
+// TODO: Bucket pre-filtering should only happen when user requests it via checkbox in donations.php
+// Commenting out for now until that checkbox is implemented
+/*
 if (!empty($preselecteds)) {
   $where .= ($wheredone?" AND":" WHERE")." d.PersonID IN (".$preselecteds.")";
   $criteria .= "<li>".sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($preselecteds,",")+1)."</li>\n";
   $wheredone = 1;
 }
-$criteria .="</ul>";
+*/
+if (!empty($criteria))  $criteria = "<ul id=\"criteria\">$criteria</ul>";
 
 // Main query for summary, or prep query for lists
 if ($type=="DonationType") {
   $sql = "SELECT dt.DonationTypeID, dt.DonationType, d.PersonID, SUM(d.Amount) AS subtotal FROM donationtype dt ".
   "LEFT JOIN donation d ON d.DonationTypeID=dt.DonationTypeID".$where." OR d.DonationDate IS NULL";
   $sql .= " GROUP BY dt.DonationTypeID".$having." ORDER BY ".
-    ($_REQUEST['subtotalsort'] ? "subtotal DESC," : "")."dt.DonationType,d.DonationTypeID";
+    (($_REQUEST['subtotalsort'] ?? false) ? "subtotal DESC," : "")."dt.DonationType,d.DonationTypeID";
 } else {  // single list or grouped/summary by person
 // in the case of a single list, this query is only to get the IDs for multiselect, so we don't need the other information or subtotals
   $sql = "SELECT ".($type=="Normal" ? "DISTINCT p.PersonID" : "p.PersonID,p.FullName,p.Furigana,SUM(d.Amount) subtotal").
@@ -232,26 +97,24 @@ if ($type=="DonationType") {
     $sql .= " ORDER BY p.PersonID";
   } else {
     $sql .= " GROUP BY p.PersonID".$having." ORDER BY ".
-    ($_REQUEST['subtotalsort'] || ($summary && $_REQUEST['limit']) ? "subtotal DESC," : "")."p.Furigana,p.PersonID";
+    (($_REQUEST['subtotalsort'] ?? false) || ($summary && ($_REQUEST['limit'] ?? false)) ? "subtotal DESC," : "")."p.Furigana,p.PersonID";
   }
   if ($summary && $type=="PersonID" && $_REQUEST['limit']) $sql .= " LIMIT ".(int)$_REQUEST['limit'];
 }
-if ($_SESSION['userid']=="karen") echo "<p>".$sql."</p>";
 $result = sqlquery_checked($sql);
 if (mysqli_num_rows($result) == 0) {
-  echo "<h3>"._("There are no records matching your criteria.")."</h3>";
+  echo "<h3>"._("There are no records matching your criteria:")."</h3>\n".$criteria;
   footer();
   exit;
 }
-//$pidarray = array();
+$pidarray = array();
 while ($row = mysqli_fetch_object($result)) {
   $pidarray[] = $row->PersonID;
   if ($type=="DonationType") $dtidarray[] = $row->DonationTypeID;
-//if ($_SESSION['userid']=="karen") echo "<p>".$row->PersonID.$row->DonationTypeID." - ".$row->Furigana.$row->DonationType.": ".$row->subtotal."</p>";
 }
 $pids = implode(",",$pidarray);
 if ($type=="DonationType") $dtids = implode(",",$dtidarray);
-    
+
 if (!$summary) {
   $sql = "SELECT d.DonationID,d.PersonID,d.PledgeID,d.DonationDate,CAST(d.Amount AS DECIMAL(10,".
   $_SESSION['currency_decimals'].")) Amount,d.Description,d.Processed,p.FullName,p.Furigana,".
@@ -265,162 +128,358 @@ if (!$summary) {
   " LEFT JOIN pledge pl ON d.PledgeID=pl.PledgeID".
   " LEFT JOIN donationtype dt2 ON pl.DonationTypeID=dt2.DonationTypeID".$where;
   if ($type == "PersonID") {
-    $sql .= " ORDER BY ".($_REQUEST['subtotalsort'] ? "FIND_IN_SET(d.PersonID, '".$pids."')" : "Furigana,d.PersonID").",d.DonationDate DESC";
+    $sql .= " ORDER BY ".(($_REQUEST['subtotalsort'] ?? false) ? "FIND_IN_SET(d.PersonID, '".$pids."')" : "Furigana,d.PersonID").",d.DonationDate DESC";
   } elseif ($type == "DonationType") {
-    $sql .= " ORDER BY ".($_REQUEST['subtotalsort'] ? "FIND_IN_SET(d.DonationTypeID, '".$dtids."')" : "dt.DonationType").",d.DonationDate DESC";
+    $sql .= " ORDER BY ".(($_REQUEST['subtotalsort'] ?? false) ? "FIND_IN_SET(d.DonationTypeID, '".$dtids."')" : "dt.DonationType").",d.DonationDate DESC";
   } else {  // listtype == Normal
     $sql .= " ORDER BY d.DonationDate DESC";
   }
   $result = sqlquery_checked($sql);
+
+  // Collect DonationIDs for flextable
+  if ($type == "Normal") {
+    // Normal mode - single flat list
+    $donation_ids = array();
+    while ($row = mysqli_fetch_object($result)) {
+      $donation_ids[] = $row->DonationID;
+    }
+  } else {
+    // Grouped mode - collect donations by group (DonationType or PersonID)
+    $groups = array();
+
+    while ($row = mysqli_fetch_object($result)) {
+      // Use numeric ID as group key (safe for HTML IDs)
+      if ($type == "DonationType") {
+        $group_key = $row->DonationTypeID;
+        $group_name = $row->DonationType;
+      } else { // PersonID
+        $group_key = $row->PersonID;
+        $group_name = ''; // Name stored separately
+      }
+
+      if (!isset($groups[$group_key])) {
+        $groups[$group_key] = array(
+          'ids' => array(),
+          'name' => $group_name,
+          'fullname' => $row->FullName ?? '',
+          'furigana' => $row->Furigana ?? ''
+        );
+      }
+      $groups[$group_key]['ids'][] = $row->DonationID;
+    }
+  }
 }
 
+// Display results count and criteria
 if (!$summary) {
-  echo "<h3>".sprintf(_("%d results of these criteria:"),mysqli_num_rows($result))."</h3>\n";
-  echo $criteria;
+  // Count total donations
+  if ($type == "Normal") {
+    $donation_count = count($donation_ids);
+  } else {
+    $donation_count = 0;
+    foreach ($groups as $group) {
+      $donation_count += count($group['ids']);
+    }
+  }
+  if (!empty($criteria)) {
+    echo "<h3>".sprintf(_("%d results of these criteria:"),$donation_count)."</h3>\n".$criteria;
+  } else {
+  echo "<h3>".sprintf(_("%d results (all records)"),$donation_count)."</h3>\n";
+  }
 }
-echo "<div id=\"actions\">";
+
+// FLEXTABLE implementation for all list modes
 if (!$summary) {
+  require_once("flextable.php");
+
+  $showcols = ',' . ($_SESSION['donationlist_showcols'] ?? 'ddate,name,dtype,pledge,amount,desc,proc') . ',';
+
+  // Build base table options
+  $tableopt = (object) [
+    'ids' => ($type == "Normal" ? implode(',', $donation_ids) : ''),
+    'keyfield' => 'donation.DonationID',
+    'tableid' => ($type == "Normal" ? 'donationlist' : ''),
+    'heading' => '',
+    'order' => 'DonationDate DESC',
+    'cols' => array()
+  ];
+
+  // Person ID (hidden in PersonID mode)
+  $tableopt->cols[] = (object) [
+    'key' => 'personid',
+    'sel' => 'person.PersonID',
+    'label' => _('ID'),
+    'show' => ($type != "PersonID" && stripos($showcols, ',personid,') !== FALSE),
+    'colsel' => ($type != "PersonID")
+  ];
+
+  // Name columns (hidden in PersonID mode)
+  $tableopt->cols[] = (object) [
+    'key' => 'name',
+    'sel' => 'person.Name',
+    'label' => _('Name'),
+    'show' => ($type != "PersonID" && stripos($showcols, ',name,') !== FALSE),
+    'colsel' => ($type != "PersonID")
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'fullname',
+    'sel' => 'person.FullName',
+    'label' => _('Full Name'),
+    'show' => ($type != "PersonID" && stripos($showcols, ',fullname,') !== FALSE),
+    'colsel' => ($type != "PersonID")
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'furigana',
+    'sel' => 'person.Furigana',
+    'label' => ($_SESSION['furiganaisromaji']=='yes' ? _('Romaji') : _('Furigana')),
+    'show' => ($type != "PersonID" && stripos($showcols, ',furigana,') !== FALSE),
+    'colsel' => ($type != "PersonID")
+  ];
+
+  // Person information columns (hidden in PersonID mode)
+  $tableopt->cols[] = (object) [
+    'key' => 'phones',
+    'sel' => 'Phones',
+    'label' => _('Phone'),
+    'show' => ($type != "PersonID" && stripos($showcols, ',phone,') !== FALSE),
+    'table' => 'person',
+    'colsel' => ($type != "PersonID")
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'email',
+    'sel' => 'person.Email',
+    'label' => _('Email'),
+    'show' => ($type != "PersonID" && stripos($showcols, ',email,') !== FALSE),
+    'colsel' => ($type != "PersonID")
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'address',
+    'sel' => 'household.AddressComp',
+    'label' => _('Address'),
+    'show' => ($type != "PersonID" && stripos($showcols, ',address,') !== FALSE),
+    'table' => 'household',
+    'colsel' => ($type != "PersonID")
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'country',
+    'sel' => 'person.Country',
+    'label' => _('Home Country'),
+    'show' => ($type != "PersonID" && stripos($showcols, ',country,') !== FALSE),
+    'colsel' => ($type != "PersonID")
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'remarks',
+    'sel' => 'person.Remarks',
+    'label' => _('Remarks'),
+    'show' => ($type != "PersonID" && stripos($showcols, ',remarks,') !== FALSE),
+    'render' => 'remarks',
+    'colsel' => ($type != "PersonID")
+  ];
+
+  $tableopt->cols[] = (object) [
+      'key' => 'categories',
+      'sel' => "GROUP_CONCAT(Category ORDER BY Category SEPARATOR '\\n')",
+      'label' => _('Categories'),
+      'show' => ($type != "PersonID" && stripos($showcols, ',categories,') !== FALSE),
+      'join' => 'LEFT JOIN percat ON person.PersonID=percat.PersonID LEFT JOIN category ON percat.CategoryID=category.CategoryID',
+      'colsel' => ($type != "PersonID")
+  ];
+
+  $tableopt->cols[] = (object) [
+      'key' => 'events',
+      'sel' => "e.Events",
+      'label' => _('Events'),
+      'show' => ($type != "PersonID" && stripos($showcols, ',events,') !== FALSE),
+      'join' => "LEFT OUTER JOIN (SELECT aq.PersonID,GROUP_CONCAT(CONCAT(Event,' [',attqty,'x]') ORDER BY Event SEPARATOR '\\n') AS Events FROM (SELECT PersonID,Event,COUNT(*) AS attqty FROM attendance AS at INNER JOIN event ev ON ev.EventID = at.EventID GROUP BY at.PersonID,at.EventID) AS aq GROUP BY aq.PersonID) AS e ON e.PersonID = person.PersonID",
+      'colsel' => ($type != "PersonID")
+  ];
+
+  // Donation columns
+  $tableopt->cols[] = (object) [
+      'key' => 'donationdate',
+      'sel' => 'donation.DonationDate',
+      'label' => _('Date'),
+      'show' => (stripos($showcols, ',ddate,') !== FALSE),
+      'sort' => -1
+  ];
+
+  // Donation Type (hidden in grouped DonationType mode)
+  $tableopt->cols[] = (object) [
+    'key' => 'donationtype',
+    'sel' => "IF(donation.PledgeID,dt2.DonationType,dt.DonationType)",
+    'label' => _('Donation Type'),
+    'show' => ($type != "DonationType" && stripos($showcols, ',dtype,') !== FALSE),
+    'join' => 'LEFT JOIN donationtype dt ON donation.DonationTypeID=dt.DonationTypeID LEFT JOIN pledge pl ON donation.PledgeID=pl.PledgeID LEFT JOIN donationtype dt2 ON pl.DonationTypeID=dt2.DonationTypeID',
+    'colsel' => ($type != "DonationType")
+  ];
+
+  // Pledge description if donation is fulfilling a pledge
+  $tableopt->cols[] = (object) [
+    'key' => 'pledge',
+    'sel' => 'pledge.PledgeDesc',
+    'label' => _('Pledge?'),
+    'show' => (stripos($showcols, ',pledge,') !== FALSE),
+    'join' => 'LEFT JOIN pledge ON donation.PledgeID=pledge.PledgeID'
+  ];
+
+  // Amount
+  $tableopt->cols[] = (object) [
+    'key' => 'amount',
+    'sel' => "CONCAT('".$_SESSION['currency_mark']." ',FORMAT(donation.Amount,".$_SESSION['currency_decimals']."))",
+    'label' => _('Amount'),
+    'show' => (stripos($showcols, ',amount,') !== FALSE),
+    'classes' => 'align-right'
+  ];
+
+  // Description
+  $tableopt->cols[] = (object) [
+    'key' => 'description',
+    'sel' => 'donation.Description',
+    'label' => _('Description'),
+    'show' => (stripos($showcols, ',desc,') !== FALSE)
+  ];
+
+  // Processed - interactive checkboxes
+  $tableopt->cols[] = (object) [
+    'key' => 'processed',
+    'sel' => 'donation.Processed',
+    'label' => _('Proc.'),
+    'show' => (stripos($showcols, ',proc,') !== FALSE),
+    'sortable' => false,
+    'render' => 'checkbox',
+    'checkbox_idfield' => 'DonationID',
+    'checkbox_action' => 'DonationProc'
+  ];
+
+  // Render table(s)
+  if ($type == "Normal") {
+    flextable($tableopt);
+  } else {
+    // Grouped mode
+    $group_num = 0;
+    foreach ($groups as $group_key => $group) {
+      if ($group_num > 0) {
+        echo '<hr>';
+      }
+      $group_num++;
+
+      // Calculate subtotal
+      $subtotal_sql = "SELECT SUM(Amount) as total, COUNT(*) as count FROM donation WHERE DonationID IN (" . implode(',', array_map('intval', $group['ids'])) . ")";
+      $subtotal_result = sqlquery_checked($subtotal_sql);
+      $subtotal_row = mysqli_fetch_object($subtotal_result);
+
+      // Display heading
+      if ($type == "PersonID") {
+        echo '<h3><a href="individual.php?pid=' . $group_key . '" target="_blank">' .
+             readable_name($group['fullname'], $group['furigana']) . '</a> (' .
+             sprintf(_('%d donations'), $subtotal_row->count) . ', ' .
+             _('total') . ' ' . $_SESSION['currency_mark'] .
+             number_format($subtotal_row->total, $_SESSION['currency_decimals']) .
+             ')</h3>';
+      } else {
+        echo '<h3>' . htmlspecialchars($group['name']) . ' (' .
+             sprintf(_('%d donations'), $subtotal_row->count) . ', ' .
+             _('total') . ' ' . $_SESSION['currency_mark'] .
+             number_format($subtotal_row->total, $_SESSION['currency_decimals']) .
+             ')</h3>';
+      }
+
+      // Clone and customize tableopt for this group
+      $group_tableopt = clone $tableopt;
+      $group_tableopt->ids = implode(',', $group['ids']);
+      // Use the numeric group_key (DonationTypeID or PersonID) for valid HTML ID
+      $group_tableopt->tableid = 'donations-' . $group_key;
+      $group_tableopt->heading = '';
+
+      flextable($group_tableopt);
+    }
+  }
+
+  // Calculate and display total
+  $total_sql = "SELECT SUM(Amount) as total FROM donation d".$where;
+  $total_result = sqlquery_checked($total_sql);
+  $total_row = mysqli_fetch_object($total_result);
+  echo "<h3>"._("Total").": ".$_SESSION['currency_mark']." ".
+    number_format($total_row->total,$_SESSION['currency_decimals'])."</h3>\n";
+
+  footer();
+  exit;
+}
+
+// Summary mode - legacy table building
 ?>
-  <form action="multiselect.php" method="post" target="_top">
-    <input type="hidden" id="preselected" name="preselected" value="<?=$pids?>">
-    <input type="submit" value="<?=_("Go to Multi-Select with these entries preselected")?>">
-  </form>
+<link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="js/tablesorter.js"></script>
+<script type="text/javascript" src="js/table2CSV.js"></script>
+<style>
+td.amount-for-display { text-align:right; }
+</style>
+
+<script>
+$(function() {
+  $("#summarytable").tablesorter({ sortList:[[<?=($type=="PersonID"?($_REQUEST['limit']?"1,1":"0,0"):"0,0")?>]] });
+});
+
+function getCSV() {
+  $(".name-for-display, .amount-for-display").hide();
+  $(".name-for-csv, .amount-for-csv, .furigana-for-csv").show();
+  $('#csvtext').val($('#summarytable').table2CSV({delivery:'value'}));
+  $(".name-for-csv, .amount-for-csv, .furigana-for-csv").hide();
+  $(".name-for-display, .amount-for-display").show();
+}
+</script>
 <?php
-} // if list, not summary
-if ($summary || $type=="Normal") {
+if ($type == "PersonID") {
+  $tableheads = "<th class=\"name-for-csv\" style=\"display:none\">"._("Name")."</th>\n";
+  $tableheads .= "<th class=\"furigana-for-csv\" style=\"display:none\">".
+  ($_SESSION['furiganaisromaji']=="yes" ? _("Romaji") : _("Furigana"))."</th>\n";
+  $tableheads .= "<th class=\"name-for-display\">"._("Name")." (".
+  ($_SESSION['furiganaisromaji']=="yes" ? _("Romaji") : _("Furigana")).")</th>\n";
+} else {
+  $tableheads = "<th class=\"dtype\">"._("Donation Type")."</th>\n";
+}
+$tableheads .= "<th class=\"amount-for-csv\" style=\"display:none\">"._("Amount")."</th>\n";
+$tableheads .= "<th class=\"amount-for-display\">"._("Amount")."</th>\n";
+
+echo "<h3>".sprintf(_("%d results of these criteria:"),mysqli_num_rows($result))."</h3>\n";
+echo $criteria;
+echo "<div id=\"actions\">";
 ?>
   <form action="download.php" method="post" target="_top">
     <input type="hidden" id="csvtext" name="csvtext" value="">
     <input type="submit" id="csvfile" name="csvfile" value="<?=_("Download a CSV file of this table")?>" onclick="getCSV();">
   </form>
 <?php
-} // if listtype=Normal
-echo "</div>"; //end of actions div (which may or may not have anything in it)
-if (!$summary) {
-?>
-<div id="procbuttons">
-  <button id="allproc"><?=_("Check all")?></button>
-  <button id="updateproc" disabled><?=_("Save Changes to \"Processed\" Checkboxes")?></button>
-</div>
-<?php
-} // if list, not summary
+echo "</div>";
 
-// build table of data
-if ($summary) {
-  echo "<table id=\"summarytable\" class=\"tablesorter\">\n<thead>\n<tr>".$tableheads."</tr>\n</thead><tbody>\n";
-  $total = 0;
-  mysqli_data_seek($result, 0);
-  while ($row = mysqli_fetch_object($result)) {
-    if ($type == "PersonID") {
-      echo "<tr><td class=\"name-for-csv\" style=\"display:none\">".$row->FullName."</td>\n";
-      echo "<td class=\"furigana-for-csv\" style=\"display:none\">".$row->Furigana."</td>\n";
-      echo "<td class=\"name-for-display\"><span style=\"display:none\">".$row->Furigana."</span>";
-      echo "<a href=\"individual.php?pid=".$row->PersonID."\" target=\"_blank\">";
-      echo readable_name($row->FullName,$row->Furigana)."</a></td>\n";
-    } else {
-      echo "<tr><td class=\"dtype\">".$row->DonationType."</td>\n";
-    }
-    echo "<td class=\"amount-for-csv\" style=\"display:none\">".
-    number_format($row->subtotal,$_SESSION['currency_decimals'],".","")."</td>\n";
-    echo "<td class=\"amount-for-display\"><span style=\"display:none\">".sprintf("%015s",$row->subtotal)."</span>".
-    $_SESSION['currency_mark']." ".number_format($row->subtotal,$_SESSION['currency_decimals'])."</td>\n";
-    echo "</tr>\n";
-    $total += $row->subtotal;
-  }
-  echo "</tbody>\n";
-
-} else { // not summary, so full donation list (perhaps grouped, perhaps not)
-
-  if ($type == "Normal") {
-    $tablestart = "<table id=\"listtable\" class=\"tablesorter\">\n";
+echo "<table id=\"summarytable\" class=\"tablesorter\">\n<thead>\n<tr>".$tableheads."</tr>\n</thead><tbody>\n";
+$total = 0;
+mysqli_data_seek($result, 0);
+while ($row = mysqli_fetch_object($result)) {
+  if ($type == "PersonID") {
+    echo "<tr><td class=\"name-for-csv\" style=\"display:none\">".$row->FullName."</td>\n";
+    echo "<td class=\"furigana-for-csv\" style=\"display:none\">".$row->Furigana."</td>\n";
+    echo "<td class=\"name-for-display\"><span style=\"display:none\">".$row->Furigana."</span>";
+    echo "<a href=\"individual.php?pid=".$row->PersonID."\" target=\"_blank\">";
+    echo readable_name($row->FullName,$row->Furigana)."</a></td>\n";
   } else {
-    $tablestart = "<table class=\"grouptable tablesorter\">\n";
+    echo "<tr><td class=\"dtype\">".$row->DonationType."</td>\n";
   }
-  $tablestart .= "<thead>\n<tr>".$tableheads."</tr>\n</thead><tbody>\n";
-
-  $prev_groupfieldvalue = "";
-  $total = $subtotal = 0;
-  $firstrow = 1; //i.e. true
-  while ($row = mysqli_fetch_object($result)) {
-    if ($type!="Normal" && $prev_groupfieldvalue!="" && $row->$type!=$prev_groupfieldvalue) {  //change of section
-      echo "</tbody><tfoot><tr><td colspan=\"2\" class=\"subtotal\">";
-      echo ($type=="PersonID"?$prev_name:$prev_groupfieldvalue)." - "._("Subtotal")."</td>\n";
-      echo "<td colspan=\"2\" class=\"subtotal amount\">".$_SESSION['currency_mark']." ".
-      number_format($subtotal,$_SESSION['currency_decimals']).
-      "</td><td colspan=\"2\" style=\"border-right:0;border-bottom:0\"></td></tr></tfoot></table>\n";
-      echo "<h3>".($type=="PersonID"?"<a href=\"individual.php?pid=".$row->PersonID.
-      "\" target=\"_blank\">".readable_name($row->FullName,$row->Furigana):$row->$type)."</a></h3>\n";
-      echo $tablestart;
-      $subtotal = 0;
-    } elseif ($type!="Normal" && $prev_groupfieldvalue == "") {
-      echo "<h3>".($type=="PersonID"?"<a href=\"individual.php?pid=".$row->PersonID.
-      "\" target=\"_blank\">".readable_name($row->FullName,$row->Furigana):$row->$type)."</a></h3>\n";
-    }
-    if ($firstrow) {
-      echo $tablestart;
-      $firstrow = 0;
-    }
-    echo "<tr><td class=\"ddate\">".$row->DonationDate."</td>\n";
-    if ($type != "PersonID") {
-      if ($type == "Normal") {
-        echo "<td class=\"personid\">{$row->PersonID}</td>\n";
-        echo "<td class=\"name-for-csv\" style=\"display:none\">{$row->FullName}</td>\n";
-        echo "<td class=\"furigana-for-csv\" style=\"display:none\">{$row->Furigana}</td>\n";
-      }
-      echo "<td class=\"name-for-display\"><span style=\"display:none\">".$row->Furigana."</span>";
-      echo "<a href=\"individual.php?pid=".$row->PersonID."\" target=\"_blank\">";
-      echo readable_name($row->FullName,$row->Furigana)."</a></td>\n";
-    }
-    if ($type == "Normal") {
-      if ($row->CellPhone && $row->Phone) {
-        echo "<td class=\"phone\">".$row->Phone."<br>".$row->CellPhone."</td>\n";
-      } else {
-        echo "<td class=\"phone\">".$row->Phone."".$row->CellPhone."</td>\n";
-      }
-      echo "<td class=\"email\">".email2link($row->Email)."</td>\n";
-      echo "<td class=\"address\">".$row->PostalCode.$row->Prefecture.$row->ShiKuCho.d2h($row->Address)."</td>\n";
-      echo "<td class=\"country\">".d2h($row->Country)."</td>\n";
-      echo "<td class=\"remarks\">".email2link(url2link(d2h($row->Remarks)))."</td>\n";
-    }
-    if ($type != "DonationType") {
-      echo "<td class=\"dtype\">{$row->DonationType}</td>\n";
-    }
-    echo "<td class=\"pledge\">".db2table($row->PledgeDesc)."</td>\n";
-    echo "<td class=\"amount-for-csv\" style=\"display:none\">".
-    number_format($row->Amount,$_SESSION['currency_decimals'],".","")."</td>\n";
-    echo "<td class=\"amount-for-display\"><span style=\"display:none\">".sprintf("%012s",$row->Amount)."</span>".
-    $_SESSION['currency_mark']." ".number_format($row->Amount,$_SESSION['currency_decimals'])."</td>\n";
-    echo "<td class=\"desc\">{$row->Description}</td>\n";
-    echo "<td class=\"proc\"><input type=\"checkbox\" id=\"".$row->DonationID."\" name=\"".$row->DonationID."\"".
-    ($row->Processed ? " checked" : "")."></td>\n";
-    if ($type == "Normal") echo "<td class=\"selectcol\">-</td>\n";
-    echo "</tr>\n";
-    if ($type!="Normal") {
-      $prev_groupfieldvalue = $row->$type;
-      $prev_name = readable_name($row->FullName,$row->Furigana);
-      $subtotal += $row->Amount;
-    }
-    $total += $row->Amount;
-  }
-  if ($type!="Normal" && $prev_groupfieldvalue!="" && $row->$type!=$prev_groupfieldvalue) {  //final subtotal
-    echo "</tbody><tfoot><tr><td colspan=\"2\" class=\"subtotal\">";
-    echo ($type=="PersonID"?$prev_name:$prev_groupfieldvalue)." - "._("Subtotal")."</td>\n";
-    echo "<td colspan=\"2\" class=\"subtotal amount\">".$_SESSION['currency_mark']." ".
-    number_format($subtotal,$_SESSION['currency_decimals']).
-    "</td><td colspan=\"2\" style=\"border-right:0;border-bottom:0\"></td></tr></tfoot>\n";
-  } else {
-    echo "</tbody>\n";
-  }
+  echo "<td class=\"amount-for-csv\" style=\"display:none\">".
+  number_format($row->subtotal,$_SESSION['currency_decimals'],".","")."</td>\n";
+  echo "<td class=\"amount-for-display\"><span style=\"display:none\">".sprintf("%015s",$row->subtotal)."</span>".
+  $_SESSION['currency_mark']." ".number_format($row->subtotal,$_SESSION['currency_decimals'])."</td>\n";
+  echo "</tr>\n";
+  $total += $row->subtotal;
 }
-//close out table and show total
-echo "</table><h3>"._("Total").": ".$_SESSION['currency_mark']." ".
-number_format($total,$_SESSION['currency_decimals'])."</h3>\n";
-?>
-<script>
-  $(function() {
-    $('#pids-for-bucket').val('<?=implode(',',$pids)?>');
-  });
-</script>
-<?php
+echo "</tbody>\n</table>";
+echo "<h3>"._("Total").": ".$_SESSION['currency_mark']." ".number_format($total,$_SESSION['currency_decimals'])."</h3>\n";
 footer();
 ?>

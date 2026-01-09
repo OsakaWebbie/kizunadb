@@ -3,21 +3,6 @@
 error_reporting(E_ALL ^ E_NOTICE);
 ini_set('display_errors',0);
 
-function head_content($title, $nav=0, $extracss='') {
-  header1($title);
-  echo '<link rel="stylesheet" href="style.php" type="text/css">'."\n";
-  foreach (explode(',',$extracss) as $css) {
-    switch ($css) {
-      case 'jqueryui':
-        echo '<link rel="stylesheet" href="css/jquery-ui-13.css" type="text/css">'."\n";
-        break;
-      case 'tablesorter':
-        echo '<link rel="stylesheet" href="css/tablesorter.css" type="text/css">'."\n";
-        break;
-    }
-  } //end foreach css
-  header2($nav);
-}
 function header1($title) {
   ?>
 <!doctype html>

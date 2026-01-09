@@ -1,12 +1,10 @@
 <?php
 include("functions.php");
 include("accesscontrol.php");
+
 header1(_("Household Information"));
 ?>
-<meta http-equiv="expires" content="0">
-<link rel="stylesheet" type="text/css" href="style.php?table=1" />
-<script type="text/JavaScript" src="js/jquery.js"></script>
-<script type="text/JavaScript" src="js/tablesorter.js"></script>
+<link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />
 <script type="text/javascript">
 jpg_regexp = /\.[Jj][Pp][Gg]$/;
 function validate() {
@@ -19,7 +17,8 @@ function validate() {
   }
 }
 </script>
-<?php header2(1);
+<?php
+header2(1);
 
 if (empty($hhid)) {
   echo "HouseholdID not passed.  You cannot call this page directly.";
@@ -101,34 +100,165 @@ echo "member below and click &quot;Edit This Record&quot;.)</span><br />&nbsp;<b
 echo "</td></tr></table>\n";
 echo "<div class=\"section\"><h3 class=\"section-title\">"._("Household Members")."</h3>";
 
-$sql = "SELECT * FROM person WHERE HouseholdID=$hhid "
+$sql = "SELECT PersonID FROM person WHERE HouseholdID=$hhid "
 ."ORDER BY FIELD(Relation,'Child','Spouse','Main') DESC, Birthdate";
 $result = sqlquery_checked($sql);
 if (mysqli_num_rows($result) == 0) {
   echo _("This household has no members!");
 } else {
-  echo "<table id=\"member-table\" class=\"tablesorter\">\n";
-  echo "<thead><tr><th>"._("Name")."</th><th>"._("Photo")."</th><th>"._("Relation in<br />Household")."</th><th>"._("Sex")."</th><th>"._("Birthdate")."</th><th>"._("Cell Phone")."</th><th>"._("Email")."</th></tr></thead>\n<tbody>";
+  // Collect PersonIDs for flextable
+  $person_ids = array();
   while ($row = mysqli_fetch_object($result)) {
-    echo "<tr><td class=\"name-for-display\"><span style=\"display:none\">".$row->Furigana."</span>";
-    echo "<a href=\"individual.php?pid=".$row->PersonID."\">".
-      readable_name($row->FullName,$row->Furigana,0,0,"<br />")."</a></td>\n";
-    echo "<td class=\"photo\">".($row->Photo==1 ? "<img border=0 src=\"photo.php?f=p".$row->PersonID."\" width=50>" : "")."</td>\n";
-    echo "<td class=\"relation\">".$row->Relation."</td>\n";
-    echo "<td class=\"sex\">".($row->Sex ? ($row->Sex=="F"?_("Female"):_("Male")) : "")."</td>\n";
-    echo "<td class=\"birthdate\">";
-    if ($row->Birthdate && $row->Birthdate != "0000-00-00") {
-      if (preg_match("/^1900-/",$row->Birthdate)) {
-        echo substr($row->Birthdate,5);
-      } else {
-        echo $row->Birthdate."<br />"._("Age")." ".age($row->Birthdate);
-      }
-    }
-    echo "</td>\n";
-    echo "<td class=\"cellphone\">".$row->CellPhone."</td>\n";
-    echo "<td class=\"email\">".($row->Email ? "<a href=\"mailto:".$row->Email."\">".$row->Email."</a>" : "")."</td></tr>";
+    $person_ids[] = $row->PersonID;
   }
-  echo "  </table>\n";
+
+  require_once("flextable.php");
+
+  // Fallback default if config missing: name,photo,relation,age,sex
+  $showcols = ',' . ($_SESSION['household_showcols'] ?? 'name,photo,relation,age,sex') . ',';
+
+  $tableopt = (object) [
+    'ids' => implode(',', $person_ids),
+    'keyfield' => 'person.PersonID',
+    'tableid' => 'members',
+    'heading' => '',
+    'order' => "FIELD(Relation,'Main','Spouse','Child','Other'), Birthdate",
+    'cols' => array()
+  ];
+
+  // 1. PersonID
+  $tableopt->cols[] = (object) [
+    'key' => 'personid',
+    'sel' => 'person.PersonID',
+    'label' => _('ID'),
+    'show' => (stripos($showcols, ',personid,') !== FALSE)
+  ];
+
+  // 2. Name-related columns (all hideable for flexibility)
+  $tableopt->cols[] = (object) [
+    'key' => 'name',
+    'sel' => 'person.Name',
+    'label' => _('Name'),
+    'show' => (stripos($showcols, ',name,') !== FALSE)
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'fullname',
+    'sel' => 'person.FullName',
+    'label' => _('Full Name'),
+    'show' => (stripos($showcols, ',fullname,') !== FALSE)
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'furigana',
+    'sel' => 'person.Furigana',
+    'label' => ($_SESSION['furiganaisromaji']=='yes' ? _('Romaji') : _('Furigana')),
+    'show' => (stripos($showcols, ',furigana,') !== FALSE)
+  ];
+
+  // 3. Photo
+  $tableopt->cols[] = (object) [
+    'key' => 'photo',
+    'sel' => 'person.Photo',
+    'label' => _('Photo'),
+    'show' => (stripos($showcols, ',photo,') !== FALSE),
+    'sortable' => false
+  ];
+
+  // 4. Relation (with hidden sort prefix for custom FIELD ordering)
+  $tableopt->cols[] = (object) [
+    'key' => 'relation',
+    'sel' => "CONCAT('<span style=\"display:none\">',FIELD(Relation,'Main','Spouse','Child','Other'),'</span>',person.Relation)",
+    'label' => _('Relation in Household'),
+    'show' => (stripos($showcols, ',relation,') !== FALSE),
+    'sort' => 1
+  ];
+
+  // 5. Sex
+  $tableopt->cols[] = (object) [
+    'key' => 'sex',
+    'sel' => 'person.Sex',
+    'label' => _('Sex'),
+    'show' => (stripos($showcols, ',sex,') !== FALSE)
+  ];
+
+  // 6. Age (separate column using the age calculation)
+  $tableopt->cols[] = (object) [
+    'key' => 'age',
+    'sel' => "IF(person.Birthdate='0000-00-00','',TIMESTAMPDIFF(YEAR,person.Birthdate,CURDATE()))",
+    'label' => _('Age'),
+    'show' => (stripos($showcols, ',age,') !== FALSE),
+    'classes' => 'center',
+    'table' => 'person'
+  ];
+
+  // 7. Birthdate (just the date)
+  $tableopt->cols[] = (object) [
+    'key' => 'birthdate',
+    'sel' => 'person.Birthdate',
+    'label' => _('Birthdate'),
+    'show' => (stripos($showcols, ',birthdate,') !== FALSE),
+    'classes' => 'center',
+    'sort' => 2
+  ];
+
+  // 8. Categories (lazy-loaded for performance)
+  $tableopt->cols[] = (object) [
+    'key' => 'categories',
+    'sel' => "GROUP_CONCAT(Category ORDER BY Category SEPARATOR '\\n')",
+    'label' => _('Categories'),
+    'show' => (stripos($showcols, ',categories,') !== FALSE),
+    'lazy' => TRUE,
+    'join' => 'LEFT JOIN percat ON person.PersonID=percat.PersonID LEFT JOIN category ON percat.CategoryID=category.CategoryID'
+  ];
+
+  // 9. The rest (contact info, household, etc.)
+  $tableopt->cols[] = (object) [
+    'key' => 'cellphone',
+    'sel' => 'person.CellPhone',
+    'label' => _('Cell Phone')
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'email',
+    'sel' => 'person.Email',
+    'label' => _('Email'),
+    'show' => (stripos($showcols, ',email,') !== FALSE)
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'address',
+    'sel' => 'household.AddressComp',
+    'label' => _('Address'),
+    'show' => FALSE,
+    'join' => 'LEFT JOIN household ON person.HouseholdID=household.HouseholdID',
+    'table' => 'person'
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'url',
+    'sel' => 'person.URL',
+    'label' => _('URL'),
+    'show' => (stripos($showcols, ',url,') !== FALSE)
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'country',
+    'sel' => 'person.Country',
+    'label' => _('Country'),
+    'show' => (stripos($showcols, ',country,') !== FALSE)
+  ];
+
+  // 10. Remarks (last)
+  $tableopt->cols[] = (object) [
+    'key' => 'remarks',
+    'sel' => 'person.Remarks',
+    'label' => _('Remarks'),
+    'show' => FALSE
+  ];
+
+  flextable($tableopt);
+
   echo "<h3><a href=\"edit.php?hhid=".$hhid."\">"._("Add a New Member to this Household")."</a></h3>";
   echo "</div>";
 }

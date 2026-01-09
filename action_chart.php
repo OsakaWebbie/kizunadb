@@ -1,94 +1,16 @@
 <?php
 include("functions.php");
 include("accesscontrol.php");
+
+$listtype = $_POST['listtype'] ?? 'Normal';
+
 header1(_("Action List").(!empty($_POST['preselected']) ? sprintf(_(" (%d People/Orgs Pre-selected)"),
     substr_count($_POST['preselected'],",")+1) : ""));
-
-$listtype = $_POST['listtype'];
-
-if ($listtype != "PersonID") {
-  if ($listtype == "Normal") {
-    $cols[] = array("personid",1);
-    $cols[] = array("name-for-csv",0);
-    $cols[] = array("furigana-for-csv",0);
-  }
-  $cols[] = array("name-for-display",0);
-}
-if ($listtype == "Normal") {
-  $cols[] = array("phone",1);
-  $cols[] = array("email",1);
-  $cols[] = array("address",1);
-  $cols[] = array("remarks",1);
-}
-$cols[] = array("adate",1);
-if ($listtype != "ActionType") $cols[] = array("atype",1);
-$cols[] = array("desc",1);
-if ($listtype == "Normal") $cols[] = array("selectcol",0);
-$colsHidden = $hideInList = "";
-foreach($cols as $i=>$col) {
-  if ($col[1]==0) $hideInList .= ",".($i+1);
-  elseif (stripos(",".$_SESSION['actionlist_showcols'].",",",".$col[0].",") === FALSE)  $colsHidden .= ",".($i+1);
-}
-$hideInList = substr($hideInList,1);  //to remove the leading comma
-$colsHidden = substr($colsHidden,1);  //to remove the leading comma
-
-$tableheads = '';
-if ($listtype != "PersonID") {
-  if ($listtype == "Normal") {
-    $tableheads .= '<th class="personid">'._('ID')."</th>\n";
-    $tableheads .= '<th class="name-for-csv" style="display:none">'._('Name')."</th>\n";
-    $tableheads .= '<th class="furigana-for-csv" style="display:none">'.($_SESSION['furiganaisromaji']=='yes' ? _('Romaji') : _('Furigana'))."</th>\n";
-  }
-  $tableheads .= "<th class=\"name-for-display\">"._("Name")." (".($_SESSION['furiganaisromaji']=='yes' ? _('Romaji') : _('Furigana')).")</th>\n";
-}
-if ($listtype == "Normal") {
-  $tableheads .= '<th class="phone">'._('Phone')."</th>\n";
-  $tableheads .= '<th class="email">'._('Email')."</th>\n";
-  $tableheads .= '<th class="address">'._('Address')."</th>\n";
-  $tableheads .= '<th class="remarks">'._('Remarks')."</th>\n";
-}
-$tableheads .= '<th class="adate">'._('Date')."</th>\n";
-if ($listtype != 'ActionType') $tableheads .= '<th class="atype">'._('Action Type')."</th>\n";
-$tableheads .= '<th class="desc">'._("Description")."</th>\n";
-if ($listtype == "Normal") $tableheads .= '<th id="thSelectColumn" class="selectcol">'.
-    '<ul id="ulSelectColumn"><li><img src="graphics/selectcol.png" alt="select columns" '.
-    'title="select columns" /><ul id="targetall"></ul></li></ul>';
-$tableheads .= "</th>\n";
 ?>
-<link rel="stylesheet" href="style.php?table=1" type="text/css" />
-<script type="text/javascript" src="js/jquery.js"></script>
-<script type="text/javascript" src="js/tablesorter.js"></script>
-<script type="text/javascript" src="js/table2CSV.js"></script>
-<script type="text/javascript" src="js/jquery.columnmanager.pack.js"></script>
-<script type="text/javascript" src="js/jquery.clickmenu.js"></script>
-<script type="text/javascript">
-$(document).ready(function() {
-  $("#atable").tablesorter({
-    sortList:[[3,0],[8,1]],
-    headers:{<?=(count($cols)-1)?>:{sorter:false}}
-  });
-  $(".grouptable").tablesorter({ sortList:[[0,<?=($listtype=="PersonID"?"1":"0],[1,1")?>]] });
-
-  $('#atable').columnManager({listTargetID:'targetall',
-  onClass: 'advon',
-  offClass: 'advoff',
-  hideInList: [<?=$hideInList?>],
-  colsHidden: [<?=$colsHidden?>],
-  saveState: false});
-  $('#ulSelectColumn').clickMenu({onClick: function(){}});
-});
-
-function getCSV() {
-  $(".name-for-display, .selectcol").hide();
-  $(".name-for-csv, .furigana-for-csv").show();
-  $('#csvtext').val($('#atable').table2CSV({delivery:'value'}));
-  $(".name-for-csv, .furigana-for-csv").hide();
-  $(".name-for-display, .selectcol").show();
-}
-</script>
+<link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />
 <?php
-header2($_GET['nav']);
-if ($_GET['nav']==1) echo "<h1 id=\"title\">"._("Action List").(!empty($_POST['preselected']) ?
+header2($_GET['nav'] ?? 0);
+if (($_GET['nav'] ?? 0)==1) echo "<h1 id=\"title\">"._("Action List").(!empty($_POST['preselected']) ?
 sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($_POST['preselected'],",")+1) : "")."</h1>\n";
 
 $where = '';
@@ -98,110 +20,468 @@ if (!empty($_POST['enddate'])) $where .= ($where?" AND":" WHERE")." ActionDate <
 if (!empty($_POST['csearch'])) $where .= ($where?" AND":" WHERE")." Description LIKE '%".$_POST['csearch']."%'";
 if (!empty($_POST['preselected'])) $where .= ($where?" AND":" WHERE")." a.PersonID IN (".$_POST['preselected'].")";
 
-$sql = "SELECT DISTINCT PersonID FROM action a".$where." ORDER BY PersonID";
-$result = sqlquery_checked($sql);
-$num_people = mysqli_num_rows($result);
-if ($num_people == 0) {
-  echo "<h3>"._("There are no records matching your criteria.")."</h3>";
+// Get ActionIDs for flextable
+if ($listtype == 'Normal') {
+  $sql = "SELECT ActionID FROM action a".$where." ORDER BY ActionID";
+  $result = sqlquery_checked($sql);
+  $num_actions = mysqli_num_rows($result);
+  if ($num_actions == 0) {
+    echo "<h3>"._("There are no records matching your criteria.")."</h3>";
+    footer();
+    exit;
+  }
+  $action_ids = array();
+  $pidarray = array();  // For multi-select button
+  while ($row = mysqli_fetch_object($result)) {
+    $action_ids[] = $row->ActionID;
+  }
+  // Also get distinct PersonIDs for multi-select
+  $sql2 = "SELECT DISTINCT PersonID FROM action a".$where;
+  $result2 = sqlquery_checked($sql2);
+  while ($row = mysqli_fetch_object($result2)) {
+    $pidarray[] = $row->PersonID;
+  }
+  $pids = implode(",",$pidarray);
+} else {
+  $sql = "SELECT DISTINCT PersonID FROM action a".$where." ORDER BY PersonID";
+  $result = sqlquery_checked($sql);
+  $num_people = mysqli_num_rows($result);
+  if ($num_people == 0) {
+    echo "<h3>"._("There are no records matching your criteria.")."</h3>";
+    footer();
+    exit;
+  }
+  $pidarray = array();
+  while ($row = mysqli_fetch_object($result)) {
+    $pidarray[] = $row->PersonID;
+  }
+  $pids = implode(",",$pidarray);
+}
+
+// For grouped modes, collect ActionIDs by group
+if ($listtype != 'Normal') {
+  $sql_grouped = 'SELECT a.ActionID, a.ActionTypeID, at.ActionType, a.PersonID, p.FullName, p.Furigana ';
+  $sql_grouped .= 'FROM action a ';
+  $sql_grouped .= 'LEFT JOIN person p ON a.PersonID=p.PersonID ';
+  $sql_grouped .= 'LEFT JOIN actiontype at ON a.ActionTypeID=at.ActionTypeID';
+  $sql_grouped .= $where;
+
+  if ($listtype == 'ActionType') {
+    $sql_grouped .= ' ORDER BY ActionType, Furigana, PersonID, ActionDate DESC';
+  } else { // PersonID
+    $sql_grouped .= ' ORDER BY Furigana, PersonID, ActionDate DESC';
+  }
+
+  $result_grouped = sqlquery_checked($sql_grouped);
+
+  $groups = array();
+  while ($row = mysqli_fetch_object($result_grouped)) {
+    if ($listtype == 'ActionType') {
+      $group_key = $row->ActionTypeID;
+      $group_name = $row->ActionType;
+    } else { // PersonID
+      $group_key = $row->PersonID;
+      $group_name = readable_name($row->FullName, $row->Furigana);
+      $group_pid = $row->PersonID;
+    }
+
+    if (!isset($groups[$group_key])) {
+      $groups[$group_key] = array(
+        'name' => $group_name,
+        'ids' => array()
+      );
+      if ($listtype == 'PersonID') {
+        $groups[$group_key]['pid'] = $group_pid;
+      }
+    }
+    $groups[$group_key]['ids'][] = $row->ActionID;
+  }
+}
+
+if ($listtype == 'Normal') {
+  // FlexTable implementation for Normal mode
+  require_once("flextable.php");
+
+  // Fallback default if config missing: name,adate,atype,desc
+  $showcols = ',' . ($_SESSION['actionlist_showcols'] ?? 'name,adate,atype,desc') . ',';
+
+  $tableopt = (object) [
+    'ids' => implode(',', $action_ids),
+    'keyfield' => 'action.ActionID',
+    'tableid' => 'actionlist',
+    'heading' => sprintf(_('%d matching actions'), $num_actions),
+    'order' => 'ActionDate DESC',
+    'cols' => array()
+  ];
+
+  // 1. Person-related columns first (in standard order)
+  // Note: person/household JOINs auto-added by flextable when keyfield != person.PersonID
+
+  // PersonID
+  $tableopt->cols[] = (object) [
+    'key' => 'personid',
+    'sel' => 'person.PersonID',
+    'label' => _('ID'),
+    'show' => (stripos($showcols, ',personid,') !== FALSE),
+    'table' => 'person'
+  ];
+
+  // Name-related columns (all hideable for flexibility)
+  $tableopt->cols[] = (object) [
+    'key' => 'name',
+    'sel' => 'person.Name',
+    'label' => _('Name'),
+    'show' => (stripos($showcols, ',name,') !== FALSE),
+    'table' => 'person'
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'fullname',
+    'sel' => 'person.FullName',
+    'label' => _('Full Name'),
+    'show' => (stripos($showcols, ',fullname,') !== FALSE),
+    'table' => 'person'
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'furigana',
+    'sel' => 'person.Furigana',
+    'label' => ($_SESSION['furiganaisromaji']=='yes' ? _('Romaji') : _('Furigana')),
+    'show' => (stripos($showcols, ',furigana,') !== FALSE),
+    'table' => 'person'
+  ];
+
+  // 2. Action-related columns
+
+  // Column: Action Date
+  $tableopt->cols[] = (object) [
+    'key' => 'actiondate',
+    'sel' => 'action.ActionDate',
+    'label' => _('Date'),
+    'show' => (stripos($showcols, ',adate,') !== FALSE),
+    'classes' => 'center',
+    'sort' => -1
+  ];
+
+  // Column: Action Type
+  $tableopt->cols[] = (object) [
+    'key' => 'actiontype',
+    'sel' => 'actiontype.ActionType',
+    'label' => _('Action Type'),
+    'show' => (stripos($showcols, ',atype,') !== FALSE),
+    'join' => 'LEFT JOIN actiontype ON action.ActionTypeID=actiontype.ActionTypeID'
+  ];
+
+  // Column: Description
+  $tableopt->cols[] = (object) [
+    'key' => 'description',
+    'sel' => 'action.Description',
+    'label' => _('Description'),
+    'show' => (stripos($showcols, ',desc,') !== FALSE)
+  ];
+
+  // Photo
+  $tableopt->cols[] = (object) [
+    'key' => 'photo',
+    'sel' => 'person.Photo',
+    'label' => _('Photo'),
+    'show' => (stripos($showcols, ',photo,') !== FALSE),
+    'sortable' => false,
+    'table' => 'person'
+  ];
+
+  // Contact info
+  $tableopt->cols[] = (object) [
+    'key' => 'phones',
+    'sel' => 'Phones',
+    'label' => _('Phones'),
+    'show' => (stripos($showcols, ',phones,') !== FALSE),
+    'table' => 'person'
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'email',
+    'sel' => 'person.Email',
+    'label' => _('Email'),
+    'show' => (stripos($showcols, ',email,') !== FALSE),
+    'table' => 'person'
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'address',
+    'sel' => 'household.AddressComp',
+    'label' => _('Address'),
+    'show' => (stripos($showcols, ',address,') !== FALSE),
+    'table' => 'person'
+  ];
+
+  // Other person fields
+  $tableopt->cols[] = (object) [
+    'key' => 'age',
+    'sel' => "IF(person.Birthdate='0000-00-00','',TIMESTAMPDIFF(YEAR,person.Birthdate,CURDATE()))",
+    'label' => _('Age'),
+    'show' => (stripos($showcols, ',age,') !== FALSE),
+    'classes' => 'center',
+    'table' => 'person'
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'birthdate',
+    'sel' => 'person.Birthdate',
+    'label' => _('Birthdate'),
+    'show' => (stripos($showcols, ',birthdate,') !== FALSE),
+    'classes' => 'center',
+    'table' => 'person'
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'sex',
+    'sel' => 'person.Sex',
+    'label' => _('Sex'),
+    'show' => (stripos($showcols, ',sex,') !== FALSE),
+    'table' => 'person'
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'country',
+    'sel' => 'person.Country',
+    'label' => _('Country'),
+    'show' => (stripos($showcols, ',country,') !== FALSE),
+    'table' => 'person'
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'url',
+    'sel' => 'person.URL',
+    'label' => _('URL'),
+    'show' => (stripos($showcols, ',url,') !== FALSE),
+    'table' => 'person'
+  ];
+
+  // Categories
+  $tableopt->cols[] = (object) [
+    'key' => 'categories',
+    'sel' => "GROUP_CONCAT(Category ORDER BY Category SEPARATOR '\\n')",
+    'label' => _('Categories'),
+    'show' => (stripos($showcols, ',categories,') !== FALSE),
+    'lazy' => TRUE,
+    'join' => 'LEFT JOIN percat ON person.PersonID=percat.PersonID LEFT JOIN category ON percat.CategoryID=category.CategoryID'
+  ];
+
+  // Events
+  $tableopt->cols[] = (object) [
+    'key' => 'events',
+    'sel' => "e.Events",
+    'label' => _('Events'),
+    'show' => (stripos($showcols, ',events,') !== FALSE),
+    'lazy' => TRUE,
+    'join' => "LEFT OUTER JOIN (SELECT aq.PersonID,GROUP_CONCAT(CONCAT(Event,' [',attqty,'x]') ORDER BY Event SEPARATOR '\\n') AS Events FROM (SELECT PersonID,Event,COUNT(*) AS attqty FROM attendance AS at INNER JOIN event ev ON ev.EventID = at.EventID GROUP BY at.PersonID,at.EventID) AS aq GROUP BY aq.PersonID) AS e ON e.PersonID = person.PersonID"
+  ];
+
+  // Remarks last
+  $tableopt->cols[] = (object) [
+    'key' => 'remarks',
+    'sel' => 'person.Remarks',
+    'label' => _('Remarks'),
+    'show' => (stripos($showcols, ',remarks,') !== FALSE),
+    'table' => 'person'
+  ];
+
+  flextable($tableopt);
+
   footer();
   exit;
 }
-$pidarray = array();
-while ($row = mysqli_fetch_object($result)) {
-  $pidarray[] = $row->PersonID;
-}
-$pids = implode(",",$pidarray);
 
-?>
-<div id="actions">
-  <form action="multiselect.php" method="post" target="_top">
-    <input type="hidden" id="preselected" name="preselected" value="<?=$pids?>">
-    <input type="submit" value="<?=_("Go to Multi-Select with these entries preselected")?>">
-  </form>
-<?php if ($listtype == "Normal") { ?>
-  <form action="download.php" method="post" target="_top">
-    <input type="hidden" id="csvtext" name="csvtext" value="">
-    <input type="submit" id="csvfile" name="csvfile" value="<?=_("Download a CSV file of this table")?>" onclick="getCSV();">
-  </form>
-<?php } // if listtype=Normal ?>
-</div>
-<?php
-if ($listtype == "Normal") {
-  $tablestart = '<table id="atable" class="tablesorter">';
-} else {
-  $tablestart = '<table class="grouptable tablesorter">';
-}
-$tablestart .= "<thead>\n<tr>".$tableheads."</tr>\n</thead><tbody>\n";
+// Grouped modes - NOW USING FLEXTABLE
+require_once("flextable.php");
 
-$prev_groupfieldvalue = "";
-$firstrow = 1; //i.e. true
-$sql = 'SELECT a.*,at.ActionType,at.BGColor,p.FullName,p.Furigana';
-if ($listtype == 'Normal') $sql .= ',p.Photo,p.CellPhone,p.Email,p.Remarks,h.*,pc.*';
-$sql .= ' FROM action a LEFT JOIN person p ON p.PersonID=a.PersonID';
-if ($listtype == 'Normal') $sql .= ' LEFT JOIN household h ON p.HouseholdID=h.HouseholdID'.
-' LEFT JOIN postalcode pc ON h.PostalCode=pc.PostalCode';
-$sql .= ' LEFT JOIN actiontype at ON a.ActionTypeID=at.ActionTypeID'.$where;
-if ($listtype == 'ActionType') {
-  $sql .= ' ORDER BY ActionType,Furigana,PersonID,ActionDate DESC';
-} else {
-  $sql .= ' ORDER BY Furigana,PersonID,ActionDate DESC';
-}
-$result = sqlquery_checked($sql);
-$num_actions = mysqli_num_rows($result);
-echo '<h3>'.sprintf(_('%d matching actions (by %d different people/orgs)'), $num_actions, $num_people).'</h3>';
+$showcols = ',' . ($_SESSION['actionlist_showcols'] ?? 'name,adate,atype,desc') . ',';
 
-while ($row = mysqli_fetch_object($result)) {
-  if ($listtype!="Normal" && $prev_groupfieldvalue!='' && $row->$listtype!=$prev_groupfieldvalue) {  //change of section
-    echo "</tbody></table>\n";
-    echo "<h3>".($listtype=='PersonID'?'<a href="individual.php?pid='.$row->PersonID.
-    '" target="_blank">'.readable_name($row->FullName,$row->Furigana):$row->$listtype)."</a></h3>\n";
-    echo $tablestart;
-  } elseif ($listtype!='Normal' && $prev_groupfieldvalue=='') {
-    echo '<h3>'.($listtype=='PersonID'?'<a href="individual.php?pid='.$row->PersonID.
-    '" target="_blank">'.readable_name($row->FullName,$row->Furigana):$row->$listtype)."</a></h3>\n";
+// Display one flextable per group
+foreach ($groups as $group_key => $group) {
+  // Heading with group name
+  if ($listtype == 'PersonID') {
+    echo '<h3><a href="individual.php?pid='.$group['pid'].'" target="_blank">'.$group['name'].'</a></h3>'."\n";
+  } else { // ActionType
+    echo '<h3>'.$group['name'].'</h3>'."\n";
   }
-  if ($firstrow) {
-    echo $tablestart;
-    $firstrow = 0;
-  }
-  echo "<tr>";
-  if ($listtype != 'PersonID') {
-    if ($listtype == 'Normal') {
-      echo '<td class="personid">'.$row->PersonID."</td>\n";
-      echo '<td class="name-for-csv" style="display:none">'.$row->FullName."</td>\n";
-      echo '<td class="furigana-for-csv" style="display:none">'.$row->Furigana."</td>\n";
-    }
-    echo '<td class="name-for-display"><span style="display:none">'.$row->Furigana.'</span>';
-    echo '<a href="individual.php?pid='.$row->PersonID.'" target="_blank">';
-    echo readable_name($row->FullName,$row->Furigana)."</a></td>\n";
-  }
-  if ($listtype == 'Normal') {
-    if ($row->CellPhone && $row->Phone) {
-      echo '<td class="phone">'.$row->Phone."<br />".$row->CellPhone."</td>\n";
-    } else {
-      echo '<td class="phone">'.$row->Phone.$row->CellPhone."</td>\n";
-    }
-    echo '<td class="email">'.email2link($row->Email)."</td>\n";
-    echo '<td class="address">'.$row->PostalCode.$row->Prefecture.$row->ShiKuCho.db2table($row->Address)."</td>\n";
-    echo '<td class="remarks">'.email2link(url2link(d2h($row->Remarks)))."</td>\n";
-  }
-  echo '<td class="adate">'.$row->ActionDate."</td>\n";
-  if ($listtype != 'ActionType') {
-    echo '<td class="atype" style="background-color:#'.$row->BGColor.'">'.$row->ActionType."</td>\n";
-  }
-  echo '<td class="desc">'.$row->Description."</td>\n";
-  if ($listtype == 'Normal') echo '<td class="selectcol">-</td>';
-  echo "</tr>\n";
-  if ($listtype != 'Normal') {
-    $prev_groupfieldvalue = $row->$listtype;
-    $prev_name = readable_name($row->FullName,$row->Furigana);
-  }
-}
-echo "</tbody></table>\n";
 
-if ($_SESSION['userid']== 'dev') {
-  //echo 'POST:<pre class="noprint">'.print_r($_POST,true).'</pre>';
-  echo 'SQL:<pre class="noprint">'.$sql.'</pre>';
+  // Build flextable options for this group
+  $tableopt = (object) [
+    'ids' => implode(',', $group['ids']),
+    'keyfield' => 'action.ActionID',
+    'tableid' => 'actionlist-' . $group_key,
+    'heading' => sprintf(_('%d actions'), count($group['ids'])),
+    'order' => 'ActionDate DESC',
+    'cols' => array()
+  ];
+
+  // Column definitions (same as Normal mode but with conditional visibility)
+
+  // Person-related columns (hide in PersonID mode)
+  $tableopt->cols[] = (object) [
+    'key' => 'personid',
+    'sel' => 'person.PersonID',
+    'label' => _('ID'),
+    'show' => ($listtype != 'PersonID' && stripos($showcols, ',personid,') !== FALSE),
+    'table' => 'person',
+    'colsel' => ($listtype != 'PersonID')
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'name',
+    'sel' => 'person.Name',
+    'label' => _('Name'),
+    'show' => ($listtype != 'PersonID' && stripos($showcols, ',name,') !== FALSE),
+    'table' => 'person',
+    'colsel' => ($listtype != 'PersonID')
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'fullname',
+    'sel' => 'person.FullName',
+    'label' => _('Full Name'),
+    'show' => ($listtype != 'PersonID' && stripos($showcols, ',fullname,') !== FALSE),
+    'table' => 'person',
+    'colsel' => ($listtype != 'PersonID')
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'furigana',
+    'sel' => 'person.Furigana',
+    'label' => ($_SESSION['furiganaisromaji']=='yes' ? _('Romaji') : _('Furigana')),
+    'show' => ($listtype != 'PersonID' && stripos($showcols, ',furigana,') !== FALSE),
+    'table' => 'person',
+    'colsel' => ($listtype != 'PersonID')
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'photo',
+    'sel' => 'person.Photo',
+    'label' => _('Photo'),
+    'show' => ($listtype != 'PersonID' && stripos($showcols, ',photo,') !== FALSE),
+    'sortable' => false,
+    'table' => 'person',
+    'colsel' => ($listtype != 'PersonID')
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'phones',
+    'sel' => 'Phones',
+    'label' => _('Phones'),
+    'show' => ($listtype != 'PersonID' && stripos($showcols, ',phones,') !== FALSE),
+    'table' => 'person',
+    'colsel' => ($listtype != 'PersonID')
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'email',
+    'sel' => 'person.Email',
+    'label' => _('Email'),
+    'show' => ($listtype != 'PersonID' && stripos($showcols, ',email,') !== FALSE),
+    'table' => 'person',
+    'colsel' => ($listtype != 'PersonID')
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'address',
+    'sel' => 'household.AddressComp',
+    'label' => _('Address'),
+    'show' => ($listtype != 'PersonID' && stripos($showcols, ',address,') !== FALSE),
+    'table' => 'person',
+    'colsel' => ($listtype != 'PersonID')
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'age',
+    'sel' => "IF(person.Birthdate='0000-00-00','',TIMESTAMPDIFF(YEAR,person.Birthdate,CURDATE()))",
+    'label' => _('Age'),
+    'show' => ($listtype != 'PersonID' && stripos($showcols, ',age,') !== FALSE),
+    'classes' => 'center',
+    'table' => 'person',
+    'colsel' => ($listtype != 'PersonID')
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'birthdate',
+    'sel' => 'person.Birthdate',
+    'label' => _('Birthdate'),
+    'show' => ($listtype != 'PersonID' && stripos($showcols, ',birthdate,') !== FALSE),
+    'classes' => 'center',
+    'table' => 'person',
+    'colsel' => ($listtype != 'PersonID')
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'sex',
+    'sel' => 'person.Sex',
+    'label' => _('Sex'),
+    'show' => ($listtype != 'PersonID' && stripos($showcols, ',sex,') !== FALSE),
+    'table' => 'person',
+    'colsel' => ($listtype != 'PersonID')
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'country',
+    'sel' => 'person.Country',
+    'label' => _('Country'),
+    'show' => ($listtype != 'PersonID' && stripos($showcols, ',country,') !== FALSE),
+    'table' => 'person',
+    'colsel' => ($listtype != 'PersonID')
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'url',
+    'sel' => 'person.URL',
+    'label' => _('URL'),
+    'show' => ($listtype != 'PersonID' && stripos($showcols, ',url,') !== FALSE),
+    'table' => 'person',
+    'colsel' => ($listtype != 'PersonID')
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'remarks',
+    'sel' => 'person.Remarks',
+    'label' => _('Remarks'),
+    'show' => ($listtype != 'PersonID' && stripos($showcols, ',remarks,') !== FALSE),
+    'table' => 'person',
+    'colsel' => ($listtype != 'PersonID')
+  ];
+
+  // Action-related columns
+  $tableopt->cols[] = (object) [
+    'key' => 'actiondate',
+    'sel' => 'action.ActionDate',
+    'label' => _('Date'),
+    'show' => (stripos($showcols, ',adate,') !== FALSE),
+    'classes' => 'center',
+    'sort' => -1
+  ];
+
+  // Action Type (hide in ActionType mode)
+  $tableopt->cols[] = (object) [
+    'key' => 'actiontype',
+    'sel' => 'actiontype.ActionType',
+    'label' => _('Action Type'),
+    'show' => ($listtype != 'ActionType' && stripos($showcols, ',atype,') !== FALSE),
+    'join' => 'LEFT JOIN actiontype ON action.ActionTypeID=actiontype.ActionTypeID',
+    'colsel' => ($listtype != 'ActionType')
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'description',
+    'sel' => 'action.Description',
+    'label' => _('Description'),
+    'show' => (stripos($showcols, ',desc,') !== FALSE)
+  ];
+
+  // Render this group's table
+  flextable($tableopt);
+}
+
+if ($_SESSION['userid'] == 'dev') {
+  echo 'SQL:<pre class="noprint">'.$sql_grouped.'</pre>';
 }
 footer();
 ?>
