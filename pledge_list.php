@@ -129,7 +129,7 @@ $tableopt->cols[] = (object) [ 'key' => 'photo', 'sel' => 'person.Photo', 'label
 // Contact info
 $tableopt->cols[] = (object) [ 'key' => 'phones', 'sel' => 'Phones', 'label' => _('Phones'), 'show'=>(stripos($showcols, ',phones,') !== FALSE) ];
 $tableopt->cols[] = (object) [ 'key' => 'email', 'sel' => 'person.Email', 'label' => _('Email'), 'show' => (stripos($showcols, ',email,') !== FALSE) ];
-$tableopt->cols[] = (object) [ 'key' => 'address', 'sel' => 'household.AddressComp', 'label' => _('Address'), 'show' => (stripos($showcols, ',address,') !== FALSE), 'join' => 'LEFT JOIN household ON person.HouseholdID=household.HouseholdID', 'table' => 'person' ];
+$tableopt->cols[] = (object) [ 'key' => 'address', 'sel' => "CONCAT(IFNULL(household.PostalCode,''), IFNULL(postalcode.Prefecture,''), IFNULL(postalcode.ShiKuCho,''), IFNULL(household.Address,''))", 'label' => _('Address'), 'show' => (stripos($showcols, ',address,') !== FALSE), 'render' => 'multiline', 'table' => 'person', 'lazy' => TRUE ];
 
 // Demographics
 $tableopt->cols[] = (object) [ 'key' => 'sex', 'sel' => 'person.Sex', 'label' => _('Sex'), 'show' => (stripos($showcols, ',sex,') !== FALSE) ];
@@ -167,12 +167,12 @@ $tableopt->cols[] = (object) [
 $tableopt->cols[] = (object) [
   'key' => 'balance',
   'sel' => "CONCAT(".
-      "IF(SUM(IFNULL(donation.Amount,0)) - (pledge.Amount * TimesPerYear/12 * PERIOD_DIFF(DATE_FORMAT(IF(EndDate='0000-00-00' ".
-      "OR CURDATE()<EndDate,CURDATE(), EndDate), '%Y%m'), DATE_FORMAT(StartDate, '%Y%m'))) < 0, '<span style=\"color:red\">', ''), ".
-      "'".$_SESSION['currency_mark']."',FORMAT(SUM(IFNULL(donation.Amount,0)) - (pledge.Amount * TimesPerYear/12 * PERIOD_DIFF(DATE_FORMAT(IF(EndDate='0000-00-00' ".
-      "OR CURDATE()<EndDate,CURDATE(), EndDate), '%Y%m'), DATE_FORMAT(StartDate, '%Y%m'))),".$_SESSION['currency_decimals']."), ".
-      "IF(SUM(IFNULL(donation.Amount,0)) - (pledge.Amount * TimesPerYear/12 * PERIOD_DIFF(DATE_FORMAT(IF(EndDate='0000-00-00' ".
-      "OR CURDATE()<EndDate,CURDATE(), EndDate), '%Y%m'), DATE_FORMAT(StartDate, '%Y%m'))) < 0, '</span>', ''))",
+      "IF(SUM(IFNULL(donation.Amount,0)) - (pledge.Amount * (IF(TimesPerYear=0, IF(CURDATE()<StartDate,0,1), TimesPerYear/12 * PERIOD_DIFF(DATE_FORMAT(IF(EndDate='0000-00-00' ".
+      "OR CURDATE()<EndDate,CURDATE(), EndDate), '%Y%m'), DATE_FORMAT(StartDate, '%Y%m'))))) < 0, '<span style=\"color:red\">', ''), ".
+      "'".$_SESSION['currency_mark']."',FORMAT(SUM(IFNULL(donation.Amount,0)) - (pledge.Amount * (IF(TimesPerYear=0, IF(CURDATE()<StartDate,0,1), TimesPerYear/12 * PERIOD_DIFF(DATE_FORMAT(IF(EndDate='0000-00-00' ".
+      "OR CURDATE()<EndDate,CURDATE(), EndDate), '%Y%m'), DATE_FORMAT(StartDate, '%Y%m'))))),".$_SESSION['currency_decimals']."), ".
+      "IF(SUM(IFNULL(donation.Amount,0)) - (pledge.Amount * (IF(TimesPerYear=0, IF(CURDATE()<StartDate,0,1), TimesPerYear/12 * PERIOD_DIFF(DATE_FORMAT(IF(EndDate='0000-00-00' ".
+      "OR CURDATE()<EndDate,CURDATE(), EndDate), '%Y%m'), DATE_FORMAT(StartDate, '%Y%m'))))) < 0, '</span>', ''))",
   'label' => 'Balance',
   'show' => (stripos($showcols, ',balance,') !== FALSE),
   'join' => 'LEFT JOIN donation ON pledge.PledgeID=donation.PledgeID',

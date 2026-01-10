@@ -258,10 +258,12 @@ if (!$summary) {
 
   $tableopt->cols[] = (object) [
     'key' => 'address',
-    'sel' => 'household.AddressComp',
+    'sel' => "CONCAT(IFNULL(household.PostalCode,''), IFNULL(postalcode.Prefecture,''), IFNULL(postalcode.ShiKuCho,''), IFNULL(household.Address,''))",
     'label' => _('Address'),
     'show' => ($type != "PersonID" && stripos($showcols, ',address,') !== FALSE),
-    'table' => 'household',
+    'render' => 'multiline',
+    'table' => 'person',
+    'lazy' => TRUE,
     'colsel' => ($type != "PersonID")
   ];
 

@@ -405,10 +405,8 @@ if (count($org_pids) == 0) {
   $tableopt->cols[] = (object)[
     'key' => 'fullname',
     'sel' => 'person.FullName',
-    'label' => _('FullName'),
-    'show' => FALSE,
-    'classes' => 'name-for-csv',
-    'colsel' => FALSE
+    'label' => _('Full Name'),
+    'show' => (stripos($showcols, ',fullname,') !== FALSE)
   ];
 
   $tableopt->cols[] = (object)[
@@ -434,7 +432,6 @@ if (count($org_pids) == 0) {
     'sel' => 'Phones',
     'label' => _('Phones'),
     'show' => (stripos($showcols, ',phones,') !== FALSE),
-    'join' => 'LEFT JOIN household ON person.HouseholdID=household.HouseholdID',
     'table' => 'person'
   ];
 
@@ -451,9 +448,9 @@ if (count($org_pids) == 0) {
     'sel' => "CONCAT(IFNULL(household.PostalCode,''), IFNULL(postalcode.Prefecture,''), IFNULL(postalcode.ShiKuCho,''), IFNULL(household.Address,''))",
     'label' => _('Address'),
     'show' => (stripos($showcols, ',address,') !== FALSE),
-    'join' => 'LEFT JOIN household ON person.HouseholdID=household.HouseholdID LEFT JOIN postalcode ON household.PostalCode=postalcode.PostalCode',
     'render' => 'multiline',
-    'table' => 'person'
+    'table' => 'person',
+    'lazy' => TRUE
   ];
 
   // Demographics
@@ -594,10 +591,8 @@ if ($per->Organization) {
     $tableopt->cols[] = (object)[
       'key' => 'fullname',
       'sel' => 'person.FullName',
-      'label' => _('FullName'),
-      'show' => FALSE,
-      'classes' => 'name-for-csv',
-      'colsel' => FALSE
+      'label' => _('Full Name'),
+      'show' => (stripos($showcols, ',fullname,') !== FALSE)
     ];
 
     $tableopt->cols[] = (object)[
@@ -623,7 +618,6 @@ if ($per->Organization) {
       'sel' => 'Phones',
       'label' => _('Phones'),
       'show' => (stripos($showcols, ',phones,') !== FALSE),
-      'join' => 'LEFT JOIN household ON person.HouseholdID=household.HouseholdID',
       'table' => 'person'
     ];
 
@@ -640,9 +634,9 @@ if ($per->Organization) {
       'sel' => "CONCAT(IFNULL(household.PostalCode,''), IFNULL(postalcode.Prefecture,''), IFNULL(postalcode.ShiKuCho,''), IFNULL(household.Address,''))",
       'label' => _('Address'),
       'show' => (stripos($showcols, ',address,') !== FALSE),
-      'join' => 'LEFT JOIN household ON person.HouseholdID=household.HouseholdID LEFT JOIN postalcode ON household.PostalCode=postalcode.PostalCode',
       'render' => 'multiline',
-      'table' => 'person'
+      'table' => 'person',
+      'lazy' => TRUE
     ];
 
     // Demographics

@@ -209,10 +209,12 @@ if ($listtype == 'Normal') {
 
   $tableopt->cols[] = (object) [
     'key' => 'address',
-    'sel' => 'household.AddressComp',
+    'sel' => "CONCAT(IFNULL(household.PostalCode,''), IFNULL(postalcode.Prefecture,''), IFNULL(postalcode.ShiKuCho,''), IFNULL(household.Address,''))",
     'label' => _('Address'),
     'show' => (stripos($showcols, ',address,') !== FALSE),
-    'table' => 'person'
+    'render' => 'multiline',
+    'table' => 'person',
+    'lazy' => TRUE
   ];
 
   // Other person fields
@@ -386,10 +388,12 @@ foreach ($groups as $group_key => $group) {
 
   $tableopt->cols[] = (object) [
     'key' => 'address',
-    'sel' => 'household.AddressComp',
+    'sel' => "CONCAT(IFNULL(household.PostalCode,''), IFNULL(postalcode.Prefecture,''), IFNULL(postalcode.ShiKuCho,''), IFNULL(household.Address,''))",
     'label' => _('Address'),
     'show' => ($listtype != 'PersonID' && stripos($showcols, ',address,') !== FALSE),
+    'render' => 'multiline',
     'table' => 'person',
+    'lazy' => TRUE,
     'colsel' => ($listtype != 'PersonID')
   ];
 

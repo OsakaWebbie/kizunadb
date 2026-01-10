@@ -227,15 +227,6 @@ if (mysqli_num_rows($result) == 0) {
   ];
 
   $tableopt->cols[] = (object) [
-    'key' => 'address',
-    'sel' => 'household.AddressComp',
-    'label' => _('Address'),
-    'show' => FALSE,
-    'join' => 'LEFT JOIN household ON person.HouseholdID=household.HouseholdID',
-    'table' => 'person'
-  ];
-
-  $tableopt->cols[] = (object) [
     'key' => 'url',
     'sel' => 'person.URL',
     'label' => _('URL'),

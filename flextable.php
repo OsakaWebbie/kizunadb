@@ -2,8 +2,160 @@
 require_once("functions.php");
 require_once("accesscontrol.php");
 
+/**
+ * FLEXTABLE - Flexible Table Rendering System with Lazy Loading
+ *
+ * USAGE:
+ *   require_once("flextable.php");
+ *   $tableopt = (object) [
+ *     'ids' => '123,456,789',              // Comma-delimited list of record IDs to display
+ *     'keyfield' => 'person.PersonID',     // table.column that IDs belong to
+ *     'tableid' => 'mytable',              // HTML element ID for the table
+ *     'heading' => 'Search Results',       // Optional heading text above table
+ *     'order' => 'person.FullName ASC',    // Optional SQL ORDER BY clause
+ *     'groupby' => 'person.HouseholdID',   // Optional SQL GROUP BY clause (auto-detected for aggregates)
+ *     'cols' => array(...)                 // Array of column objects (see below)
+ *   ];
+ *   flextable($tableopt);
+ *
+ * COLUMN PROPERTIES:
+ *
+ * === CORE REQUIRED PROPERTIES ===
+ *
+ * sel (String, REQUIRED)
+ *   - SQL expression or table.column to SELECT
+ *   - Examples: 'person.FullName', 'TIMESTAMPDIFF(YEAR, person.Birthdate, CURDATE())'
+ *   - Special computed values:
+ *     * 'person.Name' - Auto-built from FullName + Furigana
+ *     * 'Phones' - Auto-built from household.Phone + person.CellPhone
+ *     * 'person.Photo' - Renders as <img> tag
+ *
+ * label (String)
+ *   - Column header text displayed to user
+ *   - Auto-generated if omitted for simple columns (e.g., 'person.FullName' → 'Full Name')
+ *   - Required for expression columns containing '('
+ *
+ * key (String, REQUIRED)
+ *   - Unique identifier for column, used in CSS classes and JavaScript
+ *   - Examples: 'fullname', 'age', 'phones'
+ *
+ * === DISPLAY CONTROL ===
+ *
+ * show (Boolean, default: TRUE)
+ *   - Whether column is visible on initial page load
+ *   - Typically set by calling file based on session variable:
+ *     'show' => (stripos($_SESSION['list_showcols'], ',address,') !== FALSE)
+ *   - Examples: true (visible), false (hidden until user selects via column selector)
+ *
+ * colsel (Boolean, default: TRUE)
+ *   - Whether column appears in column selector for user to show/hide
+ *   - Set to false for data-only columns (e.g., hidden PersonID needed for links)
+ *
+ * lazy (Boolean, default: FALSE)
+ *   - If true, loads data via AJAX instead of including in initial query
+ *   - IMPORTANT: Only affects columns with show=TRUE
+ *     * show=TRUE, lazy=FALSE: In initial query (loaded immediately)
+ *     * show=TRUE, lazy=TRUE: NOT in initial query, auto-loaded via AJAX after render (shows "..." briefly)
+ *     * show=FALSE: Always AJAX-loaded on demand, lazy setting doesn't matter
+ *   - Use for expensive columns (GROUP_CONCAT, complex JOINs) that are shown by default
+ *   - Trades faster initial page load for brief delay with "..." placeholder
+ *
+ * === SORTING ===
+ *
+ * sort (Integer, default: 0)
+ *   - Initial sort order: 0=none, 1=primary ascending, -1=primary descending
+ *   - Use 2/-2 for secondary sort, 3/-3 for tertiary, etc.
+ *   - Example: 'sort' => -1 (sort descending on this column by default)
+ *
+ * sortable (Boolean, default: TRUE)
+ *   - Whether user can click header to sort by this column
+ *   - Set to false for composite/computed columns where sorting doesn't make sense
+ *
+ * === STYLING ===
+ *
+ * classes (String, default: '')
+ *   - Space-delimited CSS classes to add to column cells
+ *   - Examples: 'center', 'nowrap', 'sorter-digit'
+ *
+ * === JOINS AND TABLES ===
+ *
+ * join (String, optional)
+ *   - Custom SQL JOIN clause needed for this column
+ *   - Only needed for tables NOT auto-detected (person, household, postalcode are auto-detected)
+ *   - Example: 'LEFT JOIN percat ON percat.PersonID=person.PersonID LEFT JOIN category ON category.CategoryID=percat.CategoryID'
+ *   - JOINs are automatically deduplicated
+ *
+ * table (String, optional)
+ *   - Explicitly specify which table column belongs to
+ *   - Auto-detected from sel (e.g., 'person.Email' → 'person')
+ *   - Use when sel is an expression and you want specific cell class behavior (pid/hid/key prefix)
+ *
+ * === RENDERING/FORMATTING ===
+ *
+ * render (String, optional)
+ *   - Special formatting type:
+ *     * 'email' - Wraps in mailto link
+ *     * 'url' - Converts to clickable link
+ *     * 'birthdate' - Hides year if 1900 (unknown year)
+ *     * 'age' - Hides if birthdate starts with 1900
+ *     * 'remarks' - Converts URLs and emails to links, nl2br
+ *     * 'multiline' - Applies nl2br for newline display (use for GROUP_CONCAT columns)
+ *     * 'checkbox' - Renders as interactive checkbox (requires checkbox_action and checkbox_idfield)
+ *
+ * checkbox_action (String, for checkboxes only)
+ *   - AJAX action name to call when saving checkbox changes
+ *   - Example: 'SaveMembershipStatus'
+ *   - Handler in ajax_actions.php receives 'checked_ids' and 'unchecked_ids' parameters
+ *
+ * checkbox_idfield (String, for checkboxes only)
+ *   - Field name containing ID for checkbox data-id attribute
+ *   - Example: 'PersonID', 'PerCatID'
+ *   - Must exist in result set
+ *
+ * === PERFORMANCE BEST PRACTICES ===
+ *
+ * When to use lazy=TRUE:
+ *   - Column has expensive operations (GROUP_CONCAT, complex JOINs, large data)
+ *   - Column is shown by default (show=TRUE / in showcols)
+ *   - You want faster initial page load at cost of brief delay/"..." placeholder
+ *
+ * When NOT to use lazy=TRUE:
+ *   - Column is hidden by default (show=FALSE) - redundant, already AJAX-loaded on demand
+ *   - Column is fast/cheap to compute - no performance benefit
+ *   - Column data is needed immediately with no delay acceptable
+ *
+ * Decision tree for expensive columns:
+ *   - Users need it ALWAYS → show=TRUE, lazy=FALSE (pay cost upfront, no delay)
+ *   - Users need it USUALLY → show=TRUE, lazy=TRUE (faster initial load, brief "..." delay)
+ *   - Users need it SOMETIMES → show=FALSE (column selector, lazy doesn't matter)
+ *
+ * === COMMON PATTERNS ===
+ *
+ * Basic visible column:
+ *   ['key' => 'email', 'sel' => 'person.Email', 'label' => _('Email'), 'show' => TRUE]
+ *
+ * Hidden data-only column:
+ *   ['key' => 'personid', 'sel' => 'person.PersonID', 'label' => 'ID', 'show' => FALSE, 'colsel' => FALSE]
+ *
+ * Lazy-loaded expensive column shown by default:
+ *   ['key' => 'categories', 'sel' => "GROUP_CONCAT(Category SEPARATOR '\\n')", 'label' => _('Categories'),
+ *    'show' => TRUE, 'lazy' => TRUE, 'render' => 'multiline',
+ *    'join' => 'LEFT JOIN percat ON percat.PersonID=person.PersonID LEFT JOIN category ON category.CategoryID=percat.CategoryID']
+ *
+ * Optional expensive column (hidden by default):
+ *   ['key' => 'events', 'sel' => "GROUP_CONCAT(EventName SEPARATOR '\\n')", 'label' => _('Events'),
+ *    'show' => FALSE, 'render' => 'multiline',
+ *    'join' => 'LEFT JOIN attendance ON attendance.PersonID=person.PersonID LEFT JOIN event ON event.EventID=attendance.EventID']
+ *   Note: lazy setting doesn't matter here - always AJAX-loaded on demand since show=FALSE
+ *
+ * Checkbox column:
+ *   ['key' => 'active', 'sel' => 'person.Active', 'label' => _('Active'), 'show' => TRUE,
+ *    'render' => 'checkbox', 'checkbox_action' => 'SaveActive', 'checkbox_idfield' => 'PersonID', 'sortable' => FALSE]
+ */
+
 // AJAX stuff - Load lazy column data
 if (!empty($_REQUEST['loadcol'])) {
+  ob_start();  // Start output buffering to catch any stray output
   header('Content-Type: application/json');
 
   // Validate session (like ajax_request.php does)
@@ -46,16 +198,37 @@ if (!empty($_REQUEST['loadcol'])) {
     if ($keyfield != 'person.PersonID' && (strpos($coldef->sel, 'person.') === 0 || (!empty($coldef->table) && $coldef->table == 'person'))) {
       $sql .= ', person.PersonID';
     }
+    // Add person.Birthdate if we're loading Age column (needed for 1900 check)
+    if (preg_match('/TIMESTAMPDIFF.*Birthdate/i', $coldef->sel) || (!empty($coldef->render) && $coldef->render == 'age')) {
+      $sql .= ', person.Birthdate';
+    }
     $sql .= ' FROM ' . $keytable . ' ';
   }
 
-  // Add LEFT JOIN for person/household if needed
-  if ($keyfield != 'person.PersonID') {
-    $sql .= 'LEFT JOIN person ON person.PersonID=' . $keytable . '.PersonID ';
-    $sql .= 'LEFT JOIN household ON household.HouseholdID=person.HouseholdID ';
+  // Add LEFT JOINs as needed based on column requirements
+  $needs_person = ($keyfield != 'person.PersonID' && (strpos($coldef->sel, 'person.') !== FALSE || $coldef->sel == 'Phones'));
+  $needs_household = (strpos($coldef->sel, 'household.') !== FALSE || $coldef->sel == 'Phones');
+  $needs_postalcode = (strpos($coldef->sel, 'postalcode.') !== FALSE);
+
+  // Handle dependencies: postalcode needs household, household needs person
+  if ($needs_postalcode && !$needs_household) {
+    $needs_household = TRUE;  // postalcode JOIN references household.PostalCode
+  }
+  if ($needs_household && $keyfield != 'person.PersonID' && !$needs_person) {
+    $needs_person = TRUE;  // household JOIN references person.HouseholdID
   }
 
-  // Add column-specific JOINs
+  if ($needs_person) {
+    $sql .= 'LEFT JOIN person ON person.PersonID=' . $keytable . '.PersonID ';
+  }
+  if ($needs_household) {
+    $sql .= 'LEFT JOIN household ON household.HouseholdID=person.HouseholdID ';
+  }
+  if ($needs_postalcode) {
+    $sql .= 'LEFT JOIN postalcode ON household.PostalCode=postalcode.PostalCode ';
+  }
+
+  // Add column-specific JOINs (for custom cases not covered above)
   if (!empty($coldef->join)) {
     $sql .= $coldef->join . ' ';
   }
@@ -97,18 +270,35 @@ if (!empty($_REQUEST['loadcol'])) {
     if ($coldef->sel == 'person.Email' || (!empty($coldef->render) && $coldef->render == 'email')) {
       $cellContent = email2link($cellContent ?? '');
     }
-    // 2. Remarks
+    // 2. Birthdate - handle 1900 prefix (year unknown, show only month/day)
+    elseif ($coldef->sel == 'person.Birthdate' || (!empty($coldef->render) && $coldef->render == 'birthdate')) {
+      if ($cellContent && $cellContent != '0000-00-00') {
+        if (substr($cellContent, 0, 4) == '1900') {
+          $cellContent = substr($cellContent, 5);  // Show only MM-DD
+        }
+      } else {
+        $cellContent = '';
+      }
+    }
+    // 3. Age - hide if birthdate starts with 1900 (year unknown)
+    elseif (preg_match('/TIMESTAMPDIFF.*Birthdate/i', $coldef->sel) || (!empty($coldef->render) && $coldef->render == 'age')) {
+      // Need to fetch birthdate to check for 1900
+      if (isset($row->Birthdate) && substr($row->Birthdate, 0, 4) == '1900') {
+        $cellContent = '';  // Hide age when birth year is unknown
+      }
+      // Otherwise cellContent already has the age from the SQL
+    }
+    // 4. Remarks
     elseif ($coldef->sel == 'person.Remarks' || (!empty($coldef->render) && $coldef->render == 'remarks')) {
       $cellContent = email2link(url2link(d2h($cellContent ?? '')));
     }
-    // 3. URL columns
+    // 5. URL columns
     elseif ($coldef->sel == 'person.URL' || (!empty($coldef->render) && $coldef->render == 'url')) {
       $cellContent = url2link($cellContent ?? '');
     }
-    // 4. GROUP_CONCAT columns (Categories, Events)
+    // 6. GROUP_CONCAT columns (Categories, Events)
     elseif (preg_match('/GROUP_CONCAT/i', $coldef->sel) || (!empty($coldef->render) && $coldef->render == 'multiline')) {
-      if ($cellContent !== null) {
-        $cellContent = str_replace('\n', "\n", $cellContent);
+      if (!empty($cellContent)) {
         $cellContent = d2h($cellContent);
       } else {
         $cellContent = '';
@@ -118,6 +308,11 @@ if (!empty($_REQUEST['loadcol'])) {
     $data[$row->$keycol] = $cellContent;
   }
 
+  $stray_output = ob_get_clean();  // Capture any stray output
+  if ($stray_output) {
+    // If there was stray output (warnings, notices, etc.), include it in error response
+    die(json_encode(['error' => 'Stray output detected: *'.$stray_output.'*', 'sql' => $sql]));
+  }
   die(json_encode(['success' => true, 'data' => $data]));
 }
 
@@ -181,8 +376,44 @@ function flextable($opt) {
   $sql = 'SELECT ';
   $selects = '|'; // Track what's been selected to prevent duplicates
   $groupby = '';
-  $joins = ($opt->keyfield=='person.PersonID') ? '' : 'LEFT JOIN person ON person.PersonID='.$keytable.'.PersonID '.
-      'LEFT JOIN household ON household.HouseholdID=person.HouseholdID ';
+
+  // Smart JOIN detection - scan all columns to determine what tables are needed
+  $needs_person = FALSE;
+  $needs_household = FALSE;
+  $needs_postalcode = FALSE;
+
+  foreach ($opt->cols AS $col) {
+    // Check if column references person, household, or postalcode tables
+    if (!$needs_person && $opt->keyfield != 'person.PersonID' && (strpos($col->sel, 'person.') !== FALSE || $col->sel == 'Phones')) {
+      $needs_person = TRUE;
+    }
+    if (!$needs_household && (strpos($col->sel, 'household.') !== FALSE || $col->sel == 'Phones')) {
+      $needs_household = TRUE;
+    }
+    if (!$needs_postalcode && strpos($col->sel, 'postalcode.') !== FALSE) {
+      $needs_postalcode = TRUE;
+    }
+  }
+
+  // Handle dependencies: postalcode needs household, household needs person
+  if ($needs_postalcode && !$needs_household) {
+    $needs_household = TRUE;
+  }
+  if ($needs_household && $opt->keyfield != 'person.PersonID' && !$needs_person) {
+    $needs_person = TRUE;
+  }
+
+  // Build JOINs based on what's needed
+  $joins = '';
+  if ($needs_person) {
+    $joins .= 'LEFT JOIN person ON person.PersonID='.$keytable.'.PersonID ';
+  }
+  if ($needs_household) {
+    $joins .= 'LEFT JOIN household ON household.HouseholdID=person.HouseholdID ';
+  }
+  if ($needs_postalcode) {
+    $joins .= 'LEFT JOIN postalcode ON household.PostalCode=postalcode.PostalCode ';
+  }
 
   // Columns and expressions for SELECT
   foreach ($opt->cols AS $col) {
@@ -240,10 +471,10 @@ function flextable($opt) {
     }
   }
 
-  // Always include Birthdate when an Age column exists (needed for 1900 year check)
+  // Always include Birthdate when a non-lazy Age column exists (needed for 1900 year check)
   $has_age_col = false;
   foreach ($opt->cols as $col) {
-    if (preg_match('/TIMESTAMPDIFF.*Birthdate/i', $col->sel) || (!empty($col->render) && $col->render == 'age')) {
+    if (!$col->lazy && (preg_match('/TIMESTAMPDIFF.*Birthdate/i', $col->sel) || (!empty($col->render) && $col->render == 'age'))) {
       $has_age_col = true;
       break;
     }
@@ -257,10 +488,10 @@ function flextable($opt) {
     }
   }
 
-  // Always include household.Phone and person.CellPhone when Phones combo column exists (like Name)
+  // Always include household.Phone and person.CellPhone when non-lazy Phones combo column exists (like Name)
   $has_phones_combo = false;
   foreach ($opt->cols as $col) {
-    if ($col->sel == 'Phones') {
+    if ($col->sel == 'Phones' && !$col->lazy) {
       $has_phones_combo = true;
       break;
     }
@@ -299,7 +530,13 @@ function flextable($opt) {
     }
   }
   $sql = substr($sql,0,-2);  // remove last comma and space
-  if (preg_match('#(GROUP_CONCAT|MAX|MIN|COUNT|SUM|AVERAGE)#i',$sql)===1) $groupby = ' GROUP BY '.$opt->keyfield;
+  // Handle GROUP BY - custom groupby takes precedence, otherwise auto-detect for aggregates
+  $groupby = '';
+  if (!empty($opt->groupby)) {
+    $groupby = ' GROUP BY '.$opt->groupby;
+  } elseif (preg_match('#(GROUP_CONCAT|MAX|MIN|COUNT|SUM|AVERAGE)#i',$sql)===1) {
+    $groupby = ' GROUP BY '.$opt->keyfield;
+  }
   $sql .= ' FROM '.$keytable.' '.$joins.' WHERE '.$opt->keyfield.' IN ('.$opt->ids.')'.$groupby;
   // Add ORDER BY if specified
   if (!empty($opt->order)) {
@@ -502,7 +739,6 @@ function flextable($opt) {
           elseif (preg_match('/GROUP_CONCAT/i', $col->sel) || (!empty($col->render) && $col->render == 'multiline')) {
             if ($cellContent !== null) {
               // Handle both actual newlines and literal \n strings (in case SQL separator differs)
-              $cellContent = str_replace('\n', "\n", $cellContent);  // Convert literal \n to actual newline
               $cellContent = d2h($cellContent);
             } else {
               $cellContent = '';
@@ -699,7 +935,8 @@ function flextable($opt) {
       var colData = JSON.stringify({
         sel: colDef.sel,
         join: colDef.join || '',
-        table: colDef.table || ''
+        table: colDef.table || '',
+        render: colDef.render || ''
       });
 
       $.post('flextable.php', {

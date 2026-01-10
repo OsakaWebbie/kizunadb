@@ -332,11 +332,8 @@ $tableopt->cols[] = (object)[
 $tableopt->cols[] = (object)[
   'key' => 'fullname',
   'sel' => 'person.FullName',
-  'label' => _('FullName'),
-  'show' => FALSE,
-  'lazy' => TRUE,
-  'classes' => 'name-for-csv',  // Shown during CSV export, otherwise hidden
-  'colsel' => FALSE
+  'label' => _('Full Name'),
+  'show' => (stripos($showcols, ',fullname,') !== FALSE)
 ];
 
 // Photo
@@ -352,9 +349,8 @@ $tableopt->cols[] = (object)[
 $tableopt->cols[] = (object)[
   'key' => 'phones',
   'sel' => 'Phones',
-  'label' => _('Phone'),
-  'show' => (stripos($showcols, ',phone,') !== FALSE),
-  'join' => 'LEFT JOIN household ON person.HouseholdID=household.HouseholdID',
+  'label' => _('Phones'),
+  'show' => (stripos($showcols, ',phones,') !== FALSE),
   'table' => 'person'
 ];
 
@@ -366,14 +362,15 @@ $tableopt->cols[] = (object)[
   'show' => (stripos($showcols, ',email,') !== FALSE)
 ];
 
-// Address
+// Address - computed from postalcode + household data
 $tableopt->cols[] = (object)[
   'key' => 'address',
-  'sel' => 'household.AddressComp',
+  'sel' => "CONCAT(IFNULL(household.PostalCode,''), IFNULL(postalcode.Prefecture,''), IFNULL(postalcode.ShiKuCho,''), IFNULL(household.Address,''))",
   'label' => _('Address'),
   'show' => (stripos($showcols, ',address,') !== FALSE),
-  'join' => 'LEFT JOIN household ON person.HouseholdID=household.HouseholdID',
-  'table' => 'household'
+  'render' => 'multiline',
+  'table' => 'person',
+  'lazy' => FALSE
 ];
 
 // Birthdate

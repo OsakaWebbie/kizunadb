@@ -299,7 +299,7 @@ background-image: url(css/images/tablesorter_asc.gif);
 .tablesorter-headerDesc {
 background-image: url(css/images/tablesorter_desc.gif);
 }
-.tablesorter-headerAsc, .tablesorter-headerDesc {
+table.tablesorter thead tr th.tablesorter-headerAsc, table.tablesorter thead tr th.tablesorter-headerDesc {
 background-color: <?=(!empty($secondarydark)?$secondarydark:"rgb(132,78,12)")?>;
 color: White;
 }
@@ -718,7 +718,6 @@ if (isset($_GET['jquery'])) {
 }
 if (isset($_GET['table'])) {
   serve(is_file($path."tablesorter.css") ? $path."tablesorter.css" : "css/tablesorter.css");
-  serve(is_file($path."clickmenu4colman.css") ? $path."clickmenu4colman.css" : "css/clickmenu4colman.css");
 }
 if (isset($_GET['multiselect'])) {
   serve(is_file($path."jquery.multiselect.css") ? $path."jquery.multiselect.css" : "css/jquery.multiselect.css");
