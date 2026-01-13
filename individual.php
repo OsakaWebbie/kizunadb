@@ -794,8 +794,8 @@ if (mysqli_num_rows($result) == 0) {
     echo $row->ActionDate."<span style=\"display:none\">".$row->ActionID."</span>".$fcend."</td>\n";
     echo '<td style="white-space:nowrap">'.$fcstart.$row->ActionType.$fcend."</td>\n";
     // temporarily disabling url2link() due to conflict with ReadMore
-    // echo "<td>".$fcstart."<span class=\"readmore\">".url2link(d2h($row->Description))."</span>".$fcend."</td>\n";
-    echo "<td>".$fcstart."<span class=\"readmore\">".d2h($row->Description)."</span>".$fcend."</td>\n";
+    // echo "<td>".$fcstart."<div class=\"readmore\">".url2link(d2h($row->Description))."</div>".$fcend."</td>\n";
+    echo "<td>".$fcstart."<div class=\"readmore\">".d2h($row->Description)."</div>".$fcend."</td>\n";
     echo "<td class=\"button-in-table\">";
     echo "<form method=\"get\" action=\"{$_SERVER['PHP_SELF']}?pid={$_GET['pid']}#actions\">\n";
     echo "<input type=\"hidden\" name=\"pid\" value=\"{$_GET['pid']}\">";
@@ -1120,8 +1120,8 @@ mysqli_free_result($result);
 
 <?php
 // Load additional scripts needed by individual.php
-// (jquery, jqueryui, tablesorter, table2CSV already loaded by flextable)
-load_scripts(['timepicker', 'readmore', 'expanding']);
+// (Include jquery, jqueryui, tablesorter here in case flextable isn't called - load_scripts prevents double-loading)
+load_scripts(['jquery', 'jqueryui', 'tablesorter', 'readmore', 'expanding']);
 ?>
 
 <script type="text/javascript">
@@ -1159,7 +1159,6 @@ $(document).ready(function(){
   <?php
 if($_SESSION['lang']=="ja_JP") {
   echo "  $.datepicker.setDefaults( $.datepicker.regional[\"ja\"] );\n";
-  echo "  $.timepicker.setDefaults( $.timepicker.regional[\"ja\"] );\n";
 }
 ?>
   $("#actiondate").datepicker({ dateFormat: 'yy-mm-dd' });
@@ -1168,8 +1167,6 @@ if($_SESSION['lang']=="ja_JP") {
   if ($("#actiondate").val()=="") $("#donationdate").datepicker('setDate', new Date());
   $("#attenddate").datepicker({ dateFormat: 'yy-mm-dd' });
   $("#attendenddate").datepicker({ dateFormat: 'yy-mm-dd' });
-  $("#attendstarttime").timepicker();
-  $("#attendendtime").timepicker();
 
   $("#action-table").tablesorter({ sortList:[[0,1]], headers:{3:{sorter:false},4:{sorter:false}} });
   $("#donation-table").tablesorter({ sortList:[[0,1]], headers:{5:{sorter:false},6:{sorter:false}} });
@@ -1179,7 +1176,7 @@ if($_SESSION['lang']=="ja_JP") {
 
   // Legacy columnmanager code removed - tables now use flextable
   
-  $("#orgid").bind('input propertychange', function(e){  //display Organization name when applicable ID is typed
+  $("#orgid").on('input propertychange', function(e){  //display Organization name when applicable ID is typed
     if (/\D/g.test(this.value))  {
       // Filter non-digits from input value.
       this.value = this.value.replace(/\D/g, '');
@@ -1220,9 +1217,30 @@ if($_SESSION['lang']=="ja_JP") {
     }
   });
 
-  $.fn.readmore.defaults.substr_len = <?=$_SESSION['displaydefault_actionsize'] ?>;
-  $.fn.readmore.defaults.more_link = '<a class="more"><?=_("[Read more]")?></a>';
-  $(".readmore").readmore();
+  $(".readmore").readmore({
+    speed: 75,
+    collapsedHeight: 100,
+    heightMargin: 0,
+    moreLink: '<a href="#"><?=_("[Read more]")?></a>',
+    lessLink: '<a href="#"><?=_("[Close]")?></a>',
+    blockProcessed: function(element, collapsible) {
+      if (collapsible) {
+        element.addClass('readmore-collapsed');
+      }
+    }
+  });
+
+  // Work around broken afterToggle callback by manually toggling the class
+  $(document).on('click', '[data-readmore-toggle]', function() {
+    var targetId = $(this).attr('aria-controls');
+    var $target = $('#' + targetId);
+    // Toggle happens after click, so we need to check current state and flip it
+    if ($target.hasClass('readmore-collapsed')) {
+      $target.removeClass('readmore-collapsed');
+    } else {
+      $target.addClass('readmore-collapsed');
+    }
+  });
   
   $("#activeevents").click(function(){  //show or hide active events
     if ($("#activeevents").val()=="<?=_("Show Active")?>") {
@@ -1370,6 +1388,25 @@ function ValidateAttendance(){
     alert('<?=_("Date is invalid.")?>');
     $('#attendenddate').click();
     return false;
+  }
+  // Validate times if event requires them
+  if ($("#eventid option:selected").hasClass('times')) {
+    if ($('#attendstarttime').val() == '' || $('#attendendtime').val() == '') {
+      alert('<?=_("You must enter both start and end times for this event.")?>');
+      return false;
+    }
+    // Validate time format (HH:MM)
+    var timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    if (!timeRegex.test($('#attendstarttime').val())) {
+      alert('<?=_("Start time must be in HH:MM format (e.g., 09:30 or 14:00).")?>');
+      $('#attendstarttime').focus();
+      return false;
+    }
+    if (!timeRegex.test($('#attendendtime').val())) {
+      alert('<?=_("End time must be in HH:MM format (e.g., 09:30 or 14:00).")?>');
+      $('#attendendtime').focus();
+      return false;
+    }
   }
   return true;
 }

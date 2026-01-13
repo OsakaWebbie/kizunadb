@@ -87,11 +87,11 @@ while ($row = mysqli_fetch_object($result)) {
 </form>
 <iframe name="ResultFrame" width="100%" height="320" src="blank.php"></iframe>
 
-<script type="text/JavaScript" src="js/jquery.js"></script>
-<script type="text/JavaScript" src="js/jquery-ui.js"></script>
-<script type="text/JavaScript" src="js/jquery.ui.datepicker-ja.js"></script>
-<script type="text/javascript" src="js/jquery.multiselect.min.js"></script>
-<script type="text/javascript" src="js/jquery.multiselect.filter.js"></script>
+<?php
+$scripts = ['jquery', 'jqueryui', 'multiselect'];
+if ($_SESSION['lang']=="ja_JP") $scripts[] = 'datepicker-ja';
+load_scripts($scripts);
+?>
 
 <script>
   $(function() {
@@ -103,7 +103,6 @@ while ($row = mysqli_fetch_object($result)) {
 //   }).multiselectfilter({
 //    label: '<?=_("Search:")?>'
     });
-    <?php if($_SESSION['lang']=="ja_JP") echo "  $.datepicker.setDefaults( $.datepicker.regional[\"ja\"] );\n"; ?>
     $("#startdate").datepicker({ dateFormat: 'yy-mm-dd' });
     $("#enddate").datepicker({ dateFormat: 'yy-mm-dd' });
 

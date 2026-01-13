@@ -43,15 +43,21 @@ if ($pid) {
 ?>
 <link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
 <script type="text/javascript" src="js/functions.js"></script>
-<script type="text/JavaScript" src="js/jquery.js"></script>
-<script type="text/JavaScript" src="js/jquery-ui.js"></script>
+<script type="text/JavaScript" src="js/jquery-3.6.0.js"></script>
+<script type="text/JavaScript" src="js/jquery-ui-13.min.js"></script>
 
 <script type="text/javascript">
 
 function stopRKey(evt) {
   var evt = (evt) ? evt : ((event) ? event : null);
   var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
-  if ((evt.keyCode == 13) && (node.type=="text") && node.name!="textinput1")  {return false;}
+  // Only block Enter key for text inputs within the editform (not quick search or other forms)
+  if ((evt.keyCode == 13) && (node.type=="text") && node.name!="textinput1") {
+    var form = node.form || $(node).closest('form')[0];
+    if (form && form.id === "editform") {
+      return false;
+    }
+  }
 }
 document.onkeypress = stopRKey;
 
@@ -113,7 +119,7 @@ $(document).ready(function(){
       }
     }
   });
-  $('#postalcode').live('input paste',function(){ $('#postalcode').keyup(); });
+  $(document).on('input paste', '#postalcode', function(){ $('#postalcode').keyup(); });
 
   $('#mirror_address').change(function(){
     if ($(this).prop('checked')) {
@@ -132,19 +138,19 @@ $(document).ready(function(){
       $('#banchirom_display').html(d2h($('#romajiaddress').val()));
     }
   });
-  $('#address').live('input paste',function(){ $('#address').keyup(); });
+  $(document).on('input paste', '#address', function(){ $('#address').keyup(); });
 
   $('#romajiaddress').keyup(function(){ $('#banchirom_display').html(d2h($('#romajiaddress').val())); });
-  $('#romajiaddress').live('input paste',function(){ $('#romajiaddress').keyup(); });
+  $(document).on('input paste', '#romajiaddress', function(){ $('#romajiaddress').keyup(); });
   
   $('#pcromtext').keyup(function(){ $('#pcromtext_display').html(d2h($('#pcromtext').val())); });
-  $('#pcromtext').live('input paste',function(){ $('#pcromtext').keyup(); });
+  $(document).on('input paste', '#pcromtext', function(){ $('#pcromtext').keyup(); });
   
   $('#labelname').keyup(function() {
     $('#labelname_display').html(d2h($('#labelname').val()));
     $('#labelname_nonjapan_display').html(d2h($('#labelname').val()));
   });
-  $('#labelname').live('input paste',function(){ $('#labelname').keyup(); });
+  $(document).on('input paste', '#labelname', function(){ $('#labelname').keyup(); });
 
   $('#organization').change(function() {
     if ($('#organization').is(':checked')) {

@@ -4,10 +4,6 @@ include("accesscontrol.php");
 header1("");
 ?>
 <link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
-<script src="https://code.jquery.com/jquery-2.2.4.min.js"
-        integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
-        crossorigin="anonymous"></script>
-<script type="text/JavaScript" src="js/jquery-ui.js"></script>
 <?php
 header2(0);
 
@@ -62,6 +58,9 @@ while ($row = mysqli_fetch_object($result)) {
       </div>
       <input type="submit" name="submit" value="<?=_("Make PDF")?>" border="0">
     </form>
-  <?php footer();
+
+<?php
+load_scripts(['jquery', 'jqueryui']);
+footer();
 ?>
 

@@ -9,18 +9,6 @@ if (!empty($_POST['query'])) {
   $result = mysqli_query($db, $query);
 ?>
 <link rel="stylesheet" href="style.php?table=1" type="text/css" />
-<script type="text/javascript" src="js/jquery.js"></script>
-<script type="text/javascript" src="js/table2CSV.js"></script>
-<script type="text/javascript" src="js/tablesorter.js"></script>
-<script type="text/javascript">
-$(document).ready(function() {
-  $("#mainTable").tablesorter({
-  });
-});
-function getCSV() {
-  $('#csvtext').val($('#mainTable').table2CSV({delivery:'value'}));
-}
-</script>
 <?php
   header2(1);
   
@@ -32,6 +20,7 @@ function getCSV() {
 
   if ($result === false ){
      echo "<pre style=\"font-size:15px;\"><strong>SQL Error ".mysqli_errno($db).": ".mysqli_error($db)."</strong></pre>";
+     load_scripts(['jquery', 'tablesorter', 'table2csv']);
      footer();
      exit;
   }
@@ -85,5 +74,17 @@ function getCSV() {
   echo "<input type=\"submit\" name=\"submit\" id=\"submit\" value=\"Do the Query!\" /></form>";
 }
 
+load_scripts(['jquery', 'tablesorter', 'table2csv']);
+?>
+<script type="text/javascript">
+$(document).ready(function() {
+  $("#mainTable").tablesorter({
+  });
+});
+function getCSV() {
+  $('#csvtext').val($('#mainTable').table2CSV({delivery:'value'}));
+}
+</script>
+<?php
 footer();
 ?>

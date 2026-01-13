@@ -8,53 +8,6 @@ header1(_('Event Attendance').
         '')); ?>
 <meta http-equiv="expires" content="0">
 <link rel="stylesheet" href="style.php?jquery=1&multiselect=1" type="text/css" />
-<script type="text/JavaScript" src="js/jquery.js"></script>
-<script type="text/JavaScript" src="js/jquery-ui.js"></script>
-<script type="text/JavaScript" src="js/jquery.ui.datepicker-ja.js"></script>
-<script type="text/javascript" src="js/jquery.multiselect-classes.js"></script>
-<script type="text/javascript" src="js/jquery.multiselect.filter.js"></script>
-
-<script type="text/javascript">
-
-$(document).ready(function(){
-  $("#emultiple").multiselect({
-    noneSelectedText: '<?=_('Select...')?>',
-    selectedText: '<?=_('# selected')?>',
-    checkAllText: '<?=_('Check all')?>',
-    uncheckAllText: '<?=_('Uncheck all')?>'
-  }).multiselectfilter({
-    label: '<?=_('Search:')?>'
-  });
-<?php if($_SESSION['lang']=='ja_JP') echo "  $.datepicker.setDefaults( $.datepicker.regional['ja'] );\n"; ?>
-  $('#startdate').datepicker({ dateFormat: 'yy-mm-dd' });
-  $('#enddate').datepicker({ dateFormat: 'yy-mm-dd' });
-
-  $('input[name=ftarget]').change(function() {
-    $('form#eform').attr({target:$('input[name=ftarget]:checked').val()});
-  });
-  $('#show_detail').click(function(){
-    if ($('#eid').val()=='') {
-      alert("<?=_('Please select an event.')?>");
-    } else {
-      $('form#eform').attr({action:"attend_detail.php?nav="+(($('input[name=ftarget]:checked').val()=="_blank")?"1":"0")}).submit();
-    }
-  });
-  $('#show_aggregate').click(function(){
-    if ($("form#eform option:selected").length < 2) {
-      alert("<?=_("Please select at least one event.")?>");
-    } else {
-      $('form#eform').attr({action:"attend_aggregate.php?nav="+(($('input[name=ftarget]:checked').val()=="_blank")?"1":"0")}).submit();
-    }
-  });
-  $('#show_datesums').click(function(){
-    if ($("form#eform option:selected").length < 2) {
-      alert("<?=_("Please select at least one event.")?>");
-    } else {
-      $('form#eform').attr({action:"attend_datesums.php?nav="+(($('input[name=ftarget]:checked').val()=="_blank")?"1":"0")}).submit();
-    }
-  });
-});
-</script>
 <?php header2(1);
 // Build option list from event table contents
 $result = sqlquery_checked("SELECT * FROM event ORDER BY (EventEndDate!='0000-00-00' AND EventEndDate<NOW()),Event");
@@ -97,6 +50,53 @@ while ($row = mysqli_fetch_object($result)) {
 </form>
 <iframe name="ResultFrame" width="100%" height="320" src="blank.php"></iframe>
 
+<?php
+$scripts = ['jquery', 'jqueryui', 'multiselect-classes'];
+if ($_SESSION['lang']=='ja_JP') $scripts[] = 'datepicker-ja';
+load_scripts($scripts);
+?>
+<script type="text/javascript">
+
+  $(document).ready(function(){
+    $("#emultiple").multiselect({
+      noneSelectedText: '<?=_('Select...')?>',
+      selectedText: '<?=_('# selected')?>',
+      checkAllText: '<?=_('Check all')?>',
+      uncheckAllText: '<?=_('Uncheck all')?>',
+      show: null,
+      hide: null
+    }).multiselectfilter({
+      label: '<?=_('Search:')?>'
+    });
+    $('#startdate').datepicker({ dateFormat: 'yy-mm-dd' });
+    $('#enddate').datepicker({ dateFormat: 'yy-mm-dd' });
+
+    $('input[name=ftarget]').change(function() {
+      $('form#eform').attr({target:$('input[name=ftarget]:checked').val()});
+    });
+    $('#show_detail').click(function(){
+      if ($('#eid').val()=='') {
+        alert("<?=_('Please select an event.')?>");
+      } else {
+        $('form#eform').attr({action:"attend_detail.php?nav="+(($('input[name=ftarget]:checked').val()=="_blank")?"1":"0")}).submit();
+      }
+    });
+    $('#show_aggregate').click(function(){
+      if ($("form#eform option:selected").length < 2) {
+        alert("<?=_("Please select at least one event.")?>");
+      } else {
+        $('form#eform').attr({action:"attend_aggregate.php?nav="+(($('input[name=ftarget]:checked').val()=="_blank")?"1":"0")}).submit();
+      }
+    });
+    $('#show_datesums').click(function(){
+      if ($("form#eform option:selected").length < 2) {
+        alert("<?=_("Please select at least one event.")?>");
+      } else {
+        $('form#eform').attr({action:"attend_datesums.php?nav="+(($('input[name=ftarget]:checked').val()=="_blank")?"1":"0")}).submit();
+      }
+    });
+  });
+</script>
 <?php
 footer();
 ?>

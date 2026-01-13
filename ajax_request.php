@@ -91,8 +91,8 @@ case 'Event':
     if (mysqli_num_rows($result)>0) {
       $row = mysqli_fetch_object($result);
       $arr = array('eventid' => $row->EventID, 'event' => $row->Event, 'eventstartdate' => $row->EventStartDate, 'eventenddate' => $row->EventEndDate, 'remarks' => $row->Remarks);
-      //$arr['active'] = $row->Active ? 'checkboxValue' : '';
-      $arr['usetimes'] = $row->UseTimes ? 'checkboxValue' : '';
+      $arr['active'] = $row->Active;
+      $arr['usetimes'] = $row->UseTimes;
       die (json_encode($arr));
     } else {
       die(json_encode(array('alert' => 'Record not found.')));
@@ -107,8 +107,8 @@ case 'User':
       $arr = array('userid' => $row->UserID, 'new_userid' => $row->UserID, 'old_userid' => $row->UserID,
           'username' => $row->UserName, 'language' => $row->Language, 'new_pw1' => '', 'new_pw2' => '',
           'dashboard' => $row->Dashboard);
-      $arr['admin'] = $row->Admin ? 'checkboxValue' : '';
-      $arr['hidedonations'] = $row->HideDonations ? 'checkboxValue' : '';
+      $arr['admin'] = $row->Admin;
+      $arr['hidedonations'] = $row->HideDonations;
       die (json_encode($arr));
     } else {
       die(json_encode(array('alert' => 'Record not found.')));

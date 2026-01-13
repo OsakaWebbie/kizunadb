@@ -259,6 +259,28 @@ a.more { cursor:pointer; color:<?=(!empty($linkmore)?$linkmore:"Black")?>; text-
 .highlight { background-color:<?=(!empty($highlight)?$highlight:"LightSteelBlue")?>; }
 .validation { background-color:<?=(!empty($validation)?$validation:"Red")?>; }
 
+/* Readmore fadeout effect */
+td.readmore-wrapper, div.readmore {
+  position: relative;
+}
+td.readmore-wrapper div.readmore {
+  display: block;
+  width: 100%;
+}
+div.readmore[data-readmore] {
+  overflow: hidden;
+}
+div.readmore.readmore-collapsed::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  background: linear-gradient(to bottom, transparent, white);
+  pointer-events: none;
+}
+
 /*forms*/
 
 form div { margin-top:0.1em; margin-bottom:0.1em; }
@@ -714,7 +736,6 @@ body.dashboard #attend_datesums h3 { display:none; }
 
 if (isset($_GET['jquery'])) {
   serve(is_file($path."jquery-ui-13.css") ? $path."jquery-ui-13.css" : "css/jquery-ui-13.css");
-  serve(is_file($path."jquery-ui-timepicker.css") ? $path."jquery-ui-timepicker.css" : "css/jquery-ui-timepicker.css");
 }
 if (isset($_GET['table'])) {
   serve(is_file($path."tablesorter.css") ? $path."tablesorter.css" : "css/tablesorter.css");

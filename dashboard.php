@@ -31,14 +31,11 @@ if ($_SESSION['admin'] && isset($_GET['user'])) {  /* to test or view other user
 header1(_("Dashboard"));
 ?>
 <link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css">
-<script type="text/javascript" src="js/jquery.js"></script>
-<script type="text/javascript" src="js/jquery-ui.js"></script>
-<script type="text/javascript" src="js/table2CSV.js"></script>
-<script type="text/javascript" src="js/tablesorter.js"></script>
 <?php
 if (!$hasdashboard) {
   header2(1);
   echo "<h3>"._("You don't have a dashboard yet.  If you would like one, talk to your KizunaDB administrator.")."</h3>\n";
+  load_scripts(['jquery', 'jqueryui', 'tablesorter', 'table2csv']);
   footer();
 } else {
   header2(1);
@@ -52,6 +49,7 @@ if (!$hasdashboard) {
     }
   }
   echo "<div style='clear:both'></div>";
+  load_scripts(['jquery', 'jqueryui', 'tablesorter', 'table2csv']);
   footer();
 }
 

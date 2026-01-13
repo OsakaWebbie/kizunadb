@@ -200,8 +200,9 @@ if ($_SESSION['admin'] == 1) {
 </div>
 </form>
 
-<script type="text/JavaScript" src="js/jquery.js"></script>
-<script type="text/JavaScript" src="js/jquery-ui.js"></script>
+<script type="text/JavaScript" src="js/jquery-3.6.0.js"></script>
+<script type="text/JavaScript" src="js/jquery-ui-13.min.js"></script>
+<script type="text/JavaScript" src="js/i18n/datepicker-ja.js"></script>
 <script type="text/javascript" src="js/jquery.multiselect.min.js"></script>
 <script type="text/javascript" src="js/jquery.multiselect.filter.js"></script>
 
@@ -266,16 +267,16 @@ $(document).ready(function(){
     $('.simpleonly').hide();
   });
   
-  $(':radio.OP').click(function() {
+  $('input[type="radio"].OP').click(function() {
     $('option.useforO').show();
     $('option.useforP').show();
   });
-  $(':radio.O').click(function() {
+  $('input[type="radio"].O').click(function() {
     $('option.useforO').show();
     $('option.useforP:selected').prop('selected', false);
     $('option.useforP').hide();
   });
-  $(':radio.P').click(function() {
+  $('input[type="radio"].P').click(function() {
     $('option.useforO:selected').prop('selected', false);
     $('option.useforO').hide();
     $('option.useforP').show();

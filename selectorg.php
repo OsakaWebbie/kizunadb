@@ -4,8 +4,7 @@ include("accesscontrol.php");
 header1(_("Select Organization"));
 ?>
 <link rel="stylesheet" href="style.php?table=1" type="text/css" />
-<script type="text/JavaScript" src="js/jquery.js"></script>
-<script type="text/JavaScript" src="js/tablesorter.js"></script>
+<?php load_scripts(['jquery', 'tablesorter']); ?>
 <script language=Javascript>
 $(document).ready(function() {
   $("#mainTable").tablesorter({ sortList:[[3,0]], headers:{0:{sorter:false}}
@@ -27,7 +26,7 @@ $sql = "SELECT FullName,Furigana,PersonID,household.PostalCode,Address,Prefectur
 if ($_GET['txt']!="") $sql .= " AND (person.FullName LIKE '%".$_GET['txt']."%' OR person.Furigana LIKE '%".$_GET['txt']."%')";
 $sql .= " ORDER BY Furigana";
 
-$result = sqlquery_checked($sql.$where);
+$result = sqlquery_checked($sql);
 ?>
 <table id="mainTable" class="tablesorter" valign="middle">
   <thead><tr>

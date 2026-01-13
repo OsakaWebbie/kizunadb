@@ -424,7 +424,9 @@ $tableopt->cols[] = (object)[
   'sel' => 'person.Remarks',
   'label' => _('Remarks'),
   'show' => (stripos($showcols, ',remarks,') !== FALSE),
-  'render' => 'remarks'  // Applies email2link and url2link
+  'render' => 'remarks',  // Applies email2link and url2link
+  'classes' => 'readmore',
+  'lazy' => TRUE
 ];
 
 // Categories (lazy loaded)

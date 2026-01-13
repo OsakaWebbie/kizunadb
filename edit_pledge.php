@@ -70,72 +70,6 @@ header1($pagetitle);
 
 ?>
 <link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
-<script type="text/JavaScript" src="js/jquery.js"></script>
-<script type="text/JavaScript" src="js/jquery-ui.js"></script>
-<script type="text/javascript">
-$(document).ready(function(){
-  <?php
-if($_SESSION['lang']=="ja_JP") {
-  echo "  $.datepicker.setDefaults( $.datepicker.regional[\"ja\"] );\n";
-}
-?>
-  $("#startdate").datepicker({ dateFormat: 'yy-mm-dd' });
-  if ($("#startdate").val()=="") $("#startdate").datepicker('setDate', new Date());
-  $("#enddate").datepicker({ dateFormat: 'yy-mm-dd' });
-});
-
-date_regexp = /^\d\d\d\d-\d{1,2}-\d{1,2}$/;
-
-function edit_validate() {
-  f = document.editform;  //just an abbreviation
-  f.edit.disable = true;  //to prevent double submit
-
-  if (f.dtype.value == "0") {
-    alert("<?=_("Please choose a Donation Type.")?>");
-    f.dtype.select();
-    return false;
-  }
-  if (f.startdate.value.length == 0) {
-    alert("<?=_("Please fill in a Start Date.")?>");
-    f.startdate.select();
-    return false;
-  }
-
-  if (f.amount.value.length == 0) {
-    alert("<?=_("Please fill in the Amount.")?>");
-    f.amount.select();
-    return false;
-  }
-
-  if (!date_regexp.test(f.startdate.value)) {
-    alert("<?=_("Start Date must be in the form of YYYY-MM-DD.")?>");
-    f.startdate.select();
-    return false;
-  }
-
-  if (f.enddate.value && !date_regexp.test(f.enddate.value)) {
-    alert("<?=_("End Date must be in the form of YYYY-MM-DD.")?>");
-    f.enddate.select();
-    return false;
-  }
-<?php if (isset($donation) and $donation->count > 0) { ?>
-  if (f.dtype.value != "<?=$old->DonationTypeID?>") {
-    if (!confirm("<?=sprintf(_("Changing the Donation Type will also change the Donation Type ".
-            "for the %s donations recorded in fulfillment of this pledge (from %s to %s). Okay to do this?"),
-            $donation->count,$donation->first,$donation->last)?>")) {
-      $("#dtype").val(<?=$old->DonationTypeID?>);
-      return false;
-    }
-  }
-<?php } ?>
-
-  return true;  //everything is cool
-}
-
-function del_validate() {
-  $("#orgname").load("ajax_request.php",{'req':'DonationCount','plid':$("#plid").val()});
-}
-</script>
 <?php
 header2(1);
 
@@ -194,5 +128,72 @@ onsubmit="return del_validate();">
 </form>
 <?php
 } // endif plid is passed (to include delete option)
+
+$scripts = ['jquery', 'jqueryui'];
+if ($_SESSION['lang']=="ja_JP") $scripts[] = 'datepicker-ja';
+load_scripts($scripts);
+?>
+
+<script type="text/javascript">
+$(document).ready(function(){
+  $("#startdate").datepicker({ dateFormat: 'yy-mm-dd' });
+  if ($("#startdate").val()=="") $("#startdate").datepicker('setDate', new Date());
+  $("#enddate").datepicker({ dateFormat: 'yy-mm-dd' });
+});
+
+date_regexp = /^\d\d\d\d-\d{1,2}-\d{1,2}$/;
+
+function edit_validate() {
+  f = document.editform;  //just an abbreviation
+  f.edit.disable = true;  //to prevent double submit
+
+  if (f.dtype.value == "0") {
+    alert("<?=_("Please choose a Donation Type.")?>");
+    f.dtype.select();
+    return false;
+  }
+  if (f.startdate.value.length == 0) {
+    alert("<?=_("Please fill in a Start Date.")?>");
+    f.startdate.select();
+    return false;
+  }
+
+  if (f.amount.value.length == 0) {
+    alert("<?=_("Please fill in the Amount.")?>");
+    f.amount.select();
+    return false;
+  }
+
+  if (!date_regexp.test(f.startdate.value)) {
+    alert("<?=_("Start Date must be in the form of YYYY-MM-DD.")?>");
+    f.startdate.select();
+    return false;
+  }
+
+  if (f.enddate.value && !date_regexp.test(f.enddate.value)) {
+    alert("<?=_("End Date must be in the form of YYYY-MM-DD.")?>");
+    f.enddate.select();
+    return false;
+  }
+<?php if (isset($donation) and $donation->count > 0) { ?>
+  if (f.dtype.value != "<?=$old->DonationTypeID?>") {
+    if (!confirm("<?=sprintf(_("Changing the Donation Type will also change the Donation Type ".
+            "for the %s donations recorded in fulfillment of this pledge (from %s to %s). Okay to do this?"),
+            $donation->count,$donation->first,$donation->last)?>")) {
+      $("#dtype").val(<?=$old->DonationTypeID?>);
+      return false;
+    }
+  }
+<?php } ?>
+
+  return true;  //everything is cool
+}
+
+function del_validate() {
+  $("#orgname").load("ajax_request.php",{'req':'DonationCount','plid':$("#plid").val()});
+}
+</script>
+
+<?php
 footer();
 ?>

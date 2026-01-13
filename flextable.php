@@ -665,7 +665,13 @@ function flextable($opt) {
         $is_loaded = !$col->lazy && ($col->show || (isset($col->colsel) && $col->colsel === FALSE) || $col->sel=='person.PersonID' || $col->sel=='person.FullName' || $col->sel=='person.Furigana' || $col->sel=='person.Name' || $col->sel=='person.HouseholdID' || $col->sel=='person.Birthdate');
         if ($is_loaded) $dataAttr .= ' data-loaded="1"';
         // Add custom classes if specified
+        // Check if readmore is in classes - if so, add readmore-wrapper to cell and remove readmore from customClasses
+        $hasReadmore = !empty($col->classes) && strpos($col->classes, 'readmore') !== FALSE;
         $customClasses = !empty($col->classes) ? ' ' . $col->classes : '';
+        if ($hasReadmore) {
+          // Replace 'readmore' with 'readmore-wrapper' in the cell classes
+          $customClasses = str_replace('readmore', 'readmore-wrapper', $customClasses);
+        }
         echo '    <td class="' . $cellclass . ' ' . $col->key . $lazyAttr . $customClasses . '"' . $dataAttr . ($col->show ? '' : ' style="display:none"') . '>';
 
         if ($col->lazy) {
@@ -758,13 +764,17 @@ function flextable($opt) {
             if ($col->sel == 'person.Name' || $col->sel == 'person.FullName') {
               echo '<span style="display:none">'.($row->Furigana ?? '').'</span>';
             }
+            if ($hasReadmore) echo '<div class="readmore">';
             if ($pid) {
               echo '<a href="individual.php?pid='.$pid.'" target="_blank">'.$cellContent.'</a>';
             } else {
               echo $cellContent;
             }
+            if ($hasReadmore) echo '</div>';
           } else {
+            if ($hasReadmore) echo '<div class="readmore">';
             echo $cellContent;
+            if ($hasReadmore) echo '</div>';
           }
         }
         echo "</td>\n";
@@ -782,7 +792,7 @@ function flextable($opt) {
   //echo '<h4>SQL:</h4><xmp style="white-space:pre-wrap">'.$sql.'</xmp>';
 
   global $scripts_loaded;
-  load_scripts(array('jquery','jqueryui','tablesorter','table2csv'));
+  load_scripts(array('jquery','jqueryui','tablesorter','table2csv','readmore'));
   ?>
 
 <script>
@@ -844,6 +854,32 @@ function flextable($opt) {
     if (Object.keys(headers).length > 0) tsConfig.headers = headers;
 
     $('#<?=$opt->tableid?>-table').tablesorter(tsConfig);
+
+    /*** Initialize readmore on all visible readmore wrappers ***/
+    $('#<?=$opt->tableid?>-table .readmore').readmore({
+      speed: 75,
+      collapsedHeight: 100,
+      heightMargin: 0,
+      moreLink: '<a href="#"><?=_("[Read more]")?></a>',
+      lessLink: '<a href="#"><?=_("[Close]")?></a>',
+      blockProcessed: function(element, collapsible) {
+        if (collapsible) {
+          element.addClass('readmore-collapsed');
+        }
+      }
+    });
+
+    // Work around broken afterToggle callback by manually toggling the class
+    $(document).on('click', '[data-readmore-toggle]', function() {
+      var targetId = $(this).attr('aria-controls');
+      var $target = $('#' + targetId);
+      // Toggle happens after click, so we need to check current state and flip it
+      if ($target.hasClass('readmore-collapsed')) {
+        $target.removeClass('readmore-collapsed');
+      } else {
+        $target.addClass('readmore-collapsed');
+      }
+    });
 
     /*** Load lazy columns that are shown by default ***/
     for (var i = 0; i < $opt.cols.length; i++) {
@@ -956,13 +992,34 @@ function flextable($opt) {
 
         // Populate cells using column class
         $('#<?=$opt->tableid?>-table td' + colClass).each(function() {
-          var cellClass = $(this).attr('class').match(/(?:pid|hid|key)(\d+)/);
+          var $cell = $(this);
+          var cellClass = $cell.attr('class').match(/(?:pid|hid|key)(\d+)/);
+          var content = '';
           if (cellClass && response.data[cellClass[1]] !== undefined) {
-            $(this).html(response.data[cellClass[1]]);
-          } else {
-            $(this).html('');
+            content = response.data[cellClass[1]];
           }
-          $(this).removeClass('lazy-col');
+
+          // Check if this column needs readmore wrapper
+          if ($cell.hasClass('readmore-wrapper') && content) {
+            $cell.html('<div class="readmore">' + content + '</div>');
+            // Initialize readmore on the wrapper div
+            $cell.find('.readmore').readmore({
+              speed: 75,
+              collapsedHeight: 100,
+              heightMargin: 0,
+              moreLink: '<a href="#"><?=_("[Read more]")?></a>',
+              lessLink: '<a href="#"><?=_("[Close]")?></a>',
+              blockProcessed: function(element, collapsible) {
+                if (collapsible) {
+                  element.addClass('readmore-collapsed');
+                }
+              }
+            });
+            // Note: click handler for toggle is already bound at document level above
+          } else {
+            $cell.html(content);
+          }
+          $cell.removeClass('lazy-col');
         });
 
         $('#<?=$opt->tableid?>-table').trigger('update');

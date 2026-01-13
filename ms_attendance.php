@@ -10,7 +10,7 @@ if (!empty($_POST['newattendance'])) {
   $datearray = array();
   if (!empty($_POST["enddate"])) {  //need to do a range of dates
     if ($_POST["date"] > $_POST["enddate"]) die("Error: End Date is earlier than Start Date.");
-    for ($day=$_POST["date"]; $day<=$_POST["enddate"]; $day=strftime("%Y-%m-%d", strtotime("$day +1 day"))) {
+    for ($day=$_POST["date"]; $day<=$_POST["enddate"]; $day=date("Y-m-d", strtotime("$day +1 day"))) {
       if ($_POST["dow".date("w",strtotime($day))]) {
         $datearray[] = $day;
       }
@@ -52,17 +52,66 @@ body { margin:20px; }
 #eventselect label.label-n-input { margin-right:0; }
 #dayofweek label { margin-right: 0.5em; }
 </style>
-<script src="https://code.jquery.com/jquery-2.2.4.min.js"
-        integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
-        crossorigin="anonymous"></script>
-<script type="text/JavaScript" src="js/jquery-ui.js"></script>
-<script type="text/JavaScript" src="js/jquery.ui.timepicker.js"></script>
+<?php
+header2(0);
+?>
+<h3><?=_("Select an event and at least one date, and click the button.")?></h3>
+<form name="attendform" method="post" action="ms_attendance.php" onSubmit="return ValidateAttendance()">
+  <input type="hidden" name="pid_list" value="<?=$_POST['pid_list']?>" />
+  <div id="eventselect">
+    <label class="label-n-input"><?=_("Event")?>:
+      <select size="1" id="eventid" name="eid">
+        <option value="0" selected><?=_("Select...")?></option>
+<?php
+$result = sqlquery_checked("SELECT EventID,Event,UseTimes,IF(EventEndDate AND EventEndDate<CURDATE(),'inactive','active') AS Active FROM event ORDER BY Event");
+while ($row = mysqli_fetch_object($result)) {
+  echo '        <option value="'.$row->EventID.'" class="'.(($row->UseTimes==1)?"times ":"days ").$row->Active.'">'.
+      $row->Event."</option>\n";
+}
+?>
+      </select>
+    </label>
+    <span id="currentevents" style="display:none">
+      <span class="comment"><?=("(Showing only current events)")?></span> <a id="showpast" href="#"><?=("Show All")?></a>
+    </span>
+    <span id="allevents" style="display:none"><a id="hidepast" href="#"><?=("Hide Past Events")?></a></span>
+  </div>
+  <div id="dates">
+    <label class="label-n-input"><?=_("Date")?>:
+    <input type="text" name="date" id="attenddate" style="width:6em" value="" /></label>
+    <label class="label-n-input date"><?=_("Optional End Date")?>:
+    <input type="text" name="enddate" id="attendenddate" style="width:6em" value="" /></label>
+  </div>
+  <div id="dayofweek">
+    <?=_("Days of week for date range")?>:
+    <label class="label-n-input"><input type="checkbox" name="dow0" checked /><?=_("Sunday")?></label>
+    <label class="label-n-input"><input type="checkbox" name="dow1" checked /><?=_("Monday")?></label>
+    <label class="label-n-input"><input type="checkbox" name="dow2" checked /><?=_("Tuesday")?></label>
+    <label class="label-n-input"><input type="checkbox" name="dow3" checked /><?=_("Wednesday")?></label>
+    <label class="label-n-input"><input type="checkbox" name="dow4" checked /><?=_("Thursday")?></label>
+    <label class="label-n-input"><input type="checkbox" name="dow5" checked /><?=_("Friday")?></label>
+    <label class="label-n-input"><input type="checkbox" name="dow6" checked /><?=_("Saturday")?></label>
+  </div>
+  <div id="times">
+    <label class="label-n-input times" style="display:none"><?=_("Start Time")?>:
+    <input type="text" name="starttime" id="attendstarttime" style="width:4em" value="" /></label>
+    <label class="label-n-input times" style="display:none"><?=_("End Time")?>:
+    <input type="text" name="endtime" id="attendendtime" style="width:4em" value="" /></label>
+  </div>
+  <input type="submit" value="<?=_("Save Attendance Entries")?>" name="newattendance" />
+</form>
+
+<?php
+$scripts = ['jquery', 'jqueryui'];
+if ($_SESSION['lang']=="ja_JP") $scripts[] = 'datepicker-ja';
+load_scripts($scripts);
+?>
 <script type="text/javascript">
 $(document).ready(function(){
   $(document).ajaxError(function(e, xhr, settings, exception) {
     alert('Error calling ' + settings.url + ': ' + exception);
   });
-  
+
 /* initially hide past events in dropdown list, but allow toggling */
   $("a#showpast").click(function(e) {
     e.preventDefault();
@@ -75,17 +124,9 @@ $(document).ready(function(){
     $("#currentevents").show();
   });
   $("a#hidepast").click();
-<?php
-if($_SESSION['lang']=="ja_JP") {
-  echo "  $.datepicker.setDefaults( $.datepicker.regional[\"ja\"] );\n";
-  echo "  $.timepicker.setDefaults( $.timepicker.regional[\"ja\"] );\n";
-}
-?>
   $("#attenddate").datepicker({ dateFormat: 'yy-mm-dd' });
   $("#attendenddate").datepicker({ dateFormat: 'yy-mm-dd' });
-  $("#attendstarttime").timepicker();
-  $("#attendendtime").timepicker();
-  
+
   $("#activeevents").click(function(){  //show or hide active events
     if ($("#activeevents").val()=="<?=_("Show Active")?>") {
       $("#eventid.active").show();
@@ -139,57 +180,29 @@ function ValidateAttendance(){
     $('#attendenddate').click();
     return false;
   }
+  // Validate times if event requires them
+  if ($("#eventid option:selected").hasClass('times')) {
+    if ($('#attendstarttime').val() == '' || $('#attendendtime').val() == '') {
+      alert('<?=_("You must enter both start and end times for this event.")?>');
+      return false;
+    }
+    // Validate time format (HH:MM)
+    var timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    if (!timeRegex.test($('#attendstarttime').val())) {
+      alert('<?=_("Start time must be in HH:MM format (e.g., 09:30 or 14:00).")?>');
+      $('#attendstarttime').focus();
+      return false;
+    }
+    if (!timeRegex.test($('#attendendtime').val())) {
+      alert('<?=_("End time must be in HH:MM format (e.g., 09:30 or 14:00).")?>');
+      $('#attendendtime').focus();
+      return false;
+    }
+  }
   return true;
 }
 </script>
-<?php
-header2(0);
-?>
-<h3><?=_("Select an event and at least one date, and click the button.")?></h3>
-<form name="attendform" method="post" action="ms_attendance.php" onSubmit="return ValidateAttendance()">
-  <input type="hidden" name="pid_list" value="<?=$_POST['pid_list']?>" />
-  <div id="eventselect">
-    <label class="label-n-input"><?=_("Event")?>:
-      <select size="1" id="eventid" name="eid">
-        <option value="0" selected><?=_("Select...")?></option>
-<?php
-$result = sqlquery_checked("SELECT EventID,Event,UseTimes,IF(EventEndDate AND EventEndDate<CURDATE(),'inactive','active') AS Active FROM event ORDER BY Event");
-while ($row = mysqli_fetch_object($result)) {
-  echo '        <option value="'.$row->EventID.'" class="'.(($row->UseTimes==1)?"times ":"days ").$row->Active.'">'.
-      $row->Event."</option>\n";
-}
-?>
-      </select>
-    </label>
-    <span id="currentevents" style="display:none">
-      <span class="comment"><?=("(Showing only current events)")?></span> <a id="showpast" href="#"><?=("Show All")?></a>
-    </span>
-    <span id="allevents" style="display:none"><a id="hidepast" href="#"><?=("Hide Past Events")?></a></span>
-  </div>
-  <div id="dates">
-    <label class="label-n-input"><?=_("Date")?>:
-    <input type="text" name="date" id="attenddate" style="width:6em" value="" /></label>
-    <label class="label-n-input date"><?=_("Optional End Date")?>:
-    <input type="text" name="enddate" id="attendenddate" style="width:6em" value="" /></label>
-  </div>
-  <div id="dayofweek">
-    <?=_("Days of week for date range")?>:
-    <label class="label-n-input"><input type="checkbox" name="dow0" checked /><?=_("Sunday")?></label>
-    <label class="label-n-input"><input type="checkbox" name="dow1" checked /><?=_("Monday")?></label>
-    <label class="label-n-input"><input type="checkbox" name="dow2" checked /><?=_("Tuesday")?></label>
-    <label class="label-n-input"><input type="checkbox" name="dow3" checked /><?=_("Wednesday")?></label>
-    <label class="label-n-input"><input type="checkbox" name="dow4" checked /><?=_("Thursday")?></label>
-    <label class="label-n-input"><input type="checkbox" name="dow5" checked /><?=_("Friday")?></label>
-    <label class="label-n-input"><input type="checkbox" name="dow6" checked /><?=_("Saturday")?></label>
-  </div>
-  <div id="times">
-    <label class="label-n-input times" style="display:none"><?=_("Start Time")?>:
-    <input type="text" name="starttime" id="attendstarttime" style="width:4em" value="" /></label>
-    <label class="label-n-input times" style="display:none"><?=_("End Time")?>:
-    <input type="text" name="endtime" id="attendendtime" style="width:4em" value="" /></label>
-  </div>
-  <input type="submit" value="<?=_("Save Attendance Entries")?>" name="newattendance" />
-</form>
+
 <?php
 footer();
 ?>

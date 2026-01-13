@@ -78,18 +78,16 @@ while ($row = mysqli_fetch_object($result)) {
     <input type="submit" name="save_action" value="<?=_("Save Action Info")?>">
   </form>
 
-<script src="https://code.jquery.com/jquery-2.2.4.min.js"
-        integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
-        crossorigin="anonymous"></script>
-<script type="text/JavaScript" src="js/jquery-ui.js"></script>
+<?php
+$scripts = ['jquery', 'jqueryui'];
+if ($_SESSION['lang']=="ja_JP") $scripts[] = 'datepicker-ja';
+load_scripts($scripts);
+?>
 <script type="text/JavaScript">
 $(document).ready(function(){
   $(document).ajaxError(function(e, xhr, settings, exception) {
     alert('Error calling ' + settings.url + ': ' + exception);
-  }); 
-<?php
-if($_SESSION['lang']=="ja_JP") echo "  $.datepicker.setDefaults( $.datepicker.regional[\"ja\"] );\n";
-?>
+  });
   $("#adate").datepicker({ dateFormat: 'yy-mm-dd' });
   if ($("#adate").val()=="") $("#adate").datepicker('setDate', new Date());
 

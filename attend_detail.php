@@ -52,46 +52,6 @@ $eid = $_REQUEST['eid'];
 ?>
 <meta http-equiv="expires" content="0">
 <link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
-<script src="https://code.jquery.com/jquery-2.2.4.min.js"
-    integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
-    crossorigin="anonymous"></script>
-<script type="text/JavaScript" src="js/jquery-ui.js"></script>
-
-<script type="text/JavaScript">
-$(document).ready(function(){
-  $("#attendtable").selectable({ filter: ".attendcell,.attendtimecell", cancel: "a" });
-
-  $("#deleteSelected").click(function() {
-    var IDs = new Array();
-    $("td.ui-selected").each(function() {  // for all the selected table cells...
-      IDs.push($(this).attr('id'));
-    });
-    if (IDs.length > 0) {
-      var text = '<?=_("Are you sure you want to delete these %d attendance records?")?>';
-      if (confirm(text.replace('%d',IDs.length))) {
-        $.ajax({
-          type: "POST",
-          url: "attend_del.php",
-          data: "action=AttendDelete&ids="+IDs+"&eid=<?=$eid?>",
-          dataType: "text",
-          success: function(deleted) {
-            if (deleted.substring(0,1) == "#") {  //indication of success
-              $(deleted).removeClass('attendcell attendtimecell ui-selected');
-              $(deleted).text('');
-              alert("<?=_("Attendance records successfully deleted.")?>");
-            } else {
-              alert("Delete failed: "+deleted);
-            }
-          }
-        });
-      }
-    } else {
-      alert('<?=_("No cells have been selected for deletion.")?>');
-    }
-  });
-});
-
-</script>
 <?php
 header2($_REQUEST['nav']);
 if ($_REQUEST['nav']==1) echo '<h1 id="title">'._('Attendance Detail Chart').$pstext."</h1>\n";
@@ -170,7 +130,7 @@ echo '<input type="hidden" name="preselected" value="'.$pids."\">\n";
 echo '<input type="submit" value="'._('Go to Multi-Select with these entries preselected')."\">\n";
 echo "</form>\n"; 
 
-echo '<p>'._('To delete entries, drag, click, and/or Ctrl-click one or more cells, and then click this button:');
+echo '<p>'._('To delete entries: click to select a cell, Ctrl-click to select additional cells, and/or drag to select a range. Then click this button:');
 echo '<button id="deleteSelected">'._('Delete Selected Cells')."</button>\n";
 
 if ($rangefirst > 0 || $rangelast < $num_dates-1) {
@@ -259,5 +219,42 @@ for ($r=0; $r<$num_people; $r++) {
 }
 echo "</table>\n";
 
+load_scripts(['jquery', 'jqueryui']);
+?>
+<script type="text/JavaScript">
+$(document).ready(function(){
+  $("#attendtable").selectable({ filter: ".attendcell,.attendtimecell", cancel: "a" });
+
+  $("#deleteSelected").click(function() {
+    var IDs = new Array();
+    $("td.ui-selected").each(function() {  // for all the selected table cells...
+      IDs.push($(this).attr('id'));
+    });
+    if (IDs.length > 0) {
+      var text = '<?=_("Are you sure you want to delete these %d attendance records?")?>';
+      if (confirm(text.replace('%d',IDs.length))) {
+        $.ajax({
+          type: "POST",
+          url: "attend_del.php",
+          data: "action=AttendDelete&ids="+IDs+"&eid=<?=$eid?>",
+          dataType: "text",
+          success: function(deleted) {
+            if (deleted.substring(0,1) == "#") {  //indication of success
+              $(deleted).removeClass('attendcell attendtimecell ui-selected');
+              $(deleted).text('');
+              alert("<?=_("Attendance records successfully deleted.")?>");
+            } else {
+              alert("Delete failed: "+deleted);
+            }
+          }
+        });
+      }
+    } else {
+      alert('<?=_("No cells have been selected for deletion.")?>');
+    }
+  });
+});
+</script>
+<?php
 print_footer();
 ?>

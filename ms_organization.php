@@ -4,7 +4,7 @@ include("accesscontrol.php");
 header1("");
 
 // A REQUEST TO ADD A PERORG RECORD?
-if ($_POST['newperorg']) {
+if (!empty($_POST['newperorg'])) {
   $result = sqlquery_checked("SELECT * FROM person WHERE PersonID=".$_POST['orgid']." AND Organization=1");
   if (mysqli_num_rows($result) == 0) die("This ID does not point to an organization record. Use Browse if you need help.");
   $pidarray = explode(",",$pid_list);
@@ -21,28 +21,12 @@ if ($_POST['newperorg']) {
 
 ?>
 <link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
-<script src="https://code.jquery.com/jquery-2.2.4.min.js"
-        integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
-        crossorigin="anonymous"></script>
-<script type="text/JavaScript" src="js/jquery-ui.js"></script>
-<script type="text/javascript">
-$(document).ready(function(){
-  $(document).ajaxError(function(e, xhr, settings, exception) {
-    alert('Error calling ' + settings.url + ': ' + exception);
-  }); 
-
-    $("#orgid").keyup(function(){  //display Organization name when applicable ID is typed
-    $("#orgname").load("ajax_request.php",{'req':'OrgName','orgid':$("#orgid").val()});
-  });
-});
-
-</script>
 <?php
 header2(0);
 echo "<h3>"._("Type the ID of an organization or search by name.")."</h3>\n";
 echo "<p style=\"margin-bottom:10px\">"._("NOTE: A leader cannot be designated here - do that on the leader's detail page.")."</p>\n";
 ?>
-<form name="orgform" id="orgform" method="POST" action="<?=${PHP_SELF}."?pid=$pid"?>" onSubmit="return ValidateOrg()">
+<form name="orgform" id="orgform" method="POST" action="ms_organization.php?pid=<?=$pid?>" onSubmit="return ValidateOrg()">
 <input type="hidden" name="pid_list" value="<?=$pid_list?>" />
 <?=_("Organization ID")?>: <input type="text" name="orgid" id="orgid" style="width:5em;ime-mode:disabled" value="" />
 <span id="orgname" style="color:darkred;font-weight:bold"></span><br />
@@ -52,6 +36,36 @@ onclick="window.open('selectorg.php?txt='+encodeURIComponent(document.getElement
 <br />
 <input type="submit" value="<?=_("Save Organization Assignment")?>" name="newperorg">
 </form>
+
+<?php
+load_scripts(['jquery', 'jqueryui']);
+?>
+<script type="text/javascript">
+$(document).ready(function(){
+  $(document).ajaxError(function(e, xhr, settings, exception) {
+    alert('Error calling ' + settings.url + ': ' + exception);
+  });
+
+  $("#orgid").keyup(function(){  //display Organization name when applicable ID is typed
+    $("#orgname").load("ajax_request.php",{'req':'OrgName','orgid':$("#orgid").val()});
+  });
+});
+
+function ValidateOrg() {
+  if ($('#orgid').val() == '') {
+    alert('<?=_("Please enter an Organization ID.")?>');
+    $('#orgid').focus();
+    return false;
+  }
+  if ($.trim($('#orgname').text()) == '') {
+    alert('<?=_("The Organization ID you entered is not valid. Please use Search/Browse to find the correct ID.")?>');
+    $('#orgid').focus();
+    return false;
+  }
+  return true;
+}
+</script>
+
 <?php
 footer();
 ?>

@@ -32,16 +32,17 @@ header1(_("User Settings"));
   <input type="submit" id="pw_upd" name="pw_upd" value="<?=_("Change Password")?>">
 </fieldset></form>
 
-<script type="text/JavaScript" src="js/jquery.js"></script>
-<script type="text/JavaScript" src="js/jquery-ui.js"></script>
-<script type="text/JavaScript" src="js/functions.js"></script>
-
+<?php load_scripts(['jquery', 'jqueryui', 'functions']); ?>
 <script type="text/javascript">
 function validate(form) {
   switch(form) {
   case "pwd":
     if (document.pwform.old_pw.value == "") {
       alert("<?=_("You must enter your current password for validation.")?>");
+      return false;
+    }
+    if (document.pwform.new_pw1.value == "" || document.pwform.new_pw2.value == "") {
+      alert("<?=_("You must enter a new password in both fields.")?>");
       return false;
     }
     if (document.pwform.new_pw1.value != document.pwform.new_pw2.value) {

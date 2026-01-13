@@ -417,26 +417,9 @@ if (!$summary) {
 // Summary mode - legacy table building
 ?>
 <link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />
-<script type="text/javascript" src="js/jquery.js"></script>
-<script type="text/javascript" src="js/tablesorter.js"></script>
-<script type="text/javascript" src="js/table2CSV.js"></script>
 <style>
 td.amount-for-display { text-align:right; }
 </style>
-
-<script>
-$(function() {
-  $("#summarytable").tablesorter({ sortList:[[<?=($type=="PersonID"?($_REQUEST['limit']?"1,1":"0,0"):"0,0")?>]] });
-});
-
-function getCSV() {
-  $(".name-for-display, .amount-for-display").hide();
-  $(".name-for-csv, .amount-for-csv, .furigana-for-csv").show();
-  $('#csvtext').val($('#summarytable').table2CSV({delivery:'value'}));
-  $(".name-for-csv, .amount-for-csv, .furigana-for-csv").hide();
-  $(".name-for-display, .amount-for-display").show();
-}
-</script>
 <?php
 if ($type == "PersonID") {
   $tableheads = "<th class=\"name-for-csv\" style=\"display:none\">"._("Name")."</th>\n";
@@ -483,5 +466,22 @@ while ($row = mysqli_fetch_object($result)) {
 }
 echo "</tbody>\n</table>";
 echo "<h3>"._("Total").": ".$_SESSION['currency_mark']." ".number_format($total,$_SESSION['currency_decimals'])."</h3>\n";
+
+load_scripts(['jquery', 'tablesorter', 'table2csv']);
+?>
+<script>
+$(function() {
+  $("#summarytable").tablesorter({ sortList:[[<?=($type=="PersonID"?($_REQUEST['limit']?"1,1":"0,0"):"0,0")?>]] });
+});
+
+function getCSV() {
+  $(".name-for-display, .amount-for-display").hide();
+  $(".name-for-csv, .amount-for-csv, .furigana-for-csv").show();
+  $('#csvtext').val($('#summarytable').table2CSV({delivery:'value'}));
+  $(".name-for-csv, .amount-for-csv, .furigana-for-csv").hide();
+  $(".name-for-display, .amount-for-display").show();
+}
+</script>
+<?php
 footer();
 ?>

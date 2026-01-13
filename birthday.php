@@ -81,6 +81,7 @@ window.onload = function() {
 <?php
 // Create list of months, selecting the current month
 $today_array = explode("-",date("Y-m-d",mktime(gmdate("H")+9)));
+$option_text = '';
 for ($index=1; $index<13; $index++) {
   $option_text .= "      <option value=\"" . $index."\"";
   if ($index == $today_array[1])  $option_text .= " selected";
@@ -134,8 +135,7 @@ while ($row = mysqli_fetch_object($result)) {
   <iframe name="ResultFrame" width="100%" height="400" src="blank.php"></iframe>
 </td></tr></table>
 
-<script type="text/JavaScript" src="js/jquery.js"></script>
-<script type="text/JavaScript" src="js/jquery-ui.js"></script>
 <?php
+load_scripts(['jquery', 'jqueryui']);
 footer();
 ?>

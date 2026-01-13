@@ -6,9 +6,9 @@ header1(_("Database Settings"));
 ?>
 <link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
 <script type="text/javascript" src="jscolor/jscolor.js"></script>
-<script type="text/JavaScript" src="js/jquery.js"></script>
-<script type="text/JavaScript" src="js/jquery-ui.js"></script>
-<script type="text/JavaScript" src="js/jquery.populate.js"></script>
+<script type="text/JavaScript" src="js/jquery-3.6.0.js"></script>
+<script type="text/JavaScript" src="js/jquery-ui-13.min.js"></script>
+<script type="text/JavaScript" src="js/i18n/datepicker-ja.js"></script>
 <script type="text/JavaScript" src="js/functions.js"></script>
 
 <script type="text/javascript">
@@ -65,7 +65,7 @@ $(document).ready(function(){
       }
     }
   });
-  $('#postalcode').live('input paste',function(){ $('#postalcode').keyup(); });
+  $(document).on('input paste', '#postalcode', function(){ $('#postalcode').keyup(); });
   $('#loadingPC').hide().ajaxStart(function() {$(this).show(); }).ajaxStop(function() { $(this).hide(); });
 
 // AJAX call for Categories
@@ -81,8 +81,8 @@ $(document).ready(function(){
         if (data.alert === "NOSESSION") {
           alert("<?=_("Your login has timed out - please refresh the page.")?>");
         } else {
-          $('#catform').populate(data, {resetForm:false});
-          $('#usefor').val(data.usefor); // I don't know why populate didn't take care of this
+          $('#category').val(data.category);
+          $('#usefor').val(data.usefor);
           $("#cat_del").prop('disabled', false);
         }
       });
@@ -103,7 +103,9 @@ $(document).ready(function(){
         if (data.alert) {
           alert(data.alert);
         } else {
-          $('#atform').populate(data, {resetForm:false});
+          $('#atype').val(data.atype);
+          $('#atcolor').val(data.atcolor);
+          $('#attemplate').val(data.attemplate);
           $("#atcolor_button").css("background-color","#"+data.atcolor);
           $("#at_del").prop('disabled', false);
         }
@@ -125,7 +127,8 @@ $(document).ready(function(){
         if (data.alert === "NOSESSION") {
           alert("<?=_("Your login has timed out - please refresh the page.")?>");
         } else {
-          $('#dtform').populate(data, {resetForm:false});
+          $('#dtype').val(data.dtype);
+          $('#dtcolor').val(data.dtcolor);
           $("#dtcolor_button").css("background-color","#"+data.dtcolor);
           $("#dt_del").prop('disabled', false);
         }
@@ -148,7 +151,11 @@ $(document).ready(function(){
           alert("<?=_("Your login has timed out - please refresh the page.")?>");
         } else {
           $("#active,#usetimes").prop("checked", false);
-          $('#eventform').populate(data, {resetForm:false});
+          $('#event').val(data.event);
+          $('#eventstartdate').val(data.eventstartdate);
+          $('#eventenddate').val(data.eventenddate);
+          if (data.usetimes == 1) $('#usetimes').prop('checked', true);
+          $('#remarks').val(data.remarks);
           $("#event_del").prop('disabled', false);
         }
       });
@@ -159,7 +166,7 @@ $(document).ready(function(){
   $("#userid").change(function(){
     if ($("#userid").val() == "new") {
       $("#username, #new_userid, #old_userid, #new_pw1, #new_pw2, #dashboard").val("");
-      $("#language").val($_SESSION['lang']);
+      $("#language").val("<?=$_SESSION['lang']?>");
       $("#admin").prop("checked", false);
       $("#hidedonations").prop("checked", <?=($_SESSION['hidedonations_default']=="yes" ? "true" : "false")?>);
       $("#user_del").prop('disabled', true);
@@ -171,8 +178,13 @@ $(document).ready(function(){
           alert("<?=_("Your login has timed out - please refresh the page.")?>");
         } else {
           $("#admin,#hidedonations").prop("checked", false);
-          $('#userform').populate(data, {resetForm:false});
-          $("#language").val(data.language);
+          $('#username').val(data.username);
+          $('#new_userid').val(data.userid);
+          $('#old_userid').val(data.userid);
+          $('#language').val(data.language);
+          if (data.admin == 1) $('#admin').prop('checked', true);
+          if (data.hidedonations == 1) $('#hidedonations').prop('checked', true);
+          $('#dashboard').val(data.dashboard);
           $("#user_del").prop('disabled', false);
         }
       });
@@ -372,7 +384,7 @@ while ($row = mysqli_fetch_object($result))  echo "    <option class=\"".($row->
   id="eventenddate" style="width:6em" maxlength="10"></label>
 <!--  <label class="label-n-input"><input type="checkbox" id="active" name="active" value="checkboxValue"
   checked><?php //echo _("Currently Ongoing"); ?></label> -->
-  <label class="label-n-input"><input type="checkbox" id="usetimes" name="usetimes" value="checkboxValue"><?=_("Use Times")?></label>
+  <label class="label-n-input"><input type="checkbox" id="usetimes" name="usetimes"><?=_("Use Times")?></label>
   <label class="label-n-input"><?=_("Description")?>: <textarea id="remarks" name="remarks" rows="3" cols="50"></textarea></label>
   <div class="submits"><input type="submit" id="event_add_upd" name="event_add_upd" value="<?=_("Add or Update")?>">
   <input type="submit" id="event_del" name="event_del" value="<?=_("Delete")?>" disabled></div>
@@ -404,9 +416,9 @@ while ($row = mysqli_fetch_object($result))  echo "    <option value=\"".$row->U
     <option value="en_US"<?php if($_SESSION['lang']=="en_US") echo " selected"; ?>><?= _("English")?></option>
     <option value="ja_JP"<?php if($_SESSION['lang']=="ja_JP") echo " selected"; ?>><?=_("Japanese")?></option>
   </select></label>
-  <label class="label-n-input"><input type="checkbox" id="admin" name="admin" value="checkboxValue"><?=_("Admin Privileges")?></label>
+  <label class="label-n-input"><input type="checkbox" id="admin" name="admin"><?=_("Admin Privileges")?></label>
 <?php if ($_SESSION['donations'] == "yes") { ?>
-  <label class="label-n-input"><input type="checkbox" id="hidedonations" name="hidedonations" value="checkboxValue"
+  <label class="label-n-input"><input type="checkbox" id="hidedonations" name="hidedonations"
 <?php if ($_SESSION['hidedonations_default'] == "yes") echo " checked"; ?>><?=_("Hide Donation Info")?></label>
 <?php } //if donations is on ?>
   <label class="label-n-input"><?=_("New Password")?>: <input type="password"

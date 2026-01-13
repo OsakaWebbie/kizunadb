@@ -6,36 +6,7 @@ header1(_("Action List").
 (isset($_POST['pid_list']) ? sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($_POST['pid_list'],",")+1) : "")); ?>
 <meta http-equiv="expires" content="0">
 <link rel="stylesheet" href="style.php?jquery=1&multiselect=1" type="text/css" />
-<script type="text/JavaScript" src="js/jquery.js"></script>
-<script type="text/JavaScript" src="js/jquery-ui.js"></script>
-<script type="text/JavaScript" src="js/jquery.ui.datepicker-ja.js"></script>
-<script type="text/javascript" src="js/jquery.multiselect.min.js"></script>
-<script type="text/javascript" src="js/jquery.multiselect.filter.js"></script>
 
-<script type="text/javascript">
-
-$(document).ready(function(){
-  $("#atype").multiselect({
-    noneSelectedText: '<?=_("Select...")?>',
-    selectedText: '<?=_("# selected")?>',
-    checkAllText: '<?=_("Check all")?>',
-    uncheckAllText: '<?=_("Uncheck all")?>'
-  }).multiselectfilter({
-    label: '<?=_("Search:")?>'
-  });
-<?php if($_SESSION['lang']=="ja_JP") echo "  $.datepicker.setDefaults( $.datepicker.regional[\"ja\"] );\n"; ?>
-  $("#startdate").datepicker({ dateFormat: 'yy-mm-dd' });
-  $("#enddate").datepicker({ dateFormat: 'yy-mm-dd' });
-
-  $('input[name=ftarget]').change(function() {
-    $('form#aform').attr({target:$('input[name=ftarget]:checked').val()});
-  });
-  $("#show_actions").click(function(){
-    $('#aform').attr({action:"action_chart.php?nav="+(($('input[name=ftarget]:checked').val()=="_blank")?"1":"0")});
-    $('#aform').submit();
-  });
-});
-</script>
 <?php header2(1); ?>
 <h1 id="title"><?=_("Action List").(isset($_POST['pid_list']) ? sprintf(_(" (%d People/Orgs Pre-selected)"),
 substr_count($_POST['pid_list'],",")+1) : "")?></h1>
@@ -70,4 +41,34 @@ while ($row = mysqli_fetch_object($result)) {
 </form>
 <iframe name="ResultFrame" width="100%" height="320" src="blank.php"></iframe>
 
-<?php footer(); ?>
+<?php
+$scripts = ['jquery', 'jqueryui', 'multiselect'];
+if ($_SESSION['lang']=="ja_JP") $scripts[] = 'datepicker-ja';
+load_scripts($scripts);
+?>
+<script type="text/javascript">
+
+$(document).ready(function(){
+  $("#atype").multiselect({
+    noneSelectedText: '<?=_("Select...")?>',
+    selectedText: '<?=_("# selected")?>',
+    checkAllText: '<?=_("Check all")?>',
+    uncheckAllText: '<?=_("Uncheck all")?>'
+  }).multiselectfilter({
+    label: '<?=_("Search:")?>'
+  });
+  $("#startdate").datepicker({ dateFormat: 'yy-mm-dd' });
+  $("#enddate").datepicker({ dateFormat: 'yy-mm-dd' });
+
+  $('input[name=ftarget]').change(function() {
+    $('form#aform').attr({target:$('input[name=ftarget]:checked').val()});
+  });
+  $("#show_actions").click(function(){
+    $('#aform').attr({action:"action_chart.php?nav="+(($('input[name=ftarget]:checked').val()=="_blank")?"1":"0")});
+    $('#aform').submit();
+  });
+});
+</script>
+<?php
+footer();
+?>

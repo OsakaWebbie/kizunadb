@@ -70,15 +70,13 @@ while ($row = mysqli_fetch_object($result)) {
   <input type="submit" name="submit" value="<?=_("Make PDF")?>">
 </form>
 
-<script src="https://code.jquery.com/jquery-2.2.4.min.js"
-        integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
-        crossorigin="anonymous"></script>
-<script type="text/JavaScript" src="js/jquery-ui.js"></script>
+<script type="text/JavaScript" src="js/jquery-3.6.0.js"></script>
+<script type="text/JavaScript" src="js/jquery-ui-13.min.js"></script>
 <script type="text/JavaScript">
 $(document).ready(function() {
   $('#addrprint-select').change(function() {
     $('#kanji_numbers').prop('checked',$('#addrprint-select option:selected').data("kanjinumbers")==1);
-    $('input:radio[name=po_stamp]').filter('[value='+$('#addrprint-select option:selected').data("stamp")+']').prop('checked', true);
+    $('input[type="radio"][name=po_stamp]').filter('[value='+$('#addrprint-select option:selected').data("stamp")+']').prop('checked', true);
   });
   $('#addrprint-select').trigger('change');
 });

@@ -8,7 +8,7 @@ header1(_("Multiple Selection/Action"));
 div.buttongroup { border:1px solid gray; margin:6px 0 0 0; padding:0 3px 3px 3px; }
 div.buttongroup h3 { margin:0; }
 </style>
-<script type="text/JavaScript" src="js/jquery.js"></script>
+<script type="text/JavaScript" src="js/jquery-3.6.0.js"></script>
 <script>
 //indexes for arrays (just to keep sane)
 var pid = 0;
@@ -220,7 +220,7 @@ function move(add_flag, all_flag) {
       n_index++;
     }
   }
-  $('#selection_count').text($('#selection option').size());
+  $('#selection_count').text($('#selection option').length);
   parent.ActionFrame.location.href="blank.php";
 }
 
