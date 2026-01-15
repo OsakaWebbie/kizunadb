@@ -153,6 +153,90 @@ case 'Custom':
   }
   break;
 
+case 'Action':
+  if (isset($_REQUEST['id']) && $_REQUEST['id']!="") {
+    $actionid = intval($_REQUEST['id']);
+    $result = sqlquery_checked("SELECT * FROM action WHERE ActionID=$actionid");
+    if (mysqli_num_rows($result)>0) {
+      $row = mysqli_fetch_assoc($result);
+      die(json_encode($row));
+    } else {
+      die(json_encode(array('alert' => _('Record not found.'))));
+    }
+  }
+  break;
+
+case 'Donation':
+  if (isset($_REQUEST['id']) && $_REQUEST['id']!="") {
+    $donid = intval($_REQUEST['id']);
+    $result = sqlquery_checked("SELECT * FROM donation WHERE DonationID=$donid");
+    if (mysqli_num_rows($result)>0) {
+      $row = mysqli_fetch_assoc($result);
+      die(json_encode($row));
+    } else {
+      die(json_encode(array('alert' => _('Record not found.'))));
+    }
+  }
+  break;
+
+case 'Pledge':
+  if (isset($_REQUEST['id']) && $_REQUEST['id']!="") {
+    $pledgeid = intval($_REQUEST['id']);
+    $result = sqlquery_checked("SELECT * FROM pledge WHERE PledgeID=$pledgeid");
+    if (mysqli_num_rows($result)>0) {
+      $row = mysqli_fetch_assoc($result);
+      die(json_encode($row));
+    } else {
+      die(json_encode(array('alert' => _('Record not found.'))));
+    }
+  }
+  break;
+
+case 'PledgesForPerson':
+  if (isset($_REQUEST['pid']) && $_REQUEST['pid']!="") {
+    $pid = intval($_REQUEST['pid']);
+    $result = sqlquery_checked("SELECT PledgeID, PledgeDesc FROM pledge WHERE PersonID=$pid ORDER BY StartDate DESC");
+    $pledges = [];
+    while ($row = mysqli_fetch_assoc($result)) $pledges[] = $row;
+    die(json_encode($pledges));
+  }
+  break;
+
+case 'PledgeBalance':
+  if (isset($_REQUEST['id']) && $_REQUEST['id']!="") {
+    $pledgeid = intval($_REQUEST['id']);
+    $sql = "SELECT pledge.Amount, pledge.TimesPerYear, pledge.StartDate, pledge.EndDate, ".
+      "SUM(IFNULL(donation.Amount,0)) - (pledge.Amount * (IF(pledge.TimesPerYear=0, ".
+      "IF(CURDATE()<pledge.StartDate,0,1), pledge.TimesPerYear/12 * PERIOD_DIFF(DATE_FORMAT(".
+      "IF(pledge.EndDate='0000-00-00' OR CURDATE()<pledge.EndDate,CURDATE(), pledge.EndDate), '%Y%m'), ".
+      "DATE_FORMAT(pledge.StartDate, '%Y%m'))))) AS Balance ".
+      "FROM pledge LEFT JOIN donation ON pledge.PledgeID=donation.PledgeID ".
+      "WHERE pledge.PledgeID=$pledgeid GROUP BY pledge.PledgeID";
+    $result = sqlquery_checked($sql);
+    if (mysqli_num_rows($result)>0) {
+      $row = mysqli_fetch_assoc($result);
+      // Calculate months behind if negative balance
+      $months = '';
+      if ($row['Balance'] < 0 && $row['TimesPerYear'] > 0) {
+        $monthsBehind = round((0 - $row['Balance']) / $row['Amount'] * 12 / $row['TimesPerYear']);
+        $months = $monthsBehind;
+      }
+      die(json_encode(array('balance' => $row['Balance'], 'months' => $months)));
+    } else {
+      die(json_encode(array('alert' => _('Record not found.'))));
+    }
+  }
+  break;
+
+case 'PledgeDonationCount':
+  if (isset($_REQUEST['id']) && $_REQUEST['id']!="") {
+    $pledgeid = intval($_REQUEST['id']);
+    $result = sqlquery_checked("SELECT COUNT(DonationID) AS count FROM donation WHERE PledgeID=$pledgeid");
+    $row = mysqli_fetch_assoc($result);
+    die(json_encode(array('count' => $row['count'])));
+  }
+  break;
+
 default:
   die(json_encode(array('alert' => 'Programming error: NO REQUEST RECOGNIZED')));
 }

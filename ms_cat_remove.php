@@ -3,7 +3,7 @@ include("functions.php");
 include("accesscontrol.php");
 print_header("","#E8FFE0",0);
 
-if ($remove_cat) {
+if (!empty($remove_cat)) {
   
   $sql = "DELETE FROM percat WHERE CategoryID=".$_POST['cat_id']." AND PersonID IN ($pid_list)";
   sqlquery_checked($sql);

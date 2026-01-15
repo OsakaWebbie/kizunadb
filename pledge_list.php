@@ -2,7 +2,7 @@
 include("functions.php");
 include("accesscontrol.php");
 
-$show_nav = !empty($_GET['pledge_tab']) ? 1 : 0;
+$show_nav = !empty($_REQUEST['pledge_tab']) ? 1 : 0;
 
 header1(_("Pledge List"));
 ?>
@@ -35,18 +35,27 @@ $search = isset($_REQUEST['search']) ? h2d($_REQUEST['search']) : '';
 $cutoff = isset($_REQUEST['cutoff']) ? $_REQUEST['cutoff'] : '';
 $cutofftype = isset($_REQUEST['cutofftype']) ? $_REQUEST['cutofftype'] : '>=';
 
-// Build WHERE clause
+// Build WHERE clause and criteria display
 $where_conditions = array();
+$criteria = '';
 
 // Existing closed pledge filter
 if (empty($_GET['closed'])) {
   $where_conditions[] = "(EndDate='0000-00-00' OR EndDate>CURDATE())";
+  $criteria .= "<li>" . _("Open pledges only") . "</li>\n";
 }
 
 // Donation type filter
 if (!empty($dtype)) {
   $dtype_clean = array_map('intval', $dtype);
   $where_conditions[] = "pledge.DonationTypeID IN (" . implode(',', $dtype_clean) . ")";
+  // Fetch donation type names for criteria display
+  $dtype_result = sqlquery_checked("SELECT DonationType FROM donationtype WHERE DonationTypeID IN (" . implode(',', $dtype_clean) . ")");
+  $dtarray = array();
+  while ($dtrow = mysqli_fetch_object($dtype_result)) {
+    $dtarray[] = $dtrow->DonationType;
+  }
+  $criteria .= "<li>" . sprintf(_("In at least one of these donation types: %s"), implode(", ", $dtarray)) . "</li>\n";
 }
 
 // Date range - filter by StartDate
@@ -56,10 +65,22 @@ if (!empty($start)) {
 if (!empty($end)) {
   $where_conditions[] = "StartDate <= '$end'";
 }
+if (!empty($start) || !empty($end)) {
+  $criteria .= "<li>";
+  if (!empty($start) && !empty($end)) {
+    $criteria .= sprintf(_("Start date between %s and %s"), $_REQUEST['start'], $_REQUEST['end']);
+  } elseif (!empty($start)) {
+    $criteria .= sprintf(_("Start date on or after %s"), $_REQUEST['start']);
+  } elseif (!empty($end)) {
+    $criteria .= sprintf(_("Start date on or before %s"), $_REQUEST['end']);
+  }
+  $criteria .= "</li>\n";
+}
 
 // Description search
 if (!empty($search)) {
   $where_conditions[] = "PledgeDesc LIKE '%$search%'";
+  $criteria .= "<li>" . sprintf(_("\"%s\" in Description"), htmlspecialchars($_REQUEST['search'])) . "</li>\n";
 }
 
 // Amount filter
@@ -68,6 +89,7 @@ if ($cutoff !== '') {
     $cutofftype = '>=';
   }
   $where_conditions[] = "Amount $cutofftype " . (float)$cutoff;
+  $criteria .= "<li>" . sprintf(_("Amount %s %s"), htmlspecialchars($cutofftype), number_format((float)$cutoff)) . "</li>\n";
 }
 
 // Combine conditions
@@ -101,9 +123,16 @@ $href = $_SERVER['PHP_SELF']."?closed=$closed&subtotals=$subtotals&sort=";*/
 $result = sqlquery_checked($sql);
 $num_pledges = mysqli_num_rows($result);
 if ($num_pledges == 0) {
-  echo _('There are no records matching your criteria.');
+  echo "<h3>" . _("There are no records matching your criteria:") . "</h3>\n";
+  if (!empty($criteria)) echo "<ul id=\"criteria\">" . $criteria . "</ul>";
   footer();
   exit;
+}
+
+// Display criteria summary
+if (!empty($criteria)) {
+  echo "<h3>" . sprintf(_("%d results of these criteria:"), $num_pledges) . "</h3>\n";
+  echo "<ul id=\"criteria\">" . $criteria . "</ul>";
 }
 
 // Fallback default if config missing: name,dtype,dates,desc,amount,balance

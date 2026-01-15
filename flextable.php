@@ -60,6 +60,12 @@ require_once("accesscontrol.php");
  *   - Use for expensive columns (GROUP_CONCAT, complex JOINs) that are shown by default
  *   - Trades faster initial page load for brief delay with "..." placeholder
  *
+ * csv (Boolean, default: TRUE, FALSE for checkbox columns)
+ *   - Whether column is included in CSV export
+ *   - Automatically set to FALSE for checkbox columns (render: 'checkbox')
+ *   - Set to FALSE for button columns (Edit, Delete) or other interactive-only columns
+ *   - Example: 'csv' => false (exclude from CSV export)
+ *
  * === SORTING ===
  *
  * sort (Integer, default: 0)
@@ -202,13 +208,22 @@ if (!empty($_REQUEST['loadcol'])) {
     if (preg_match('/TIMESTAMPDIFF.*Birthdate/i', $coldef->sel) || (!empty($coldef->render) && $coldef->render == 'age')) {
       $sql .= ', person.Birthdate';
     }
+    // Add checkbox_idfield if we're loading a checkbox column
+    if (!empty($coldef->render) && $coldef->render == 'checkbox' && !empty($coldef->checkbox_idfield)) {
+      // Only add if not already the keyfield column
+      if ($coldef->checkbox_idfield != $keycol) {
+        $sql .= ', ' . $keytable . '.' . $coldef->checkbox_idfield;
+      }
+    }
     $sql .= ' FROM ' . $keytable . ' ';
   }
 
   // Add LEFT JOINs as needed based on column requirements
-  $needs_person = ($keyfield != 'person.PersonID' && (strpos($coldef->sel, 'person.') !== FALSE || $coldef->sel == 'Phones'));
-  $needs_household = (strpos($coldef->sel, 'household.') !== FALSE || $coldef->sel == 'Phones');
-  $needs_postalcode = (strpos($coldef->sel, 'postalcode.') !== FALSE);
+  // Check both sel and join for table references
+  $join_str = $coldef->join ?? '';
+  $needs_person = ($keyfield != 'person.PersonID' && (strpos($coldef->sel, 'person.') !== FALSE || strpos($join_str, 'person.') !== FALSE || $coldef->sel == 'Phones'));
+  $needs_household = (strpos($coldef->sel, 'household.') !== FALSE || strpos($join_str, 'household.') !== FALSE || $coldef->sel == 'Phones');
+  $needs_postalcode = (strpos($coldef->sel, 'postalcode.') !== FALSE || strpos($join_str, 'postalcode.') !== FALSE);
 
   // Handle dependencies: postalcode needs household, household needs person
   if ($needs_postalcode && !$needs_household) {
@@ -304,6 +319,12 @@ if (!empty($_REQUEST['loadcol'])) {
         $cellContent = '';
       }
     }
+    // 7. Checkbox columns - render as interactive checkbox
+    elseif (!empty($coldef->render) && $coldef->render == 'checkbox') {
+      $checkbox_id = isset($coldef->checkbox_idfield) ? ($row->{$coldef->checkbox_idfield} ?? '') : '';
+      $checked = ($cellContent == 1) ? ' checked' : '';
+      $cellContent = '<input type="checkbox" class="table-checkbox" data-id="'.htmlspecialchars($checkbox_id).'"'.$checked.'>';
+    }
 
     $data[$row->$keycol] = $cellContent;
   }
@@ -344,6 +365,12 @@ function flextable($opt) {
   if (!isset($opt->header)) $opt->header = '';
   if (!isset($opt->rowcolor)) $opt->rowcolor = '';
 
+  // Optional features (can be disabled for simple tables)
+  if (!isset($opt->showColumnSelector)) $opt->showColumnSelector = TRUE;
+  if (!isset($opt->showBucket)) $opt->showBucket = TRUE;
+  if (!isset($opt->showCSV)) $opt->showCSV = TRUE;
+  if (!isset($opt->maxnum)) $opt->maxnum = 0; // 0 = show all rows
+
   // No auto-column additions - calling files control all columns explicitly for clarity and ordering
   // Note: SQL auto-includes (below) still happen for computed fields like Name, Phones, Age
 
@@ -366,6 +393,35 @@ function flextable($opt) {
     if (!isset($col->classes)) $col->classes = '';
     if (!isset($col->total)) $col->total = FALSE;
     if (!isset($col->lazy)) $col->lazy = FALSE;
+    // csv defaults to FALSE for checkbox columns (interactive-only), TRUE for everything else
+    if (!isset($col->csv)) $col->csv = (empty($col->render) || $col->render != 'checkbox');
+  }
+
+  // Safety net: If this appears to be a person table but no name columns are shown, show "name"
+  $is_person_table = FALSE;
+  $has_name_shown = FALSE;
+  $name_col_index = NULL;
+  $fullname_col_index = NULL;
+  foreach ($opt->cols AS $index => $col) {
+    // Check if this looks like a person table
+    if (in_array($col->sel, ['person.PersonID', 'person.Name', 'person.FullName', 'person.Furigana'])) {
+      $is_person_table = TRUE;
+    }
+    // Check if any name column is shown
+    if (in_array($col->sel, ['person.Name', 'person.FullName', 'person.Furigana']) && $col->show) {
+      $has_name_shown = TRUE;
+    }
+    // Track name column indices for fallback
+    if ($col->sel == 'person.Name') $name_col_index = $index;
+    if ($col->sel == 'person.FullName' && $name_col_index === NULL) $fullname_col_index = $index;
+  }
+  if ($is_person_table && !$has_name_shown) {
+    // Force a name column to be shown
+    if ($name_col_index !== NULL) {
+      $opt->cols[$name_col_index]->show = TRUE;
+    } elseif ($fullname_col_index !== NULL) {
+      $opt->cols[$fullname_col_index]->show = TRUE;
+    }
   }
 
   $opt->ids = trim($opt->ids, ',');
@@ -554,7 +610,10 @@ function flextable($opt) {
       <h3 style="margin:0"><?=$opt->heading?></h3>
     <?php } ?>
     <div class="button-block" style="display:flex; gap:0.5em; flex-wrap:wrap; flex:1">
+      <?php if ($opt->showColumnSelector) { ?>
       <button id="<?=$opt->tableid?>-colsel-toggle" class="dropdown-closed"><?=_('Column Selector')?></button>
+      <?php } ?>
+      <?php if ($opt->showBucket) { ?>
       <div class="hassub">
         <button id="<?=$opt->tableid?>-bucket-toggle" class="dropdown-closed"><?=_('Bucket')?></button>
         <ul id="<?=$opt->tableid?>-bucket" class="nav-sub" style="display:none">
@@ -564,11 +623,14 @@ function flextable($opt) {
         </ul>
       </div>
       <button id="<?=$opt->tableid?>-ms" title="<?=_('Go to Multi-Select with these entries preselected')?>"><?=_('To Multi-Select')?></button>
+      <?php } ?>
+      <?php if ($opt->showCSV) { ?>
       <form id="<?=$opt->tableid?>-csvform" action="download.php" method="post" target="_top" style="display:inline">
         <input type="hidden" id="<?=$opt->tableid?>-csvtext" name="csvtext" value="">
         <input type="hidden" name="csvfile" value="1">
         <button type="button" id="<?=$opt->tableid?>-csv"><?=_('Download CSV')?></button>
       </form>
+      <?php } ?>
       <?php
       // Check if any column uses checkbox rendering - if so, add checkbox buttons
       $has_checkbox_col = false;
@@ -595,6 +657,7 @@ function flextable($opt) {
     </div>
   </div>
 
+  <?php if ($opt->showColumnSelector) { ?>
   <div id="<?=$opt->tableid?>-colsel" style="display:none; padding:5px 15px 15px 15px">
     <form style="line-height:2em">
   <?php
@@ -609,6 +672,7 @@ function flextable($opt) {
   ?>
     </form>
   </div>
+  <?php } ?>
   <?php
 
   /***** TABLE *****/
@@ -621,7 +685,7 @@ function flextable($opt) {
       /***** TABLE HEAD *****/
 
       foreach ($opt->cols AS $col) {
-        echo '<th class="'.$col->key.($col->show?' loaded':'').'"'.
+        echo '<th class="'.$col->key.($col->show?' loaded':'').($col->csv?'':' nocsv').'"'.
             ($col->show?'':' style="display:none"').'>'._($col->label).'</th>';
       }
       ?>
@@ -672,7 +736,8 @@ function flextable($opt) {
           // Replace 'readmore' with 'readmore-wrapper' in the cell classes
           $customClasses = str_replace('readmore', 'readmore-wrapper', $customClasses);
         }
-        echo '    <td class="' . $cellclass . ' ' . $col->key . $lazyAttr . $customClasses . '"' . $dataAttr . ($col->show ? '' : ' style="display:none"') . '>';
+        $nocsvClass = $col->csv ? '' : ' nocsv';
+        echo '    <td class="' . $cellclass . ' ' . $col->key . $lazyAttr . $customClasses . $nocsvClass . '"' . $dataAttr . ($col->show ? '' : ' style="display:none"') . '>';
 
         if ($col->lazy) {
           // Lazy column: show placeholder instead of data
@@ -787,6 +852,10 @@ function flextable($opt) {
   </table>
   <div id="<?=$opt->tableid?>-pids" style="display:none"><?=$pids?></div>
 
+  <?php if ($opt->maxnum > 0) { ?>
+  <button id="<?=$opt->tableid?>-showmore" style="margin-top:10px"><?=_('Show More Records')?></button>
+  <?php } ?>
+
   <?php
   //echo '<h4>Passed parameters:</h4><xmp>'.var_dump($opt).'</xmp>';
   //echo '<h4>SQL:</h4><xmp style="white-space:pre-wrap">'.$sql.'</xmp>';
@@ -881,6 +950,40 @@ function flextable($opt) {
       }
     });
 
+    <?php if ($opt->maxnum > 0) { ?>
+    /*** Show More/Fewer functionality ***/
+    var maxnum = <?=$opt->maxnum?>;
+    var $table = $('#<?=$opt->tableid?>-table');
+    var $rows = $table.find('tbody tr');
+
+    // Initially hide rows beyond maxnum
+    if ($rows.length > maxnum) {
+      $rows.slice(maxnum).addClass('row-hidden').hide();
+      $('#<?=$opt->tableid?>-showmore').show();
+    } else {
+      $('#<?=$opt->tableid?>-showmore').hide();
+    }
+
+    // Toggle visibility
+    $('#<?=$opt->tableid?>-showmore').on('click', function() {
+      var $btn = $(this);
+      var $hiddenRows = $table.find('tbody tr.row-hidden');
+
+      if ($hiddenRows.length > 0) {
+        // Show more
+        $hiddenRows.removeClass('row-hidden').show();
+        $btn.text('<?=_('Show Fewer Records')?>');
+        $table.trigger('update'); // Update tablesorter
+      } else {
+        // Show fewer - hide rows beyond maxnum in current sort order
+        var $allRows = $table.find('tbody tr');
+        $allRows.slice(maxnum).addClass('row-hidden').hide();
+        $btn.text('<?=_('Show More Records')?>');
+        $table.trigger('update'); // Update tablesorter
+      }
+    });
+    <?php } ?>
+
     /*** Load lazy columns that are shown by default ***/
     for (var i = 0; i < $opt.cols.length; i++) {
       if ($opt.cols[i].lazy && $opt.cols[i].show) {
@@ -972,7 +1075,8 @@ function flextable($opt) {
         sel: colDef.sel,
         join: colDef.join || '',
         table: colDef.table || '',
-        render: colDef.render || ''
+        render: colDef.render || '',
+        checkbox_idfield: colDef.checkbox_idfield || ''
       });
 
       $.post('flextable.php', {
@@ -1076,7 +1180,11 @@ function flextable($opt) {
 
     // export CSV
     $('#<?=$opt->tableid?>-csv').click(function() {
+      // Temporarily hide nocsv columns (checkboxes, buttons, etc.)
+      var $nocsv = $('#<?=$opt->tableid?>-table .nocsv:visible');
+      $nocsv.hide();
       $('#<?=$opt->tableid?>-csvtext').val($('#<?=$opt->tableid?>-table').table2CSV({delivery:'value'}));
+      $nocsv.show();
       $('#<?=$opt->tableid?>-csvform').submit();
     });
 
@@ -1090,8 +1198,8 @@ function flextable($opt) {
     }
 
     if (checkboxCol) {
-      // Enable save button when any checkbox changes
-      $('#<?=$opt->tableid?>-table .table-checkbox').change(function() {
+      // Enable save button when any checkbox changes (use delegation for AJAX-loaded checkboxes)
+      $('#<?=$opt->tableid?>-table').on('change', '.table-checkbox', function() {
         $('#<?=$opt->tableid?>-savechecks').button('enable');
       });
 

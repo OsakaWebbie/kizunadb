@@ -99,6 +99,28 @@ if (!empty($_POST['editdonationsave'])) {
   exit;
 }
 
+// A REQUEST TO ADD A PLEDGE RECORD?
+if (!empty($_POST['newpledge'])) {
+  $sql = "SELECT * FROM pledge WHERE PersonID=".$_POST['pid']." AND DonationTypeID=".$_POST['dtype'].
+    " AND StartDate='".$_POST['startdate']."' AND EndDate='".(!empty($_POST['enddate'])?$_POST['enddate']:'0000-00-00')."'".
+    " AND Amount=".str_replace(",","",$_POST['amount'])." AND TimesPerYear=".$_POST['tpy'].
+    " AND PledgeDesc='".h2d($_POST['pledgedesc'])."'";
+  $result = sqlquery_checked($sql);
+  if (mysqli_num_rows($result) == 0) {  // making sure this isn't an accidental repeat entry
+    $sql = "INSERT INTO pledge(PersonID, DonationTypeID, PledgeDesc, StartDate, EndDate, Amount, TimesPerYear) ".
+    "VALUES(".$_POST['pid'].",".$_POST['dtype'].",'".h2d($_POST['pledgedesc'])."','".$_POST['startdate']."','".
+    (!empty($_POST['enddate'])?$_POST['enddate']:'0000-00-00')."',".str_replace(",","",$_POST['amount']).",".$_POST['tpy'].")";
+    $result = sqlquery_checked($sql);
+    header("Location: individual.php?pid=".$_POST['pid']."#pledges");
+  } else {
+      echo "<SCRIPT FOR=window EVENT=onload LANGUAGE=\"Javascript\">\n";
+      echo "alert('"._("A pledge with that description, dates, and amount has already been recorded.")."')\n";
+      echo "window.location = \"individual.php?pid=".$_POST['pid']."#pledges\";\n";
+      echo "</SCRIPT>\n";
+  }
+  exit;
+}
+
 // A REQUEST TO ADD ATTENDANCE RECORD(S)?
 if (!empty($_POST['newattendance'])) {
   //make array of pids (single and/or org members)
@@ -301,7 +323,7 @@ echo "<h2 id=\"links\"><a href=\"edit.php?pid=".$_GET['pid']."\">"._("Edit This 
 if ($per->HouseholdID) {
   echo "<a href=\"household.php?hhid=".$per->HouseholdID."\">"._("Go to Household Page")."</a>";
 }
-echo "<a href=\"multiselect.php?pspid={$_GET['pid']}\">"._("Go to Multi-Select")."</a>";
+echo "<a href=\"multiselect.php?preselected={$_GET['pid']}\">"._("Go to Multi-Select")."</a>";
 echo "</h2>";
 ?>
 
@@ -537,7 +559,8 @@ if (count($org_pids) == 0) {
     'show' => TRUE,
     'sortable' => false,
     'colsel' => FALSE,
-    'classes' => 'delete'
+    'classes' => 'delete',
+    'csv' => FALSE
   ];
 
   flextable($tableopt);
@@ -723,7 +746,8 @@ if ($per->Organization) {
       'show' => TRUE,
       'sortable' => false,
       'colsel' => FALSE,
-      'classes' => 'delete'
+      'classes' => 'delete',
+      'csv' => FALSE
     ];
 
     flextable($tableopt);
@@ -736,16 +760,16 @@ echo "</div>";
 <!-- Actions Section -->
 
 <a id="actions"></a>
-<div class="section">
 <?php
-echo "<h3 class=\"section-title\">"._("Actions")."</h3>\n";
+// Actions section (no access control - visible to all users)
+echo '<div id="actions" class="section"><h3 class="section-title">'._("Actions").'</h3>'."\n";
 
-  // FORM FOR ADD OR EDIT OF AN ACTION
-if (!empty($_GET['editaction'])) {   // AN ACTION IN THE TABLE IS TO BE EDITED
-  echo "<p class=\"alert\">"._("Edit fields as needed and press 'Save Action Entry'")."</h3>";
+// Keep existing form for adding new actions
+if (!empty($_GET['editaction'])) {
+  echo "<p class=\"alert\">"._("Edit fields as needed and press 'Save Action Entry'")."</p>";
 }
 ?>
-  <form name="actionform" id="actionform" method="post" action="<?=$_SERVER['PHP_SELF']."?pid=".$_GET['pid']?>#actions" onSubmit="return ValidateAction()">
+<form name="actionform" id="actionform" method="post" action="<?=$_SERVER['PHP_SELF']."?pid=".$_GET['pid']?>#actions" onSubmit="return ValidateAction()">
   <input type="hidden" name="pid" value="<?=$_GET['pid']?>" />
 <?php if (!empty($_GET['editaction'])) echo "  <input type=\"hidden\" name=\"aid\" value=\"{$_GET['aid']}\">\n"; ?>
   <label class="label-n-input"><?=_("Date")?>: <input type="text" name="date" id="actiondate" style="width:6em"
@@ -769,60 +793,98 @@ while ($row = mysqli_fetch_object($result)) {
 </form>
 
 <?php
-// TABLE OF ACTION HISTORY
-$result = sqlquery_checked("SELECT a.ActionID,a.ActionTypeID,t.ActionType,ActionDate,".
-    "a.Description,t.BGColor FROM action a,actiontype t WHERE a.ActionTypeID=t.ActionTypeID ".
-    "AND a.PersonID={$_GET['pid']} ORDER BY a.ActionDate DESC, ActionID DESC");
-if (mysqli_num_rows($result) == 0) {
-  echo("<p>"._("No actions recorded.")."</p>");
-} else {
-  echo "<table id='action-table' class='tablesorter'><thead><tr>";
-  echo "<th>"._("Date")."</th><th>"._("Action Type")."</th><th>"._("Description")."</th><th></th><th></th>\n";
-  echo "</tr></thead><tbody>\n";
-  $row_index = 0;
-  while ($row = mysqli_fetch_object($result)) {
-    $row_index++;
-    if (!empty($_GET['editaction']) && ($row->ActionID==$_GET['aid'])) {
-      $fcstart = "<span style=\"color:#FFFFFF\">";
-      $fcend = "</span>";
-    } else {
-      $fcstart = $fcend = "";
-    }
-    echo '<tr style="background-color:#'.(!empty($_GET['editaction'])&&($row->ActionID==$_GET['aid'])?'404040':$row->BGColor);
-    echo ($row_index > $_SESSION['displaydefault_actionnum']) ? ';display:none" class="oldaction">' : '">';
-    echo '<td style="white-space:nowrap">'.$fcstart;
-    echo $row->ActionDate."<span style=\"display:none\">".$row->ActionID."</span>".$fcend."</td>\n";
-    echo '<td style="white-space:nowrap">'.$fcstart.$row->ActionType.$fcend."</td>\n";
-    // temporarily disabling url2link() due to conflict with ReadMore
-    // echo "<td>".$fcstart."<div class=\"readmore\">".url2link(d2h($row->Description))."</div>".$fcend."</td>\n";
-    echo "<td>".$fcstart."<div class=\"readmore\">".d2h($row->Description)."</div>".$fcend."</td>\n";
-    echo "<td class=\"button-in-table\">";
-    echo "<form method=\"get\" action=\"{$_SERVER['PHP_SELF']}?pid={$_GET['pid']}#actions\">\n";
-    echo "<input type=\"hidden\" name=\"pid\" value=\"{$_GET['pid']}\">";
-    echo "<input type=\"hidden\" name=\"aid\" value=\"$row->ActionID\">\n";
-    echo "<input type=\"hidden\" name=\"atype\" value=\"$row->ActionTypeID\">";
-    echo "<input type=\"hidden\" name=\"date\" value=\"$row->ActionDate\">\n";
-    echo "<input type=\"hidden\" name=\"desc\" value=\"".d2h($row->Description)."\">\n";
-    echo "<input type=\"submit\" name=\"editaction\" value=\""._("Edit")."\"></form></td>\n";
-    echo "<td class=\"button-in-table\">";
-    echo "<form method=\"post\" action=\"{$_SERVER['PHP_SELF']}?pid={$_GET['pid']}#actions\" onSubmit=";
-    echo "\"return confirm('Are you sure you want to delete record of ".$row->ActionType;
-    echo " on ".$row->ActionDate."?')\">\n";
-    echo "<input type=\"hidden\" name=\"pid\" value=\"{$_GET['pid']}\">\n";
-    echo "<input type=\"hidden\" name=\"aid\" value=\"$row->ActionID\">";
-    echo "<input type=\"submit\" name=\"delaction\" value=\""._("Del")."\">";
-    echo "</form></td>\n</tr>\n";
-  }
-  echo "</tbody></table>";
-  if (mysqli_num_rows($result) > $_SESSION['displaydefault_actionnum']) {
-    echo "<div style=\"text-align:left\">";
-    echo "<button id=\"oldaction_show\" onclick=\"$('#oldaction_show').hide();$('.oldaction').show();\">"._("Show Older Records Also")."</button>";
-    echo "<button class=\"oldaction\" onclick=\"$('.oldaction').hide();$('#oldaction_show').show();\" style=\"display:none\">"._("Hide Older Records")."</button>";
-    echo "</div>\n";
-  }
-}
-echo "</div>";
+// Get action IDs
+$result = sqlquery_checked("SELECT ActionID FROM action WHERE PersonID=".$_GET['pid']." ORDER BY ActionDate DESC");
+$ids = [];
+while ($row = mysqli_fetch_object($result)) $ids[] = $row->ActionID;
 
+if (count($ids) == 0) {
+  echo "<p>"._("No actions recorded.")."</p>";
+} else {
+  $tableopt = (object)[
+    'ids' => implode(',', $ids),
+    'keyfield' => 'action.ActionID',
+    'tableid' => 'actions',
+    'order' => 'action.ActionDate DESC',
+    'showColumnSelector' => FALSE,  // Simple table
+    'showBucket' => FALSE,           // Not person records
+    'showCSV' => TRUE,               // Could be useful
+    'maxnum' => 5,                   // Show only 5 initially, then "Show More Records"
+    'cols' => [
+      (object)[
+        'key' => 'date',
+        'sel' => 'action.ActionDate',
+        'label' => _('Date'),
+        'show' => TRUE,
+        'classes' => 'nowrap'
+      ],
+      (object)[
+        'key' => 'atype',
+        'sel' => 'actiontype.ActionType',
+        'label' => _('Action Type'),
+        'show' => TRUE,
+        'join' => 'LEFT JOIN actiontype ON actiontype.ActionTypeID=action.ActionTypeID',
+        'classes' => 'nowrap'
+      ],
+      (object)[
+        'key' => 'description',
+        'sel' => 'action.Description',
+        'label' => _('Description'),
+        'show' => TRUE,
+        'render' => 'remarks',
+        'classes' => 'readmore'  // Flextable handles readmore!
+      ],
+      (object)[
+        'key' => 'edit',
+        'sel' => "CONCAT('<button class=\"action-edit-btn\" data-id=\"', action.ActionID, '\">"._('Edit')."</button>')",
+        'label' => 'Edit',
+        'show' => TRUE,
+        'sortable' => FALSE,
+        'colsel' => FALSE,
+        'csv' => FALSE
+      ],
+      (object)[
+        'key' => 'delete',
+        'sel' => "CONCAT('<button class=\"action-delete-btn\" data-id=\"', action.ActionID, '\">"._('Del')."</button>')",
+        'label' => 'Del',
+        'show' => TRUE,
+        'sortable' => FALSE,
+        'colsel' => FALSE,
+        'csv' => FALSE
+      ]
+    ]
+  ];
+
+  flextable($tableopt);
+}
+echo "</div>\n";
+?>
+
+<!-- Edit Action Dialog -->
+<div id="action-edit-dialog" style="display:none">
+  <form id="action-edit-form">
+    <input type="hidden" name="id" id="action-edit-id">
+    <label><?=_("Date")?>:
+      <input type="text" name="ActionDate" id="action-edit-ActionDate" required>
+    </label><br>
+    <label><?=_("Type")?>:
+      <select name="ActionTypeID" id="action-edit-ActionTypeID" required>
+        <option value="">...</option>
+        <?php
+        $result = sqlquery_checked("SELECT * FROM actiontype ORDER BY ActionType");
+        while ($row = mysqli_fetch_object($result)) {
+          echo '<option value="'.$row->ActionTypeID.'" style="background-color:#'.$row->BGColor.'">'.$row->ActionType.'</option>';
+        }
+        ?>
+      </select>
+    </label><br>
+    <label><?=_("Description")?>:<br>
+      <textarea name="Description" id="action-edit-Description" style="width:100%;height:8em"></textarea>
+    </label>
+  </form>
+</div>
+
+<?php
 if ($_SESSION['donations'] == "yes") {   // covers both DONATIONS and PLEDGES sections
 ?>
 
@@ -876,119 +938,295 @@ $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
   }
   echo "</form>\n";
 
-  // TABLE OF DONATIONS
-  $sql = "SELECT d.*, dt.*, pl.PledgeDesc FROM donation d LEFT JOIN donationtype dt ".
-      "ON d.DonationTypeID=dt.DonationTypeID LEFT JOIN pledge pl ON d.PledgeID=pl.PledgeID ".
-      "WHERE d.PersonID={$_GET['pid']} ORDER BY d.DonationDate DESC, d.DonationTypeID";
-  $result = sqlquery_checked($sql);
-  if (mysqli_num_rows($result) == 0) {
+  // TABLE OF DONATIONS - Convert to flextable
+  $result = sqlquery_checked("SELECT DonationID FROM donation WHERE PersonID=".$_GET['pid']." ORDER BY DonationDate DESC");
+  $ids = [];
+  while ($row = mysqli_fetch_object($result)) $ids[] = $row->DonationID;
+
+  if (count($ids) == 0) {
     echo "<p>"._('No donations recorded.')."</p>";
   } else {
-    echo "<table id='donation-table' class='tablesorter'><thead>";
-    echo "<tr><th>"._("Date")."</th><th>"._("Pledge or Donation Type")."</th><th>"._("Amount")."</th><th>"._("Description").
-    "</th><th>"._("Proc.")."</th><th></th><th></th></tr>\n</thead><tbody>\n";
-    $row_index = 0;
-    while ($row = mysqli_fetch_object($result)) {
-      $row_index++;
-      if (!empty($_GET['editdonation']) && ($row->DonationID==$_GET['did'])) {
-        $fcstart = "<span style='color:#FFFFFF'>";
-        $fcend = "</span>";
-      } else {
-        $fcstart = $fcend = "";
-      }
-      echo '<tr style="background-color:#'.(!empty($_GET['editdonation'])&&($row->DonationID==$_GET['did'])?'404040':$row->BGColor);
-      echo ($row_index > $_SESSION['displaydefault_donationnum']) ? ';display:none" class="olddonation">' : '">';
-      echo '<td style="text-align:center;white-space:nowrap">'.$fcstart.$row->DonationDate.$fcend."</td>\n";
-      if ($row->PledgeID) {
-        echo '<td style="text-align:center;white-space:nowrap">'.$fcstart.$row->PledgeDesc.$fcend."</td>\n";
-      } else {
-        echo '<td style="text-align:center;white-space:nowrap">'.$fcstart.$row->DonationType.$fcend."</td>\n";
-      }
-      echo '<td style="text-align:center;white-space:nowrap">'.$fcstart.$_SESSION['currency_mark']." ".
-          number_format($row->Amount,$_SESSION['currency_decimals']).$fcend."</td>\n";
-      echo '<td style="text-align:center">'.$fcstart.$row->Description.$fcend."</td>\n";
-      echo '<td style="text-align:center">'.$fcstart.($row->Processed ? "〇" : "").$fcend."</td>\n";
-      echo '<td style="text-align:center"><form method="GET" action="'.$_SERVER['PHP_SELF'].'?pid='.$_GET['pid'].'#donations">'."\n";
-      echo "<input type=\"hidden\" name=\"pid\" value=\"".$_GET['pid']."\">";
-      echo "<input type=\"hidden\" name=\"did\" value=\"".$row->DonationID."\">\n";
-      echo "<input type=\"hidden\" name=\"plid\" value=\"".$row->PledgeID."\">";
-      echo "<input type=\"hidden\" name=\"dtype\" value=\"".$row->DonationTypeID."\">";
-      echo "<input type=\"hidden\" name=\"date\" value=\"".$row->DonationDate."\">\n";
-      echo "<input type=\"hidden\" name=\"amount\" value=\"".number_format($row->Amount,$_SESSION['currency_decimals'])."\">\n";
-      echo "<input type=\"hidden\" name=\"desc\" value=\"".$row->Description."\">\n";
-      echo "<input type=\"hidden\" name=\"proc\" value=\"".$row->Processed."\">\n";
-      echo "<input type=\"submit\" name=\"editdonation\" value=\"Edit\"></form></td>\n";
-      echo "<td style=\"text-align:center\"><form method=\"POST\" action=\"{$_SERVER['PHP_SELF']}?pid={$_GET['pid']}#donations\" onSubmit=";
-      echo "\"return confirm('Are you sure you want to delete record of ".
-          $_SESSION['currency_mark'].number_format($row->Amount,$_SESSION['currency_decimals']).
-          " on ".$row->DonationDate."?')\">\n";
-      echo "<input type=\"hidden\" name=\"pid\" value=\"{$_GET['pid']}\">\n";
-      echo "<input type=\"hidden\" name=\"did\" value=\"".$row->DonationID."\">";
-      echo "<input type=\"submit\" name=\"deldonation\" value=\""._("Del")."\">";
-      echo "</form></td>\n</tr>\n";
-    }
-    echo "</tbody></table>";
-    if (mysqli_num_rows($result) > $_SESSION['displaydefault_donationnum']) {
-      echo "<div style=\"text-align:left\">";
-      echo "<button id=\"olddonation_show\" onclick=\"$('#olddonation_show').hide();$('.olddonation').show();\">"._("Show Older Records Also")."</button>";
-      echo "<button class=\"olddonation\" onclick=\"$('.olddonation').hide();$('#olddonation_show').show();\" style=\"display:none\">"._("Hide Older Records")."</button>";
-      echo "</div>\n";
-    }
+    $tableopt = (object)[
+      'ids' => implode(',', $ids),
+      'keyfield' => 'donation.DonationID',
+      'tableid' => 'donations',
+      'order' => 'donation.DonationDate DESC',
+      'showColumnSelector' => FALSE,
+      'showBucket' => FALSE,
+      'showCSV' => TRUE,
+      'maxnum' => 10,  // Show only 10 initially
+      'cols' => [
+        (object)[
+          'key' => 'date',
+          'sel' => 'donation.DonationDate',
+          'label' => _('Date'),
+          'show' => TRUE,
+          'classes' => 'nowrap'
+        ],
+        (object)[
+          'key' => 'type',
+          'sel' => "IF(donation.PledgeID > 0, pledge.PledgeDesc, donationtype.DonationType)",
+          'label' => _('Pledge or Donation Type'),
+          'show' => TRUE,
+          'join' => 'LEFT JOIN donationtype ON donation.DonationTypeID=donationtype.DonationTypeID LEFT JOIN pledge ON donation.PledgeID=pledge.PledgeID',
+          'classes' => 'nowrap'
+        ],
+        (object)[
+          'key' => 'amount',
+          'sel' => "CONCAT('".$_SESSION['currency_mark']." ', FORMAT(donation.Amount, ".$_SESSION['currency_decimals']."))",
+          'label' => _('Amount'),
+          'show' => TRUE,
+          'classes' => 'nowrap'
+        ],
+        (object)[
+          'key' => 'description',
+          'sel' => 'donation.Description',
+          'label' => _('Description'),
+          'show' => TRUE
+        ],
+        (object)[
+          'key' => 'processed',
+          'sel' => "IF(donation.Processed, '〇', '')",
+          'label' => _('Proc.'),
+          'show' => TRUE
+        ],
+        (object)[
+          'key' => 'edit',
+          'sel' => "CONCAT('<button class=\"donation-edit-btn\" data-id=\"', donation.DonationID, '\">"._('Edit')."</button>')",
+          'label' => 'Edit',
+          'show' => TRUE,
+          'sortable' => FALSE,
+          'colsel' => FALSE,
+          'csv' => FALSE
+        ],
+        (object)[
+          'key' => 'delete',
+          'sel' => "CONCAT('<button class=\"donation-delete-btn\" data-id=\"', donation.DonationID, '\">"._('Del')."</button>')",
+          'label' => 'Del',
+          'show' => TRUE,
+          'sortable' => FALSE,
+          'colsel' => FALSE,
+          'csv' => FALSE
+        ]
+      ]
+    ];
+
+    flextable($tableopt);
   }
   echo "</div>\n";
 
-  // ********** PLEDGES **********
+?>
+<!-- Edit Donation Dialog -->
+<div id="donation-edit-dialog" style="display:none">
+  <form id="donation-edit-form">
+    <input type="hidden" name="id" id="donation-edit-id">
+    <label><?=_("Date")?>:
+      <input type="text" name="DonationDate" id="donation-edit-DonationDate" required>
+    </label><br>
+    <label><?=_("Pledge")?>:
+      <select name="PledgeID" id="donation-edit-PledgeID">
+        <option value="0"><?=_("Select if pledge...")?></option>
+      </select>
+    </label><br>
+    <label><?=_("Donation Type")?>:
+      <select name="DonationTypeID" id="donation-edit-DonationTypeID">
+        <option value="0"><?=_("Select if not pledge...")?></option>
+        <?php
+        $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
+        while ($row = mysqli_fetch_object($result)) {
+          echo '<option value="'.$row->DonationTypeID.'" style="background-color:#'.$row->BGColor.'">'.$row->DonationType.'</option>';
+        }
+        ?>
+      </select>
+    </label><br>
+    <label><?=_("Amount")?>: <?=$_SESSION['currency_mark']?>
+      <input type="text" name="Amount" id="donation-edit-Amount" style="width:6em" required>
+    </label><br>
+    <label><?=_("Description")?>:
+      <input type="text" name="Description" id="donation-edit-Description" style="width:30em">
+    </label><br>
+    <label>
+      <input type="checkbox" name="Processed" id="donation-edit-Processed"> <?=_("Processed")?>
+    </label>
+  </form>
+</div>
+<?php
 
-  $period[0] = " "._("(one time)");
-  $period[1] = "/"._("year");
-  $period[4] = "/"._("quarter");
-  $period[12] = "/"._("month");
-?> 
+  // ********** PLEDGES **********
+?>
 
 <!-- Pledges Section -->
 
 <a id="pledges"></a>
 <div class="section">
+<h3 class="section-title"><?=_('Pledges')?></h3>
 <?php
-  echo "<h3 class=\"section-title\">"._("Pledges")."</h3>\n";
+  // FORM FOR ADD NEW PLEDGE
+  echo "<form name=\"pledgeform\" id=\"pledgeform\" method=\"POST\" action=\"{$_SERVER['PHP_SELF']}?pid={$_GET['pid']}#pledges\" onSubmit=\"return ValidatePledge()\">\n";
+  echo "<input type=\"hidden\" name=\"pid\" value=\"{$_GET['pid']}\">\n";
 
-  $sql = <<<SQL
-SELECT pl.*, dt.DonationType, SUM(IFNULL(d.Amount,0)) - (pl.Amount * (IF(pl.TimesPerYear=0,
-IF(CURDATE()<pl.StartDate,0,1),pl.TimesPerYear / 12 * PERIOD_DIFF(DATE_FORMAT(IF(pl.EndDate='0000-00-00'
-OR CURDATE()<pl.EndDate,CURDATE(), pl.EndDate), '%Y%m'), DATE_FORMAT(pl.StartDate, '%Y%m')))))
-Balance FROM pledge pl LEFT JOIN donationtype dt ON pl.DonationTypeID=dt.DonationTypeID
-LEFT JOIN donation d ON pl.PledgeID=d.PledgeID
-WHERE pl.PersonID={$_GET['pid']} GROUP BY pl.PledgeID
-ORDER BY
-  CASE WHEN EndDate='0000-00-00' THEN 1 ELSE 2 END,
-  CASE WHEN pl.TimesPerYear=0 AND SUM(IFNULL(d.Amount,0)) - (pl.Amount * IF(CURDATE()<pl.StartDate,0,1)) < 0 THEN 1 ELSE 2 END,
-  pl.StartDate DESC
-SQL;
-  $result = sqlquery_checked($sql);
-  if (mysqli_num_rows($result) == 0) {
-    echo("<p style='text-align:center'>No pledges. &nbsp; &nbsp; &nbsp;<a href=\"edit_pledge.php?pid={$_GET['pid']}\">"._("Create New Pledge")."</a></p>");
- } else {
-    echo "<table id='pledge-table' class='tablesorter'><thead>\n";
-    echo "<tr><th>"._("Donation Type")."</th><th>"._("Description")."</th><th>"._("Amount")."</th><th>"._("Dates")."</th>";
-    echo "<th>Balance</th><th></th></tr>\n</thead><tbody>\n";
-    while ($row = mysqli_fetch_object($result)) {
-      echo '<tr'.($row->EndDate!='0000-00-00' && $row->EndDate < today() ? ' style="background-color:#E0E0E0"' : '').">\n";
-      echo "<td>".$row->DonationType."</td>\n";
-      echo "<td>".db2table($row->PledgeDesc)."</td>\n";
-      echo "<td style='text-align:center' nowrap>".$_SESSION['currency_mark']." ".
-          number_format($row->Amount,$_SESSION['currency_decimals']).$period[$row->TimesPerYear]."</td>\n";
-      echo '<td nowrap>'.$row->StartDate.($row->TimesPerYear!=0 ? '&#xFF5E;'.($row->EndDate!='0000-00-00' ? $row->EndDate : '') : '')."</td>\n";
-      echo '<td style="text-align:center" nowrap>'.($row->Balance<0 ? '<span style="color:red">' : '').
-          $_SESSION['currency_mark'].' '.number_format($row->Balance,$_SESSION['currency_decimals']).
-          (($row->Balance<0 && $row->TimesPerYear>0) ? "<br>(".number_format(((0-$row->Balance)/$row->Amount*12/$row->TimesPerYear),0)." months)" : "").
-          ($row->Balance<0 ? '</span>' : '')."</td>\n";
-      echo "<td style='text-align:center' nowrap><a href=\"edit_pledge.php?plid=".$row->PledgeID."\">"._("Edit/Del")."</a></td>\n";
-      echo "</tr>\n";
-    }
-    echo "</tbody></table><a href=\"edit_pledge.php?pid={$_GET['pid']}\">"._("Create New Pledge")."</a>";
+  // Donation Type
+  $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
+  echo "<label class=\"label-n-input\">"._("Donation Type").": ";
+  echo "<select size=\"1\" name=\"dtype\" id=\"pledge-dtype\">";
+  echo "<option value=\"0\">"._("Select...")."</option>";
+  while ($row = mysqli_fetch_object($result)) {
+    echo "<option value=\"".$row->DonationTypeID."\" style=\"background-color:#".$row->BGColor."\">$row->DonationType</option>";
   }
-  echo "</div>";
+  echo "</select></label>\n";
 
+  // Description
+  echo "<label class=\"label-n-input\">"._("Description").": ";
+  echo "<input type=\"text\" name=\"pledgedesc\" id=\"pledge-desc\" style=\"width:30em\" maxlength=\"150\"></label>\n";
+
+  // Start Date
+  echo "<label class=\"label-n-input\">"._("Start Date").": ";
+  echo "<input type=\"text\" name=\"startdate\" id=\"pledge-startdate\" style=\"width:6em\" value=\"".date("Y-m-d",mktime(gmdate("H")+9))."\"></label>\n";
+
+  // End Date
+  echo "<div style='display:inline-block'><label class=\"label-n-input\">"._("End Date").": ";
+  echo "<input type=\"text\" name=\"enddate\" id=\"pledge-enddate\" style=\"width:6em\"></label><br>";
+  echo "<span class=\"comment\">"._("(leave blank if no specified end to pledge)")."</span></div>\n";
+
+  // Amount and Interval
+  echo "<span style=\"white-space:nowrap\"><label class=\"label-n-input\" style=\"margin-right:0\">"._("Amount").": ".$_SESSION['currency_mark'];
+  echo "<input type=\"text\" name=\"amount\" id=\"pledge-amount\" style=\"width:8em\" maxlength=\"12\"></label> / \n";
+  echo "<select name=\"tpy\" id=\"pledge-tpy\" size=\"1\">\n";
+  echo "<option value=\"12\" selected>"._("month")."</option>\n";
+  echo "<option value=\"4\">"._("quarter")."</option>\n";
+  echo "<option value=\"1\">"._("year")."</option>\n";
+  echo "<option value=\"0\">"._("(one time)")."</option>\n";
+  echo "</select></span>\n";
+
+  echo "<input type=\"submit\" value=\""._("Save Pledge Entry")."\" name=\"newpledge\">\n";
+  echo "</form>\n";
+
+  // TABLE OF PLEDGES - Convert to flextable
+  $result = sqlquery_checked("SELECT PledgeID FROM pledge WHERE PersonID=".$_GET['pid']." ORDER BY CASE WHEN EndDate='0000-00-00' THEN 1 ELSE 2 END, StartDate DESC");
+  $ids = [];
+  while ($row = mysqli_fetch_object($result)) $ids[] = $row->PledgeID;
+
+  if (count($ids) == 0) {
+    echo "<p>"._('No pledges recorded.')."</p>";
+  } else {
+    $tableopt = (object)[
+      'ids' => implode(',', $ids),
+      'keyfield' => 'pledge.PledgeID',
+      'tableid' => 'pledges',
+      'order' => 'CASE WHEN pledge.EndDate=\'0000-00-00\' THEN 1 ELSE 2 END, pledge.StartDate DESC',
+      'showColumnSelector' => FALSE,
+      'showBucket' => FALSE,
+      'showCSV' => TRUE,
+      'maxnum' => 10,
+      'cols' => [
+        (object)[
+          'key' => 'dtype',
+          'sel' => 'donationtype.DonationType',
+          'label' => _('Donation Type'),
+          'show' => TRUE,
+          'join' => 'LEFT JOIN donationtype ON pledge.DonationTypeID=donationtype.DonationTypeID',
+          'classes' => 'nowrap dtype'
+        ],
+        (object)[
+          'key' => 'description',
+          'sel' => 'pledge.PledgeDesc',
+          'label' => _('Description'),
+          'show' => TRUE,
+          'classes' => 'description'
+        ],
+        (object)[
+          'key' => 'amount',
+          'sel' => "CONCAT('".$_SESSION['currency_mark']." ', FORMAT(pledge.Amount, ".$_SESSION['currency_decimals']."), CASE pledge.TimesPerYear WHEN 0 THEN ' "._("(one time)")."' WHEN 1 THEN '/"._("year")."' WHEN 4 THEN '/"._("quarter")."' WHEN 12 THEN '/"._("month")."' END)",
+          'label' => _('Amount'),
+          'show' => TRUE,
+          'classes' => 'nowrap amount'
+        ],
+        (object)[
+          'key' => 'dates',
+          'sel' => "CONCAT(pledge.StartDate, IF(pledge.TimesPerYear!=0, CONCAT('～', IF(pledge.EndDate!='0000-00-00', pledge.EndDate, '')), ''))",
+          'label' => _('Dates'),
+          'show' => TRUE,
+          'classes' => 'nowrap dates'
+        ],
+        (object)[
+          'key' => 'balance',
+          'sel' => "CONCAT(IF(SUM(IFNULL(donation.Amount,0)) - (pledge.Amount * (IF(pledge.TimesPerYear=0, IF(CURDATE()<pledge.StartDate,0,1), pledge.TimesPerYear/12 * PERIOD_DIFF(DATE_FORMAT(IF(pledge.EndDate='0000-00-00' OR CURDATE()<pledge.EndDate,CURDATE(), pledge.EndDate), '%Y%m'), DATE_FORMAT(pledge.StartDate, '%Y%m'))))) < 0, '<span style=\"color:red\">', ''), '".$_SESSION['currency_mark']." ', FORMAT(SUM(IFNULL(donation.Amount,0)) - (pledge.Amount * (IF(pledge.TimesPerYear=0, IF(CURDATE()<pledge.StartDate,0,1), pledge.TimesPerYear/12 * PERIOD_DIFF(DATE_FORMAT(IF(pledge.EndDate='0000-00-00' OR CURDATE()<pledge.EndDate,CURDATE(), pledge.EndDate), '%Y%m'), DATE_FORMAT(pledge.StartDate, '%Y%m'))))), ".$_SESSION['currency_decimals']."), IF(SUM(IFNULL(donation.Amount,0)) - (pledge.Amount * (IF(pledge.TimesPerYear=0, IF(CURDATE()<pledge.StartDate,0,1), pledge.TimesPerYear/12 * PERIOD_DIFF(DATE_FORMAT(IF(pledge.EndDate='0000-00-00' OR CURDATE()<pledge.EndDate,CURDATE(), pledge.EndDate), '%Y%m'), DATE_FORMAT(pledge.StartDate, '%Y%m'))))) < 0 AND pledge.TimesPerYear>0, CONCAT('<br>(', ROUND((0-SUM(IFNULL(donation.Amount,0)) + (pledge.Amount * pledge.TimesPerYear/12 * PERIOD_DIFF(DATE_FORMAT(IF(pledge.EndDate='0000-00-00' OR CURDATE()<pledge.EndDate,CURDATE(), pledge.EndDate), '%Y%m'), DATE_FORMAT(pledge.StartDate, '%Y%m'))))/pledge.Amount*12/pledge.TimesPerYear), ' months)'), ''), IF(SUM(IFNULL(donation.Amount,0)) - (pledge.Amount * (IF(pledge.TimesPerYear=0, IF(CURDATE()<pledge.StartDate,0,1), pledge.TimesPerYear/12 * PERIOD_DIFF(DATE_FORMAT(IF(pledge.EndDate='0000-00-00' OR CURDATE()<pledge.EndDate,CURDATE(), pledge.EndDate), '%Y%m'), DATE_FORMAT(pledge.StartDate, '%Y%m'))))) < 0, '</span>', ''))",
+          'label' => _('Balance'),
+          'show' => TRUE,
+          'join' => 'LEFT JOIN donation ON pledge.PledgeID=donation.PledgeID',
+          'classes' => 'nowrap balance'
+        ],
+        (object)[
+          'key' => 'edit',
+          'sel' => "CONCAT('<button class=\"pledge-edit-btn\" data-id=\"', pledge.PledgeID, '\">"._('Edit')."</button>')",
+          'label' => 'Edit',
+          'show' => TRUE,
+          'sortable' => FALSE,
+          'colsel' => FALSE,
+          'csv' => FALSE
+        ],
+        (object)[
+          'key' => 'delete',
+          'sel' => "CONCAT('<button class=\"pledge-delete-btn\" data-id=\"', pledge.PledgeID, '\">"._('Del')."</button>')",
+          'label' => 'Del',
+          'show' => TRUE,
+          'sortable' => FALSE,
+          'colsel' => FALSE,
+          'csv' => FALSE
+        ]
+      ]
+    ];
+
+    require_once('flextable.php');
+    flextable($tableopt);
+  }
+  echo "</div>\n";
+?>
+
+<!-- Pledge Edit Dialog -->
+<div id="pledge-edit-dialog" style="display:none">
+  <form id="pledge-edit-form">
+    <input type="hidden" name="id" id="pledge-edit-id">
+    <input type="hidden" name="PersonID" id="pledge-edit-PersonID" value="<?=$_GET['pid']?>">
+
+    <label class="label-n-input"><?=_("Donation Type")?>:
+      <select name="DonationTypeID" id="pledge-edit-DonationTypeID" required>
+        <option value="0"><?=_("Select...")?></option>
+        <?php
+        $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
+        while ($row = mysqli_fetch_object($result)) {
+          echo "<option value=\"".$row->DonationTypeID."\" style=\"background-color:#".$row->BGColor."\">$row->DonationType</option>\n";
+        }
+        ?>
+      </select>
+    </label><br>
+
+    <label class="label-n-input"><?=_("Description")?>:
+      <input type="text" name="PledgeDesc" id="pledge-edit-PledgeDesc" style="width:30em" maxlength="150" required>
+    </label><br>
+
+    <label class="label-n-input"><?=_("Start Date")?>:
+      <input type="text" name="StartDate" id="pledge-edit-StartDate" style="width:6em" required>
+    </label><br>
+
+    <label class="label-n-input"><?=_("End Date")?>:
+      <input type="text" name="EndDate" id="pledge-edit-EndDate" style="width:6em">
+      <span class="comment"><?=_("(leave blank if no specified end to pledge)")?></span>
+    </label><br>
+
+    <label class="label-n-input"><?=_("Amount")?>: <?=$_SESSION['currency_mark']?>
+      <input type="text" name="Amount" id="pledge-edit-Amount" style="width:8em" maxlength="12" required>
+    </label> /
+    <select name="TimesPerYear" id="pledge-edit-TimesPerYear">
+      <option value="12"><?=_("month")?></option>
+      <option value="4"><?=_("quarter")?></option>
+      <option value="1"><?=_("year")?></option>
+      <option value="0"><?=_("(one time)")?></option>
+    </select>
+  </form>
+</div>
+
+<?php
 }  // end of donation & pledge section (conditional, only if set in config record and permitted for this user)
 ?>
 
@@ -1165,6 +1403,8 @@ if($_SESSION['lang']=="ja_JP") {
   if ($("#actiondate").val()=="") $("#actiondate").datepicker('setDate', new Date());
   $("#donationdate").datepicker({ dateFormat: 'yy-mm-dd', maxDate: 0 });
   if ($("#actiondate").val()=="") $("#donationdate").datepicker('setDate', new Date());
+  $("#pledge-startdate").datepicker({ dateFormat: 'yy-mm-dd' });
+  $("#pledge-enddate").datepicker({ dateFormat: 'yy-mm-dd' });
   $("#attenddate").datepicker({ dateFormat: 'yy-mm-dd' });
   $("#attendenddate").datepicker({ dateFormat: 'yy-mm-dd' });
 
@@ -1241,7 +1481,568 @@ if($_SESSION['lang']=="ja_JP") {
       $target.addClass('readmore-collapsed');
     }
   });
-  
+
+  // Action Edit Dialog
+  $('#action-edit-dialog').dialog({
+    autoOpen: false,
+    modal: true,
+    width: 500,
+    title: '<?=_("Edit Action")?>',
+    buttons: [{
+      text: '<?=_("Save")?>',
+      click: function() {
+        if (validateActionEdit()) {
+          saveAction();
+        }
+      }
+    }, {
+      text: '<?=_("Cancel")?>',
+      click: function() {
+        $(this).dialog('close');
+      }
+    }]
+  });
+
+  // Edit button handler
+  $(document).on('click', '.action-edit-btn', function() {
+    var id = $(this).data('id');
+
+    $.post('ajax_request.php', {req: 'Action', id: id}, function(data) {
+      if (data.alert) {
+        alert(data.alert);
+        return;
+      }
+
+      $('#action-edit-id').val(data.ActionID);
+      $('#action-edit-ActionDate').val(data.ActionDate);
+      $('#action-edit-ActionTypeID').val(data.ActionTypeID);
+      $('#action-edit-Description').val(data.Description);
+
+      $('#action-edit-dialog').dialog('open');
+    }, 'json');
+  });
+
+  // Delete button handler
+  $(document).on('click', '.action-delete-btn', function() {
+    var $btn = $(this);
+    var $row = $btn.closest('tr');
+    var id = $btn.data('id');
+
+    $row.addClass('delconfirm');
+
+    if (confirm('<?=_("Are you sure you want to delete this record?")?>')) {
+      $row.addClass('delwait').removeClass('delconfirm');
+
+      $.post('ajax_actions.php', {action: 'ActionDelete', id: id}, function(data) {
+        if (data.substr(0,1) == '*') {
+          $row.remove();
+          $('#actions-table').trigger('update');
+        } else {
+          $row.removeClass('delwait');
+          alert(data);
+        }
+      });
+    } else {
+      $row.removeClass('delconfirm');
+    }
+  });
+
+  // Validation (shared with existing add form if possible)
+  function validateActionEdit() {
+    if (!$('#action-edit-ActionDate').val()) {
+      alert('<?=_("You must enter a date.")?>');
+      return false;
+    }
+    if (!$('#action-edit-ActionTypeID').val()) {
+      alert('<?=_("You must select an action type.")?>');
+      return false;
+    }
+    return true;
+  }
+
+  // Save function
+  function saveAction() {
+    var formData = $('#action-edit-form').serializeArray();
+    formData.push({name: 'action', value: 'ActionSave'});
+    formData.push({name: 'PersonID', value: <?=$_GET['pid']?>}); // Add from page context
+
+    $.post('ajax_actions.php', formData, function(data) {
+      if (data.substr(0,1) == '*') {
+        $('#action-edit-dialog').dialog('close');
+
+        // Update the row in the table without page refresh
+        var id = $('#action-edit-id').val();
+        var $row = $('.action-edit-btn[data-id="' + id + '"]').closest('tr');
+
+        // Update date cell
+        $row.find('td.date').text($('#action-edit-ActionDate').val());
+
+        // Update action type cell (get the selected option's text)
+        var actionTypeText = $('#action-edit-ActionTypeID option:selected').text();
+        $row.find('td.atype').text(actionTypeText);
+
+        // Update description cell (preserve readmore structure)
+        var newDesc = $('#action-edit-Description').val().replace(/\n/g, '<br>');
+        $row.find('td.description .readmore').html(newDesc);
+        // Re-initialize readmore on this cell
+        $row.find('td.description .readmore').readmore('destroy').readmore({
+          speed: 75,
+          collapsedHeight: 100,
+          heightMargin: 0,
+          moreLink: '<a href="#"><?=_("[Read more]")?></a>',
+          lessLink: '<a href="#"><?=_("[Close]")?></a>',
+          blockProcessed: function(element, collapsible) {
+            if (collapsible) {
+              element.addClass('readmore-collapsed');
+            }
+          }
+        });
+
+        // Update tablesorter
+        $('#actions-table').trigger('update');
+      } else {
+        alert(data);
+      }
+    });
+  }
+
+  // Donation Edit Dialog
+  $('#donation-edit-dialog').dialog({
+    autoOpen: false,
+    modal: true,
+    width: 550,
+    title: '<?=_("Edit Donation")?>',
+    buttons: [{
+      text: '<?=_("Save")?>',
+      click: function() {
+        if (validateDonationEdit()) {
+          saveDonation();
+        }
+      }
+    }, {
+      text: '<?=_("Cancel")?>',
+      click: function() {
+        $(this).dialog('close');
+      }
+    }]
+  });
+
+  // Handle pledge selection change in edit dialog (same as add form)
+  $("#donation-edit-PledgeID").change(function(){
+    if ($(this).val() == 0) {
+      $("#donation-edit-DonationTypeID").prop("disabled", false).val(0);
+    } else {
+      $.getJSON("ajax_request.php", {
+        'req':'Unique',
+        'table':'pledge',
+        'col':'DonationTypeID',
+        'PledgeID':$("#donation-edit-PledgeID").val()
+      }, function(data) {
+        if (data.alert) {
+          alert(data.alert);
+        } else {
+          $("#donation-edit-DonationTypeID").val(data.DonationTypeID).prop("disabled", true);
+        }
+      })
+      .fail(function(jqXHR, textStatus, errorThrown) { alert('getJSON request failed! ' + textStatus); })
+    }
+  });
+
+  // Edit button handler for donations
+  $(document).on('click', '.donation-edit-btn', function() {
+    var id = $(this).data('id');
+    var pid = <?=$_GET['pid']?>;
+
+    // Fetch donation data
+    $.post('ajax_request.php', {req: 'Donation', id: id}, function(data) {
+      if (data.alert) {
+        alert(data.alert);
+        return;
+      }
+
+      // Populate form
+      $('#donation-edit-id').val(data.DonationID);
+      // Store old pledge ID for later balance update
+      $('#donation-edit-id').data('old-pledge-id', data.PledgeID);
+      $('#donation-edit-DonationDate').val(data.DonationDate);
+      $('#donation-edit-Amount').val(parseFloat(data.Amount).toFixed(<?=$_SESSION['currency_decimals']?>));
+      $('#donation-edit-Description').val(data.Description);
+      $('#donation-edit-Processed').prop('checked', data.Processed == 1);
+
+      // Fetch pledges for this person
+      $.post('ajax_request.php', {req: 'PledgesForPerson', pid: pid}, function(pledges) {
+        var $select = $('#donation-edit-PledgeID');
+        $select.empty().append('<option value="0"><?=_("Select if pledge...")?></option>');
+        pledges.forEach(function(pledge) {
+          $select.append('<option value="' + pledge.PledgeID + '">' + pledge.PledgeDesc + '</option>');
+        });
+        $select.val(data.PledgeID);
+
+        // Set donation type and enable/disable based on pledge selection
+        $('#donation-edit-DonationTypeID').val(data.DonationTypeID);
+        if (data.PledgeID > 0) {
+          $('#donation-edit-DonationTypeID').prop('disabled', true);
+        } else {
+          $('#donation-edit-DonationTypeID').prop('disabled', false);
+        }
+      }, 'json');
+
+      $('#donation-edit-dialog').dialog('open');
+    }, 'json');
+  });
+
+  // Delete button handler for donations
+  $(document).on('click', '.donation-delete-btn', function() {
+    var $btn = $(this);
+    var $row = $btn.closest('tr');
+    var id = $btn.data('id');
+
+    $row.addClass('delconfirm');
+
+    if (confirm('<?=_("Are you sure you want to delete this record?")?>')) {
+      $row.addClass('delwait').removeClass('delconfirm');
+
+      // Get pledge ID before deleting (need to fetch it first)
+      $.post('ajax_request.php', {req: 'Donation', id: id}, function(donationData) {
+        var pledgeId = donationData.PledgeID;
+
+        $.post('ajax_actions.php', {action: 'DonationDelete', id: id}, function(data) {
+          if (data.substr(0,1) == '*') {
+            $row.remove();
+            $('#donations-table').trigger('update');
+
+            // Update pledge balance if donation was connected to a pledge
+            if (pledgeId > 0) {
+              updatePledgeBalance(pledgeId);
+            }
+          } else {
+            $row.removeClass('delwait');
+            alert(data);
+          }
+        });
+      }, 'json');
+    } else {
+      $row.removeClass('delconfirm');
+    }
+  });
+
+  // Validation for donation edit
+  function validateDonationEdit() {
+    if (!$('#donation-edit-DonationDate').val()) {
+      alert('<?=_("You must enter a date.")?>');
+      return false;
+    }
+    if (!$('#donation-edit-Amount').val()) {
+      alert('<?=_("You must enter an amount.")?>');
+      return false;
+    }
+    // Must have either pledge or donation type
+    if ($('#donation-edit-PledgeID').val() == 0 && $('#donation-edit-DonationTypeID').val() == 0) {
+      alert('<?=_("You must select either a pledge or a donation type.")?>');
+      return false;
+    }
+    return true;
+  }
+
+  // Save function for donations
+  function saveDonation() {
+    var formData = $('#donation-edit-form').serializeArray();
+    formData.push({name: 'action', value: 'DonationSave'});
+    formData.push({name: 'PersonID', value: <?=$_GET['pid']?>});
+
+    // Always include DonationTypeID even if disabled (disabled fields don't serialize)
+    formData.push({name: 'DonationTypeID', value: $('#donation-edit-DonationTypeID').val()});
+
+    // Store old pledge ID to update balance if changed
+    var oldPledgeId = $('#donation-edit-id').data('old-pledge-id');
+    var newPledgeId = $('#donation-edit-PledgeID').val();
+
+    $.post('ajax_actions.php', formData, function(data) {
+      if (data.substr(0,1) == '*') {
+        $('#donation-edit-dialog').dialog('close');
+
+        // Update the row in the table without page refresh
+        var id = $('#donation-edit-id').val();
+        var $row = $('.donation-edit-btn[data-id="' + id + '"]').closest('tr');
+
+        // Update date cell
+        $row.find('td.date').text($('#donation-edit-DonationDate').val());
+
+        // Update type cell (pledge desc or donation type)
+        var pledgeId = $('#donation-edit-PledgeID').val();
+        if (pledgeId > 0) {
+          $row.find('td.type').text($('#donation-edit-PledgeID option:selected').text());
+        } else {
+          $row.find('td.type').text($('#donation-edit-DonationTypeID option:selected').text());
+        }
+
+        // Update amount cell (with currency formatting and comma separator)
+        var amount = parseFloat($('#donation-edit-Amount').val().replace(/,/g, ''));
+        var formattedAmount = amount.toLocaleString('en-US', {minimumFractionDigits: <?=$_SESSION['currency_decimals']?>, maximumFractionDigits: <?=$_SESSION['currency_decimals']?>});
+        $row.find('td.amount').html('<?=$_SESSION['currency_mark']?> ' + formattedAmount);
+
+        // Update description cell
+        $row.find('td.description').text($('#donation-edit-Description').val());
+
+        // Update processed cell
+        $row.find('td.processed').text($('#donation-edit-Processed').is(':checked') ? '〇' : '');
+
+        // Update tablesorter
+        $('#donations-table').trigger('update');
+
+        // Update pledge balance(s) if donation is connected to pledge(s)
+        if (oldPledgeId > 0) {
+          updatePledgeBalance(oldPledgeId);
+        }
+        if (newPledgeId > 0 && newPledgeId != oldPledgeId) {
+          updatePledgeBalance(newPledgeId);
+        }
+      } else {
+        alert(data);
+      }
+    });
+  }
+
+  // ========== PLEDGE HANDLERS ==========
+
+  // Initialize pledge edit dialog
+  $('#pledge-edit-dialog').dialog({
+    autoOpen: false,
+    modal: true,
+    width: 500,
+    title: '<?=_("Edit Pledge")?>',
+    buttons: [{
+      text: '<?=_("Save Changes")?>',
+      click: function() {
+        if (validatePledgeEdit()) {
+          savePledge();
+        }
+      }
+    }, {
+      text: '<?=_("Cancel")?>',
+      click: function() {
+        $(this).dialog('close');
+      }
+    }]
+  });
+
+  // Initialize datepickers for pledge edit dialog
+  $('#pledge-edit-StartDate').datepicker({ dateFormat: 'yy-mm-dd' });
+  $('#pledge-edit-EndDate').datepicker({ dateFormat: 'yy-mm-dd' });
+
+  // Edit button handler for pledges
+  $(document).on('click', '.pledge-edit-btn', function() {
+    var id = $(this).data('id');
+
+    // Fetch pledge data
+    $.post('ajax_request.php', {req: 'Pledge', id: id}, function(data) {
+      if (data.alert) {
+        alert(data.alert);
+        return;
+      }
+
+      // Populate form
+      $('#pledge-edit-id').val(data.PledgeID);
+      $('#pledge-edit-DonationTypeID').val(data.DonationTypeID);
+      $('#pledge-edit-PledgeDesc').val(data.PledgeDesc);
+      $('#pledge-edit-StartDate').val(data.StartDate);
+      $('#pledge-edit-EndDate').val(data.EndDate == '0000-00-00' ? '' : data.EndDate);
+      $('#pledge-edit-Amount').val(parseFloat(data.Amount).toFixed(<?=$_SESSION['currency_decimals']?>));
+      $('#pledge-edit-TimesPerYear').val(data.TimesPerYear);
+
+      $('#pledge-edit-dialog').dialog('open');
+    }, 'json')
+    .fail(function(jqXHR, textStatus, errorThrown) {
+      alert('Error calling ajax_request.php: ' + textStatus);
+    });
+  });
+
+  // Delete button handler for pledges
+  $(document).on('click', '.pledge-delete-btn', function() {
+    var $btn = $(this);
+    var $row = $btn.closest('tr');
+    var id = $btn.data('id');
+
+    $row.addClass('delconfirm');
+
+    // Check if pledge has donations before confirming
+    $.post('ajax_request.php', {req: 'PledgeDonationCount', id: id}, function(data) {
+      if (data.count > 0) {
+        $row.removeClass('delconfirm');
+        alert('<?=sprintf(_("There are %s donations applied to this pledge - please reassign the donations before deleting the pledge."), "' + data.count + '")?>'.replace('%s', data.count));
+      } else {
+        if (confirm('<?=_("Are you sure you want to delete this record?")?>')) {
+          $row.addClass('delwait').removeClass('delconfirm');
+
+          $.post('ajax_actions.php', {action: 'PledgeDelete', id: id, pid: <?=$_GET['pid']?>}, function(data) {
+            if (data.substr(0,1) == '*') {
+              $row.remove();
+              $('#pledges-table').trigger('update');
+            } else {
+              $row.removeClass('delwait');
+              alert(data);
+            }
+          });
+        } else {
+          $row.removeClass('delconfirm');
+        }
+      }
+    }, 'json');
+  });
+
+  // Validation for pledge edit
+  function validatePledgeEdit() {
+    var date_regexp = /^\d\d\d\d-\d{1,2}-\d{1,2}$/;
+
+    if ($('#pledge-edit-DonationTypeID').val() == '0') {
+      alert('<?=_("Please choose a Donation Type.")?>');
+      return false;
+    }
+    if (!$('#pledge-edit-PledgeDesc').val()) {
+      alert('<?=_("Please fill in the Description.")?>');
+      return false;
+    }
+    if (!$('#pledge-edit-StartDate').val()) {
+      alert('<?=_("Please fill in a Start Date.")?>');
+      return false;
+    }
+    if (!date_regexp.test($('#pledge-edit-StartDate').val())) {
+      alert('<?=_("Start Date must be in the form of YYYY-MM-DD.")?>');
+      return false;
+    }
+    var endDate = $('#pledge-edit-EndDate').val();
+    if (endDate && !date_regexp.test(endDate)) {
+      alert('<?=_("End Date must be in the form of YYYY-MM-DD.")?>');
+      return false;
+    }
+    if (!$('#pledge-edit-Amount').val()) {
+      alert('<?=_("Please fill in the Amount.")?>');
+      return false;
+    }
+    return true;
+  }
+
+  // Save function for pledges
+  function savePledge() {
+    var formData = $('#pledge-edit-form').serializeArray();
+    formData.push({name: 'action', value: 'PledgeSave'});
+    formData.push({name: 'PersonID', value: <?=$_GET['pid']?>});
+
+    $.post('ajax_actions.php', formData, function(data) {
+      if (data.substr(0,1) == '*') {
+        $('#pledge-edit-dialog').dialog('close');
+
+        // Update the row in the table without page refresh
+        var id = $('#pledge-edit-id').val();
+        var $row = $('.pledge-edit-btn[data-id="' + id + '"]').closest('tr');
+
+        // Update donation type cell
+        $row.find('td.dtype').text($('#pledge-edit-DonationTypeID option:selected').text());
+
+        // Update description cell
+        $row.find('td.description').text($('#pledge-edit-PledgeDesc').val());
+
+        // Update amount cell (with interval)
+        var amount = parseFloat($('#pledge-edit-Amount').val().replace(/,/g, ''));
+        var formattedAmount = amount.toLocaleString('en-US', {minimumFractionDigits: <?=$_SESSION['currency_decimals']?>, maximumFractionDigits: <?=$_SESSION['currency_decimals']?>});
+        var tpy = $('#pledge-edit-TimesPerYear').val();
+        var interval = '';
+        switch(tpy) {
+          case '0': interval = ' <?=_("(one time)")?>'; break;
+          case '1': interval = '/<?=_("year")?>'; break;
+          case '4': interval = '/<?=_("quarter")?>'; break;
+          case '12': interval = '/<?=_("month")?>'; break;
+        }
+        $row.find('td.amount').html('<?=$_SESSION['currency_mark']?> ' + formattedAmount + interval);
+
+        // Update dates cell
+        var startDate = $('#pledge-edit-StartDate').val();
+        var endDate = $('#pledge-edit-EndDate').val();
+        var datesText = startDate;
+        if (tpy != '0') {
+          datesText += '～' + (endDate ? endDate : '');
+        }
+        $row.find('td.dates').text(datesText);
+
+        // Update balance cell via AJAX
+        updatePledgeBalance(id);
+
+        // Update tablesorter
+        $('#pledges-table').trigger('update');
+      } else {
+        alert(data);
+      }
+    });
+  }
+
+  // Update pledge balance cell
+  function updatePledgeBalance(pledgeId) {
+    $.post('ajax_request.php', {req: 'PledgeBalance', id: pledgeId}, function(data) {
+      if (data.alert) {
+        console.error('Error updating pledge balance:', data.alert);
+        return;
+      }
+
+      var $row = $('.pledge-edit-btn[data-id="' + pledgeId + '"]').closest('tr');
+      var balanceHTML = '';
+
+      if (data.balance < 0) {
+        balanceHTML = '<span style="color:red"><?=$_SESSION['currency_mark']?> ' +
+          parseFloat(data.balance).toLocaleString('en-US', {
+            minimumFractionDigits: <?=$_SESSION['currency_decimals']?>,
+            maximumFractionDigits: <?=$_SESSION['currency_decimals']?>
+          });
+
+        if (data.months !== '') {
+          balanceHTML += '<br>(' + data.months + ' months)';
+        }
+        balanceHTML += '</span>';
+      } else {
+        balanceHTML = '<?=$_SESSION['currency_mark']?> ' +
+          parseFloat(data.balance).toLocaleString('en-US', {
+            minimumFractionDigits: <?=$_SESSION['currency_decimals']?>,
+            maximumFractionDigits: <?=$_SESSION['currency_decimals']?>
+          });
+      }
+
+      $row.find('td.balance').html(balanceHTML);
+    }, 'json');
+  }
+
+  // Apply gray background to closed pledges
+  function applyClosedPledgeStyle() {
+    var today = new Date();
+    today.setHours(0, 0, 0, 0); // Midnight
+
+    $('#pledges-table tbody tr').each(function() {
+      var datesCell = $(this).find('td.dates');
+      if (datesCell.length) {
+        var datesText = datesCell.text();
+        // Check if there's an end date (contains ～)
+        if (datesText.indexOf('～') !== -1) {
+          var parts = datesText.split('～');
+          if (parts.length === 2 && parts[1].trim() !== '') {
+            // There's an end date
+            var endDate = new Date(parts[1].trim());
+            if (endDate < today) {
+              // Pledge is closed
+              $(this).css('background-color', '#E0E0E0');
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Apply on page load
+  if ($('#pledges-table').length) {
+    applyClosedPledgeStyle();
+    // Re-apply after table sorting
+    $('#pledges-table').on('sortEnd', function() {
+      applyClosedPledgeStyle();
+    });
+  }
+
   $("#activeevents").click(function(){  //show or hide active events
     if ($("#activeevents").val()=="<?=_("Show Active")?>") {
       $("#eventid.active").show();
@@ -1364,6 +2165,43 @@ function ValidateDonation() {
   }
 */
   $("#dtype").prop( "disabled", false );
+  return true;
+}
+
+function ValidatePledge() {
+  var date_regexp = /^\d\d\d\d-\d{1,2}-\d{1,2}$/;
+
+  if ($('#pledge-dtype').val() == '0') {
+    alert('<?=_("Please choose a Donation Type.")?>');
+    $('#pledge-dtype').focus();
+    return false;
+  }
+  if ($('#pledge-desc').val() == '') {
+    alert('<?=_("Please fill in the Description.")?>');
+    $('#pledge-desc').focus();
+    return false;
+  }
+  if ($('#pledge-startdate').val() == '') {
+    alert('<?=_("Please fill in a Start Date.")?>');
+    $('#pledge-startdate').focus();
+    return false;
+  }
+  if (!date_regexp.test($('#pledge-startdate').val())) {
+    alert('<?=_("Start Date must be in the form of YYYY-MM-DD.")?>');
+    $('#pledge-startdate').focus();
+    return false;
+  }
+  var endDate = $('#pledge-enddate').val();
+  if (endDate && !date_regexp.test(endDate)) {
+    alert('<?=_("End Date must be in the form of YYYY-MM-DD.")?>');
+    $('#pledge-enddate').focus();
+    return false;
+  }
+  if ($('#pledge-amount').val() == '') {
+    alert('<?=_("Please fill in the Amount.")?>');
+    $('#pledge-amount').focus();
+    return false;
+  }
   return true;
 }
 

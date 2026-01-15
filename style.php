@@ -37,7 +37,7 @@ body.full div#main-container {
   border: 1px solid <?=(!empty($mainborder)?$mainborder:"Black")?>;
   margin: 10px;
 }
-body.simple div#main-container {
+body.simple div#main-container, body.simple div#content {
   text-align:left;
   background-color: White;
 }
@@ -181,6 +181,7 @@ ul.nav a.disabledlink:hover, div.hassub a.disabledlink:hover {
   display: none;
   list-style-type: none;
   position: absolute;
+  z-index: 9998;
   border-radius: 0;
   left: 0;
   right: 0;
@@ -292,8 +293,8 @@ fieldset,input,select,label,label textarea { vertical-align:top; }
 .label-n-input { white-space:nowrap; margin-right:2em;}
 td.button-in-table { text-align:center; }
 
-div#actions { margin:8px 0; text-align:center; }
-div#actions form { display:inline; margin:2px 15px; }
+/* div#actions { margin:8px 0; text-align:center; } *** I don't know why this was here *** */
+/* div#actions form { display:inline; margin:2px 15px; } *** I don't know why this was here *** */
 
 /* TABLES (including tablesorter) */
 
@@ -522,6 +523,7 @@ body.individual div.section h3 { margin:5px 0 0 0; }
 body.individual form#orgform,
 body.individual form#actionform,
 body.individual form#donationform,
+body.individual form#pledgeform,
 body.individual form#attendform { margin:0 0 5px 30px; padding:5px; border:1px solid LightGray; }
 body.individual form#actionform textarea { height:2em; }
 body.individual td.categories, body.individual td.events { white-space:nowrap; }
@@ -600,16 +602,18 @@ body.donations .actiontypes { display:inline-block; vertical-align:middle; margi
 body.donations .proctype, body.donations .actiontype { display:block; }
 
 /* specific to donation_list.php */
-body.donation_list.full div#main-container { width:auto; }
-body.donation_list ul#criteria {
+/*body.donation_list.full div#main-container, body.donation_summary.full div#main-container {
+  width:auto;
+}*/
+body.donation_list ul#criteria, body.donation_summary ul#criteria, body.pledge_list ul#criteria {
   margin-left:30px;
   padding-left:12px;
   list-style-type: disc;
 }
 body.donation_list div#procbuttons { text-align:right; }
 body.donation_list div#procbuttons button { margin-left:10px; }
-body.donation_list table.sttable td { border:1px solid <?=(!empty($innerborder)?$innerborder:"SteelBlue")?>; }
-body.donation_list table.sttable td { padding:1px 3px 1px 3px; vertical-align:middle; }
+/*body.donation_list table.sttable td { border:1px solid <?=(!empty($innerborder)?$innerborder:"SteelBlue")?>; }*/
+/*body.donation_list table.sttable td { padding:1px 3px 1px 3px; vertical-align:middle; }*/
 body.donation_list td.dtype, td.amount { white-space:nowrap; }
 body.donation_list td.amount { text-align:right; }
 body.donation_list td.subtotal {
@@ -730,6 +734,12 @@ body.dashboard #attend_datesums h3 { display:none; }
   }
   ul.nav { display:none; }
 }
+
+  /*** jQuery UI CSS exceptions ***/
+  .ui-dialog .ui-dialog-content {
+  overflow:visible;
+  text-align:left;
+  }
 
 <?php
 } // end IF USING THIS FILE

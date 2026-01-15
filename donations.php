@@ -72,8 +72,8 @@ while ($row = mysqli_fetch_object($result)) {
     <label style="display:inline;margin-left:1em"><?=sprintf(_("(top %s donors)"),"<input type=\"text\" name=\"limit\"".
     " style=\"width:2em\">")?></label></span>
   </span>
-  <input type="submit" id="show_summary" name="show_summary" value="<?=_("Donation Summary").' ('._('below').')'?>" formaction="donation_summary.php" formtarget="ResultFrame">
-  <input type="submit" id="show_summary" name="show_summary" value="<?=_("Donation Summary").' ('._('new tab').')'?>" formaction="donation_summary.php" formtarget="_blank">
+  <input type="submit" id="show_summary_frame" name="summary_frame" value="<?=_("Donation Summary").' ('._('below').')'?>" formaction="donation_summary.php" formtarget="ResultFrame">
+  <input type="submit" id="show_summary_tab" name="summary_tab" value="<?=_("Donation Summary").' ('._('new tab').')'?>" formaction="donation_summary.php" formtarget="_blank">
 </fieldset>
 <fieldset><legend><?=_("Pledges")?></legend>
   <label class="label-n-input"><input type="checkbox" name="closed" value="yes"><?=_("Include closed pledges")?></label>
@@ -81,9 +81,6 @@ while ($row = mysqli_fetch_object($result)) {
   <input type="submit" id="show_pledges_frame" name="pledge_frame" value="<?=_("Pledge List").' ('._('below').')'?>" formaction="pledge_list.php" formtarget="ResultFrame">
   <input type="submit" id="show_pledges_tab" name="pledge_tab" value="<?=_("Pledge List").' ('._('new tab').')'?>" formaction="pledge_list.php" formtarget="_blank">
 </fieldset>
-<p><?=sprintf(_("Show: %shere&nbsp; %sin new tab"),
-"<input type=\"radio\" id=\"radio_frame\" name=\"ftarget\" value=\"ResultFrame\" checked>",
-"<input type=\"radio\" id=\"radio_window\" name=\"ftarget\" value=\"_blank\">")?></p>
 </form>
 <iframe name="ResultFrame" width="100%" height="320" src="blank.php"></iframe>
 

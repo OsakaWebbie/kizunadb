@@ -133,8 +133,14 @@ function footer($nav=0) {
         });
 
         /* event handling for submenus (must be JS because of menu links that don't refresh the page) */
-        $(".hassub").click(function() { $("ul",this).show(); })
-        .mouseleave(function(){ $("ul",this).hide(); });
+        /* hover to open/close - exclude #nav-mobile (touch devices, and mouse hover is confusing there) */
+        $(".hassub").not("#nav-mobile .hassub").on("mouseenter", function() { $("ul",this).show(); })
+        .on("mouseleave", function(){ $("ul",this).hide(); });
+        /* click to toggle - all menus including #nav-mobile */
+        $(".hassub").on("click", "> a", function(event) {
+          event.preventDefault();
+          $(this).siblings("ul").toggle();
+        });
 
         $('.ajaxlink').click(function(event) {
           $(this).closest('ul').hide();

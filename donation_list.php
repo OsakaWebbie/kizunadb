@@ -2,23 +2,9 @@
 include("functions.php");
 include("accesscontrol.php");
 
-if (!empty($_SESSION['bucket'])) {
-  $preselecteds = implode(',',$_SESSION['bucket']);
-}
-
+$show_nav = !empty($_REQUEST['don_tab']) ? 1 : 0;
 $summary = $_REQUEST['show_summary'] ?? 0;
-// Check if this is a list request (either don_frame or don_tab button was clicked)
-$is_list = isset($_REQUEST['don_frame']) || isset($_REQUEST['don_tab']);
-$type = $is_list ? ($_REQUEST['listtype'] ?? 'Normal') : ($_REQUEST['summarytype'] ?? 'DonationType');
-
-// Determine nav: if don_frame (iframe), no nav; if don_tab (new tab), show nav
-if (isset($_REQUEST['nav'])) {
-  $show_nav = $_REQUEST['nav'];
-} elseif (isset($_REQUEST['don_frame'])) {
-  $show_nav = 0; // Iframe - no navigation
-} else {
-  $show_nav = 1; // New tab or direct access - show navigation
-}
+$type = $_REQUEST['listtype'] ?? 'Normal';
 
 header1(_("Donation List"));
 ?>
