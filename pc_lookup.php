@@ -104,7 +104,7 @@ if (mysqli_num_rows($aux) == 0) {
 
   while ($row = mysqli_fetch_object($aux)) {
     echo "<tr><td>";
-    echo "<form method=POST action=\"${PHP_SELF}\">\n";
+    echo "<form method=POST action=\"$_SERVER[PHP_SELF]\">\n";
     echo "<input type=hidden name=pc value=\"$row->PostalCode\">\n";
     echo "<input type=hidden name=pref value=\"$row->Prefecture\">\n";
     echo "<input type=hidden name=shi value=\"$row->ShiKuCho\">\n";

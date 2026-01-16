@@ -42,7 +42,7 @@ header2(0);
 echo "<h3>"._("Type the ID of an organization or search by name.")."</h3>\n";
 echo "<p style=\"margin-bottom:10px\">"._("NOTE: A leader cannot be designated here - do that on the leader's detail page.")."</p>\n";
 ?>
-<form name="orgform" id="orgform" method="POST" action="<?=${PHP_SELF}."?pid=$pid"?>" onSubmit="return ValidateOrg()">
+<form name="orgform" id="orgform" method="POST" action="<?=$_SERVER['PHP_SELF']."?pid=$pid"?>" onSubmit="return ValidateOrg()">
 <input type="hidden" name="pid_list" value="<?=$pid_list?>" />
 <?=_("Organization ID")?>: <input type="text" name="orgid" id="orgid" style="width:5em;ime-mode:disabled" value="" />
 <span id="orgname" style="color:darkred;font-weight:bold"></span><br />
