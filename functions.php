@@ -3,6 +3,29 @@
 error_reporting(E_ALL ^ E_NOTICE);
 ini_set('display_errors',0);
 
+// Maintenance mode check - blocks POST requests during migration
+// Enable: touch /var/www/kizunadb/MAINTENANCE_MODE
+// Bypass: echo "YOUR.IP" > /var/www/kizunadb/MAINTENANCE_BYPASS_IPS
+// Disable: rm /var/www/kizunadb/MAINTENANCE_MODE
+$maintenance_file = '/var/www/kizunadb/MAINTENANCE_MODE';
+if (file_exists($maintenance_file)) {
+    $bypass = false;
+    $bypass_file = '/var/www/kizunadb/MAINTENANCE_BYPASS_IPS';
+    if (file_exists($bypass_file)) {
+        $allowed = file($bypass_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        $bypass = in_array($_SERVER['REMOTE_ADDR'], $allowed);
+    }
+    if (!$bypass && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        header('HTTP/1.1 503 Service Unavailable');
+        header('Content-Type: text/html; charset=utf-8');
+        die('<html><head><title>Maintenance</title></head><body style="font-family:sans-serif;text-align:center;padding:50px">
+            <h1>System Maintenance / メンテナンス中</h1>
+            <p>Write operations temporarily disabled. Please try again soon.</p>
+            <p>データの変更は一時的に停止しています。しばらくお待ちください。</p>
+            </body></html>');
+    }
+}
+
 function header1($title) {
   ?>
 <!doctype html>
