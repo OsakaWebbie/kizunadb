@@ -272,13 +272,13 @@ function load_scripts($scripts) {
     if (empty($scripts_loaded[$script])) {
       switch ($script) {
         case 'jquery':
-          echo '<script type="text/JavaScript" src="js/jquery-3.6.0.js"></script>'."\n";
+          echo '<script type="text/JavaScript" src="js/jquery-3.6.0.min.js"></script>'."\n";
           break;
         case 'jqueryui':
           echo '<script type="text/JavaScript" src="js/jquery-ui-13.min.js"></script>'."\n";
           break;
         case 'tablesorter':
-          echo '<script type="text/JavaScript" src="js/jquery.tablesorter.js"></script>'."\n";
+          echo '<script type="text/JavaScript" src="js/jquery.tablesorter.min.js"></script>'."\n";
           break;
         case 'table2csv':
           echo '<script type="text/JavaScript" src="js/table2CSV.js"></script>'."\n";
@@ -288,11 +288,11 @@ function load_scripts($scripts) {
           break;
         case 'multiselect':
           echo '<script type="text/JavaScript" src="js/jquery.multiselect.min.js"></script>'."\n";
-          echo '<script type="text/JavaScript" src="js/jquery.multiselect.filter.js"></script>'."\n";
+          echo '<script type="text/JavaScript" src="js/jquery.multiselect.filter.min.js"></script>'."\n";
           break;
         case 'multiselect-classes':
           echo '<script type="text/JavaScript" src="js/jquery.multiselect-classes.js"></script>'."\n";
-          echo '<script type="text/JavaScript" src="js/jquery.multiselect.filter.js"></script>'."\n";
+          echo '<script type="text/JavaScript" src="js/jquery.multiselect.filter.min.js"></script>'."\n";
           break;
         case 'datepicker-ja':
           echo '<script type="text/JavaScript" src="js/i18n/datepicker-ja.js"></script>'."\n";
