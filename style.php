@@ -745,7 +745,7 @@ body.dashboard #attend_datesums h3 { display:none; }
 } // end IF USING THIS FILE
 
 if (isset($_GET['jquery'])) {
-  serve(is_file($path."jquery-ui-13.css") ? $path."jquery-ui-13.css" : "css/jquery-ui-13.css");
+  serve(is_file($path."jquery-ui-13.css") ? $path."jquery-ui-13.css" : "css/jquery-ui-13.min.css");
 }
 if (isset($_GET['table'])) {
   serve(is_file($path."tablesorter.css") ? $path."tablesorter.css" : "css/tablesorter.css");
