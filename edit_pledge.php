@@ -146,7 +146,7 @@ if (!empty($message)) echo "<h3>$message</h3>\n";
 onsubmit="return edit_validate();"><br>
 <input type="hidden" name="pid" value="<?=(isset($_GET['plid']) ? $old->PersonID : $_GET['pid'])?>">
 <?php if (isset($_GET['plid'])) echo "<input type=\"hidden\" name=\"plid\" value=\"".$_GET['plid']."\">"; ?>
-<input type="hidden" name="<?=($_GET['plid'] ? "updatepledge" : "insertpledge")?> value="yes">
+<input type="hidden" name="<?=(isset($_GET['plid']) ? "updatepledge" : "insertpledge")?>" value="yes">
 
 <label class="label-n-input"><?=_("Donation Type")?>: <select id="dtype" name="dtype" size="1"><?php
 if (!isset($_GET['plid'])) {
@@ -159,11 +159,11 @@ while ($row = mysqli_fetch_object($result)) {
 }
 ?></select></label>
 <label class="label-n-input"><?=_("Description")?>: <input id="desc" name="desc" type="text" style="width:30em"
-maxlength="150" value="<?=$old->PledgeDesc?>" /></label>
+maxlength="150" value="<?=(isset($_GET['plid']) ? $old->PledgeDesc : '')?>" /></label>
 <label class="label-n-input"><?=_("Start Date")?>: <input type="text" id="startdate" name="startdate" style="width:6em"
 value="<?=isset($_GET['plid']) ? $old->StartDate : date("Y-m-d",mktime(gmdate("H")+9))?>" /></label>
 <label class="label-n-input"><?=_("End Date")?>: <input type="text" id="enddate" name="enddate" style="width:6em"
-value="<?=($old->EndDate!='0000-00-00'?$old->EndDate:'')?>"> <span class="comment"><?=_("(leave blank if no specified end to pledge)")?></span></label>
+value="<?=((isset($_GET['plid']) && $old->EndDate!='0000-00-00')?$old->EndDate:'')?>"> <span class="comment"><?=_("(leave blank if no specified end to pledge)")?></span></label>
 <span style="white-space:nowrap"><label class="label-n-input" style="margin-right:0"><?=_("Amount")?>: <?=$_SESSION['currency_mark']?><input id="amount"
 name="amount" type="text" style="width:8em" maxlength="12" value="<?php
 if (isset($_GET['plid'])) echo number_format($old->Amount,$_SESSION['currency_decimals']); ?>" /></label>
@@ -171,8 +171,8 @@ if (isset($_GET['plid'])) echo number_format($old->Amount,$_SESSION['currency_de
 <?php
 if (isset($_GET['plid'])) {
   $tpy = $old->TimesPerYear;
-} elseif (isset($_SESSION['pledge-tpy'])) {
-  $tpy = $_SESSION['pledge-tpy'];
+} elseif (isset($_SESSION['pledge_tpy'])) {
+  $tpy = $_SESSION['pledge_tpy'];
 } else {
   $tpy=12;
 } ?>

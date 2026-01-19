@@ -2,10 +2,16 @@
 include("functions.php");
 include("accesscontrol.php");
 
-$summary = $_POST['show_summary'] ? 1 : 0;
-$type = $_POST['show_list'] ? $_POST['listtype'] : $_POST['summarytype'];
-$title = $_POST['show_list'].$_POST['show_summary'].
-  ($_POST['preselected']!="" ? sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($_POST['preselected'],",")+1) : "");
+if (!empty($_GET['ps'])) {  // using new method of preselected parameter
+  $preselecteds = preselecteds($_GET['ps']);
+} elseif (!empty($_POST['preselected'])) {  // old method
+  $preselecteds = $_POST['preselected'];
+}
+
+$summary = $_REQUEST['show_summary'] ? 1 : 0;
+$type = $_REQUEST['show_list'] ? $_REQUEST['listtype'] : $_REQUEST['summarytype'];
+$title = $_REQUEST['show_list'].$_REQUEST['show_summary'].
+  (!empty($preselecteds) ? sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($preselecteds,",")+1) : "");
 header1($title);
 
 if ($summary) {
@@ -94,7 +100,7 @@ td.amount-for-display { text-align:right; }
 <script type="text/javascript">
 $(document).ready(function() {
 <?php if ($summary) { ?>
-  $("#summarytable").tablesorter({ sortList:[[<?=($type=="PersonID"?($_POST['limit']?"4,1":"2,0"):"0,0")?>]] });
+  $("#summarytable").tablesorter({ sortList:[[<?=($type=="PersonID"?($_REQUEST['limit']?"4,1":"2,0"):"0,0")?>]] });
 <?php } else { ?>
   $("#listtable").tablesorter({
     sortList:[[4,0],[0,1]],
@@ -159,14 +165,14 @@ function getCSV() {
 <?php
 header2($_GET['nav']);
 if ($_GET['nav']==1) echo "<h1 id=\"title\">".$title."</h1>\n";
-if ($_SESSION['userid']=="karen") echo "<pre>".print_r($_POST,TRUE)."</pre>";
+//if ($_SESSION['userid']=="karen") echo "<pre>".print_r($_REQUEST,TRUE)."</pre>";
 
 //construct WHERE clause from criteria
 $criteria = "<ul id=\"criteria\">";
 $wheredone = 0;
-if ($_POST['dtype']) {
-  $where .= ($wheredone?" AND":" WHERE")." d.DonationTypeID IN (".implode(",",$_POST['dtype']).")";
-  $result = sqlquery_checked("SELECT DonationType FROM donationtype WHERE DonationTypeID IN (".implode(",",$_POST['dtype']).")");
+if ($_REQUEST['dtype']) {
+  $where .= ($wheredone?" AND":" WHERE")." d.DonationTypeID IN (".implode(",",$_REQUEST['dtype']).")";
+  $result = sqlquery_checked("SELECT DonationType FROM donationtype WHERE DonationTypeID IN (".implode(",",$_REQUEST['dtype']).")");
   $dtarray = array();
   while ($row = mysqli_fetch_object($result)) {
     $dtarray[] = $row->DonationType;
@@ -174,40 +180,40 @@ if ($_POST['dtype']) {
   $criteria .= "<li>".sprintf(_("In at least one of these donation types: %s"),implode(",",$dtarray))."</li>\n";
   $wheredone = 1;
 }
-if ($_POST['start']) {
-  $where .= ($wheredone?" AND":" WHERE")." d.DonationDate>='".$_POST['start']."'";
+if ($_REQUEST['start']) {
+  $where .= ($wheredone?" AND":" WHERE")." d.DonationDate>='".$_REQUEST['start']."'";
   $wheredone = 1;
 }
-if ($_POST['end']) {
-  $where .= ($wheredone?" AND":" WHERE")." d.DonationDate<='".$_POST['end']."'";
+if ($_REQUEST['end']) {
+  $where .= ($wheredone?" AND":" WHERE")." d.DonationDate<='".$_REQUEST['end']."'";
   $wheredone = 1;
 }
-if ($_POST['start'] || $_POST['end']) {
+if ($_REQUEST['start'] || $_REQUEST['end']) {
   $criteria .= "<li>";
-  if ($_POST['start'] && $_POST['end']) $criteria .= sprintf(_("Date between %s and %s"),$_POST['start'],$_POST['end']);
-  elseif ($_POST['start']) $criteria .= sprintf(_("Date on or after %s"),$_POST['start']);
-  elseif ($_POST['end']) $criteria .= sprintf(_("Date on or before %s"),$_POST['end']);
+  if ($_REQUEST['start'] && $_REQUEST['end']) $criteria .= sprintf(_("Date between %s and %s"),$_REQUEST['start'],$_REQUEST['end']);
+  elseif ($_REQUEST['start']) $criteria .= sprintf(_("Date on or after %s"),$_REQUEST['start']);
+  elseif ($_REQUEST['end']) $criteria .= sprintf(_("Date on or before %s"),$_REQUEST['end']);
   $criteria .= "</li>\n";
 }
-if ($_POST['proc']) {
-  $where .= ($wheredone?" AND":" WHERE")." d.Processed=".($_POST['proc']=="proc"?"1":"0");
-  $criteria .= "<li>".($_POST['proc']=="proc" ? _("Processed") : _("Unprocessed"))."</li>\n";
+if ($_REQUEST['proc']) {
+  $where .= ($wheredone?" AND":" WHERE")." d.Processed=".($_REQUEST['proc']=="proc"?"1":"0");
+  $criteria .= "<li>".($_REQUEST['proc']=="proc" ? _("Processed") : _("Unprocessed"))."</li>\n";
   $wheredone = 1;
 }
-if ($_POST['search']!="") {
-  $where .= ($wheredone?" AND":" WHERE")." d.Description LIKE '%".$_POST['search']."%'";
-  $criteria .= "<li>".sprintf(_("\"%s\" in Description"), $_POST['search'])."</li>\n";
+if ($_REQUEST['search']!="") {
+  $where .= ($wheredone?" AND":" WHERE")." d.Description LIKE '%".$_REQUEST['search']."%'";
+  $criteria .= "<li>".sprintf(_("\"%s\" in Description"), $_REQUEST['search'])."</li>\n";
   $wheredone = 1;
 }
-if ($_POST['cutoff']!="") {
-  if ($summary) $having = " HAVING SUM(d.Amount)".$_POST['cutofftype'].(int)$_POST['cutoff'];
-  else $where .= ($wheredone?" AND":" WHERE")." d.Amount".$_POST['cutofftype'].(int)$_POST['cutoff'];
-  $criteria .= "<li>".sprintf(_("Amount %s %s"),$_POST['cutofftype'],$_POST['cutoff'])."</li>\n";
+if ($_REQUEST['cutoff']!="") {
+  if ($summary) $having = " HAVING SUM(d.Amount)".$_REQUEST['cutofftype'].(int)$_REQUEST['cutoff'];
+  else $where .= ($wheredone?" AND":" WHERE")." d.Amount".$_REQUEST['cutofftype'].(int)$_REQUEST['cutoff'];
+  $criteria .= "<li>".sprintf(_("Amount %s %s"),$_REQUEST['cutofftype'],$_REQUEST['cutoff'])."</li>\n";
   $wheredone = 1;
 }
-if ($_POST['preselected']) {
-  $where .= ($wheredone?" AND":" WHERE")." d.PersonID IN (".$_POST['preselected'].")";
-  $criteria .= "<li>".sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($_POST['preselected'],",")+1)."</li>\n";
+if (!empty($preselecteds)) {
+  $where .= ($wheredone?" AND":" WHERE")." d.PersonID IN (".$preselecteds.")";
+  $criteria .= "<li>".sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($preselecteds,",")+1)."</li>\n";
   $wheredone = 1;
 }
 $criteria .="</ul>";
@@ -217,7 +223,7 @@ if ($type=="DonationType") {
   $sql = "SELECT dt.DonationTypeID, dt.DonationType, d.PersonID, SUM(d.Amount) AS subtotal FROM donationtype dt ".
   "LEFT JOIN donation d ON d.DonationTypeID=dt.DonationTypeID".$where." OR d.DonationDate IS NULL";
   $sql .= " GROUP BY dt.DonationTypeID".$having." ORDER BY ".
-    ($_POST['subtotalsort'] ? "subtotal DESC," : "")."dt.DonationType,d.DonationTypeID";
+    ($_REQUEST['subtotalsort'] ? "subtotal DESC," : "")."dt.DonationType,d.DonationTypeID";
 } else {  // single list or grouped/summary by person
 // in the case of a single list, this query is only to get the IDs for multiselect, so we don't need the other information or subtotals
   $sql = "SELECT ".($type=="Normal" ? "DISTINCT p.PersonID" : "p.PersonID,p.FullName,p.Furigana,SUM(d.Amount) subtotal").
@@ -227,11 +233,11 @@ if ($type=="DonationType") {
     $sql .= " ORDER BY p.PersonID";
   } else {
     $sql .= " GROUP BY p.PersonID".$having." ORDER BY ".
-    ($_POST['subtotalsort'] || ($summary && $_POST['limit']) ? "subtotal DESC," : "")."p.Furigana,p.PersonID";
+    ($_REQUEST['subtotalsort'] || ($summary && $_REQUEST['limit']) ? "subtotal DESC," : "")."p.Furigana,p.PersonID";
   }
-  if ($summary && $type=="PersonID" && $_POST['limit']) $sql .= " LIMIT ".(int)$_POST['limit'];
+  if ($summary && $type=="PersonID" && $_REQUEST['limit']) $sql .= " LIMIT ".(int)$_REQUEST['limit'];
 }
-if ($_SESSION['userid']=="karen") echo "<p>".$sql."</p>";
+//if ($_SESSION['userid']=="karen") echo "<p>".$sql."</p>";
 $result = sqlquery_checked($sql);
 if (mysqli_num_rows($result) == 0) {
   echo "<h3>"._("There are no records matching your criteria.")."</h3>";
@@ -260,9 +266,9 @@ if (!$summary) {
   " LEFT JOIN pledge pl ON d.PledgeID=pl.PledgeID".
   " LEFT JOIN donationtype dt2 ON pl.DonationTypeID=dt2.DonationTypeID".$where;
   if ($type == "PersonID") {
-    $sql .= " ORDER BY ".($_POST['subtotalsort'] ? "FIND_IN_SET(d.PersonID, '".$pids."')" : "Furigana,d.PersonID").",d.DonationDate DESC";
+    $sql .= " ORDER BY ".($_REQUEST['subtotalsort'] ? "FIND_IN_SET(d.PersonID, '".$pids."')" : "Furigana,d.PersonID").",d.DonationDate DESC";
   } elseif ($type == "DonationType") {
-    $sql .= " ORDER BY ".($_POST['subtotalsort'] ? "FIND_IN_SET(d.DonationTypeID, '".$dtids."')" : "dt.DonationType").",d.DonationDate DESC";
+    $sql .= " ORDER BY ".($_REQUEST['subtotalsort'] ? "FIND_IN_SET(d.DonationTypeID, '".$dtids."')" : "dt.DonationType").",d.DonationDate DESC";
   } else {  // listtype == Normal
     $sql .= " ORDER BY d.DonationDate DESC";
   }

@@ -269,6 +269,11 @@ function email2link($text) {
   return preg_replace('/\b([a-z0-9._%+-]+@[\w.-]+\.[a-z]{2,13})\b/iu', '<a href="mailto:$0">$0</a>', $text);
 }
 
+/* RETURN LIST OF PRESELECTED PERSON IDS */
+function preselecteds($psid) {
+  return (!empty($_SESSION['ps'.$psid]) ? $_SESSION['ps'.$psid] : '');
+}
+
 // STUFF THAT GETS RUN RIGHT AWAY
 
 $hostarray = explode(".",$_SERVER['HTTP_HOST']);
