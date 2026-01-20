@@ -18,7 +18,7 @@ if (!empty($_POST['save_action'])) {
     if (substr($_POST['save_action'],0,3) != "Yes") {   //skip check if after confirming similar entries
       $sql = "SELECT action.*,FullName FROM action LEFT JOIN person on action.PersonID=".
       "person.PersonID WHERE action.PersonID=".$pid_array[$i].
-      " AND action.ActionTypeID=${_POST['atid']} AND ActionDate='${_POST['adate']}'";
+      " AND action.ActionTypeID={$_POST['atid']} AND ActionDate='{$_POST['adate']}'";
       $result = sqlquery_checked($sql);
       if (mysqli_num_rows($result) > 0) {
         $has_prev = 1;
@@ -34,14 +34,14 @@ if (!empty($_POST['save_action'])) {
     }
     if (!$has_prev) {
       $sql = "INSERT INTO action (PersonID,ActionTypeID,ActionDate,Description) VALUES (".
-           $pid_array[$i].",${_POST['atid']},'${_POST['adate']}','".h2d($_POST['desc'])."')";
+           $pid_array[$i].",{$_POST['atid']},'{$_POST['adate']}','".h2d($_POST['desc'])."')";
       $result = sqlquery_checked($sql);
     }
   }
   echo "<h3>".sprintf(_("%s new records successfully added."),$num_pids-$prev_num)."</h3>\n";
   if ($prev_num > 0) {
     $prev_pidlist = substr($prev_pidlist,1);  //remove the leading comma
-    $sql = "SELECT ActionType FROM actiontype WHERE ActionTypeID=${_POST['atid']}";
+    $sql = "SELECT ActionType FROM actiontype WHERE ActionTypeID={$_POST['atid']}";
     $tempresult = sqlquery_checked($sql);
     $temprow = mysqli_fetch_object($tempresult);
 ?>

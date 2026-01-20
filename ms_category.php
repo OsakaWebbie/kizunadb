@@ -8,12 +8,12 @@ if (!empty($_POST['save_cat'])) {
   $num_pids = count($pid_array);
   $num_previous = 0;
   for ($i=0; $i<$num_pids; $i++) {
-    $sql = "SELECT * FROM percat WHERE PersonID=".$pid_array[$i]." AND CategoryID=${_POST['cat_id']}";
+    $sql = "SELECT * FROM percat WHERE PersonID=".$pid_array[$i]." AND CategoryID={$_POST['cat_id']}";
     $result = sqlquery_checked($sql);
     if (mysqli_num_rows($result) == 1) {
       $num_previous++;
     } else {
-      $sql = "INSERT INTO percat (PersonID,CategoryID) VALUES (".$pid_array[$i].",${_POST['cat_id']})";
+      $sql = "INSERT INTO percat (PersonID,CategoryID) VALUES (".$pid_array[$i].",{$_POST['cat_id']})";
       $result = sqlquery_checked($sql);
     }
   }
