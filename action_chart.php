@@ -19,6 +19,7 @@ if (!empty($_POST['startdate'])) $where .= ($where?" AND":" WHERE")." ActionDate
 if (!empty($_POST['enddate'])) $where .= ($where?" AND":" WHERE")." ActionDate <= '".$_POST['enddate']."'";
 if (!empty($_POST['csearch'])) $where .= ($where?" AND":" WHERE")." Description LIKE '%".$_POST['csearch']."%'";
 if (!empty($_POST['preselected'])) $where .= ($where?" AND":" WHERE")." a.PersonID IN (".$_POST['preselected'].")";
+if (!empty($_POST['bucket']) && !empty($_SESSION['bucket'])) $where .= ($where?" AND":" WHERE")." a.PersonID IN (".implode(',',$_SESSION['bucket']).")";
 
 // Get ActionIDs for flextable
 if ($listtype == 'Normal') {

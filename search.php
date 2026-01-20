@@ -2,26 +2,14 @@
 include("functions.php");
 include("accesscontrol.php");
 
-if (isset($_GET['ps'])) {
-  list($psid,$psnum) = explode(":",$_GET['ps']);
-  $tempres = sqlquery_checked("SELECT Pids FROM preselect WHERE PSID='$psid'");
-  $psobj = mysqli_fetch_object($tempres);
-  if ($psobj && $psobj->Pids!="") $preselected = $psobj->Pids;
-} elseif (isset($_POST['pid_list']) && $_POST['pid_list']!="") {
-  $preselected = $_POST['pid_list'];
-  $psnum = substr_count($preselected,",")+1;
-}
-
 header1(_("Search")); ?>
 
 <link rel="stylesheet" type="text/css" href="style.php?page=<?=$_SERVER['PHP_SELF']?>&jquery=1&multiselect=1" />
 <?php header2(1); ?>
-<h1 id="title"><?=$_SESSION['dbtitle'].": "._("Search").(isset($psnum) ? sprintf(_(" (%d People/Orgs Pre-selected)"),
-$psnum) : "")?></h1>
+<h1 id="title"><?=$_SESSION['dbtitle'].": "._("Search")?></h1>
 <?php if (isset($text)) echo "<h3 class=\"alert\">".urldecode($text)."</h3>"; ?>
 
-<form id="searchform" action="list.php?<?=isset($_GET['ps'])?"?ps=".$_GET['ps']:""?>" method="<?=(isset($_POST['pid_list']) ? "post" : "get")?>">
-<?php if (isset($_GET['ps'])) echo "<input type=\"hidden\" id=\"preselected\" name=\"preselected\" value=\"".$_POST['pid_list']."\">\n"; ?>
+<form id="searchform" action="list.php" method="get">
 <h2 class="simpleonly"><?php $txt=_("records"); printf(_("Search for %s that..."),$txt); ?></h2>
 <h2 class="advanced">
 <?php $txt="<span class=\"radiogroup\">".
@@ -196,6 +184,9 @@ if ($_SESSION['admin'] == 1) {
 <button class="simpleonly" id="showadvanced" type="button"><?=_("Advanced Search Options")?></button>
 <div id="buttonsection">
   <label class="label-n-input"><input type="checkbox" name="countonly" value="yes"><?=_("Count Only")?></label>
+<?php if (!empty($_SESSION['bucket'])) { ?>
+  <label class="label-n-input"><input type="checkbox" name="bucket" value="1"><?=sprintf(_("Limit to Bucket (%d)"), count($_SESSION['bucket']))?></label>
+<?php } ?>
   <button id="search" type="submit"><?=_("Search!")?></button>
 </div>
 </form>
@@ -280,13 +271,6 @@ $(document).ready(function(){
     $('option.useforO:selected').prop('selected', false);
     $('option.useforO').hide();
     $('option.useforP').show();
-  });
-
-  $("#searchform").submit(function() {
-    if ($('#preselected').value != "") {  //preselected ID list might be long, so put in POST
-alert("preselected = #"+$('#preselected')+value+"#");
-      $('#searchform').attr("method", "post");
-    }
   });
 
   document.getElementById("textinput1").focus();

@@ -92,6 +92,12 @@ if ($cutoff !== '') {
   $criteria .= "<li>" . sprintf(_("Amount %s %s"), htmlspecialchars($cutofftype), number_format((float)$cutoff)) . "</li>\n";
 }
 
+// Bucket filter
+if (!empty($_REQUEST['bucket']) && !empty($_SESSION['bucket'])) {
+  $where_conditions[] = "pledge.PersonID IN (" . implode(',', $_SESSION['bucket']) . ")";
+  $criteria .= "<li>" . _('In the Bucket') . " (" . count($_SESSION['bucket']) . ")</li>\n";
+}
+
 // Combine conditions
 $where_clause = '';
 if (!empty($where_conditions)) {

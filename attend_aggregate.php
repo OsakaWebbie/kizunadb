@@ -39,6 +39,7 @@ if (!empty($_POST["startdate"])) $where .= " AND a.AttendDate >= '".$_POST["star
 if (!empty($_POST["enddate"])) $where .= " AND a.AttendDate <= '".$_POST["enddate"]."'";
 if (!empty($_POST["min"])) $having .= " HAVING attendnum >= ".$_POST["min"];
 if (!empty($_POST['preselected'])) $where .= " AND a.PersonID IN (".$_POST['preselected'].")";
+if (!empty($_POST['bucket']) && !empty($_SESSION['bucket'])) $where .= " AND a.PersonID IN (".implode(',',$_SESSION['bucket']).")";
 
 // Run aggregate query to collect PersonIDs
 $sql = "SELECT DISTINCT a.PersonID, COUNT(a.AttendDate) AS attendnum FROM attendance a ".

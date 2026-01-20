@@ -273,7 +273,7 @@ if (mysqli_num_rows($result) == 0) {
   header("Location: individual.php?pid=".$person->PersonID);
   exit;
 }
-header1(_("Search Results").(!empty($_POST['preselected']) ? sprintf(_(" (%d People/Orgs Pre-selected)"),$psnum) : ""));
+header1(_("Search Results"));
 
 ?>
 <link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />

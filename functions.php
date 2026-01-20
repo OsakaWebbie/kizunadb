@@ -73,7 +73,7 @@ function header2($nav=0) {
         <a href="#"><?=_('Batch/Bucket').' (<span class="bucketcount">'.count($_SESSION['bucket']).'</span>)'?> &#x25BC;</a>
         <ul class="nav-sub">
           <li class="bucket-list"><a class="bucket-list" href="list.php?bucket=1"><?=_('List Bucket contents')?></a></li>
-          <li><a href="multiselect.php" target="_top"><?=_('Multi-Select').'/'._('Batch')?></a></li>
+          <li><a href="multiselect.php?bucket=1" target="_top"><?=_('Multi-Select').'/'._('Batch')?></a></li>
           <li class="bucket-empty"><a class="ajaxlink bucket-empty" href="#"><?=_('Empty the Bucket')?></a></li>
         </ul>
       </li>
@@ -287,12 +287,12 @@ function load_scripts($scripts) {
           echo '<script type="text/JavaScript" src="js/expanding.js"></script>'."\n";
           break;
         case 'multiselect':
-          echo '<script type="text/JavaScript" src="js/jquery.multiselect.min.js"></script>'."\n";
-          echo '<script type="text/JavaScript" src="js/jquery.multiselect.filter.min.js"></script>'."\n";
+          echo '<script type="text/JavaScript" src="js/jquery.multiselect.js"></script>'."\n";
+          echo '<script type="text/JavaScript" src="js/jquery.multiselect.filter.js"></script>'."\n";
           break;
         case 'multiselect-classes':
           echo '<script type="text/JavaScript" src="js/jquery.multiselect-classes.js"></script>'."\n";
-          echo '<script type="text/JavaScript" src="js/jquery.multiselect.filter.min.js"></script>'."\n";
+          echo '<script type="text/JavaScript" src="js/jquery.multiselect.filter.js"></script>'."\n";
           break;
         case 'datepicker-ja':
           echo '<script type="text/JavaScript" src="js/i18n/datepicker-ja.js"></script>'."\n";
@@ -418,11 +418,6 @@ function url2link($text) {
 
 function email2link($text) {
   return preg_replace('/\b([a-z0-9._%+-]+@[\w.-]+\.[a-z]{2,13})\b/iu', '<a href="mailto:$0">$0</a>', $text);
-}
-
-/* RETURN LIST OF PRESELECTED PERSON IDS */
-function preselecteds($psid) {
-  return (!empty($_SESSION['ps'.$psid]) ? $_SESSION['ps'.$psid] : '');
 }
 
 // STUFF THAT GETS RUN RIGHT AWAY

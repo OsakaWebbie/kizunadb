@@ -33,6 +33,9 @@ while ($row = mysqli_fetch_object($result)) {
     /* span, not label, because a single label around both fields breaks datepicker */ ?>
     </span>
     <label class="label-n-input"><?=_("Search")?>: <input type="text" name="csearch" style="width:10em"></label>
+<?php if (!empty($_SESSION['bucket'])) { ?>
+    <label class="label-n-input"><input type="checkbox" name="bucket" value="1"><?=sprintf(_("Limit to Bucket (%d)"), count($_SESSION['bucket']))?></label>
+<?php } ?>
     <input type="button" id="show_actions" name="show_actions" value="<?=_("Show List")?>">
   </div>
   <p style="clear:both"><?=sprintf(_("Show in: %sframe below&nbsp; %snew window"),

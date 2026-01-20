@@ -57,15 +57,12 @@ if ($_REQUEST['cutoff']!="") {
   $criteria .= "<li>".sprintf(_("Amount %s %s"),$_REQUEST['cutofftype'],$_REQUEST['cutoff'])."</li>\n";
   $wheredone = 1;
 }
-// TODO: Bucket pre-filtering should only happen when user requests it via checkbox in donations.php
-// Commenting out for now until that checkbox is implemented
-/*
-if (!empty($preselecteds)) {
-  $where .= ($wheredone?" AND":" WHERE")." d.PersonID IN (".$preselecteds.")";
-  $criteria .= "<li>".sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($preselecteds,",")+1)."</li>\n";
+// Bucket filtering
+if (!empty($_REQUEST['bucket']) && !empty($_SESSION['bucket'])) {
+  $where .= ($wheredone?" AND":" WHERE")." d.PersonID IN (".implode(',',$_SESSION['bucket']).")";
+  $criteria .= "<li>"._('In the Bucket')." (".count($_SESSION['bucket']).")</li>\n";
   $wheredone = 1;
 }
-*/
 if (!empty($criteria))  $criteria = "<ul id=\"criteria\">$criteria</ul>";
 
 // Main query for summary, or prep query for lists

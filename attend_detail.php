@@ -6,8 +6,14 @@ $date_repeat = 5;
 $name_repeat = 15;
 $rangesize = 15;
 
-$pidfilter = (!empty($_REQUEST['preselected']) || !empty($_REQUEST['pidlist'])) ?
-    (!empty($_REQUEST['preselected']) ? $_REQUEST['preselected'] : $_REQUEST['pidlist']) : '';
+$pidfilter = '';
+if (!empty($_REQUEST['preselected'])) {
+    $pidfilter = $_REQUEST['preselected'];
+} elseif (!empty($_REQUEST['pidlist'])) {
+    $pidfilter = $_REQUEST['pidlist'];
+} elseif (!empty($_REQUEST['bucket']) && !empty($_SESSION['bucket'])) {
+    $pidfilter = implode(',', $_SESSION['bucket']);
+}
 
 //get the list of people who attended (row headings for table)
 $sql = 'SELECT DISTINCT attendance.PersonID,FullName,Furigana,Photo from attendance LEFT JOIN person '.

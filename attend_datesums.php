@@ -37,6 +37,7 @@ echo "</h3>";
 //get the list of dates (column headings for table)
 $sql = "SELECT DISTINCT AttendDate FROM attendance WHERE EventID IN ($eids)";
 if (!empty($_POST['preselected'])) $sql .= " AND PersonID IN (".$_POST['preselected'].")";
+if (!empty($_POST['bucket']) && !empty($_SESSION['bucket'])) $sql .= " AND PersonID IN (".implode(',',$_SESSION['bucket']).")";
 if (!empty($_REQUEST["startdate"])) $sql .= " AND AttendDate >= '".$_REQUEST["startdate"]."'";
 if (!empty($_REQUEST["enddate"])) $sql .= " AND AttendDate <= '".$_REQUEST["enddate"]."'";
 $sql .= " ORDER BY AttendDate";
@@ -85,6 +86,7 @@ for ($r=0; $r<(count($earray)); $r++) {
   if (!empty($_REQUEST["startdate"])) $sql .= " AND AttendDate >= '".$_REQUEST["startdate"]."'";
   if (!empty($_REQUEST["enddate"])) $sql .= " AND AttendDate <= '".$_REQUEST["enddate"]."'";
   if (!empty($_POST['preselected'])) $sql .= " AND PersonID IN (".$_POST['preselected'].")";
+  if (!empty($_POST['bucket']) && !empty($_SESSION['bucket'])) $sql .= " AND PersonID IN (".implode(',',$_SESSION['bucket']).")";
   $sql .= " GROUP BY AttendDate ORDER BY AttendDate";
   $result = sqlquery_checked($sql); 
   $row = mysqli_fetch_object($result);

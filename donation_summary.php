@@ -63,6 +63,12 @@ if (($_REQUEST['cutoff'] ?? '') !== '') {
   $having = " HAVING SUM(d.Amount)" . $cutofftype . (int)$_REQUEST['cutoff'];
   $criteria .= "<li>" . sprintf(_("Amount %s %s"), htmlspecialchars($cutofftype), number_format((int)$_REQUEST['cutoff'])) . "</li>\n";
 }
+// Bucket filtering
+if (!empty($_REQUEST['bucket']) && !empty($_SESSION['bucket'])) {
+  $where .= ($wheredone ? " AND" : " WHERE") . " d.PersonID IN (" . implode(',', $_SESSION['bucket']) . ")";
+  $criteria .= "<li>" . _('In the Bucket') . " (" . count($_SESSION['bucket']) . ")</li>\n";
+  $wheredone = 1;
+}
 
 // Build the summary query
 if ($type == "DonationType") {

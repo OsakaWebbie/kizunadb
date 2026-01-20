@@ -1142,7 +1142,7 @@ function flextable($opt) {
 
    // link to go directly to multiselect without bucket
     $('#<?=$opt->tableid?>-ms').click(function() {
-      location.href = 'multiselect.php?preselected=<?=$pids?>';
+      location.href = 'multiselect.php?pids=<?=$pids?>';
     });
 
     // Add these PIDs to the existing bucket

@@ -29,9 +29,11 @@ echo "var ar = new Array();\n";
 $ar_index = 0;
 $presel_html = "";
 $presel_num = 0;
-if (!empty($_REQUEST['preselected'])) {
-  $preselected = $_REQUEST['preselected'];
+if (!empty($_REQUEST['pids'])) {
+  $preselected = $_REQUEST['pids'];
   $psnum = substr_count($preselected,",")+1;
+} elseif (!empty($_REQUEST['bucket']) && $_SESSION['bucket']) {
+  $preselected = implode(",",$_SESSION['bucket']);
 }
 
 $pc = mysqli_fetch_object($percat);  //pull first one to get started
@@ -130,13 +132,10 @@ while ($cat = mysqli_fetch_object($result)) {
                 border="0" onclick="document.sform.action='ms_overview.php';">
           </div>
           <div class="buttongroup">
-            <h3><?=_("Pre-Filtering Search Pages")?></h3>
-            <input type="submit" name="ms_blank" value="<?=_("Pre-Filter Main Search")?>"
-                border="0" onclick="document.sform.action='search.php';document.sform.target='_self';">
-            <input type="submit" name="ms_blank" value="<?=_("Pre-Filter Attendance Chart")?>"
-                border="0" onclick="document.sform.action='event_attend.php';document.sform.target='_blank';">
-            <input type="submit" name="ms_blank" value="<?=_("Pre-Filter Donation/Pledge Reports")?>"
-                border="0" onclick="document.sform.action='donations.php';document.sform.target='_blank';">
+            <h3><?=_("Bucket")?> (<span class="bucketcount"><?=count($_SESSION['bucket'])?></span>)</h3>
+            <button type="button" id="bucket-add"><?=_("Add to Bucket")?></button>
+            <button type="button" id="bucket-rem"><?=_("Remove from Bucket")?></button>
+            <button type="button" id="bucket-set"><?=_("Set Bucket to these")?></button>
           </div>
           <div class="buttongroup">
             <h3><?=_("Specialized Output")?></h3>
@@ -246,5 +245,56 @@ function make_list() {
     return false;
   }
 }
+
+// Bucket functionality - get comma-separated list of selected PIDs
+function get_selected_pids() {
+  var pids = "";
+  for (var array_index = 0; array_index < ar.length; array_index++) {
+    if (ar[array_index][sel]) {
+      pids += (pids == "" ? "" : ",") + ar[array_index][pid];
+    }
+  }
+  return pids;
+}
+
+// Bucket button click handlers
+$("#bucket-add").click(function() {
+  var pids = get_selected_pids();
+  if (pids == "") {
+    alert('<?=_("Please select at least one person/org.")?>');
+    return;
+  }
+  $.post("bucket.php", { add: pids }, function(r) {
+    if (!isNaN(r)) {
+      $('span.bucketcount').html(r);
+    } else { alert(r); }
+  }, "text");
+});
+
+$("#bucket-rem").click(function() {
+  var pids = get_selected_pids();
+  if (pids == "") {
+    alert('<?=_("Please select at least one person/org.")?>');
+    return;
+  }
+  $.post("bucket.php", { rem: pids }, function(r) {
+    if (!isNaN(r)) {
+      $('span.bucketcount').html(r);
+    } else { alert(r); }
+  }, "text");
+});
+
+$("#bucket-set").click(function() {
+  var pids = get_selected_pids();
+  if (pids == "") {
+    alert('<?=_("Please select at least one person/org.")?>');
+    return;
+  }
+  $.post("bucket.php", { set: pids }, function(r) {
+    if (!isNaN(r)) {
+      $('span.bucketcount').html(r);
+    } else { alert(r); }
+  }, "text");
+});
 </script>
 <?php footer(); ?>

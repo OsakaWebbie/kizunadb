@@ -48,6 +48,11 @@ while ($row = mysqli_fetch_object($result)) {
     "<input type=\"radio\" name=\"cutofftype\" value=\"=\">",
     "￥<input type=\"text\" name=\"cutoff\" style=\"width:6em\">")?></span>
   </div>
+<?php if (!empty($_SESSION['bucket'])) { ?>
+  <div id="bucketfilter">
+    <label class="label-n-input"><input type="checkbox" name="bucket" value="1"><?=sprintf(_("Limit to Bucket (%d)"), count($_SESSION['bucket']))?></label>
+  </div>
+<?php } ?>
 </fieldset>
 <fieldset><legend><?=_("Donation List")?></legend>
   <span class="actiontypes">

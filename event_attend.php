@@ -22,10 +22,14 @@ while ($row = mysqli_fetch_object($result)) {
 <h1 id="title"><?=_('Event Attendance').(!empty($_POST['pid_list']) ? sprintf(_(' (%d People/Orgs Pre-selected)'),substr_count($_POST['pid_list'],",")+1) : "")?></h1>
 <form id="eform" method="post" action="blank.php" target="ResultFrame">
 <?php if (!empty($_POST['pid_list'])) echo '<input type="hidden" name="preselected" value="'.$_POST['pid_list'].'">'; ?>
-<div id="dates">
-<?php printf(_('Optional Dates: after %s and/or before %s'),
+<div id="filter">
+<?php
+printf(_('Optional Dates: after %s and/or before %s'),
    '<input type="text" name="startdate" id="startdate" style="width:6em" />',
-   '<input type="text" name="enddate" id="enddate" style="width:6em" />'); ?>
+   '<input type="text" name="enddate" id="enddate" style="width:6em" />');
+if (!empty($_SESSION['bucket'])) { ?>
+  <label class="label-n-input bucketfilter"><input type="checkbox" name="bucket" value="1"><?=sprintf(_("Limit to Bucket (%d)"), count($_SESSION['bucket']))?></label>
+<?php } ?>
 </div>
 <div class="section">
   <label for="eid"><?=_("Single Event, Detail Info")?>: </label>
