@@ -170,6 +170,7 @@ $(document).ready(function(){
       $("#admin").prop("checked", false);
       $("#hidedonations").prop("checked", <?=($_SESSION['hidedonations_default']=="yes" ? "true" : "false")?>);
       $("#user_del").prop('disabled', true);
+      $("#loginstats").html("");
     } else {
       showSpinner($('#userid'));
       $.getJSON("ajax_request.php?req=User&userid="+$('#userid').val(), function(data) {
@@ -185,6 +186,7 @@ $(document).ready(function(){
           if (data.admin == 1) $('#admin').prop('checked', true);
           if (data.hidedonations == 1) $('#hidedonations').prop('checked', true);
           $('#dashboard').val(data.dashboard);
+          $("#loginstats").html(data.loginstats);
           $("#user_del").prop('disabled', false);
         }
       });
@@ -427,6 +429,7 @@ while ($row = mysqli_fetch_object($result))  echo "    <option value=\"".$row->U
   <label class="label-n-input"><?=_("New Password again")?>: <input type="password"
   id="new_pw2" name="new_pw2" style="width:10em"></label><br />
   <label class="label-n-input"><?=_("Dashboard Files")?>: <textarea id="dashboard" name="dashboard" style="height:2em;width:80%"></textarea></label>
+  <div id="loginstats" class="comment"></div>
   <br /><input type="submit" id="user_add_upd" name="user_add_upd" value="<?=_("Add or Update")?>">
   <input type="submit" id="user_del" name="user_del" value="<?=_("Delete")?>" disabled>
 </fieldset></form>
