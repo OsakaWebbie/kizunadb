@@ -16,7 +16,13 @@ header1(_("Database Settings"));
 function stopRKey(evt) {
   var evt = (evt) ? evt : ((event) ? event : null);
   var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
-  if ((evt.keyCode == 13) && (node.type=="text") && node.name!="textinput1")  {return false;}
+  // Only block Enter key for text inputs within this page's forms (not quick search or other forms)
+  if ((evt.keyCode == 13) && (node.type=="text") && node.name!="textinput1") {
+    var form = node.form || $(node).closest('form')[0];
+    if (form && ["pcform","catform","atform","dtform","eventform","userform"].includes(form.id)) {
+      return false;
+    }
+  }
 }
 document.onkeypress = stopRKey;
 
@@ -229,7 +235,7 @@ function validate(form) {
     }
     break;
   case "at":
-    if (document.atform.at.value == "") {
+    if (document.atform.atype.value == "") {
       alert("<?=_("Action Type name cannot be blank.")?>");
       return false;
     }

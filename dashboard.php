@@ -2,6 +2,9 @@
 include("functions.php");
 include("accesscontrol.php");
 
+// must be at the top in case dashboard modules include jQuery code
+load_scripts(['jquery', 'jqueryui', 'tablesorter', 'table2csv']);
+
 if (!empty($_REQUEST['oncall'])) {  // code to only be run when specifically requested
   if (file_exists(CLIENT_PATH . '/dashboard/' . $_REQUEST['oncall'] . '.php')) {
     include(CLIENT_PATH . '/dashboard/' . $_REQUEST['oncall'] . '.php');
@@ -49,7 +52,6 @@ if (!$hasdashboard) {
     }
   }
   echo "<div style='clear:both'></div>";
-  load_scripts(['jquery', 'jqueryui', 'tablesorter', 'table2csv']);
   footer();
 }
 

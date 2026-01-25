@@ -118,8 +118,8 @@ case 'User':
           $arr = array('userid' => $row->UserID, 'new_userid' => $row->UserID, 'old_userid' => $row->UserID,
               'username' => $row->UserName, 'language' => $row->Language, 'new_pw1' => '', 'new_pw2' => '',
               'dashboard' => $row->Dashboard);
-          $arr['admin'] = $row->Admin ? 'checkboxValue' : '';
-          $arr['hidedonations'] = $row->HideDonations ? 'checkboxValue' : '';
+          $arr['admin'] = $row->Admin;
+          $arr['hidedonations'] = $row->HideDonations;
           $lastLogin = $row->loginlast;
         }
         if ($row->loginyear !== null) {
