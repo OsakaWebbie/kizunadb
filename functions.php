@@ -64,17 +64,17 @@ function header2($nav=0) {
         <a href="#"><?=_('Aux. Searches')?> &#x25BC;</a>
         <ul class="nav-sub">
           <li><a href="action.php" target="_top"><?=_('Actions')?></a></li>
-<?=(!empty($_SESSION['donations']) ? '          <li><a href="donations.php" target="_top">'._('Donations &amp; Pledges').'</a></li>' : '')?>
-          <li><a href="event_attend.php" target="_top"><?=_('Event Attendance')?></a></li>
+<?=(!empty($_SESSION['donations']) ? '          <li><a href="donation.php" target="_top">'._('Donations &amp; Pledges').'</a></li>' : '')?>
+          <li><a href="attendance.php" target="_top"><?=_('Event Attendance')?></a></li>
           <li><a href="birthday.php" target="_top"><?=_('Birthdays')?></a></li>
         </ul>
       </li>
       <li class="hassub">
-        <a href="#"><?=_('Batch/Bucket').' (<span class="bucketcount">'.count($_SESSION['bucket']).'</span>)'?> &#x25BC;</a>
+        <a href="#"><?=_('Batch/Basket').' (<span class="basketcount">'.count($_SESSION['basket']).'</span>)'?> &#x25BC;</a>
         <ul class="nav-sub">
-          <li class="bucket-list"><a class="bucket-list" href="list.php?bucket=1"><?=_('List Bucket contents')?></a></li>
-          <li><a href="multiselect.php?bucket=1" target="_top"><?=_('Multi-Select').'/'._('Batch')?></a></li>
-          <li class="bucket-empty"><a class="ajaxlink bucket-empty" href="#"><?=_('Empty the Bucket')?></a></li>
+          <li class="basket-list"><a class="basket-list" href="list.php?basket=1"><?=_('List Basket contents')?></a></li>
+          <li><a href="multiselect.php?basket=1" target="_top"><?=_('Multi-Select').'/'._('Batch')?></a></li>
+          <li class="basket-empty"><a class="ajaxlink basket-empty" href="#"><?=_('Empty the Basket')?></a></li>
         </ul>
       </li>
       <li><a href="db_settings.php" target="_top"><?=_('DB Settings')?></a></li>
@@ -92,7 +92,7 @@ function header2($nav=0) {
 
   <div id="nav-trigger"><img src="graphics/kizunadb-logo.png" alt="Logo"><span>Menu</span></div>
   <nav id="nav-mobile"></nav>
-  <input type="hidden" id="pids-for-bucket" value="">
+  <input type="hidden" id="pids-for-basket" value="">
 <?php
   }  // end of if $nav
   echo "<div id=\"content\">\n";
@@ -210,21 +210,21 @@ function footer($nav=0) {
           }
         });
 
-        /* BUCKET MANAGEMENT */
+        /* BASKET MANAGEMENT */
 
-        // Make the bucket contain only these PIDs (any previous contents are replaced)
-        $('.bucket-empty').click(function() {
-          $.post("bucket.php", { empty:1 }, function(r) {
+        // Make the basket contain only these PIDs (any previous contents are replaced)
+        $('.basket-empty').click(function() {
+          $.post("basket.php", { empty:1 }, function(r) {
             if (!isNaN(r)) {
-              $('span.bucketcount').html(r);
-              $('.bucket-list,.bucket-empty,.bucket-rem').toggleClass('disabledlink', ($('span.bucketcount').html() === '0'));
+              $('span.basketcount').html(r);
+              $('.basket-list,.basket-empty,.basket-rem').toggleClass('disabledlink', ($('span.basketcount').html() === '0'));
             }
             else { alert(r); }
           }, "text");
         });
 
-        //set initial state of bucket links
-        $('.bucket-list,.bucket-empty,.bucket-rem').toggleClass('disabledlink', ($('span.bucketcount').html() === '0'));
+        //set initial state of basket links
+        $('.basket-list,.basket-empty,.basket-rem').toggleClass('disabledlink', ($('span.basketcount').html() === '0'));
 
         // To prevent the href=# from scrolling to the top
         $('.disabledLink').click(function(event) {
@@ -250,7 +250,7 @@ function footer($nav=0) {
       });
     }
 
-    /* for use in detecting changes to #pids-for-bucket value; from https://stackoverflow.com/a/41589301/1436451 */
+    /* for use in detecting changes to #pids-for-basket value; from https://stackoverflow.com/a/41589301/1436451 */
     function replaceWithWrapper(obj, property, callback) {
       Object.defineProperty(obj, property, new function() {
         var _value = obj[property];

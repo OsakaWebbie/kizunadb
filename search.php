@@ -184,8 +184,8 @@ if ($_SESSION['admin'] == 1) {
 <button class="simpleonly" id="showadvanced" type="button"><?=_("Advanced Search Options")?></button>
 <div id="buttonsection">
   <label class="label-n-input"><input type="checkbox" name="countonly" value="yes"><?=_("Count Only")?></label>
-<?php if (!empty($_SESSION['bucket'])) { ?>
-  <label class="label-n-input"><input type="checkbox" name="bucket" value="1"><?=sprintf(_("Limit to Bucket (%d)"), count($_SESSION['bucket']))?></label>
+<?php if (!empty($_SESSION['basket'])) { ?>
+  <label class="label-n-input"><input type="checkbox" name="basket" value="1"><?=sprintf(_("Limit to Basket (%d)"), count($_SESSION['basket']))?></label>
 <?php } ?>
   <button id="search" type="submit"><?=_("Search!")?></button>
 </div>

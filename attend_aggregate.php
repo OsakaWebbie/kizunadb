@@ -37,7 +37,7 @@ $where = $having = '';
 if (!empty($_GET["startdate"])) $where .= " AND a.AttendDate >= '".$_GET["startdate"]."'";
 if (!empty($_GET["enddate"])) $where .= " AND a.AttendDate <= '".$_GET["enddate"]."'";
 if (!empty($_GET["min"])) $having .= " HAVING attendnum >= ".$_GET["min"];
-if (!empty($_GET['bucket']) && !empty($_SESSION['bucket'])) $where .= " AND a.PersonID IN (".implode(',',$_SESSION['bucket']).")";
+if (!empty($_GET['basket']) && !empty($_SESSION['basket'])) $where .= " AND a.PersonID IN (".implode(',',$_SESSION['basket']).")";
 
 // Run aggregate query to collect PersonIDs
 $sql = "SELECT DISTINCT a.PersonID, COUNT(a.AttendDate) AS attendnum FROM attendance a ".

@@ -585,14 +585,14 @@ body.action #listtypes label { display:block; }
 body.action div.section { float:left; }  /* needed to force the div to fully surround the inner float */
 body.action div.section:after { clear:both; }  /* needed because we had to float the section div */
 
-/* specific to donations.php */
-body.donations #typefilter { display:inline-block; vertical-align:middle; border:none; margin:0 20px 5px 0; padding:0; }
-body.donations #typefilter label, body.donations #dtselect { display:block; }
-body.donations #datefilter { display:inline-block; vertical-align:middle; border:none; margin:0 0 5px 0; padding:0; }
-body.donations .actions { border:1px solid <?=(!empty($innerborder)?$innerborder:"SteelBlue")?>; margin:6px 20px 0 20px; padding:8px; }
-body.donations #show_list, body.donations #show_summary { display:inline-block; vertical-align:middle; margin-right:20px; }
-body.donations .actiontypes { display:inline-block; vertical-align:middle; margin-right:20px; }
-body.donations .proctype, body.donations .actiontype { display:block; }
+/* specific to donation.php */
+body.donation #typefilter { display:inline-block; vertical-align:middle; border:none; margin:0 20px 5px 0; padding:0; }
+body.donation #typefilter label, body.donation #dtselect { display:block; }
+body.donation #datefilter { display:inline-block; vertical-align:middle; border:none; margin:0 0 5px 0; padding:0; }
+body.donation .actions { border:1px solid <?=(!empty($innerborder)?$innerborder:"SteelBlue")?>; margin:6px 20px 0 20px; padding:8px; }
+body.donation #show_list, body.donation #show_summary { display:inline-block; vertical-align:middle; margin-right:20px; }
+body.donation .actiontypes { display:inline-block; vertical-align:middle; margin-right:20px; }
+body.donation .proctype, body.donation .actiontype { display:block; }
 
 /* specific to donation_list.php */
 /*body.donation_list.full div#main-container, body.donation_summary.full div#main-container {

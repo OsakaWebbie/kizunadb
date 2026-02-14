@@ -30,8 +30,8 @@ while ($row = mysqli_fetch_object($result)) {
     /* span, not label, because a single label around both fields breaks datepicker */ ?>
     </span>
     <label class="label-n-input"><?=_("Search")?>: <input type="text" name="csearch" style="width:10em"></label>
-<?php if (!empty($_SESSION['bucket'])) { ?>
-    <label class="label-n-input"><input type="checkbox" name="bucket" value="1"><?=sprintf(_("Limit to Bucket (%d)"), count($_SESSION['bucket']))?></label>
+<?php if (!empty($_SESSION['basket'])) { ?>
+    <label class="label-n-input"><input type="checkbox" name="basket" value="1"><?=sprintf(_("Limit to Basket (%d)"), count($_SESSION['basket']))?></label>
 <?php } ?>
     <input type="button" id="show_actions" name="show_actions" value="<?=_("Show List")?>">
   </div>
@@ -64,7 +64,7 @@ $(document).ready(function(){
     $('form#aform').attr({target:$('input[name=ftarget]:checked').val()});
   });
   $("#show_actions").click(function(){
-    $('#aform').attr({action:"action_chart.php?nav="+(($('input[name=ftarget]:checked').val()=="_blank")?"1":"0")});
+    $('#aform').attr({action:"action_list.php?nav="+(($('input[name=ftarget]:checked').val()=="_blank")?"1":"0")});
     $('#aform').submit();
   });
 });

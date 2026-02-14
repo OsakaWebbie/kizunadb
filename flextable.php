@@ -367,7 +367,7 @@ function flextable($opt) {
 
   // Optional features (can be disabled for simple tables)
   if (!isset($opt->showColumnSelector)) $opt->showColumnSelector = TRUE;
-  if (!isset($opt->showBucket)) $opt->showBucket = TRUE;
+  if (!isset($opt->showBasket)) $opt->showBasket = TRUE;
   if (!isset($opt->showCSV)) $opt->showCSV = TRUE;
   if (!isset($opt->maxnum)) $opt->maxnum = 0; // 0 = show all rows
 
@@ -602,7 +602,7 @@ function flextable($opt) {
   //echo '<h4>SQL:</h4><xmp style="white-space:pre-wrap">'.$sql.'</xmp>';
   $result = sqlquery_checked($sql);
 
-  /***** BUTTONS: column selector, bucket links, multi-select link, and CSV *****/
+  /***** BUTTONS: column selector, basket links, multi-select link, and CSV *****/
 
   ?>
   <div style="display:flex; align-items:center; gap:1em; flex-wrap:wrap;">
@@ -613,13 +613,13 @@ function flextable($opt) {
       <?php if ($opt->showColumnSelector) { ?>
       <button id="<?=$opt->tableid?>-colsel-toggle" class="dropdown-closed"><?=_('Column Selector')?></button>
       <?php } ?>
-      <?php if ($opt->showBucket) { ?>
+      <?php if ($opt->showBasket) { ?>
       <div class="hassub">
-        <button id="<?=$opt->tableid?>-bucket-toggle" class="dropdown-closed"><?=_('Bucket')?></button>
-        <ul id="<?=$opt->tableid?>-bucket" class="nav-sub" style="display:none">
-          <li class="bucket-add"><a id="<?=$opt->tableid?>-bucket-add" class="ajaxlink bucket-add" href="#"><?=_('Add to Bucket')?></a></li>
-          <li class="bucket-rem"><a id="<?=$opt->tableid?>-bucket-rem" class="ajaxlink bucket-rem" href="#"><?=_('Remove from Bucket')?></a></li>
-          <li class="bucket-set"><a id="<?=$opt->tableid?>-bucket-set" class="ajaxlink bucket-set" href="#"><?=_('Set Bucket to these only')?></a></li>
+        <button id="<?=$opt->tableid?>-basket-toggle" class="dropdown-closed"><?=_('Basket')?></button>
+        <ul id="<?=$opt->tableid?>-basket" class="nav-sub" style="display:none">
+          <li class="basket-add"><a id="<?=$opt->tableid?>-basket-add" class="ajaxlink basket-add" href="#"><?=_('Add to Basket')?></a></li>
+          <li class="basket-rem"><a id="<?=$opt->tableid?>-basket-rem" class="ajaxlink basket-rem" href="#"><?=_('Remove from Basket')?></a></li>
+          <li class="basket-set"><a id="<?=$opt->tableid?>-basket-set" class="ajaxlink basket-set" href="#"><?=_('Set Basket to these only')?></a></li>
         </ul>
       </div>
       <button id="<?=$opt->tableid?>-ms" title="<?=_('Go to Multi-Select with these entries preselected')?>"><?=_('To Multi-Select')?></button>
@@ -696,12 +696,12 @@ function flextable($opt) {
     /***** TABLE BODY *****/
 
     $pids = ','; //need boundary for duplicate check
-    $person_pids = ','; // separate collection of PersonIDs for bucket/multiselect
+    $person_pids = ','; // separate collection of PersonIDs for basket/multiselect
     while ($row = mysqli_fetch_object($result)) {
       // Collect IDs based on the keyfield (needed for lazy column loading)
       $keyval = $row->$keycol;
       if (!empty($keyval) && strpos($pids,','.$keyval.',') === FALSE) $pids .= $keyval.',';
-      // Collect PersonIDs separately for bucket/multiselect when keyfield isn't PersonID
+      // Collect PersonIDs separately for basket/multiselect when keyfield isn't PersonID
       if ($keycol != 'PersonID' && isset($row->PersonID) && !empty($row->PersonID)
           && strpos($person_pids,','.$row->PersonID.',') === FALSE) {
         $person_pids .= $row->PersonID.',';
@@ -1152,44 +1152,44 @@ function flextable($opt) {
       });
     }
 
-   // link to go directly to multiselect without bucket
+   // link to go directly to multiselect without basket
     $('#<?=$opt->tableid?>-ms').click(function() {
       location.href = 'multiselect.php?pids=<?=$keycol == "PersonID" ? $pids : $person_pids?>';
     });
 
-    // Determine the correct PID source for bucket operations
-    var bucketPids = $('#<?=$opt->tableid?>-person-pids').length
+    // Determine the correct PID source for basket operations
+    var basketPids = $('#<?=$opt->tableid?>-person-pids').length
         ? $('#<?=$opt->tableid?>-person-pids').text()
         : $('#<?=$opt->tableid?>-pids').text();
 
-    // Add these PIDs to the existing bucket
-    $('#<?=$opt->tableid?>-bucket-add').click(function(event) {
-      $.post("bucket.php", { add: bucketPids }, function(r) {
+    // Add these PIDs to the existing basket
+    $('#<?=$opt->tableid?>-basket-add').click(function(event) {
+      $.post("basket.php", { add: basketPids }, function(r) {
         if (!isNaN(r)) {
-          $('span.bucketcount').html(r);
-          $('.bucket-list,.bucket-empty,.bucket-rem').toggleClass('disabledlink', ($('span.bucketcount').html() === '0'));
+          $('span.basketcount').html(r);
+          $('.basket-list,.basket-empty,.basket-rem').toggleClass('disabledlink', ($('span.basketcount').html() === '0'));
         }
         else { alert(r); }
       }, "text");
     });
 
-    // Remove these PIDs from the existing bucket
-    $('#<?=$opt->tableid?>-bucket-rem').click(function(event) {
-      $.post("bucket.php", { rem: bucketPids }, function(r) {
+    // Remove these PIDs from the existing basket
+    $('#<?=$opt->tableid?>-basket-rem').click(function(event) {
+      $.post("basket.php", { rem: basketPids }, function(r) {
         if (!isNaN(r)) {
-          $('span.bucketcount').html(r);
-          $('.bucket-list,.bucket-empty,.bucket-rem').toggleClass('disabledlink', ($('span.bucketcount').html() === '0'));
+          $('span.basketcount').html(r);
+          $('.basket-list,.basket-empty,.basket-rem').toggleClass('disabledlink', ($('span.basketcount').html() === '0'));
         }
         else { alert(r); }
       }, "text");
     });
 
-    // Make the bucket contain only these PIDs (any previous contents are replaced)
-    $('#<?=$opt->tableid?>-bucket-set').click(function(event) {
-      $.post("bucket.php", { set: bucketPids }, function(r) {
+    // Make the basket contain only these PIDs (any previous contents are replaced)
+    $('#<?=$opt->tableid?>-basket-set').click(function(event) {
+      $.post("basket.php", { set: basketPids }, function(r) {
         if (!isNaN(r)) {
-          $('span.bucketcount').html(r);
-          $('.bucket-list,.bucket-empty,.bucket-rem').toggleClass('disabledlink', ($('span.bucketcount').html() === '0'));
+          $('span.basketcount').html(r);
+          $('.basket-list,.basket-empty,.basket-rem').toggleClass('disabledlink', ($('span.basketcount').html() === '0'));
         }
         else { alert(r); }
       }, "text");

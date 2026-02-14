@@ -57,10 +57,10 @@ if ($_REQUEST['cutoff']!="") {
   $criteria .= "<li>".sprintf(_("Amount %s %s"),$_REQUEST['cutofftype'],$_REQUEST['cutoff'])."</li>\n";
   $wheredone = 1;
 }
-// Bucket filtering
-if (!empty($_REQUEST['bucket']) && !empty($_SESSION['bucket'])) {
-  $where .= ($wheredone?" AND":" WHERE")." d.PersonID IN (".implode(',',$_SESSION['bucket']).")";
-  $criteria .= "<li>"._('In the Bucket')." (".count($_SESSION['bucket']).")</li>\n";
+// Basket filtering
+if (!empty($_REQUEST['basket']) && !empty($_SESSION['basket'])) {
+  $where .= ($wheredone?" AND":" WHERE")." d.PersonID IN (".implode(',',$_SESSION['basket']).")";
+  $criteria .= "<li>"._('In the Basket')." (".count($_SESSION['basket']).")</li>\n";
   $wheredone = 1;
 }
 if (!empty($criteria))  $criteria = "<ul id=\"criteria\">$criteria</ul>";

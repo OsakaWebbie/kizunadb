@@ -247,9 +247,9 @@ if (!empty($_GET['freesql'])) {
   $criterialist .= "<li>".$_GET['freesql']."</li>\n";
 }
 
-if (!empty($_GET['bucket']) && $_SESSION['bucket']) {
-  $where .= ($where==''?' WHERE ':' AND ').$grouptable.'.PersonID IN ('.implode(',',$_SESSION['bucket']).')';
-  $criterialist .= '<li>'._('In the Bucket')."</li>\n";
+if (!empty($_GET['basket']) && $_SESSION['basket']) {
+  $where .= ($where==''?' WHERE ':' AND ').$grouptable.'.PersonID IN ('.implode(',',$_SESSION['basket']).')';
+  $criterialist .= '<li>'._('In the Basket')."</li>\n";
 }
 
 $sql .= $join . $where . $closing . " GROUP BY $grouptable.PersonID";

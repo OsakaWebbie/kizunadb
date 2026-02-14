@@ -77,7 +77,7 @@ window.onload = function() {
 <?php header2(1); ?>
   <h1 class="title">Birthday List</h1>
   <table border=0 width=100%><tr><td align=center width=30%>
-  <form name="bform" action="birthday_iframe.php" target="ResultFrame" method="GET" onSubmit="make_catlist();">
+  <form name="bform" action="birthday_list.php" target="ResultFrame" method="GET" onSubmit="make_catlist();">
 <?php
 // Create list of months, selecting the current month
 $today_array = explode("-",date("Y-m-d",mktime(gmdate("H")+9)));
@@ -128,8 +128,8 @@ while ($row = mysqli_fetch_object($result)) {
 }
 ?>
     </select><hr>
-<?php if (!empty($_SESSION['bucket'])) { ?>
-    <label class="label-n-input"><input type="checkbox" name="bucket" value="1"><?=sprintf(_("Limit to Bucket (%d)"), count($_SESSION['bucket']))?></label><br>
+<?php if (!empty($_SESSION['basket'])) { ?>
+    <label class="label-n-input"><input type="checkbox" name="basket" value="1"><?=sprintf(_("Limit to Basket (%d)"), count($_SESSION['basket']))?></label><br>
 <?php } ?>
     <input type="submit" name="make_chart" value="List Birthdays">
     <input type="hidden" name="catlist" value="">

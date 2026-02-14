@@ -11,7 +11,7 @@ $sql = 'SELECT DISTINCT attendance.PersonID,FullName,Furigana,Photo from attenda
     'ON attendance.PersonID=person.PersonID WHERE EventID = '.$_GET['eid'];
 if (!empty($_GET["startdate"])) $sql .= " AND AttendDate >= '".$_GET["startdate"]."'";
 if (!empty($_GET["enddate"])) $sql .= " AND AttendDate <= '".$_GET["enddate"]."'";
-if (!empty($_GET['bucket']) && !empty($_SESSION['bucket'])) $sql .= " AND attendance.PersonID IN (".implode(',',$_SESSION['bucket']).")";
+if (!empty($_GET['basket']) && !empty($_SESSION['basket'])) $sql .= " AND attendance.PersonID IN (".implode(',',$_SESSION['basket']).")";
 $sql .= ' ORDER BY Furigana';
 $result = sqlquery_checked($sql);
 if (mysqli_num_rows($result) == 0) {

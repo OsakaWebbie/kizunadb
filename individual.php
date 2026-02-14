@@ -337,11 +337,11 @@ if ($per->HouseholdID) {
 }
 echo '<a href="multiselect.php?pids='.$_GET['pid'].'" class="linkbutton">'._("Go to Multi-Select").'</a>';
 echo '<div class="hassub">';
-echo '  <button id="ind-bucket-toggle" class="dropdown-closed">'._('Bucket').'</button>';
-echo '  <ul id="ind-bucket" class="nav-sub" style="display:none">';
-echo '    <li class="bucket-add"><a id="ind-bucket-add" class="ajaxlink bucket-add" href="#">'._('Add to Bucket').'</a></li>';
-echo '    <li class="bucket-rem"><a id="ind-bucket-rem" class="ajaxlink bucket-rem" href="#">'._('Remove from Bucket').'</a></li>';
-echo '    <li class="bucket-set"><a id="ind-bucket-set" class="ajaxlink bucket-set" href="#">'._('Set Bucket to this person/org only').'</a></li>';
+echo '  <button id="ind-basket-toggle" class="dropdown-closed">'._('Basket').'</button>';
+echo '  <ul id="ind-basket" class="nav-sub" style="display:none">';
+echo '    <li class="basket-add"><a id="ind-basket-add" class="ajaxlink basket-add" href="#">'._('Add to Basket').'</a></li>';
+echo '    <li class="basket-rem"><a id="ind-basket-rem" class="ajaxlink basket-rem" href="#">'._('Remove from Basket').'</a></li>';
+echo '    <li class="basket-set"><a id="ind-basket-set" class="ajaxlink basket-set" href="#">'._('Set Basket to this person/org only').'</a></li>';
 echo '  </ul>';
 echo '</div>';
 echo '</div>';
@@ -819,7 +819,7 @@ if (count($ids) == 0) {
     'tableid' => 'actions',
     'order' => 'action.ActionDate DESC',
     'showColumnSelector' => FALSE,  // Simple table
-    'showBucket' => FALSE,           // Not person records
+    'showBasket' => FALSE,           // Not person records
     'showCSV' => TRUE,               // Could be useful
     'maxnum' => 5,                   // Show only 5 initially, then "Show More Records"
     'cols' => [
@@ -964,7 +964,7 @@ $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
       'tableid' => 'donations',
       'order' => 'donation.DonationDate DESC',
       'showColumnSelector' => FALSE,
-      'showBucket' => FALSE,
+      'showBasket' => FALSE,
       'showCSV' => TRUE,
       'maxnum' => 10,  // Show only 10 initially
       'cols' => [
@@ -1127,7 +1127,7 @@ $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
       'tableid' => 'pledges',
       'order' => 'CASE WHEN pledge.EndDate=\'0000-00-00\' THEN 1 ELSE 2 END, pledge.StartDate DESC',
       'showColumnSelector' => FALSE,
-      'showBucket' => FALSE,
+      'showBasket' => FALSE,
       'showCSV' => TRUE,
       'maxnum' => 10,
       'cols' => [
@@ -2109,29 +2109,29 @@ if($_SESSION['lang']=="ja_JP") {
   });
 
   // Style the link buttons at top of page
-  $('#links > a.linkbutton, #ind-bucket-toggle').button();
+  $('#links > a.linkbutton, #ind-basket-toggle').button();
 
-  // Bucket: Add to Bucket
-  $('#ind-bucket-add').click(function() {
-    $.post('bucket.php', { add: '<?=$_GET['pid']?>' }, function(count) {
-      $('span.bucketcount').html(count);
-      $('.bucket-list,.bucket-empty,.bucket-rem').toggleClass('disabledlink', (count === '0'));
+  // Basket: Add to Basket
+  $('#ind-basket-add').click(function() {
+    $.post('basket.php', { add: '<?=$_GET['pid']?>' }, function(count) {
+      $('span.basketcount').html(count);
+      $('.basket-list,.basket-empty,.basket-rem').toggleClass('disabledlink', (count === '0'));
     });
   });
 
-  // Bucket: Remove from Bucket
-  $('#ind-bucket-rem').click(function() {
-    $.post('bucket.php', { rem: '<?=$_GET['pid']?>' }, function(count) {
-      $('span.bucketcount').html(count);
-      $('.bucket-list,.bucket-empty,.bucket-rem').toggleClass('disabledlink', (count === '0'));
+  // Basket: Remove from Basket
+  $('#ind-basket-rem').click(function() {
+    $.post('basket.php', { rem: '<?=$_GET['pid']?>' }, function(count) {
+      $('span.basketcount').html(count);
+      $('.basket-list,.basket-empty,.basket-rem').toggleClass('disabledlink', (count === '0'));
     });
   });
 
-  // Bucket: Set Bucket to this person/org only
-  $('#ind-bucket-set').click(function() {
-    $.post('bucket.php', { set: '<?=$_GET['pid']?>' }, function(count) {
-      $('span.bucketcount').html(count);
-      $('.bucket-list,.bucket-empty,.bucket-rem').toggleClass('disabledlink', (count === '0'));
+  // Basket: Set Basket to this person/org only
+  $('#ind-basket-set').click(function() {
+    $.post('basket.php', { set: '<?=$_GET['pid']?>' }, function(count) {
+      $('span.basketcount').html(count);
+      $('.basket-list,.basket-empty,.basket-rem').toggleClass('disabledlink', (count === '0'));
     });
   });
 

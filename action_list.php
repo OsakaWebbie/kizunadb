@@ -16,7 +16,7 @@ if (!empty($_GET['atype'])) $where .= ($where?" AND":" WHERE")." a.ActionTypeID 
 if (!empty($_GET['startdate'])) $where .= ($where?" AND":" WHERE")." ActionDate >= '".$_GET['startdate']."'";
 if (!empty($_GET['enddate'])) $where .= ($where?" AND":" WHERE")." ActionDate <= '".$_GET['enddate']."'";
 if (!empty($_GET['csearch'])) $where .= ($where?" AND":" WHERE")." Description LIKE '%".$_GET['csearch']."%'";
-if (!empty($_GET['bucket']) && !empty($_SESSION['bucket'])) $where .= ($where?" AND":" WHERE")." a.PersonID IN (".implode(',',$_SESSION['bucket']).")";
+if (!empty($_GET['basket']) && !empty($_SESSION['basket'])) $where .= ($where?" AND":" WHERE")." a.PersonID IN (".implode(',',$_SESSION['basket']).")";
 
 // Get ActionIDs for flextable
 if ($listtype == 'Normal') {

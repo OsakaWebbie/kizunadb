@@ -32,7 +32,7 @@ echo "</h3>";
 
 //get the list of dates (column headings for table)
 $sql = "SELECT DISTINCT AttendDate FROM attendance WHERE EventID IN ($eids)";
-if (!empty($_GET['bucket']) && !empty($_SESSION['bucket'])) $sql .= " AND PersonID IN (".implode(',',$_SESSION['bucket']).")";
+if (!empty($_GET['basket']) && !empty($_SESSION['basket'])) $sql .= " AND PersonID IN (".implode(',',$_SESSION['basket']).")";
 if (!empty($_GET["startdate"])) $sql .= " AND AttendDate >= '".$_GET["startdate"]."'";
 if (!empty($_GET["enddate"])) $sql .= " AND AttendDate <= '".$_GET["enddate"]."'";
 $sql .= " ORDER BY AttendDate";
@@ -76,7 +76,7 @@ for ($r=0; $r<(count($earray)); $r++) {
   " FROM attendance WHERE EventID=".$earray[$r]->EventID;
   if (!empty($_GET["startdate"])) $sql .= " AND AttendDate >= '".$_GET["startdate"]."'";
   if (!empty($_GET["enddate"])) $sql .= " AND AttendDate <= '".$_GET["enddate"]."'";
-  if (!empty($_GET['bucket']) && !empty($_SESSION['bucket'])) $sql .= " AND PersonID IN (".implode(',',$_SESSION['bucket']).")";
+  if (!empty($_GET['basket']) && !empty($_SESSION['basket'])) $sql .= " AND PersonID IN (".implode(',',$_SESSION['basket']).")";
   $sql .= " GROUP BY AttendDate ORDER BY AttendDate";
   $result = sqlquery_checked($sql); 
   $row = mysqli_fetch_object($result);
