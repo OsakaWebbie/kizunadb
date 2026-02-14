@@ -8,15 +8,15 @@ if (!empty($_POST['newattendance'])) {
   $pidarray = explode(",",$_POST['pid_list']);
   //make array of dates (single or range)
   $datearray = array();
-  if (!empty($_POST["enddate"])) {  //need to do a range of dates
-    if ($_POST["date"] > $_POST["enddate"]) die("Error: End Date is earlier than Start Date.");
-    for ($day=$_POST["date"]; $day<=$_POST["enddate"]; $day=date("Y-m-d", strtotime("$day +1 day"))) {
-      if ($_POST["dow".date("w",strtotime($day))]) {
+  if (!empty($_POST['enddate'])) {  //need to do a range of dates
+    if ($_POST['date'] > $_POST['enddate']) die("Error: End Date is earlier than Start Date.");
+    for ($day=$_POST['date']; $day<=$_POST['enddate']; $day=date('Y-m-d', strtotime("$day +1 day"))) {
+      if ($_POST['dow'.date("w",strtotime($day))]) {
         $datearray[] = $day;
       }
     }
   } else {
-    $datearray[] = $_POST["date"];
+    $datearray[] = $_POST['date'];
   }
   //insert for each date and pid (might be only one of each, but...)
   //not combined into a single "insert...select" query because the ON DUPLICATE KEY UPDATE won't add the non-dups in the list
@@ -24,13 +24,13 @@ if (!empty($_POST['newattendance'])) {
   $updated = 0;
   foreach ($datearray as $eachdate) {
     foreach ($pidarray as $eachpid) {
-      if (!empty($_POST["starttime"])) {
+      if (!empty($_POST['starttime'])) {
         sqlquery_checked("INSERT INTO attendance(PersonID,EventID,AttendDate,StartTime,EndTime) ".
-        "VALUES($eachpid,{$_POST["eid"]},'$eachdate','".$_POST["starttime"].":00','".$_POST["endtime"].":00') ".
-        "ON DUPLICATE KEY UPDATE StartTime='".$_POST["starttime"].":00', EndTime='".$_POST["endtime"].":00'");
+        "VALUES($eachpid,{$_POST['eid']},'$eachdate','{$_POST['starttime']}:00','{$_POST['endtime']}:00') ".
+        "ON DUPLICATE KEY UPDATE StartTime='{$_POST['starttime']}:00', EndTime='{$_POST['endtime']}:00'");
       } else {
         sqlquery_checked("INSERT INTO attendance(PersonID,EventID,AttendDate) ".
-        "VALUES($eachpid,{$_POST["eid"]},'$eachdate') ON DUPLICATE KEY UPDATE AttendDate=AttendDate");
+        "VALUES($eachpid,{$_POST['eid']},'$eachdate') ON DUPLICATE KEY UPDATE AttendDate=AttendDate");
       }
       $affected = mysqli_affected_rows($db);
       if ($affected == 2)  $updated++;

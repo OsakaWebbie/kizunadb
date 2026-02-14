@@ -2,17 +2,14 @@
 include("functions.php");
 include("accesscontrol.php");
 
-header1(_("Action List").
-(isset($_POST['pid_list']) ? sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($_POST['pid_list'],",")+1) : "")); ?>
+header1(_("Action List")); ?>
 <meta http-equiv="expires" content="0">
 <link rel="stylesheet" href="style.php?jquery=1&multiselect=1" type="text/css" />
 
 <?php header2(1); ?>
-<h1 id="title"><?=_("Action List").(isset($_POST['pid_list']) ? sprintf(_(" (%d People/Orgs Pre-selected)"),
-substr_count($_POST['pid_list'],",")+1) : "")?></h1>
+<h1 id="title"><?=_("Action List")?></h1>
 
-<form id="aform" method="post" action="blank.php" target="ResultFrame">
-  <input type="hidden" name="preselected" value="<?=isset($_POST['pid_list'])?$_POST['pid_list']:""?>">
+<form id="aform" method="get" action="blank.php" target="ResultFrame">
   <div class="section">
     <div id="listtypes">
       <label class="label-n-input"><input type="radio" name="listtype" value="Normal" checked><?=_("Continuous List (can sort freely)")?></label>

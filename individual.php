@@ -125,34 +125,34 @@ if (!empty($_POST['newpledge'])) {
 if (!empty($_POST['newattendance'])) {
   //make array of pids (single and/or org members)
   $pidarray = array();
-  if (empty($_POST["apply"]) || !(strpos($_POST["apply"],"org")===false)) $pidarray[] = $_POST['pid'];
-  if (!(strpos($_POST["apply"],"mem")===false)) {
+  if (empty($_POST['apply']) || !(strpos($_POST['apply'],'org')===false)) $pidarray[] = $_POST['pid'];
+  if (!(strpos($_POST['apply'],"mem")===false)) {
     $result = sqlquery_checked("SELECT PersonID from perorg where OrgID=".$_POST['pid']);
     while ($row = mysqli_fetch_object($result)) $pidarray[] = $row->PersonID;
   }
   //make array of dates (single or range)
   $datearray = array();
-  if ($_POST["enddate"] != "") {  //need to do a range of dates
-    if ($_POST["date"] > $_POST["enddate"]) die("Error: End Date is earlier than Start Date.");
-    for ($day=$_POST["date"]; $day<=$_POST["enddate"]; $day=date("Y-m-d", strtotime("$day +1 day"))) {
-      if ($_POST["dow".date("w",strtotime($day))]) {
+  if ($_POST['enddate'] != '') {  //need to do a range of dates
+    if ($_POST['date'] > $_POST['enddate']) die('Error: End Date is earlier than Start Date.');
+    for ($day=$_POST['date']; $day<=$_POST['enddate']; $day=date('Y-m-d', strtotime("$day +1 day"))) {
+      if ($_POST['dow'.date("w",strtotime($day))]) {
         $datearray[] = $day;
       }
     }
   } else {
-    $datearray[] = $_POST["date"];
+    $datearray[] = $_POST['date'];
   }
   //insert for each date and pid (might be only one of each, but...)
   //not combined into a single "insert...select" query because the ON DUPLICATE KEY UPDATE won't add the non-dups in the list
   foreach ($datearray as $eachdate) {
     foreach ($pidarray as $eachpid) {
-      if ($_POST["starttime"] != "") {
+      if ($_POST['starttime'] != '') {
         sqlquery_checked("INSERT INTO attendance(PersonID,EventID,AttendDate,StartTime,EndTime) ".
-        "VALUES($eachpid,{$_POST["eid"]},'$eachdate','".$_POST["starttime"].":00','".$_POST["endtime"].":00') ".
-        "ON DUPLICATE KEY UPDATE StartTime='".$_POST["starttime"].":00', EndTime='".$_POST["endtime"].":00'");
+        "VALUES($eachpid,{$_POST['eid']},'$eachdate','{$_POST['starttime']}:00','{$_POST['endtime']}:00') ".
+        "ON DUPLICATE KEY UPDATE StartTime='{$_POST['starttime']}:00', EndTime='{$_POST['endtime']}:00'");
       } else {
         sqlquery_checked("INSERT INTO attendance(PersonID,EventID,AttendDate) ".
-        "VALUES($eachpid,{$_POST["eid"]},'$eachdate') ON DUPLICATE KEY UPDATE AttendDate=AttendDate");
+        "VALUES($eachpid,{$_POST['eid']},'$eachdate') ON DUPLICATE KEY UPDATE AttendDate=AttendDate");
       }
     }
   }
@@ -233,6 +233,17 @@ header1("$per->FullName");
 ?>
 
 <link rel="stylesheet" type="text/css" href="style.php?jquery=1&table=1" />
+<style>
+    div#personal-info div,div#household-info div { margin-bottom:0.3em; }
+    div#nonjapan-address,div#address,div#romaji-address { padding-left:15px; margin:0em; }
+    div#romaji-address { font-style:italic; color:Gray; }
+    div.upddate { font-size:0.8em; color:LightGray; }
+    p#remarks { clear:both; margin-left: 8px; }
+    div#links { clear:both; text-align:center; padding:0; }
+    div#links a, div#links button { margin:10px 20px 5px 20px; }
+    div#cats-button { text-align:center; margin:-10px 0 10px 0; }
+</style>
+
 <?php header2(1);
 echo "<h1 id=\"title\">".readable_name($per->FullName,$per->Furigana,$per->PersonID,$per->Organization,
     ($per->Organization?'<br /><span class="smaller">':'')).($per->Organization?'</span>':'')."</h1>";
@@ -319,12 +330,21 @@ echo "</div>\n"; //end of household-info
 echo "</div>\n"; //end if info-block
 
 if ($per->Remarks) echo "<p id=\"remarks\"><span class=\"inlinelabel\">"._("Remarks").":</span> ".email2link(url2link(d2h($per->Remarks)))."</p>\n";
-echo "<h2 id=\"links\"><a href=\"edit.php?pid=".$_GET['pid']."\">"._("Edit This Record")."</a>";
+echo '<div id="links">';
+echo '<a href="edit.php?pid='.$_GET['pid'].'" class="linkbutton">'._("Edit This Record").'</a>';
 if ($per->HouseholdID) {
-  echo "<a href=\"household.php?hhid=".$per->HouseholdID."\">"._("Go to Household Page")."</a>";
+  echo '<a href="household.php?hhid='.$per->HouseholdID.'" class="linkbutton">'._("Go to Household Page").'</a>';
 }
-echo "<a href=\"multiselect.php?preselected={$_GET['pid']}\">"._("Go to Multi-Select")."</a>";
-echo "</h2>";
+echo '<a href="multiselect.php?pids='.$_GET['pid'].'" class="linkbutton">'._("Go to Multi-Select").'</a>';
+echo '<div class="hassub">';
+echo '  <button id="ind-bucket-toggle" class="dropdown-closed">'._('Bucket').'</button>';
+echo '  <ul id="ind-bucket" class="nav-sub" style="display:none">';
+echo '    <li class="bucket-add"><a id="ind-bucket-add" class="ajaxlink bucket-add" href="#">'._('Add to Bucket').'</a></li>';
+echo '    <li class="bucket-rem"><a id="ind-bucket-rem" class="ajaxlink bucket-rem" href="#">'._('Remove from Bucket').'</a></li>';
+echo '    <li class="bucket-set"><a id="ind-bucket-set" class="ajaxlink bucket-set" href="#">'._('Set Bucket to this person/org only').'</a></li>';
+echo '  </ul>';
+echo '</div>';
+echo '</div>';
 ?>
 
 <!-- Categories Section -->
@@ -392,11 +412,7 @@ if (count($org_pids) == 0) {
   echo "<h3>"._("Current Organizations")."</h3>";
   echo "<p>"._("No organization associations. (You can add them here or in Multi-Select.)")."</p>";
 } else {
-  echo "<form class=\"msform\" action=\"multiselect.php\" method=\"post\" target=\"_top\">\n";
-  echo "<h3 style=\"display:inline;margin-right:20px;\">"._("Current Organizations")." (".count($org_pids).")</h3>";
-  echo "  <input type=\"hidden\" id=\"org_preselected\" name=\"preselected\" value=\"".implode(',', $org_pids)."\">\n";
-  echo "  <input type=\"submit\" value=\""._("Go to Multi-Select with these entries preselected")."\">\n";
-  echo "</form>\n";
+  echo "<h3>"._("Current Organizations")." (".count($org_pids).")</h3>";
 
   $showcols = ",".$_SESSION['org_showcols'].",";
 
@@ -579,11 +595,7 @@ if ($per->Organization) {
     echo "<h3>"._("Current Members")."</h3>";
     echo "<p>"._("No members. (Add them on a member's personal page or in Multi-Select.)")."</p>";
   } else {
-    echo "<form class=\"msform\" action=\"multiselect.php\" method=\"post\" target=\"_top\">\n";
-    echo "  <h3 style=\"display:inline;margin-right:20px;\">"._("Current Members")." (".count($mem_pids).")</h3>";
-    echo "  <input type=\"hidden\" id=\"mem_preselected\" name=\"preselected\" value=\"".implode(',', $mem_pids)."\">\n";
-    echo "  <input type=\"submit\" value=\""._("Go to Multi-Select with these entries preselected")."\">\n";
-    echo "</form>\n";
+    echo "<h3>"._("Current Members")." (".count($mem_pids).")</h3>";
 
     $showcols = ",".$_SESSION['member_showcols'].",";
 
@@ -2095,7 +2107,34 @@ if($_SESSION['lang']=="ja_JP") {
       row.removeClass("delconfirm");
     }
   });
-  
+
+  // Style the link buttons at top of page
+  $('#links > a.linkbutton, #ind-bucket-toggle').button();
+
+  // Bucket: Add to Bucket
+  $('#ind-bucket-add').click(function() {
+    $.post('bucket.php', { add: '<?=$_GET['pid']?>' }, function(count) {
+      $('span.bucketcount').html(count);
+      $('.bucket-list,.bucket-empty,.bucket-rem').toggleClass('disabledlink', (count === '0'));
+    });
+  });
+
+  // Bucket: Remove from Bucket
+  $('#ind-bucket-rem').click(function() {
+    $.post('bucket.php', { rem: '<?=$_GET['pid']?>' }, function(count) {
+      $('span.bucketcount').html(count);
+      $('.bucket-list,.bucket-empty,.bucket-rem').toggleClass('disabledlink', (count === '0'));
+    });
+  });
+
+  // Bucket: Set Bucket to this person/org only
+  $('#ind-bucket-set').click(function() {
+    $.post('bucket.php', { set: '<?=$_GET['pid']?>' }, function(count) {
+      $('span.bucketcount').html(count);
+      $('.bucket-list,.bucket-empty,.bucket-rem').toggleClass('disabledlink', (count === '0'));
+    });
+  });
+
 <?php if (!empty($_GET['msg'])) echo "  alert('".$_GET['msg']."');\n"; ?>
 });
 

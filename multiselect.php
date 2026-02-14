@@ -135,7 +135,7 @@ while ($cat = mysqli_fetch_object($result)) {
             <h3><?=_("Bucket")?> (<span class="bucketcount"><?=count($_SESSION['bucket'])?></span>)</h3>
             <button type="button" id="bucket-add"><?=_("Add to Bucket")?></button>
             <button type="button" id="bucket-rem"><?=_("Remove from Bucket")?></button>
-            <button type="button" id="bucket-set"><?=_("Set Bucket to these")?></button>
+            <button type="button" id="bucket-set"><?=_("Set Bucket to these only")?></button>
           </div>
           <div class="buttongroup">
             <h3><?=_("Specialized Output")?></h3>

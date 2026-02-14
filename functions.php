@@ -156,16 +156,38 @@ function footer($nav=0) {
         });
 
         /* event handling for submenus (must be JS because of menu links that don't refresh the page) */
-        /* hover to open/close - exclude #nav-mobile (touch devices, and mouse hover is confusing there) */
-        $(".hassub").not("#nav-mobile .hassub").on("mouseenter", function() { $("ul",this).show(); })
-        .on("mouseleave", function(){ $("ul",this).hide(); });
+        var hoverTimer;
+        /* hover to open/close - exclude #nav-mobile */
+        /* Use delay only for button-based menus to avoid touch/click conflict */
+        $(".hassub").not("#nav-mobile .hassub").on("mouseenter", function() {
+          var $ul = $("ul", this);
+          if ($(this).find("> button").length > 0) {
+            hoverTimer = setTimeout(function() {
+              $ul.show();
+            }, 200);
+          } else {
+            $ul.show();
+          }
+        })
+        .on("mouseleave", function(){
+          clearTimeout(hoverTimer);
+          $("ul",this).hide();
+        });
         /* click to toggle - all menus including #nav-mobile */
-        $(".hassub").on("click", "> a", function(event) {
+        $(".hassub").on("click", "> a, > button", function(event) {
           event.preventDefault();
+          clearTimeout(hoverTimer);
           $(this).siblings("ul").toggle();
+        });
+        /* click outside hassub to close any open menus (but not nav-mobile which has its own handling) */
+        $(document).on("click", function(event) {
+          if (!$(event.target).closest(".hassub").length) {
+            $(".hassub").not("#nav-mobile .hassub").find("ul").hide();
+          }
         });
 
         $('.ajaxlink').click(function(event) {
+          event.preventDefault();
           $(this).closest('ul').hide();
           $("nav#nav-mobile ul.expanded").removeClass("expanded").slideUp(250);
           $("#nav-trigger").removeClass("open");

@@ -6,26 +6,17 @@ $date_repeat = 5;
 $name_repeat = 15;
 $rangesize = 15;
 
-$pidfilter = '';
-if (!empty($_REQUEST['preselected'])) {
-    $pidfilter = $_REQUEST['preselected'];
-} elseif (!empty($_REQUEST['pidlist'])) {
-    $pidfilter = $_REQUEST['pidlist'];
-} elseif (!empty($_REQUEST['bucket']) && !empty($_SESSION['bucket'])) {
-    $pidfilter = implode(',', $_SESSION['bucket']);
-}
-
 //get the list of people who attended (row headings for table)
 $sql = 'SELECT DISTINCT attendance.PersonID,FullName,Furigana,Photo from attendance LEFT JOIN person '.
-    'ON attendance.PersonID=person.PersonID WHERE EventID = '.$_REQUEST['eid'];
-if (!empty($_POST["startdate"])) $sql .= " AND AttendDate >= '".$_POST["startdate"]."'";
-if (!empty($_POST["enddate"])) $sql .= " AND AttendDate <= '".$_POST["enddate"]."'";
-if ($pidfilter) $sql .= " AND attendance.PersonID IN ($pidfilter)";
+    'ON attendance.PersonID=person.PersonID WHERE EventID = '.$_GET['eid'];
+if (!empty($_GET["startdate"])) $sql .= " AND AttendDate >= '".$_GET["startdate"]."'";
+if (!empty($_GET["enddate"])) $sql .= " AND AttendDate <= '".$_GET["enddate"]."'";
+if (!empty($_GET['bucket']) && !empty($_SESSION['bucket'])) $sql .= " AND attendance.PersonID IN (".implode(',',$_SESSION['bucket']).")";
 $sql .= ' ORDER BY Furigana';
 $result = sqlquery_checked($sql);
 if (mysqli_num_rows($result) == 0) {
   header1(_('Attendance Detail Chart'));
-  header2($_REQUEST['nav']);
+  header2($_GET['nav']);
   echo _('There are no records matching your criteria.');
   footer();
   exit;
@@ -42,40 +33,32 @@ while ($row = mysqli_fetch_object($result)) {
 $pids = substr($pids,1);
 
 $pstext = '';
-if ($pidfilter) {
-  if ($num_people > 1) {
-    $pstext = sprintf(_(' (%d People/Orgs Pre-selected)'), substr_count($pidfilter,",")+1);
-  } else {
-    $pstext = ' ('.$parray[0]->FullName.")";
-    $name_repeat = 0;
-  }
-}
 
 header1(_('Attendance Detail Chart').$pstext);
 
-if (!$_REQUEST['eid']) die('No event ID passed.');
-$eid = $_REQUEST['eid'];
+if (!$_GET['eid']) die('No event ID passed.');
+$eid = $_GET['eid'];
 ?>
 <meta http-equiv="expires" content="0">
 <link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
 <?php
-header2($_REQUEST['nav']);
-if ($_REQUEST['nav']==1) echo '<h1 id="title">'._('Attendance Detail Chart').$pstext."</h1>\n";
+header2(!empty($_GET['nav']) ? $_GET['nav'] : 0);
+if (!empty($_GET['nav']) && $_GET['nav']==1) echo '<h1 id="title">'._('Attendance Detail Chart').$pstext."</h1>\n";
 //get the description of the event
 $result = sqlquery_checked("SELECT Event,UseTimes,Remarks from event WHERE EventID = $eid");
 $event = mysqli_fetch_object($result);
 echo '<h3>'.sprintf(_('Event: "%s" (%s)'),$event->Event,$event->Remarks);
-if (!empty($_POST["startdate"]) && !empty($_POST["enddate"])) printf(_(", between %s and %s"),$_POST["startdate"],$_POST["enddate"]);
-elseif (!empty($_POST["startdate"])) printf(_(", on or after %s"),$_POST["startdate"]);
-elseif (!empty($_POST["enddate"])) printf(_(", on or before %s"),$_POST["enddate"]);
+if (!empty($_GET["startdate"]) && !empty($_GET["enddate"])) printf(_(", between %s and %s"),$_GET["startdate"],$_GET["enddate"]);
+elseif (!empty($_GET["startdate"])) printf(_(", on or after %s"),$_GET["startdate"]);
+elseif (!empty($_GET["enddate"])) printf(_(", on or before %s"),$_GET["enddate"]);
 echo "</h3>";
 
 //get the list of dates (column headings for table)
-if (!empty($_POST['empties'])) {
+if (!empty($_GET['empties'])) {
   $showemptiesform = 1;
   $sql = "SELECT MIN(AttendDate) AS first, MAX(AttendDate) AS last FROM attendance WHERE EventID=$eid AND PersonID IN ($pids)";
-  if (!empty($_POST["startdate"])) $sql .= " AND AttendDate >= '".$_POST["startdate"]."'";
-  if (!empty($_POST["enddate"])) $sql .= " AND AttendDate <= '".$_POST["enddate"]."'";
+  if (!empty($_GET["startdate"])) $sql .= " AND AttendDate >= '".$_GET["startdate"]."'";
+  if (!empty($_GET["enddate"])) $sql .= " AND AttendDate <= '".$_GET["enddate"]."'";
   $result = sqlquery_checked($sql);
   $row = mysqli_fetch_object($result);
   for($step = $row->first; $step != $row->last; $step = date('Y-m-d', strtotime("$step +1 day"))) {
@@ -84,8 +67,8 @@ if (!empty($_POST['empties'])) {
   $darray[] = $row->last;
 } else {
   $sql = "SELECT DISTINCT AttendDate FROM attendance WHERE EventID=$eid AND PersonID IN ($pids)";
-  if (!empty($_POST["startdate"])) $sql .= " AND AttendDate >= '".$_POST["startdate"]."'";
-  if (!empty($_POST["enddate"])) $sql .= " AND AttendDate <= '".$_POST["enddate"]."'";
+  if (!empty($_GET["startdate"])) $sql .= " AND AttendDate >= '".$_GET["startdate"]."'";
+  if (!empty($_GET["enddate"])) $sql .= " AND AttendDate <= '".$_GET["enddate"]."'";
   $sql .= " ORDER BY AttendDate";
   $result = sqlquery_checked($sql);
   while ($row = mysqli_fetch_object($result)) {
@@ -102,15 +85,15 @@ if (!empty($_POST['empties'])) {
   }
 }
 $num_dates = count($darray);
-if (!empty($_POST['rangeall'])) {  //user requested whole range
+if (!empty($_GET['rangeall'])) {  //user requested whole range
   $rangefirst = 0;
   $rangelast = $num_dates-1;
-} elseif (!empty($_POST['rangefirst'])) {  //some specification about range besides all
-  if (!empty($_POST['rangestart'])) $rangefirst = 0;
-  elseif (!empty($_POST['rangeend'])) $rangefirst = max($num_dates-$rangesize,0);
-  elseif (!empty($_POST['rangeprev'])) $rangefirst = max($_POST['rangefirst']-$rangesize,0);
-  elseif (!empty($_POST['rangenext'])) $rangefirst = min($_POST['rangefirst']+$rangesize,$num_dates-$rangesize);
-  else $rangefirst = $_POST['rangefirst'];
+} elseif (!empty($_GET['rangefirst'])) {  //some specification about range besides all
+  if (!empty($_GET['rangestart'])) $rangefirst = 0;
+  elseif (!empty($_GET['rangeend'])) $rangefirst = max($num_dates-$rangesize,0);
+  elseif (!empty($_GET['rangeprev'])) $rangefirst = max($_GET['rangefirst']-$rangesize,0);
+  elseif (!empty($_GET['rangenext'])) $rangefirst = min($_GET['rangefirst']+$rangesize,$num_dates-$rangesize);
+  else $rangefirst = $_GET['rangefirst'];
   $rangelast = min($rangefirst+$rangesize-1,$num_dates-1);
 } else {  //nothing specified, so use end range
   $rangefirst = max($num_dates-$rangesize,0);
@@ -119,10 +102,10 @@ if (!empty($_POST['rangeall'])) {  //user requested whole range
 
 if ($showemptiesform == 1) {
   echo '<form id="emptiesform" action="'.$_SERVER['PHP_SELF'].'" method="post" target="_self">'."\n";
-  foreach ($_REQUEST as $key => $val) {
+  foreach ($_GET as $key => $val) {
     if ($key != 'empties')  echo '<input type="hidden" name="'.$key.'" value="'.$val.'">'."\n";
   }
-  if (!empty($_POST['empties'])) {
+  if (!empty($_GET['empties'])) {
     echo '<input type="hidden" name="empties" value="0">'."\n";
     echo '<input type="submit" value="'._("Show only dates with attendance")."\">\n";
   } else {
@@ -132,8 +115,8 @@ if ($showemptiesform == 1) {
   echo "</form>\n"; 
 }
 echo '<form id="msform" action="multiselect.php" method="get" target="_top">'."\n";
-echo '<input type="hidden" name="preselected" value="'.$pids."\">\n";
-echo '<input type="submit" value="'._('Go to Multi-Select with these entries preselected')."\">\n";
+echo '<input type="hidden" name="pids" value="'.$pids."\">\n";
+echo '<input type="submit" value="'._('Go to Multi-Select')."\">\n";
 echo "</form>\n"; 
 
 echo '<p>'._('To delete entries: click to select a cell, Ctrl-click to select additional cells, and/or drag to select a range. Then click this button:');
@@ -141,7 +124,7 @@ echo '<button id="deleteSelected">'._('Delete Selected Cells')."</button>\n";
 
 if ($rangefirst > 0 || $rangelast < $num_dates-1) {
   echo "<form id=\"rangeform\" action=\"".$_SERVER['PHP_SELF'].'" method="post" target="_self">'."\n";
-  foreach ($_REQUEST as $key => $val) {
+  foreach ($_GET as $key => $val) {
     if (substr($key,0,5)!="range")  echo '<input type="hidden" name="'.$key.'" value="'.$val."\">\n";
   }
   echo '<input type="hidden" name="rangefirst" value="'.$rangefirst."\">\n";

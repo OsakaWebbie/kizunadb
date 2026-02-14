@@ -609,7 +609,7 @@ function flextable($opt) {
     <?php if (!empty($opt->heading)) { ?>
       <h3 style="margin:0"><?=$opt->heading?></h3>
     <?php } ?>
-    <div class="button-block" style="display:flex; gap:0.5em; flex-wrap:wrap; flex:1">
+    <div class="button-block" style="display:flex; gap:1em; flex-wrap:wrap; flex:1; margin: 5px 0 10px 0">
       <?php if ($opt->showColumnSelector) { ?>
       <button id="<?=$opt->tableid?>-colsel-toggle" class="dropdown-closed"><?=_('Column Selector')?></button>
       <?php } ?>
@@ -619,7 +619,7 @@ function flextable($opt) {
         <ul id="<?=$opt->tableid?>-bucket" class="nav-sub" style="display:none">
           <li class="bucket-add"><a id="<?=$opt->tableid?>-bucket-add" class="ajaxlink bucket-add" href="#"><?=_('Add to Bucket')?></a></li>
           <li class="bucket-rem"><a id="<?=$opt->tableid?>-bucket-rem" class="ajaxlink bucket-rem" href="#"><?=_('Remove from Bucket')?></a></li>
-          <li class="bucket-set"><a id="<?=$opt->tableid?>-bucket-set" class="ajaxlink bucket-set" href="#"><?=_('Set Bucket to these')?></a></li>
+          <li class="bucket-set"><a id="<?=$opt->tableid?>-bucket-set" class="ajaxlink bucket-set" href="#"><?=_('Set Bucket to these only')?></a></li>
         </ul>
       </div>
       <button id="<?=$opt->tableid?>-ms" title="<?=_('Go to Multi-Select with these entries preselected')?>"><?=_('To Multi-Select')?></button>
@@ -696,10 +696,16 @@ function flextable($opt) {
     /***** TABLE BODY *****/
 
     $pids = ','; //need boundary for duplicate check
+    $person_pids = ','; // separate collection of PersonIDs for bucket/multiselect
     while ($row = mysqli_fetch_object($result)) {
-      // Collect IDs based on the keyfield, not hardcoded PersonID
+      // Collect IDs based on the keyfield (needed for lazy column loading)
       $keyval = $row->$keycol;
       if (!empty($keyval) && strpos($pids,','.$keyval.',') === FALSE) $pids .= $keyval.',';
+      // Collect PersonIDs separately for bucket/multiselect when keyfield isn't PersonID
+      if ($keycol != 'PersonID' && isset($row->PersonID) && !empty($row->PersonID)
+          && strpos($person_pids,','.$row->PersonID.',') === FALSE) {
+        $person_pids .= $row->PersonID.',';
+      }
       echo "  <tr>\n";
       foreach ($opt->cols as $colindex => $col) {
         // For consistency with AJAX responses, always use the keyfield for cell ID class
@@ -847,10 +853,16 @@ function flextable($opt) {
       echo "  </tr>\n";
     }
     $pids = trim($pids,',');
+    $person_pids = trim($person_pids,',');
+    // If keyfield IS PersonID, person_pids is just pids
+    if ($keycol == 'PersonID') $person_pids = $pids;
     ?>
     </tbody>
   </table>
   <div id="<?=$opt->tableid?>-pids" style="display:none"><?=$pids?></div>
+  <?php if ($keycol != 'PersonID') { ?>
+  <div id="<?=$opt->tableid?>-person-pids" style="display:none"><?=$person_pids?></div>
+  <?php } ?>
 
   <?php if ($opt->maxnum > 0) { ?>
   <button id="<?=$opt->tableid?>-showmore" style="margin-top:10px"><?=_('Show More Records')?></button>
@@ -1142,12 +1154,17 @@ function flextable($opt) {
 
    // link to go directly to multiselect without bucket
     $('#<?=$opt->tableid?>-ms').click(function() {
-      location.href = 'multiselect.php?pids=<?=$pids?>';
+      location.href = 'multiselect.php?pids=<?=$keycol == "PersonID" ? $pids : $person_pids?>';
     });
+
+    // Determine the correct PID source for bucket operations
+    var bucketPids = $('#<?=$opt->tableid?>-person-pids').length
+        ? $('#<?=$opt->tableid?>-person-pids').text()
+        : $('#<?=$opt->tableid?>-pids').text();
 
     // Add these PIDs to the existing bucket
     $('#<?=$opt->tableid?>-bucket-add').click(function(event) {
-      $.post("bucket.php", { add:$('#<?=$opt->tableid?>-pids').text() }, function(r) {
+      $.post("bucket.php", { add: bucketPids }, function(r) {
         if (!isNaN(r)) {
           $('span.bucketcount').html(r);
           $('.bucket-list,.bucket-empty,.bucket-rem').toggleClass('disabledlink', ($('span.bucketcount').html() === '0'));
@@ -1158,7 +1175,7 @@ function flextable($opt) {
 
     // Remove these PIDs from the existing bucket
     $('#<?=$opt->tableid?>-bucket-rem').click(function(event) {
-      $.post("bucket.php", { rem:$('#<?=$opt->tableid?>-pids').text() }, function(r) {
+      $.post("bucket.php", { rem: bucketPids }, function(r) {
         if (!isNaN(r)) {
           $('span.bucketcount').html(r);
           $('.bucket-list,.bucket-empty,.bucket-rem').toggleClass('disabledlink', ($('span.bucketcount').html() === '0'));
@@ -1169,7 +1186,7 @@ function flextable($opt) {
 
     // Make the bucket contain only these PIDs (any previous contents are replaced)
     $('#<?=$opt->tableid?>-bucket-set').click(function(event) {
-      $.post("bucket.php", { set:$('#<?=$opt->tableid?>-pids').text() }, function(r) {
+      $.post("bucket.php", { set: bucketPids }, function(r) {
         if (!isNaN(r)) {
           $('span.bucketcount').html(r);
           $('.bucket-list,.bucket-empty,.bucket-rem').toggleClass('disabledlink', ($('span.bucketcount').html() === '0'));

@@ -2,24 +2,21 @@
 include("functions.php");
 include("accesscontrol.php");
 
-$listtype = $_POST['listtype'] ?? 'Normal';
+$listtype = $_GET['listtype'] ?? 'Normal';
 
-header1(_("Action List").(!empty($_POST['preselected']) ? sprintf(_(" (%d People/Orgs Pre-selected)"),
-    substr_count($_POST['preselected'],",")+1) : ""));
+header1(_("Action List"));
 ?>
 <link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />
 <?php
 header2($_GET['nav'] ?? 0);
-if (($_GET['nav'] ?? 0)==1) echo "<h1 id=\"title\">"._("Action List").(!empty($_POST['preselected']) ?
-sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($_POST['preselected'],",")+1) : "")."</h1>\n";
+if (($_GET['nav'] ?? 0)==1) echo "<h1 id=\"title\">"._("Action List")."</h1>\n";
 
 $where = '';
-if (!empty($_POST['atype'])) $where .= ($where?" AND":" WHERE")." a.ActionTypeID IN (".implode(",",$_POST['atype']).")";
-if (!empty($_POST['startdate'])) $where .= ($where?" AND":" WHERE")." ActionDate >= '".$_POST['startdate']."'";
-if (!empty($_POST['enddate'])) $where .= ($where?" AND":" WHERE")." ActionDate <= '".$_POST['enddate']."'";
-if (!empty($_POST['csearch'])) $where .= ($where?" AND":" WHERE")." Description LIKE '%".$_POST['csearch']."%'";
-if (!empty($_POST['preselected'])) $where .= ($where?" AND":" WHERE")." a.PersonID IN (".$_POST['preselected'].")";
-if (!empty($_POST['bucket']) && !empty($_SESSION['bucket'])) $where .= ($where?" AND":" WHERE")." a.PersonID IN (".implode(',',$_SESSION['bucket']).")";
+if (!empty($_GET['atype'])) $where .= ($where?" AND":" WHERE")." a.ActionTypeID IN (".implode(",",$_GET['atype']).")";
+if (!empty($_GET['startdate'])) $where .= ($where?" AND":" WHERE")." ActionDate >= '".$_GET['startdate']."'";
+if (!empty($_GET['enddate'])) $where .= ($where?" AND":" WHERE")." ActionDate <= '".$_GET['enddate']."'";
+if (!empty($_GET['csearch'])) $where .= ($where?" AND":" WHERE")." Description LIKE '%".$_GET['csearch']."%'";
+if (!empty($_GET['bucket']) && !empty($_SESSION['bucket'])) $where .= ($where?" AND":" WHERE")." a.PersonID IN (".implode(',',$_SESSION['bucket']).")";
 
 // Get ActionIDs for flextable
 if ($listtype == 'Normal') {

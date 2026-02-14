@@ -34,6 +34,10 @@ if (!$catlist) {
   echo "<b>Birthdays between {$startmonth}/{$startday} and {$endmonth}/{$endday} ".
      "for those in categories <i>$cat_names</i>:</b><br>&nbsp;<br>\n";
 }
+// Add bucket filter
+if (!empty($bucket) && !empty($_SESSION['bucket'])) {
+  $sql .= "p.PersonID IN (" . implode(',', $_SESSION['bucket']) . ") AND ";
+}
 // Finish WHERE clause
 $startcombo = str_pad($startmonth,2,"0", STR_PAD_LEFT) . str_pad($startday,2,"0", STR_PAD_LEFT);
 $endcombo = str_pad($endmonth,2,"0", STR_PAD_LEFT) . str_pad($endday,2,"0", STR_PAD_LEFT);
@@ -51,7 +55,7 @@ if (($startmonth>$endmonth) || ($startmonth==$endmonth && $startday>$endday)) {
 $sql .= " ORDER BY month(Birthdate), dayofmonth(Birthdate)";
 $result = sqlquery_checked($sql);
 echo "<form action=\"multiselect.php\" method=GET target=\"_top\">\n";
-echo "<center><input type=submit value=\"Go to Multi-Select with This List Preselected\"><br></center>";
+echo "<center><input type=submit value=\"Go to Multi-Select\"><br></center>";
 
 // Create table
 echo "<table border=1 cellspacing=0 cellpadding=2><thead><tr><th>Name</th><th>Photo</th>";
@@ -75,7 +79,7 @@ while ($row = mysqli_fetch_object($result)) {
   $pid_list .= $row->PersonID.",";
 }
 echo "</table>\n";
-echo "<input type=hidden name=preselected value=\",".$pid_list."\"></form>\n";
+echo "<input type=hidden name=pids value=\"".rtrim($pid_list,',')."\"></form>\n";
 
 print_footer();
 ?>

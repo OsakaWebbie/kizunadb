@@ -2,22 +2,19 @@
 include('functions.php');
 include('accesscontrol.php');
 
-header1(_('Attendance Summary').(!empty($_POST['preselected']) ?
-sprintf(_(' (%d People/Orgs Pre-selected)'),substr_count($_POST['preselected'],',')+1) : ''));
+header1(_('Attendance Summary'));
 
 ?>
 <meta http-equiv="expires" content="0">
 <link rel="stylesheet" href="style.php" type="text/css" />
 <?php
 header2($_GET['nav']);
-//echo "<pre>".print_r($_POST,true)."</pre>";
-if ($_GET['nav']==1) echo '<h1 id="title">'._('Attendance Summary Chart').($_POST['preselected']!='' ?
-sprintf(_(' (%d People/Orgs Pre-selected)'),substr_count($_POST['preselected'],',')+1) : '')."</h1>\n";
+if ($_GET['nav']==1) echo '<h1 id="title">'._('Attendance Summary Chart')."</h1>\n";
 
-if (!$_REQUEST['emultiple']) {
+if (!$_GET['emultiple']) {
   die('Insufficient parameters - please select one or more events.');
 }
-$eids = implode(',', $_REQUEST['emultiple']);
+$eids = implode(',', $_GET['emultiple']);
 //get the event info (row headings for table and event names for top of page)
 $earray = array();
 $events = '';
@@ -28,18 +25,16 @@ while ($row = mysqli_fetch_object($result)) {
 }
 echo '<h3>'._('Events').': '.substr($events,2);
 
-if (!empty($_REQUEST['startdate']) && !empty($_REQUEST['enddate'])) printf(_(', between %s and %s'),$_REQUEST['startdate'],$_REQUEST['enddate']);
-elseif (!empty($_REQUEST['startdate'])) printf(_(', on or after %s'),$_REQUEST['startdate']);
-elseif (!empty($_REQUEST['enddate'])) printf(_(', on or before %s'),$_REQUEST['enddate']);
-if (!empty($_POST['preselected'])) printf(_(' (%d People/Orgs Pre-selected)'),substr_count($_POST['preselected'],',')+1);
+if (!empty($_GET['startdate']) && !empty($_GET['enddate'])) printf(_(', between %s and %s'),$_GET['startdate'],$_GET['enddate']);
+elseif (!empty($_GET['startdate'])) printf(_(', on or after %s'),$_GET['startdate']);
+elseif (!empty($_GET['enddate'])) printf(_(', on or before %s'),$_GET['enddate']);
 echo "</h3>";
 
 //get the list of dates (column headings for table)
 $sql = "SELECT DISTINCT AttendDate FROM attendance WHERE EventID IN ($eids)";
-if (!empty($_POST['preselected'])) $sql .= " AND PersonID IN (".$_POST['preselected'].")";
-if (!empty($_POST['bucket']) && !empty($_SESSION['bucket'])) $sql .= " AND PersonID IN (".implode(',',$_SESSION['bucket']).")";
-if (!empty($_REQUEST["startdate"])) $sql .= " AND AttendDate >= '".$_REQUEST["startdate"]."'";
-if (!empty($_REQUEST["enddate"])) $sql .= " AND AttendDate <= '".$_REQUEST["enddate"]."'";
+if (!empty($_GET['bucket']) && !empty($_SESSION['bucket'])) $sql .= " AND PersonID IN (".implode(',',$_SESSION['bucket']).")";
+if (!empty($_GET["startdate"])) $sql .= " AND AttendDate >= '".$_GET["startdate"]."'";
+if (!empty($_GET["enddate"])) $sql .= " AND AttendDate <= '".$_GET["enddate"]."'";
 $sql .= " ORDER BY AttendDate";
 $result = sqlquery_checked($sql);
 if (mysqli_num_rows($result) == 0) {
@@ -49,10 +44,6 @@ if (mysqli_num_rows($result) == 0) {
 }
 while ($darray[] = mysqli_fetch_row($result));
 
-if (!empty($_POST['preselected'])) {
-  echo '<form id="filterform" method="post" action="" target="_blank">';
-  echo '<input type="hidden" id="preselected" name="preselected" value="'.$_POST['preselected'].'">';
-}
 echo '<table border="1" cellspacing="0" cellpadding="3">'."\n";
 
 // loop for rows of the table
@@ -83,10 +74,9 @@ for ($r=0; $r<(count($earray)); $r++) {
   $sql = "SELECT AttendDate,COUNT(PersonID) AS count".
   ($earray[$r]->UseTimes ? ",SUM(TIME_TO_SEC(SUBTIME(EndTime,StartTime))) DIV 60 AS minutes" : "").
   " FROM attendance WHERE EventID=".$earray[$r]->EventID;
-  if (!empty($_REQUEST["startdate"])) $sql .= " AND AttendDate >= '".$_REQUEST["startdate"]."'";
-  if (!empty($_REQUEST["enddate"])) $sql .= " AND AttendDate <= '".$_REQUEST["enddate"]."'";
-  if (!empty($_POST['preselected'])) $sql .= " AND PersonID IN (".$_POST['preselected'].")";
-  if (!empty($_POST['bucket']) && !empty($_SESSION['bucket'])) $sql .= " AND PersonID IN (".implode(',',$_SESSION['bucket']).")";
+  if (!empty($_GET["startdate"])) $sql .= " AND AttendDate >= '".$_GET["startdate"]."'";
+  if (!empty($_GET["enddate"])) $sql .= " AND AttendDate <= '".$_GET["enddate"]."'";
+  if (!empty($_GET['bucket']) && !empty($_SESSION['bucket'])) $sql .= " AND PersonID IN (".implode(',',$_SESSION['bucket']).")";
   $sql .= " GROUP BY AttendDate ORDER BY AttendDate";
   $result = sqlquery_checked($sql); 
   $row = mysqli_fetch_object($result);
@@ -96,8 +86,8 @@ for ($r=0; $r<(count($earray)); $r++) {
   for ($c=0; $c<(count($darray)-1); $c++) {
     // repeat names every 15 columns
     if ($c % 15 == 0) {
-      echo '<td class="eventcell"><a href="attend_detail.php?'.(!empty($_POST['preselected'])?'preselected='.$_POST['preselected']:'').
-      '&eid='.$earray[$r]->EventID.'" target="_blank"><span title="'.$earray[$r]->Remarks.'">'.
+      echo '<td class="eventcell"><a href="attend_detail.php?eid='.$earray[$r]->EventID.
+      '&nav=1" target="_blank"><span title="'.$earray[$r]->Remarks.'">'.
       $earray[$r]->Event."</span></a></td>\n";
     }
     if (($done == 0) && ($row->AttendDate == $darray[$c][0])) {  //matches date
@@ -113,21 +103,7 @@ for ($r=0; $r<(count($earray)); $r++) {
   echo "</tr>\n";
 }
 echo "</table>\n";
-if (!empty($_POST['preselected'])) echo "</form>\n";
 
 load_scripts(['jquery']);
-if (!empty($_POST['preselected'])) {
-?>
-<script type="text/javascript">
-$(document).ready(function() {
-  $(".eventcell>a, .sumcell>a").click(function(ev) {
-    ev.preventDefault();
-    $("#filterform").attr("action", $(this).attr("href")).submit();
-    return false;
-  });
-});
-</script>
-<?php
-}
 footer();
 ?>

@@ -2,10 +2,10 @@
 include("functions.php");
 include("accesscontrol.php");
 
-if (!$_POST['emultiple']) {
+if (!$_GET['emultiple']) {
   die("Insufficient parameters.");
 }
-$eids = implode(",", $_POST['emultiple']);
+$eids = implode(",", $_GET['emultiple']);
 
 // Get the event info
 $result = sqlquery_checked("SELECT EventID,Event,UseTimes FROM event WHERE EventID IN ($eids) ORDER BY Event");
@@ -26,20 +26,18 @@ header1(_("Aggregate Attendance Data"));
 <?php
 header2($_GET['nav']);
 echo "<h3>"._("Aggregate Data for Events").": ".$event_names;
-if (!empty($_POST["startdate"]) && !empty($_POST["enddate"])) printf(_(", between %s and %s"),$_POST["startdate"],$_POST["enddate"]);
-elseif (!empty($_POST["startdate"])) printf(_(", on or after %s"),$_POST["startdate"]);
-elseif (!empty($_POST["enddate"])) printf(_(", on or before %s"),$_POST["enddate"]);
-if (!empty($_POST['min'])) printf(_(" (Minimum attendance %d times)"),$_POST['min']);
-if (!empty($_POST['preselected'])) printf(_(" (%d People/Orgs Pre-selected)"),substr_count($_POST['preselected'],",")+1);
+if (!empty($_GET["startdate"]) && !empty($_GET["enddate"])) printf(_(", between %s and %s"),$_GET["startdate"],$_GET["enddate"]);
+elseif (!empty($_GET["startdate"])) printf(_(", on or after %s"),$_GET["startdate"]);
+elseif (!empty($_GET["enddate"])) printf(_(", on or before %s"),$_GET["enddate"]);
+if (!empty($_GET['min'])) printf(_(" (Minimum attendance %d times)"),$_GET['min']);
 echo "</h3>\n";
 
 // Build WHERE and HAVING clauses
 $where = $having = '';
-if (!empty($_POST["startdate"])) $where .= " AND a.AttendDate >= '".$_POST["startdate"]."'";
-if (!empty($_POST["enddate"])) $where .= " AND a.AttendDate <= '".$_POST["enddate"]."'";
-if (!empty($_POST["min"])) $having .= " HAVING attendnum >= ".$_POST["min"];
-if (!empty($_POST['preselected'])) $where .= " AND a.PersonID IN (".$_POST['preselected'].")";
-if (!empty($_POST['bucket']) && !empty($_SESSION['bucket'])) $where .= " AND a.PersonID IN (".implode(',',$_SESSION['bucket']).")";
+if (!empty($_GET["startdate"])) $where .= " AND a.AttendDate >= '".$_GET["startdate"]."'";
+if (!empty($_GET["enddate"])) $where .= " AND a.AttendDate <= '".$_GET["enddate"]."'";
+if (!empty($_GET["min"])) $having .= " HAVING attendnum >= ".$_GET["min"];
+if (!empty($_GET['bucket']) && !empty($_SESSION['bucket'])) $where .= " AND a.PersonID IN (".implode(',',$_SESSION['bucket']).")";
 
 // Run aggregate query to collect PersonIDs
 $sql = "SELECT DISTINCT a.PersonID, COUNT(a.AttendDate) AS attendnum FROM attendance a ".

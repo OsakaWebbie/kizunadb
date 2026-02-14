@@ -128,6 +128,9 @@ while ($row = mysqli_fetch_object($result)) {
 }
 ?>
     </select><hr>
+<?php if (!empty($_SESSION['bucket'])) { ?>
+    <label class="label-n-input"><input type="checkbox" name="bucket" value="1"><?=sprintf(_("Limit to Bucket (%d)"), count($_SESSION['bucket']))?></label><br>
+<?php } ?>
     <input type="submit" name="make_chart" value="List Birthdays">
     <input type="hidden" name="catlist" value="">
   </form>

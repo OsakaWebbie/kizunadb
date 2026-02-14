@@ -2,10 +2,7 @@
 include('functions.php');
 include('accesscontrol.php');
 
-header1(_('Event Attendance').
-    (!empty($_POST['pid_list']) ?
-        sprintf(_(' (%d People/Orgs Pre-selected)'),substr_count($_POST['pid_list'],',')+1) :
-        '')); ?>
+header1(_('Event Attendance')); ?>
 <meta http-equiv="expires" content="0">
 <link rel="stylesheet" href="style.php?jquery=1&multiselect=1" type="text/css" />
 <?php header2(1);
@@ -19,9 +16,8 @@ while ($row = mysqli_fetch_object($result)) {
 }
 ?>
 
-<h1 id="title"><?=_('Event Attendance').(!empty($_POST['pid_list']) ? sprintf(_(' (%d People/Orgs Pre-selected)'),substr_count($_POST['pid_list'],",")+1) : "")?></h1>
-<form id="eform" method="post" action="blank.php" target="ResultFrame">
-<?php if (!empty($_POST['pid_list'])) echo '<input type="hidden" name="preselected" value="'.$_POST['pid_list'].'">'; ?>
+<h1 id="title"><?=_('Event Attendance')?></h1>
+<form id="eform" method="get" action="blank.php" target="ResultFrame">
 <div id="filter">
 <?php
 printf(_('Optional Dates: after %s and/or before %s'),
