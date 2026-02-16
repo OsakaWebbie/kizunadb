@@ -2,6 +2,7 @@
 include("functions.php");
 include("accesscontrol.php");
 
+$ajax = !empty($_GET['ajax']);
 $date_repeat = 5;
 $name_repeat = 15;
 $rangesize = 15;
@@ -15,10 +16,12 @@ if (!empty($_GET['basket']) && !empty($_SESSION['basket'])) $sql .= " AND attend
 $sql .= ' ORDER BY Furigana';
 $result = sqlquery_checked($sql);
 if (mysqli_num_rows($result) == 0) {
-  header1(_('Attendance Detail Chart'));
-  header2($_GET['nav']);
+  if (!$ajax) {
+    header1(_('Attendance Detail Chart'));
+    header2($_GET['nav']);
+  }
   echo _('There are no records matching your criteria.');
-  footer();
+  if (!$ajax) footer();
   exit;
 }
 $num_people = $num_photos = 0;
@@ -34,16 +37,34 @@ $pids = substr($pids,1);
 
 $pstext = '';
 
-header1(_('Attendance Detail Chart').$pstext);
+if (!$ajax) {
+  header1(_('Attendance Detail Chart').$pstext);
+}
 
 if (!$_GET['eid']) die('No event ID passed.');
 $eid = $_GET['eid'];
+
+if (!$ajax) {
+  ?>
+  <meta http-equiv="expires" content="0">
+  <link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
+  <?php
+  header2(1);
+}
 ?>
-<meta http-equiv="expires" content="0">
-<link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
+<style>
+.weekdaydate { white-space:nowrap; background-color:#FFFFD0; font-size:0.8em; text-align:center; }
+.saturdaydate { white-space:nowrap; background-color:#C0C0E0; font-size:0.8em; text-align:center; }
+.sundaydate { white-space:nowrap; background-color:#FF8080; font-size:0.8em; text-align:center; }
+td.photocell, .photohead { text-align:center; background-color:#FFFFD0; }
+td.namecell, .namehead { white-space:nowrap; background-color:#D0D0F0; }
+.namehead { font-weight:bold; }
+td.attendcell { white-space:nowrap; background:#40A060 none; text-align:center; }
+td.attendtimecell { white-space:nowrap; background:#70E090 none; text-align:center; }
+td.ui-selected { background: #808080 url('graphics/delete_icon.png'); }
+</style>
+<h1 id="title"><?=_('Attendance Detail Chart').$pstext?></h1>
 <?php
-header2(!empty($_GET['nav']) ? $_GET['nav'] : 0);
-if (!empty($_GET['nav']) && $_GET['nav']==1) echo '<h1 id="title">'._('Attendance Detail Chart').$pstext."</h1>\n";
 //get the description of the event
 $result = sqlquery_checked("SELECT Event,UseTimes,Remarks from event WHERE EventID = $eid");
 $event = mysqli_fetch_object($result);
@@ -101,7 +122,7 @@ if (!empty($_GET['rangeall'])) {  //user requested whole range
 }
 
 if ($showemptiesform == 1) {
-  echo '<form id="emptiesform" action="'.$_SERVER['PHP_SELF'].'" method="post" target="_self">'."\n";
+  echo '<form id="emptiesform" action="'.$_SERVER['PHP_SELF'].'" method="get" target="_self">'."\n";
   foreach ($_GET as $key => $val) {
     if ($key != 'empties')  echo '<input type="hidden" name="'.$key.'" value="'.$val.'">'."\n";
   }
@@ -123,7 +144,7 @@ echo '<p>'._('To delete entries: click to select a cell, Ctrl-click to select ad
 echo '<button id="deleteSelected">'._('Delete Selected Cells')."</button>\n";
 
 if ($rangefirst > 0 || $rangelast < $num_dates-1) {
-  echo "<form id=\"rangeform\" action=\"".$_SERVER['PHP_SELF'].'" method="post" target="_self">'."\n";
+  echo "<form id=\"rangeform\" action=\"".$_SERVER['PHP_SELF'].'" method="get" target="_self">'."\n";
   foreach ($_GET as $key => $val) {
     if (substr($key,0,5)!="range")  echo '<input type="hidden" name="'.$key.'" value="'.$val."\">\n";
   }
@@ -208,7 +229,7 @@ for ($r=0; $r<$num_people; $r++) {
 }
 echo "</table>\n";
 
-load_scripts(['jquery', 'jqueryui']);
+if (!$ajax) load_scripts(['jquery', 'jqueryui']);
 ?>
 <script type="text/JavaScript">
 $(document).ready(function(){
@@ -245,5 +266,5 @@ $(document).ready(function(){
 });
 </script>
 <?php
-print_footer();
+if (!$ajax) print_footer();
 ?>

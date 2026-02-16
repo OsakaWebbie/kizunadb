@@ -2,14 +2,30 @@
 include('functions.php');
 include('accesscontrol.php');
 
-header1(_('Attendance Summary'));
+$ajax = !empty($_GET['ajax']);
 
+if (!$ajax) {
+  header1(_('Attendance Summary'));
+  ?>
+  <meta http-equiv="expires" content="0">
+  <link rel="stylesheet" href="style.php" type="text/css" />
+  <?php
+  header2(1);
+}
 ?>
-<meta http-equiv="expires" content="0">
-<link rel="stylesheet" href="style.php" type="text/css" />
+<style>
+.weekdaydate { white-space:nowrap; background-color:#FFFFD0; font-size:0.8em; text-align:center; }
+.saturdaydate { white-space:nowrap; background-color:#C0C0E0; font-size:0.8em; text-align:center; }
+.sundaydate { white-space:nowrap; background-color:#FF8080; font-size:0.8em; text-align:center; }
+td.datecell { white-space:nowrap; background-color:#FFFFD0; font-size:0.8em; text-align:center; }
+td.eventcell, td.eventhead { white-space:nowrap; background-color:#D0D0F0; }
+td.eventhead { font-weight:bold; }
+td.sumcell { text-align:center; }
+td.sumcell a { font-weight:bold; font-size:1.2em; }
+td.zerocell { text-align:center; }
+</style>
+<h1 id="title"><?=_('Attendance Summary Chart')?></h1>
 <?php
-header2($_GET['nav']);
-if ($_GET['nav']==1) echo '<h1 id="title">'._('Attendance Summary Chart')."</h1>\n";
 
 if (!$_GET['emultiple']) {
   die('Insufficient parameters - please select one or more events.');
@@ -39,7 +55,7 @@ $sql .= " ORDER BY AttendDate";
 $result = sqlquery_checked($sql);
 if (mysqli_num_rows($result) == 0) {
   echo "<p>"._("There are no attendance records matching your criteria.")."</p>";
-  footer();
+  if (!$ajax) footer();
   exit;
 }
 while ($darray[] = mysqli_fetch_row($result));
@@ -104,6 +120,6 @@ for ($r=0; $r<(count($earray)); $r++) {
 }
 echo "</table>\n";
 
-load_scripts(['jquery']);
-footer();
+if (!$ajax) load_scripts(['jquery']);
+if (!$ajax) footer();
 ?>

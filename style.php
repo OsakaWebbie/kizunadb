@@ -382,7 +382,13 @@ span.inlinelabel {
 option.active. li.active { background-color:<?=(!empty($activeeventbg)?$activeeventbg:"White")?>; }
 option.inactive, li.inactive { background-color:<?=(!empty($inactiveeventbg)?$inactiveeventbg:"#BBBBBB")?>; }
 
-/* MOBILE MEDIA QUERIES */
+ul#criteria {
+  margin-left:30px;
+  padding-left:12px;
+  list-style-type: disc;
+}
+
+  /* MOBILE MEDIA QUERIES */
 
 @media screen and (max-width: 900px) {
   body.full div#main-container {
@@ -406,6 +412,17 @@ option.inactive, li.inactive { background-color:<?=(!empty($inactiveeventbg)?$in
 
 .delconfirm { background-color: <?=(!empty($delconfirm)?$delconfirm:"#808080")?>; }
 .spinner { background: <?=(!empty($delconfirm)?$delconfirm:"#808080")?> url('graphics/ajax_loader.gif'); }
+
+/* Result frame for AJAX-loaded content */
+#ResultFrame {
+  min-height: 100px;
+  max-height: 500px;
+  overflow-y: auto;
+  resize: vertical;
+  border: 1px solid <?=(!empty($primarylight)?$primarylight:"LightSteelBlue")?>;
+  padding: 1em;
+  margin-top: 1em;
+}
 
 /* specific to search.php */
 body.search div#content {
@@ -477,11 +494,6 @@ body.search #search {
 /* specific to list.php */
 body.list.full div#main-container { width:auto; }
 body.list h3 { margin-bottom:0; }
-body.list ul#criteria {
-  margin-left:30px;
-  padding-left:12px;
-  list-style-type: disc;
-}
 body.list table { margin-right:auto; margin-left:auto; }
 body.list td.categories { white-space:nowrap; }
 
@@ -593,63 +605,6 @@ body.donation .actions { border:1px solid <?=(!empty($innerborder)?$innerborder:
 body.donation #show_list, body.donation #show_summary { display:inline-block; vertical-align:middle; margin-right:20px; }
 body.donation .actiontypes { display:inline-block; vertical-align:middle; margin-right:20px; }
 body.donation .proctype, body.donation .actiontype { display:block; }
-
-/* specific to donation_list.php */
-/*body.donation_list.full div#main-container, body.donation_summary.full div#main-container {
-  width:auto;
-}*/
-body.donation_list ul#criteria, body.donation_summary ul#criteria, body.pledge_list ul#criteria {
-  margin-left:30px;
-  padding-left:12px;
-  list-style-type: disc;
-}
-body.donation_list div#procbuttons { text-align:right; }
-body.donation_list div#procbuttons button { margin-left:10px; }
-/*body.donation_list table.sttable td { border:1px solid <?=(!empty($innerborder)?$innerborder:"SteelBlue")?>; }*/
-/*body.donation_list table.sttable td { padding:1px 3px 1px 3px; vertical-align:middle; }*/
-body.donation_list td.dtype, td.amount { white-space:nowrap; }
-body.donation_list td.amount { text-align:right; }
-body.donation_list td.subtotal {
-  background-color:#FFFFE0;
-  white-space:nowrap;
-  font-weight:bold;
-}
- 
-/* specific to attendance charts (also used in dashboards, so "body" omitted to allow div also) */
-body.attend_detail.full div#main-container { width:auto; }
-body.attend_detail .weekdaydate, body.attend_datesums .weekdaydate {
-  white-space:nowrap;
-  background-color: <?=(!empty($weekdaybg)?$weekdaybg:"#FFFFD0")?>;
-  font-size:0.8em;
-  text-align:center;
-}
-body.attend_detail .saturdaydate, body.attend_datesums .saturdaydate {
-  white-space:nowrap;
-  background-color: <?=(!empty($saturdaybg)?$saturdaybg:"#C0C0E0")?>;
-  font-size:0.8em;
-  text-align:center;
-}
-body.attend_detail .sundaydate, body.attend_datesums .sundaydate {
-  white-space:nowrap;
-  background-color: <?=(!empty($sundaybg)?$sundaybg:"#FF8080")?>;
-  font-size:0.8em;
-  text-align:center;
-}
-body.attend_detail td.photocell, body.attend_detail .photohead {
-  text-align:center;
-  background-color: <?=(!empty($photocellbg)?$photocellbg:"#FFFFD0")?>;
-}
-body.attend_detail td.namecell, body.attend_detail .namehead { white-space:nowrap; background-color: <?=(!empty($namecellbg)?$namecellbg:"#D0D0F0")?>; }
-body.attend_detail .namehead { font-weight:bold; }
-body.attend_detail td.attendcell { white-space:nowrap; background: <?=(!empty($attendcellbg)?$attendcellbg:"#40A060")?> none; text-align:center; }
-body.attend_detail td.attendtimecell { white-space:nowrap; background: <?=(!empty($attendtimebg)?$attendtimebg:"#70E090")?> none; text-align:center; }
-body.attend_detail td.ui-selected { background: #808080 url('graphics/delete_icon.png'); }
-body.attend_datesums td.datecell { white-space:nowrap; background-color: <?=(!empty($datecellbg)?$datecellbg:"#FFFFD0")?>; font-size:0.8em; text-align:center; }
-body.attend_datesums td.eventcell, body.attend_datesums td.eventhead { white-space:nowrap; background-color: <?=(!empty($eventcellbg)?$eventcellbg:"#D0D0F0")?>; }
-body.attend_datesums td.eventhead { font-weight:bold; }
-body.attend_datesums td.sumcell { text-align:center }
-body.attend_datesums td.sumcell a { font-weight:bold; font-size:1.2em; }
-body.attend_datesums td.zerocell { text-align:center; }
 
 /* specific to maintenance.php */
 body.maintenance form span.input {

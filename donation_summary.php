@@ -2,18 +2,22 @@
 include("functions.php");
 include("accesscontrol.php");
 
-$show_nav = !empty($_REQUEST['summary_tab']) ? 1 : 0;
+$ajax = !empty($_GET['ajax']);
 $type = $_REQUEST['summarytype'] ?? 'DonationType';
 
-header1(_("Donation Summary"));
+if (!$ajax) {
+  header1(_("Donation Summary"));
+  ?>
+  <link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />
+  <?php
+  header2(1);
+}
 ?>
-<link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />
 <style>
 td.amount-for-display { text-align: right; }
 </style>
+<h1 id="title"><?=_("Donation Summary")?></h1>
 <?php
-header2($show_nav);
-if ($show_nav == 1) echo "<h1 id=\"title\">"._("Donation Summary")."</h1>\n";
 
 // Build WHERE clause from filter criteria (matching donation_list.php pattern)
 $wheredone = 0;
@@ -99,7 +103,7 @@ $result = sqlquery_checked($sql);
 if (mysqli_num_rows($result) == 0) {
   echo "<h3>" . _("There are no records matching your criteria:") . "</h3>\n";
   if (!empty($criteria)) echo "<ul id=\"criteria\">" . $criteria . "</ul>";
-  footer();
+  if (!$ajax) footer();
   exit;
 }
 
@@ -162,7 +166,7 @@ echo "</tbody>\n</table>\n";
 echo "<h3>" . _("Total") . ": " . $_SESSION['currency_mark'] . " " .
   number_format($total, $_SESSION['currency_decimals']) . "</h3>\n";
 
-load_scripts(['jquery', 'tablesorter', 'table2csv']);
+if (!$ajax) load_scripts(['jquery', 'tablesorter', 'table2csv']);
 ?>
 <script>
 $(function() {
@@ -180,5 +184,5 @@ function getCSV() {
 }
 </script>
 <?php
-footer();
+if (!$ajax) footer();
 ?>

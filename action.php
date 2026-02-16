@@ -4,12 +4,12 @@ include("accesscontrol.php");
 
 header1(_("Action List")); ?>
 <meta http-equiv="expires" content="0">
-<link rel="stylesheet" href="style.php?jquery=1&multiselect=1" type="text/css" />
+<link rel="stylesheet" href="style.php?jquery=1&multiselect=1&table=1" type="text/css" />
 
 <?php header2(1); ?>
 <h1 id="title"><?=_("Action List")?></h1>
 
-<form id="aform" method="get" action="blank.php" target="ResultFrame">
+<form id="aform" method="get" action="blank.php">
   <div class="section">
     <div id="listtypes">
       <label class="label-n-input"><input type="radio" name="listtype" value="Normal" checked><?=_("Continuous List (can sort freely)")?></label>
@@ -33,13 +33,11 @@ while ($row = mysqli_fetch_object($result)) {
 <?php if (!empty($_SESSION['basket'])) { ?>
     <label class="label-n-input"><input type="checkbox" name="basket" value="1"><?=sprintf(_("Limit to Basket (%d)"), count($_SESSION['basket']))?></label>
 <?php } ?>
-    <input type="button" id="show_actions" name="show_actions" value="<?=_("Show List")?>">
+    <input type="button" id="show_actions_below" value="<?=_("Show List").' ('._('below').')'?>">
+    <input type="submit" value="<?=_("Show List").' ('._('new tab').')'?>" formaction="action_list.php" formtarget="_blank">
   </div>
-  <p style="clear:both"><?=sprintf(_("Show in: %sframe below&nbsp; %snew window"),
-  "<input type=\"radio\" id=\"radio_frame\" name=\"ftarget\" value=\"ResultFrame\" checked>",
-  "<input type=\"radio\" id=\"radio_window\" name=\"ftarget\" value=\"_blank\">")?></p>
 </form>
-<iframe name="ResultFrame" width="100%" height="320" src="blank.php"></iframe>
+<div id="ResultFrame"></div>
 
 <?php
 $scripts = ['jquery', 'jqueryui', 'multiselect'];
@@ -60,12 +58,24 @@ $(document).ready(function(){
   $("#startdate").datepicker({ dateFormat: 'yy-mm-dd' });
   $("#enddate").datepicker({ dateFormat: 'yy-mm-dd' });
 
-  $('input[name=ftarget]').change(function() {
-    $('form#aform').attr({target:$('input[name=ftarget]:checked').val()});
+  // AJAX handler for "below" button
+  $("#show_actions_below").click(function(){
+    var formData = $('#aform').serialize() + '&ajax=1';
+    $('#ResultFrame').html('<p style="padding:1em;color:#888"><?=_("Loading...")?></p>');
+    $.get('action_list.php', formData, function(response) {
+      $('#ResultFrame').html(response);
+    });
   });
-  $("#show_actions").click(function(){
-    $('#aform').attr({action:"action_list.php?nav="+(($('input[name=ftarget]:checked').val()=="_blank")?"1":"0")});
-    $('#aform').submit();
+
+  // Event delegation for forms inside result div
+  $('#ResultFrame').on('submit', 'form', function(e) {
+    var target = $(this).attr('target') || '';
+    if (target === '_blank' || target === '_top') return; // let these navigate normally
+    e.preventDefault();
+    var url = $(this).attr('action');
+    var data = $(this).serialize();
+    if (data) data += '&ajax=1'; else data = 'ajax=1';
+    $.get(url, data, function(r) { $('#ResultFrame').html(r); });
   });
 });
 </script>

@@ -837,7 +837,7 @@ function flextable($opt) {
             }
             if ($hasReadmore) echo '<div class="readmore">';
             if ($pid) {
-              echo '<a href="individual.php?pid='.$pid.'" target="_blank">'.$cellContent.'</a>';
+              echo '<a href="individual.php?pid='.$pid.'">'.$cellContent.'</a>';
             } else {
               echo $cellContent;
             }

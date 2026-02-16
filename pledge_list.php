@@ -2,14 +2,18 @@
 include("functions.php");
 include("accesscontrol.php");
 
-$show_nav = !empty($_REQUEST['pledge_tab']) ? 1 : 0;
+$ajax = !empty($_GET['ajax']);
 
-header1(_("Pledge List"));
+if (!$ajax) {
+  header1(_("Pledge List"));
+  ?>
+  <link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />
+  <?php
+  header2(1);
+}
 ?>
-<link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />
+<h1 id="title"><?=_("Pledge List")?></h1>
 <?php
-header2($show_nav);
-if ($show_nav == 1) echo "<h1 id=\"title\">"._("Pledge List")."</h1>\n";
 
 /* $sql = "SELECT pl.*, FullName, Furigana, DonationType,
 SUM(IFNULL(d.Amount,0)) - (pl.Amount * pl.TimesPerYear / 12 * PERIOD_DIFF(DATE_FORMAT(IF(pl.EndDate='0000-00-00' OR CURDATE()<pl.EndDate,CURDATE(), pl.EndDate), '%Y%m'), DATE_FORMAT(pl.StartDate, '%Y%m'))) AS Balance,
@@ -131,7 +135,7 @@ $num_pledges = mysqli_num_rows($result);
 if ($num_pledges == 0) {
   echo "<h3>" . _("There are no records matching your criteria:") . "</h3>\n";
   if (!empty($criteria)) echo "<ul id=\"criteria\">" . $criteria . "</ul>";
-  footer();
+  if (!$ajax) footer();
   exit;
 }
 
@@ -293,7 +297,7 @@ if (!$dtgrouped) {
   }
 }
 
-footer();
+if (!$ajax) footer();
 exit;
 ?>
 <h2><?=($_GET['closed']) ? _("All Pledges") : _("Open Pledges")?></h2>

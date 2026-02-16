@@ -2,6 +2,8 @@
 include("functions.php");
 include("accesscontrol.php");
 
+$ajax = !empty($_GET['ajax']);
+
 if (!$_GET['emultiple']) {
   die("Insufficient parameters.");
 }
@@ -20,11 +22,14 @@ $event_names = substr($event_names,2);
 
 if (!isset($_SESSION['attendaggr_showcols']))  $_SESSION['attendaggr_showcols'] = "name,event,first,last,count";
 
-header1(_("Aggregate Attendance Data"));
-?>
-<link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />
-<?php
-header2($_GET['nav']);
+if (!$ajax) {
+  header1(_("Aggregate Attendance Data"));
+  ?>
+  <link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />
+  <?php
+  header2(1);
+}
+echo "<h1 id=\"title\">"._("Aggregate Attendance Data")."</h1>\n";
 echo "<h3>"._("Aggregate Data for Events").": ".$event_names;
 if (!empty($_GET["startdate"]) && !empty($_GET["enddate"])) printf(_(", between %s and %s"),$_GET["startdate"],$_GET["enddate"]);
 elseif (!empty($_GET["startdate"])) printf(_(", on or after %s"),$_GET["startdate"]);
@@ -48,7 +53,7 @@ $result = sqlquery_checked($sql);
 
 if (mysqli_num_rows($result) == 0) {
   echo "<p>"._("There are no attendance records matching your criteria.")."</p>";
-  footer();
+  if (!$ajax) footer();
   exit;
 }
 
@@ -233,5 +238,5 @@ if ($usetimes) {
 
 flextable($tableopt);
 
-footer();
+if (!$ajax) footer();
 ?>

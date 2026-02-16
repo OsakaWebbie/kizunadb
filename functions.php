@@ -156,10 +156,11 @@ function footer($nav=0) {
         });
 
         /* event handling for submenus (must be JS because of menu links that don't refresh the page) */
+        /* delegated binding so it works for AJAX-loaded content too */
         var hoverTimer;
         /* hover to open/close - exclude #nav-mobile */
         /* Use delay only for button-based menus to avoid touch/click conflict */
-        $(".hassub").not("#nav-mobile .hassub").on("mouseenter", function() {
+        $(document).on("mouseenter", ".hassub:not(#nav-mobile .hassub)", function() {
           var $ul = $("ul", this);
           if ($(this).find("> button").length > 0) {
             hoverTimer = setTimeout(function() {
@@ -169,12 +170,12 @@ function footer($nav=0) {
             $ul.show();
           }
         })
-        .on("mouseleave", function(){
+        .on("mouseleave", ".hassub:not(#nav-mobile .hassub)", function(){
           clearTimeout(hoverTimer);
           $("ul",this).hide();
         });
         /* click to toggle - all menus including #nav-mobile */
-        $(".hassub").on("click", "> a, > button", function(event) {
+        $(document).on("click", ".hassub > a, .hassub > button", function(event) {
           event.preventDefault();
           clearTimeout(hoverTimer);
           $(this).siblings("ul").toggle();
@@ -186,7 +187,7 @@ function footer($nav=0) {
           }
         });
 
-        $('.ajaxlink').click(function(event) {
+        $(document).on("click", ".ajaxlink", function(event) {
           event.preventDefault();
           $(this).closest('ul').hide();
           $("nav#nav-mobile ul.expanded").removeClass("expanded").slideUp(250);

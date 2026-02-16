@@ -2,16 +2,27 @@
 include("functions.php");
 include("accesscontrol.php");
 
-$show_nav = !empty($_REQUEST['don_tab']) ? 1 : 0;
+$ajax = !empty($_GET['ajax']);
 $summary = $_REQUEST['show_summary'] ?? 0;
 $type = $_REQUEST['listtype'] ?? 'Normal';
 
-header1(_("Donation List"));
+if (!$ajax) {
+  header1(_("Donation List"));
+  ?>
+  <link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />
+  <?php
+  header2(1);
+}
 ?>
-<link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />
+<style>
+div#procbuttons { text-align:right; }
+div#procbuttons button { margin-left:10px; }
+td.dtype, td.amount { white-space:nowrap; }
+td.amount { text-align:right; }
+td.subtotal { background-color:#FFFFE0; white-space:nowrap; font-weight:bold; }
+</style>
+<h1 id="title"><?=_("Donation List")?></h1>
 <?php
-header2($show_nav);
-if ($show_nav == 1) echo "<h1 id=\"title\">"._("Donation List")."</h1>\n";
 
 //construct WHERE clause from criteria
 $wheredone = 0;
@@ -87,7 +98,7 @@ if ($type=="DonationType") {
 $result = sqlquery_checked($sql);
 if (mysqli_num_rows($result) == 0) {
   echo "<h3>"._("There are no records matching your criteria:")."</h3>\n".$criteria;
-  footer();
+  if (!$ajax) footer();
   exit;
 }
 $pidarray = array();
@@ -393,17 +404,19 @@ if (!$summary) {
   echo "<h3>"._("Total").": ".$_SESSION['currency_mark']." ".
     number_format($total_row->total,$_SESSION['currency_decimals'])."</h3>\n";
 
-  footer();
+  if (!$ajax) footer();
   exit;
 }
 
 // Summary mode - legacy table building
-?>
-<link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />
-<style>
-td.amount-for-display { text-align:right; }
-</style>
-<?php
+if (!$ajax) {
+  ?>
+  <link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />
+  <style>
+  td.amount-for-display { text-align:right; }
+  </style>
+  <?php
+}
 if ($type == "PersonID") {
   $tableheads = "<th class=\"name-for-csv\" style=\"display:none\">"._("Name")."</th>\n";
   $tableheads .= "<th class=\"furigana-for-csv\" style=\"display:none\">".
@@ -450,7 +463,7 @@ while ($row = mysqli_fetch_object($result)) {
 echo "</tbody>\n</table>";
 echo "<h3>"._("Total").": ".$_SESSION['currency_mark']." ".number_format($total,$_SESSION['currency_decimals'])."</h3>\n";
 
-load_scripts(['jquery', 'tablesorter', 'table2csv']);
+if (!$ajax) load_scripts(['jquery', 'tablesorter', 'table2csv']);
 ?>
 <script>
 $(function() {
@@ -466,5 +479,5 @@ function getCSV() {
 }
 </script>
 <?php
-footer();
+if (!$ajax) footer();
 ?>

@@ -3,13 +3,18 @@ include("functions.php");
 include("accesscontrol.php");
 
 $listtype = $_GET['listtype'] ?? 'Normal';
+$ajax = !empty($_GET['ajax']);
 
-header1(_("Action List"));
+if (!$ajax) {
+  header1(_("Action List"));
+  ?>
+  <link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />
+  <?php
+  header2(1);
+}
 ?>
-<link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />
+<h1 id="title"><?=_("Action List")?></h1>
 <?php
-header2($_GET['nav'] ?? 0);
-if (($_GET['nav'] ?? 0)==1) echo "<h1 id=\"title\">"._("Action List")."</h1>\n";
 
 $where = '';
 if (!empty($_GET['atype'])) $where .= ($where?" AND":" WHERE")." a.ActionTypeID IN (".implode(",",$_GET['atype']).")";
@@ -25,7 +30,7 @@ if ($listtype == 'Normal') {
   $num_actions = mysqli_num_rows($result);
   if ($num_actions == 0) {
     echo "<h3>"._("There are no records matching your criteria.")."</h3>";
-    footer();
+    if (!$ajax) footer();
     exit;
   }
   $action_ids = array();
@@ -46,7 +51,7 @@ if ($listtype == 'Normal') {
   $num_people = mysqli_num_rows($result);
   if ($num_people == 0) {
     echo "<h3>"._("There are no records matching your criteria.")."</h3>";
-    footer();
+    if (!$ajax) footer();
     exit;
   }
   $pidarray = array();
@@ -289,7 +294,7 @@ if ($listtype == 'Normal') {
 
   flextable($tableopt);
 
-  footer();
+  if (!$ajax) footer();
   exit;
 }
 
@@ -485,5 +490,5 @@ foreach ($groups as $group_key => $group) {
 if ($_SESSION['userid'] == 'dev') {
   echo 'SQL:<pre class="noprint">'.$sql_grouped.'</pre>';
 }
-footer();
+if (!$ajax) footer();
 ?>
