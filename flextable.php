@@ -485,7 +485,7 @@ function flextable($opt) {
     $is_special_field = ($col->sel=='person.FullName' || $col->sel=='person.Furigana' ||
                          $col->sel=='person.PersonID' || $col->sel=='person.HouseholdID' || $col->sel=='person.Birthdate');
 
-    if ($is_special_field && strpos($sql, $col->sel.',') === FALSE && strpos($sql, $col->sel.' ') === FALSE) {
+    if ($is_special_field && strpos($selects, '|'.$col->sel.'|') === FALSE) {
       // Add without alias first for internal access (Name composite, cell classes, links)
       $sql .= $col->sel.', ';
     }

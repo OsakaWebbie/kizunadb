@@ -10,16 +10,19 @@ header1(_("Search")); ?>
 <?php if (isset($text)) echo "<h3 class=\"alert\">".urldecode($text)."</h3>"; ?>
 
 <form id="searchform" action="list.php" method="get">
-<h2 class="simpleonly"><?php $txt=_("records"); printf(_("Search for %s that..."),$txt); ?></h2>
-<h2 class="advanced">
-<?php $txt="<span class=\"radiogroup\">".
-"<label><input type=\"radio\" name=\"filter\" value=\"Records\" checked class=\"OP\" />"._("All Records")."</label>".
-"<label><input type=\"radio\" name=\"filter\" value=\"People\" class=\"P\" />"._("Only People")."</label>".
-"<label><input type=\"radio\" name=\"filter\" value=\"Organizations\" class=\"O\" />"._("Only Organizations")."</label><br />".
-"<label><input type=\"radio\" name=\"filter\" value=\"OrgsOfPeople\" class=\"P\" />"._("Organizations with Members")."</label><br />".
-"<label><input type=\"radio\" name=\"filter\" value=\"PeopleOfOrgs\" class=\"O\" />"._("People who belong to Organizations")."</label></span>";
-printf(_("Search for %s that..."),$txt);
-?></h2>
+<?php
+  $basketcheck = '<label style="text-wrap:nowrap;font-size:0.8em;vertical-align:middle'.(empty($_SESSION['basket'])?';color:#BBB':'').
+      '">(<input type="checkbox" name="basket" style="vertical-align:middle" value="1"'.(empty($_SESSION['basket'])?' disabled':'').'>'._('in Basket only').')</label>';
+  $txt = _("records");
+  echo '<h2 class="simpleonly">'.sprintf(_('Search %1$s for %2$s that...'),$basketcheck,$txt).'</h2>';
+  $txt = "<span class=\"radiogroup\">".
+      "<label><input type=\"radio\" name=\"filter\" value=\"Records\" checked class=\"OP\" />"._("All Records")."</label>".
+      "<label><input type=\"radio\" name=\"filter\" value=\"People\" class=\"P\" />"._("Only People")."</label>".
+      "<label><input type=\"radio\" name=\"filter\" value=\"Organizations\" class=\"O\" />"._("Only Organizations")."</label><br />".
+      "<label><input type=\"radio\" name=\"filter\" value=\"OrgsOfPeople\" class=\"P\" />"._("Organizations with Members")."</label><br />".
+      "<label><input type=\"radio\" name=\"filter\" value=\"PeopleOfOrgs\" class=\"O\" />"._("People who belong to Organizations")."</label></span>";
+  echo '<h2 class="advanced">'.sprintf(_('Search %1$s for %2$s that...'),$basketcheck,$txt).'</h2>';
+?>
 <fieldset class="simple">
   <div id="text1" class="criteria">
 <?php
@@ -43,7 +46,7 @@ printf(_("%s...have%s...don't have%s%s in %s"), $in, $out, $inoutfinish, $text, 
   <button type="button" id="textdup" class="dup advanced"><?=_("Add another...")?></button>
 </fieldset>
 
-<fieldset class="advanced"><legend><?=_("Categories")?></legend>
+<fieldset class="simple"><legend><?=_("Categories")?></legend>
   <div id="cat1" class="criteria">
 <?php
 $in = "<span class=\"radiogroup\"><label><input type=\"radio\" name=\"catinout1\" value=\"IN\" checked />";
@@ -184,9 +187,6 @@ if ($_SESSION['admin'] == 1) {
 <button class="simpleonly" id="showadvanced" type="button"><?=_("Advanced Search Options")?></button>
 <div id="buttonsection">
   <label class="label-n-input"><input type="checkbox" name="countonly" value="yes"><?=_("Count Only")?></label>
-<?php if (!empty($_SESSION['basket'])) { ?>
-  <label class="label-n-input"><input type="checkbox" name="basket" value="1"><?=sprintf(_("Limit to Basket (%d)"), count($_SESSION['basket']))?></label>
-<?php } ?>
   <button id="search" type="submit"><?=_("Search!")?></button>
 </div>
 </form>

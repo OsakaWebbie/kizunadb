@@ -2,14 +2,15 @@
 include("functions.php");
 include("accesscontrol.php");
 
-// Early-exit AJAX handler - merge of birthday_list.php content
+// Early-exit AJAX handler
 if (!empty($_GET['query'])) {
   $startmonth = $_GET['startmonth'] ?? '';
   $startday = $_GET['startday'] ?? '';
   $endmonth = $_GET['endmonth'] ?? '';
   $endday = $_GET['endday'] ?? '';
-  $wholemonth = $_GET['wholemonth'] ?? '';
-  $catlist = $_GET['catlist'] ?? '';
+  $cat = $_GET['cat'] ?? [];
+  if (!is_array($cat)) $cat = [];
+  $catlist = implode(',', array_map('intval', $cat));
   $basket = $_GET['basket'] ?? '';
 
   if (!$startmonth) {
@@ -17,31 +18,30 @@ if (!empty($_GET['query'])) {
     exit;
   }
 
-  // fill in days in case of whole_month
-  if ($wholemonth) {
-    $startday = 1;
-    $max_days = array(31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
-    $endday = $max_days[$endmonth-1];
-  }
+  // Format date range for header
+  $gen = new IntlDatePatternGenerator($_SESSION['lang']);
+  $fmt_md = new IntlDateFormatter($_SESSION['lang'], IntlDateFormatter::NONE, IntlDateFormatter::NONE, null, null, $gen->getBestPattern('MMMMd'));
+  $sd = min((int)$startday, (int)date('t', mktime(0,0,0,(int)$startmonth,1,2000)));
+  $ed = min((int)$endday,   (int)date('t', mktime(0,0,0,(int)$endmonth,1,2000)));
+  $start_str = $fmt_md->format(mktime(0,0,0,(int)$startmonth,$sd,2000));
+  $end_str   = $fmt_md->format(mktime(0,0,0,(int)$endmonth,$ed,2000));
 
   // Display header and build SQL statement
   if (!$catlist) {
-    echo "<h3>All birthdays between {$startmonth}/{$startday} and {$endmonth}/{$endday}:</h3>\n";
-    $sql = "SELECT PersonID, FullName, Furigana, Photo, Birthdate FROM person p WHERE ";
+    echo "<h3>".sprintf(_("All birthdays from %s to %s:"), $start_str, $end_str)."</h3>\n";
+    $sql = "SELECT DISTINCT p.PersonID FROM person p WHERE ";
   } else {
-    // Add to SQL statement to limit to selected categories
-    $sql = "SELECT DISTINCT p.PersonID, p.FullName, p.Furigana, p.Photo, p.Birthdate FROM person p, percat c "
+    $sql = "SELECT DISTINCT p.PersonID FROM person p, percat c "
     . "WHERE p.PersonID=c.PersonID AND c.CategoryID IN ({$catlist}) AND ";
-    // List categories by name for use in header
     $sql2 = "SELECT * FROM category WHERE CategoryID IN ({$catlist}) ORDER BY Category";
     $result = sqlquery_checked($sql2);
-    $row = mysqli_fetch_object($result);  // Get the first one; no preceding comma
+    $row = mysqli_fetch_object($result);
     $cat_names = $row->Category;
     while ($row = mysqli_fetch_object($result)) {
       $cat_names .= ", " . $row->Category;
     }
-    echo "<h3>Birthdays between {$startmonth}/{$startday} and {$endmonth}/{$endday} ".
-       "for those in categories <i>$cat_names</i>:</h3>\n";
+    echo "<h3>".sprintf(_("Birthdays from %1\$s to %2\$s in categories %3\$s:"),
+       $start_str, $end_str, "<i>$cat_names</i>")."</h3>\n";
   }
   // Add basket filter
   if (!empty($basket) && !empty($_SESSION['basket'])) {
@@ -61,233 +61,341 @@ if (!empty($_GET['query'])) {
     $sql .= "AND DATE_FORMAT(Birthdate,'%Y%m%d') <= CONCAT(YEAR(Birthdate),'{$endcombo}')";
   }
 
-  $sql .= " ORDER BY month(Birthdate), dayofmonth(Birthdate)";
   $result = sqlquery_checked($sql);
-  echo "<form action=\"multiselect.php\" method=\"GET\" target=\"_top\">\n";
-  echo "<p style=\"text-align:center\"><input type=\"submit\" value=\"Go to Multi-Select\"></p>";
-
-  // Create table
-  echo "<table border=\"1\" cellspacing=\"0\" cellpadding=\"2\"><thead><tr><th>Name</th><th>Photo</th>";
-  echo "<th>Birthdate</th><th>Age after<br>Birthday</th></tr>\n</thead><tbody>\n";
-  $pid_list = '';
+  $person_ids = array();
   while ($row = mysqli_fetch_object($result)) {
-    echo "<tr><td nowrap><a href=\"individual.php?pid=".$row->PersonID."\" target=\"_blank\">";
-    echo readable_name($row->FullName, $row->Furigana)."</a></td><td align=\"center\">";
-    echo ($row->Photo == 1) ? "<img border=\"0\" src=\"photos/p".$row->PersonID.".jpg\" width=\"50\">" : "&nbsp;";
-    echo "</td>\n";
-    if (substr($row->Birthdate,0,4) == "1900") {  // Year born is not known
-      echo "<td align=\"center\">????" . substr($row->Birthdate,4) . "</td><td>&nbsp;</td></tr>\n";
-    } else {
-      $ba = explode("-",$row->Birthdate);
-      $ta = explode("-",date("Y-m-d",mktime(0, 0, 0, date("m")+4, date("d"),  date("Y"))));
-      $age = $ta[0] - $ba[0];
-      if (($ba[1] > $ta[1]) || (($ba[1] == $ta[1]) && ($ba[2] > $ta[2]))) --$age;
-      echo "<td align=\"center\">" . $row->Birthdate . "</td><td align=\"center\">" . $age . "</td></tr>\n";
-    }
-    echo "</tr>\n";
-    $pid_list .= $row->PersonID.",";
+    $person_ids[] = $row->PersonID;
   }
-  echo "</tbody></table>\n";
-  echo "<input type=\"hidden\" name=\"pids\" value=\"".rtrim($pid_list,',')."\"></form>\n";
 
+  if (count($person_ids) == 0) {
+    echo "<h3>"._("There are no records matching your criteria.")."</h3>";
+    exit;
+  }
+
+  $lookahead_date = date('Y-m-d', mktime(0, 0, 0, date('m')+4, date('d'), date('Y')));
+  echo '<p style="font-size:0.85em; color:#666;">* '
+    .sprintf(_("\"Age after Birthday\" is calculated as of %s (4 months from today)."), $lookahead_date)
+    ."</p>\n";
+
+  // FlexTable
+  require_once("flextable.php");
+
+  $showcols = ',' . ($_SESSION['birthdaylist_showcols'] ?? 'name,birthday,ageafterbday') . ',';
+
+  $tableopt = (object) [
+    'ids' => implode(',', $person_ids),
+    'keyfield' => 'person.PersonID',
+    'tableid' => 'birthdaylist',
+    'heading' => sprintf(_('%d matching birthdays'), count($person_ids)),
+    'order' => 'MONTH(person.Birthdate), DAYOFMONTH(person.Birthdate)',
+    'cols' => array()
+  ];
+
+  // PersonID
+  $tableopt->cols[] = (object) [
+    'key' => 'personid',
+    'sel' => 'person.PersonID',
+    'label' => _('ID'),
+    'show' => (stripos($showcols, ',personid,') !== FALSE)
+  ];
+
+  // Name (composite FullName+Furigana)
+  $tableopt->cols[] = (object) [
+    'key' => 'name',
+    'sel' => 'person.Name',
+    'label' => _('Name'),
+    'show' => (stripos($showcols, ',name,') !== FALSE)
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'fullname',
+    'sel' => 'person.FullName',
+    'label' => _('Full Name'),
+    'show' => (stripos($showcols, ',fullname,') !== FALSE)
+  ];
+
+  $tableopt->cols[] = (object) [
+    'key' => 'furigana',
+    'sel' => 'person.Furigana',
+    'label' => ($_SESSION['furiganaisromaji']=='yes' ? _('Romaji') : _('Furigana')),
+    'show' => (stripos($showcols, ',furigana,') !== FALSE)
+  ];
+
+  // Birthday (MM-DD only)
+  $tableopt->cols[] = (object) [
+    'key' => 'birthday',
+    'sel' => "IF(person.Birthdate='0000-00-00','',DATE_FORMAT(person.Birthdate,'%m-%d'))",
+    'label' => _('Birthday'),
+    'show' => (stripos($showcols, ',birthday,') !== FALSE),
+    'classes' => 'center',
+    'sort' => 1
+  ];
+
+  // Age after Birthday (4-month lookahead)
+  $tableopt->cols[] = (object) [
+    'key' => 'ageafterbday',
+    'sel' => "IF(person.Birthdate='0000-00-00' OR SUBSTRING(person.Birthdate,1,4)='1900','',TIMESTAMPDIFF(YEAR,person.Birthdate,DATE_ADD(CURDATE(),INTERVAL 4 MONTH)))",
+    'label' => _('Age after Birthday'),
+    'show' => (stripos($showcols, ',ageafterbday,') !== FALSE),
+    'classes' => 'center sorter-digit',
+    'render' => 'age'
+  ];
+
+  // Photo
+  $tableopt->cols[] = (object) [
+    'key' => 'photo',
+    'sel' => 'person.Photo',
+    'label' => _('Photo'),
+    'show' => (stripos($showcols, ',photo,') !== FALSE),
+    'sortable' => false
+  ];
+
+  // Phones
+  $tableopt->cols[] = (object) [
+    'key' => 'phones',
+    'sel' => 'Phones',
+    'label' => _('Phones'),
+    'show' => (stripos($showcols, ',phones,') !== FALSE)
+  ];
+
+  // Email
+  $tableopt->cols[] = (object) [
+    'key' => 'email',
+    'sel' => 'person.Email',
+    'label' => _('Email'),
+    'show' => (stripos($showcols, ',email,') !== FALSE),
+    'render' => 'email'
+  ];
+
+  // Address
+  $tableopt->cols[] = (object) [
+    'key' => 'address',
+    'sel' => "CONCAT(IFNULL(household.PostalCode,''), IFNULL(postalcode.Prefecture,''), IFNULL(postalcode.ShiKuCho,''), IFNULL(household.Address,''))",
+    'label' => _('Address'),
+    'show' => (stripos($showcols, ',address,') !== FALSE),
+    'render' => 'multiline',
+    'lazy' => TRUE
+  ];
+
+  // Age (standard current age)
+  $tableopt->cols[] = (object) [
+    'key' => 'age',
+    'sel' => "IF(person.Birthdate='0000-00-00','',TIMESTAMPDIFF(YEAR,person.Birthdate,CURDATE()))",
+    'label' => _('Age'),
+    'show' => (stripos($showcols, ',age,') !== FALSE),
+    'classes' => 'center',
+    'render' => 'age'
+  ];
+
+  // Birthdate (full date)
+  $tableopt->cols[] = (object) [
+    'key' => 'birthdate',
+    'sel' => 'person.Birthdate',
+    'label' => _('Birthdate'),
+    'show' => (stripos($showcols, ',birthdate,') !== FALSE),
+    'classes' => 'center',
+    'render' => 'birthdate'
+  ];
+
+  // Sex
+  $tableopt->cols[] = (object) [
+    'key' => 'sex',
+    'sel' => 'person.Sex',
+    'label' => _('Sex'),
+    'show' => (stripos($showcols, ',sex,') !== FALSE)
+  ];
+
+  // Country
+  $tableopt->cols[] = (object) [
+    'key' => 'country',
+    'sel' => 'person.Country',
+    'label' => _('Country'),
+    'show' => (stripos($showcols, ',country,') !== FALSE)
+  ];
+
+  // URL
+  $tableopt->cols[] = (object) [
+    'key' => 'url',
+    'sel' => 'person.URL',
+    'label' => _('URL'),
+    'show' => (stripos($showcols, ',url,') !== FALSE)
+  ];
+
+  // Categories
+  $tableopt->cols[] = (object) [
+    'key' => 'categories',
+    'sel' => "GROUP_CONCAT(Category ORDER BY Category SEPARATOR '\\n')",
+    'label' => _('Categories'),
+    'show' => (stripos($showcols, ',categories,') !== FALSE),
+    'lazy' => TRUE,
+    'render' => 'multiline',
+    'join' => 'LEFT JOIN percat ON person.PersonID=percat.PersonID LEFT JOIN category ON percat.CategoryID=category.CategoryID'
+  ];
+
+  // Events
+  $tableopt->cols[] = (object) [
+    'key' => 'events',
+    'sel' => "e.Events",
+    'label' => _('Events'),
+    'show' => (stripos($showcols, ',events,') !== FALSE),
+    'lazy' => TRUE,
+    'render' => 'multiline',
+    'join' => "LEFT OUTER JOIN (SELECT aq.PersonID,GROUP_CONCAT(CONCAT(Event,' [',attqty,'x]') ORDER BY Event SEPARATOR '\\n') AS Events ".
+        "FROM (SELECT PersonID,Event,COUNT(*) AS attqty FROM attendance AS at INNER JOIN event ev ON ev.EventID = at.EventID ".
+        "GROUP BY at.PersonID,at.EventID) AS aq GROUP BY aq.PersonID) AS e ON e.PersonID = person.PersonID"
+  ];
+
+  // Remarks
+  $tableopt->cols[] = (object) [
+    'key' => 'remarks',
+    'sel' => 'person.Remarks',
+    'label' => _('Remarks'),
+    'show' => (stripos($showcols, ',remarks,') !== FALSE)
+  ];
+
+  flextable($tableopt);
   exit;
 }
 
 // Normal page load - render the form
-header1("Birthdays List");
+header1(_("Birthdays"));
 ?>
-<link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />
+<link rel="stylesheet" href="style.php?jquery=1&multiselect=1&table=1" type="text/css" />
 <?php
 header2(1);
 
-// Need dummy entry because arrays count from zero
-$month_array = array("dummy","January","February","March","April","May","June","July",
- "August","September","October","November","December");
+// Build localized month and day options
+$gen = new IntlDatePatternGenerator($_SESSION['lang']);
+$fmt_month = new IntlDateFormatter($_SESSION['lang'], IntlDateFormatter::NONE, IntlDateFormatter::NONE, null, null, 'MMMM');
+$day_suffix = str_replace('d', '', $gen->getBestPattern('d'));
+$today_month = (int)date('n', mktime(gmdate("H")+9));
+
+$month_options = '';
+for ($i = 1; $i <= 12; $i++) {
+  $name = $fmt_month->format(mktime(0, 0, 0, $i, 15));
+  $sel = ($i == $today_month) ? ' selected' : '';
+  $month_options .= "<option value=\"$i\"$sel>$name</option>\n";
+}
+$day_options_start = '';
+$day_options_end = '';
+for ($i = 1; $i <= 31; $i++) {
+  $label = $i . $day_suffix;
+  $day_options_start .= "<option value=\"$i\"" . ($i == 1 ? ' selected' : '') . ">$label</option>\n";
+  $day_options_end   .= "<option value=\"$i\"" . ($i == 31 ? ' selected' : '') . ">$label</option>\n";
+}
+
+// Build select elements for use in sprintf
+$startmonth_sel = '<select id="startmonth" name="startmonth">' . $month_options . '</select>';
+$startday_sel   = '<select id="startday" name="startday" class="day-select">' . $day_options_start . '</select>';
+$endmonth_sel   = '<select id="endmonth" name="endmonth">' . $month_options . '</select>';
+$endday_sel     = '<select id="endday" name="endday" class="day-select">' . $day_options_end . '</select>';
 ?>
 
-<h1 class="title">Birthday List</h1>
+<h1 class="title"><?=_('Birthdays')?></h1>
 
 <form id="bform" method="GET">
-  <fieldset>
-    <legend>Date Range</legend>
-    <div style="margin-bottom:1em">
-      <button type="button" id="all_year">All Year</button>
-      <label style="margin-left:2em">
-        <input type="checkbox" name="wholemonth" id="wholemonth">
-        Whole Month(s)
-      </label>
-    </div>
-
-    <div style="display:grid; grid-template-columns: auto 150px 100px; gap:0.5em; align-items:center; max-width:400px">
-      <div></div>
-      <div style="font-weight:bold">Month</div>
-      <div style="font-weight:bold">Day</div>
-
-      <div style="font-weight:bold">From:</div>
-      <div>
-        <select id="startmonth" name="startmonth" style="width:100%">
+  <div style="display:flex; flex-wrap:wrap; gap:1em; align-items:center">
+    <button type="button" id="all_year"><?=_("All Year")?></button>
+    <label class="label-n-input">
+      <input type="checkbox" id="specificdays">
+      <?=_("Specific days")?>
+    </label>
+    <span style="white-space:nowrap"><?php printf(_('From %1$s %2$s'), $startmonth_sel, $startday_sel); ?></span>
+    <span style="white-space:nowrap"><?php printf(_('until %1$s %2$s'), $endmonth_sel, $endday_sel); ?></span>
+    <label class="label-n-input"><?=_("Categories")?>:
+      <select id="cat" name="cat[]" multiple="multiple" size="1">
 <?php
-// Create list of months, selecting the current month
-$today_array = explode("-",date("Y-m-d",mktime(gmdate("H")+9)));
-for ($index=1; $index<13; $index++) {
-  echo "          <option value=\"" . $index."\"";
-  if ($index == $today_array[1])  echo " selected";
-  echo ">" . $month_array[$index] . "</option>\n";
-}
-?>
-        </select>
-      </div>
-      <div>
-        <select id="startday" name="startday" style="width:100%">
-<?php
-for ($i=1; $i<32; $i++) {
-  echo "          <option value=\"$i\"";
-  if ($i == 1)  echo " selected";
-  echo ">{$i}</option>\n";
-}
-?>
-        </select>
-      </div>
-
-      <div style="font-weight:bold">Until:</div>
-      <div>
-        <select id="endmonth" name="endmonth" style="width:100%">
-<?php
-for ($index=1; $index<13; $index++) {
-  echo "          <option value=\"" . $index."\"";
-  if ($index == $today_array[1])  echo " selected";
-  echo ">" . $month_array[$index] . "</option>\n";
-}
-?>
-        </select>
-      </div>
-      <div>
-        <select id="endday" name="endday" style="width:100%">
-<?php
-for ($i=1; $i<32; $i++) {
-  echo "          <option value=\"$i\"";
-  if ($i == 31)  echo " selected";
-  echo ">{$i}</option>\n";
-}
-?>
-        </select>
-      </div>
-    </div>
-  </fieldset>
-
-  <fieldset>
-    <legend>Optional Filters</legend>
-    <div style="margin-bottom:0.5em">
-      <label>To restrict to certain category(s), select them in the list below.</label>
-      <div style="font-size:0.9em;color:#666">Use the Ctrl key while clicking to select more than one.</div>
-    </div>
-    <select id="cat" name="cat" multiple size="6" style="width:100%;max-width:400px">
-<?php
-$result = sqlquery_checked("SELECT * FROM category ORDER BY Category");
+$result = sqlquery_checked("SELECT * FROM category WHERE UseFor != 'O' ORDER BY Category");
 while ($row = mysqli_fetch_object($result)) {
-  echo "      <option value=" . $row->CategoryID . ">" . $row->Category . "</option>\n";
+  echo "      <option value=\"" . (int)$row->CategoryID . "\">" . d2h($row->Category) . "</option>\n";
 }
 ?>
-    </select>
+      </select>
+    </label>
 <?php if (!empty($_SESSION['basket'])) { ?>
-    <div style="margin-top:0.5em">
-      <label>
-        <input type="checkbox" name="basket" value="1">
-        <?=sprintf(_("Limit to Basket (%d)"), count($_SESSION['basket']))?>
-      </label>
-    </div>
+    <label class="label-n-input">
+      <input type="checkbox" name="basket" value="1">
+      <?=sprintf(_("Limit to Basket (%d)"), count($_SESSION['basket']))?>
+    </label>
 <?php } ?>
-  </fieldset>
-
-  <div style="margin-top:1em">
-    <button type="submit" id="list_birthdays">List Birthdays</button>
   </div>
 
-  <input type="hidden" id="catlist" name="catlist" value="">
+  <div style="margin-top:1em">
+    <button type="submit" id="list_birthdays"><?=_("List Birthdays")?></button>
+  </div>
   <input type="hidden" name="query" value="1">
 </form>
 
 <div id="ResultFrame"></div>
 
 <?php
-load_scripts(['jquery', 'jqueryui']);
+load_scripts(['jquery', 'jqueryui', 'multiselect']);
 ?>
 <script type="text/javascript">
-var max_days = new Array(31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
+var daySuffix = '<?=$day_suffix?>';
 
-function monthlength(which, index) {
-  var obj = (which=="start") ? $('#startday')[0] : $('#endday')[0];
-
-  if (obj.options.length > max_days[index]) {
-    if (obj.selectedIndex > max_days[index] - 1) {
-      obj.selectedIndex = max_days[index] - 1;
-    }
-    obj.options.length = max_days[index];
-  } else if (obj.options.length < max_days[index]) {
-    for (var step=obj.options.length; step < max_days[index]; step++) {
-      obj.options[step] = new Option(step+1,step+1);
-    }
-    if ($('#wholemonth').is(':checked')) {
-      obj.selectedIndex = max_days[index] - 1;
-    }
-  }
+function daysInMonth(month) {
+  return new Date(2000, month, 0).getDate(); // 2000 = leap year, so Feb allows 29
 }
 
-function whole_month() {
-  if ($('#wholemonth').is(':checked')) {
-    $('#startday')[0].selectedIndex = 0;
-    $('#startday').prop('disabled', true);
-    $('#endday')[0].selectedIndex = $('#endday')[0].length-1;
-    $('#endday').prop('disabled', true);
+function updateDays(which) {
+  var monthVal = (which === 'start') ? +$('#startmonth').val() : +$('#endmonth').val();
+  var obj = (which === 'start') ? $('#startday')[0] : $('#endday')[0];
+  var max = daysInMonth(monthVal);
+  if (obj.options.length > max) {
+    if (obj.selectedIndex > max - 1) obj.selectedIndex = max - 1;
+    obj.options.length = max;
   } else {
-    $('#startday').prop('disabled', false);
-    $('#endday').prop('disabled', false);
+    for (var i = obj.options.length; i < max; i++) {
+      obj.options[i] = new Option((i + 1) + daySuffix, i + 1);
+    }
   }
 }
 
-function all_year() {
-  $('#startmonth')[0].selectedIndex = 0;
-  monthlength("start",0);
+function toggleDays() {
+  if ($('#specificdays').is(':checked')) {
+    $('.day-select').show();
+    updateDays('start');
+    updateDays('end');
+  } else {
+    $('.day-select').hide();
+    $('#startday')[0].selectedIndex = 0;
+    $('#endday')[0].selectedIndex = $('#endday')[0].options.length - 1;
+  }
+}
+
+function allYear() {
+  $('#specificdays').prop('checked', false);
+  $('.day-select').hide();
+  $('#startmonth').val(1);
+  updateDays('start');
   $('#startday')[0].selectedIndex = 0;
-  $('#endmonth')[0].selectedIndex = 11;
-  monthlength("end",11);
+  $('#endmonth').val(12);
+  updateDays('end');
   $('#endday')[0].selectedIndex = 30;
 }
 
-function make_catlist() {
-  $('#catlist').val('');
-  var cats = [];
-  $('#cat option:selected').each(function() {
-    cats.push($(this).val());
-  });
-  $('#catlist').val(cats.join(','));
-}
-
 $(document).ready(function() {
-  monthlength("start", $('#startmonth')[0].selectedIndex);
-  monthlength("end", $('#endmonth')[0].selectedIndex);
-
-  $('#startmonth').change(function() {
-    monthlength('start', this.selectedIndex);
+  $("#cat").multiselect({
+    noneSelectedText: '<?=_("Select...")?>',
+    selectedText: '<?=_("# selected")?>',
+    checkAllText: '<?=_("Check all")?>',
+    uncheckAllText: '<?=_("Uncheck all")?>'
+  }).multiselectfilter({
+    label: '<?=_("Search:")?>'
   });
 
-  $('#endmonth').change(function() {
-    monthlength('end', this.selectedIndex);
-  });
+  $('.day-select').hide();
 
-  $('#wholemonth').change(function() {
-    whole_month();
-  });
-
-  $('#all_year').click(function() {
-    all_year();
-  });
+  $('#startmonth').change(function() { updateDays('start'); });
+  $('#endmonth').change(function() { updateDays('end'); });
+  $('#specificdays').change(function() { toggleDays(); });
+  $('#all_year').click(function() { allYear(); });
 
   $('#bform').submit(function(e) {
     e.preventDefault();
-    make_catlist();
     var formData = $(this).serialize();
-    $('#ResultFrame').html('<p style="padding:1em;color:#888">Loading...</p>');
+    $('#ResultFrame').html('<p style="padding:1em;color:#888"><?=_("Loading...")?></p>');
     $.get('birthday.php', formData, function(response) {
       $('#ResultFrame').html(response);
     });

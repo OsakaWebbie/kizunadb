@@ -414,7 +414,7 @@ if (count($org_pids) == 0) {
 } else {
   echo "<h3>"._("Current Organizations")." (".count($org_pids).")</h3>";
 
-  $showcols = ",".$_SESSION['org_showcols'].",";
+  $showcols = ",".($_SESSION['org_showcols'] ?? 'name,address,url,categories').",";
 
   $tableopt = (object)[
     'ids' => implode(',', $org_pids),
@@ -597,7 +597,7 @@ if ($per->Organization) {
   } else {
     echo "<h3>"._("Current Members")." (".count($mem_pids).")</h3>";
 
-    $showcols = ",".$_SESSION['member_showcols'].",";
+    $showcols = ",".($_SESSION['member_showcols'] ?? 'name,phones,email,sex').",";
 
     $tableopt = (object)[
       'ids' => implode(',', $mem_pids),

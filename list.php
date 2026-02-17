@@ -298,7 +298,7 @@ $tableopt = (object)[
   'cols' => []
 ];
 
-$showcols = ',' . $_SESSION['list_showcols'] . ',';
+$showcols = ',' . ($_SESSION['list_showcols'] ?? 'name,photo,phones,email,address,age,sex,country,categories') . ',';
 
 // PersonID
 $tableopt->cols[] = (object)[
