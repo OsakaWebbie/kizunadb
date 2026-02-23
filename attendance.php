@@ -23,9 +23,8 @@ while ($row = mysqli_fetch_object($result)) {
 printf(_('Optional Dates: after %s and/or before %s'),
    '<input type="text" name="startdate" id="startdate" style="width:6em" />',
    '<input type="text" name="enddate" id="enddate" style="width:6em" />');
-if (!empty($_SESSION['basket'])) { ?>
-  <label class="label-n-input basketfilter"><input type="checkbox" name="basket" value="1"><?=sprintf(_("Limit to Basket (%d)"), count($_SESSION['basket']))?></label>
-<?php } ?>
+?>
+  <label class="label-n-input basketfilter"<?=(empty($_SESSION['basket'])?' style="color:#BBB"':'')?>><input type="checkbox" name="basket" value="1"<?=(empty($_SESSION['basket'])?' disabled':'')?>><?=sprintf(_("in Basket only (%d)"), count($_SESSION['basket']))?></label>
 </div>
 <div class="section">
   <label for="eid"><?=_("Single Event, Detail Info")?>: </label>

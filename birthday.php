@@ -312,12 +312,10 @@ while ($row = mysqli_fetch_object($result)) {
 ?>
       </select>
     </label>
-<?php if (!empty($_SESSION['basket'])) { ?>
-    <label class="label-n-input">
-      <input type="checkbox" name="basket" value="1">
-      <?=sprintf(_("Limit to Basket (%d)"), count($_SESSION['basket']))?>
+    <label class="label-n-input"<?=(empty($_SESSION['basket'])?' style="color:#BBB"':'')?>>
+      <input type="checkbox" name="basket" value="1"<?=(empty($_SESSION['basket'])?' disabled':'')?>>
+      <?=sprintf(_("in Basket only (%d)"), count($_SESSION['basket']))?>
     </label>
-<?php } ?>
   </div>
 
   <div style="margin-top:1em">

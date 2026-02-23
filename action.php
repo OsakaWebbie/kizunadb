@@ -30,9 +30,7 @@ while ($row = mysqli_fetch_object($result)) {
     /* span, not label, because a single label around both fields breaks datepicker */ ?>
     </span>
     <label class="label-n-input"><?=_("Search")?>: <input type="text" name="csearch" style="width:10em"></label>
-<?php if (!empty($_SESSION['basket'])) { ?>
-    <label class="label-n-input"><input type="checkbox" name="basket" value="1"><?=sprintf(_("Limit to Basket (%d)"), count($_SESSION['basket']))?></label>
-<?php } ?>
+    <label class="label-n-input"<?=(empty($_SESSION['basket'])?' style="color:#BBB"':'')?>><input type="checkbox" name="basket" value="1"<?=(empty($_SESSION['basket'])?' disabled':'')?>><?=sprintf(_("in Basket only (%d)"), count($_SESSION['basket']))?></label>
     <input type="button" id="show_actions_below" value="<?=_("Show List").' ('._('below').')'?>">
     <input type="submit" value="<?=_("Show List").' ('._('new tab').')'?>" formaction="action_list.php" formtarget="_blank">
   </div>
