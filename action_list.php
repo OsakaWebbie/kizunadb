@@ -23,9 +23,9 @@ if (!empty($_GET['enddate'])) $where .= ($where?" AND":" WHERE")." ActionDate <=
 if (!empty($_GET['csearch'])) $where .= ($where?" AND":" WHERE")." Description LIKE '%".$_GET['csearch']."%'";
 if (!empty($_GET['basket']) && !empty($_SESSION['basket'])) $where .= ($where?" AND":" WHERE")." a.PersonID IN (".implode(',',$_SESSION['basket']).")";
 
-// Get ActionIDs for flextable
+// Get ActionIDs and distinct PersonIDs for flextable / batch button
 if ($listtype == 'Normal') {
-  $sql = "SELECT ActionID FROM action a".$where." ORDER BY ActionID";
+  $sql = "SELECT ActionID, PersonID FROM action a".$where." ORDER BY ActionID";
   $result = sqlquery_checked($sql);
   $num_actions = mysqli_num_rows($result);
   if ($num_actions == 0) {
@@ -34,17 +34,12 @@ if ($listtype == 'Normal') {
     exit;
   }
   $action_ids = array();
-  $pidarray = array();  // For multi-select button
+  $pidarray = array();
   while ($row = mysqli_fetch_object($result)) {
     $action_ids[] = $row->ActionID;
+    $pidarray[$row->PersonID] = 1;
   }
-  // Also get distinct PersonIDs for multi-select
-  $sql2 = "SELECT DISTINCT PersonID FROM action a".$where;
-  $result2 = sqlquery_checked($sql2);
-  while ($row = mysqli_fetch_object($result2)) {
-    $pidarray[] = $row->PersonID;
-  }
-  $pids = implode(",",$pidarray);
+  $pids = implode(",", array_keys($pidarray));
 } else {
   $sql = "SELECT DISTINCT PersonID FROM action a".$where." ORDER BY PersonID";
   $result = sqlquery_checked($sql);

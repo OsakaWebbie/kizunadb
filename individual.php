@@ -335,7 +335,7 @@ echo '<a href="edit.php?pid='.$_GET['pid'].'" class="linkbutton">'._("Edit This 
 if ($per->HouseholdID) {
   echo '<a href="household.php?hhid='.$per->HouseholdID.'" class="linkbutton">'._("Go to Household Page").'</a>';
 }
-echo '<a href="multiselect.php?pids='.$_GET['pid'].'" class="linkbutton">'._("Go to Multi-Select").'</a>';
+echo '<a href="batch.php?pids='.$_GET['pid'].'" class="linkbutton">'._("Go to Batch Processing").'</a>';
 echo '<div class="hassub">';
 echo '  <button id="ind-basket-toggle" class="dropdown-closed">'._('Basket').'</button>';
 echo '  <ul id="ind-basket" class="nav-sub" style="display:none">';
@@ -410,7 +410,7 @@ while ($row = mysqli_fetch_object($result)) {
 
 if (count($org_pids) == 0) {
   echo "<h3>"._("Current Organizations")."</h3>";
-  echo "<p>"._("No organization associations. (You can add them here or in Multi-Select.)")."</p>";
+  echo "<p>"._("No organization associations. (You can add them here or in Batch Processing.)")."</p>";
 } else {
   echo "<h3>"._("Current Organizations")." (".count($org_pids).")</h3>";
 
@@ -593,7 +593,7 @@ if ($per->Organization) {
 
   if (count($mem_pids) == 0) {
     echo "<h3>"._("Current Members")."</h3>";
-    echo "<p>"._("No members. (Add them on a member's personal page or in Multi-Select.)")."</p>";
+    echo "<p>"._("No members. (Add them on a member's personal page or in Batch Processing.)")."</p>";
   } else {
     echo "<h3>"._("Current Members")." (".count($mem_pids).")</h3>";
 
@@ -1296,7 +1296,7 @@ $result = sqlquery_checked("SELECT e.Event, e.EventID, e.Remarks, min(a.AttendDa
 " COUNT(a.AttendDate) AS times, IF(e.UseTimes=1,SUM(TIME_TO_SEC(SUBTIME(a.EndTime,a.StartTime))) DIV 60,-1) AS minutes".
 " FROM event e, attendance a WHERE e.EventID=a.EventID AND a.PersonID=".$_GET['pid']." GROUP BY e.EventID ORDER BY first DESC");
 if (mysqli_num_rows($result) == 0) {
-  echo "<p>"._("No attendance records. (You can add records here or in Multi-Select.)")."</p>";
+  echo "<p>"._("No attendance records. (You can add records here or in Batch Processing.)")."</p>";
 } else {
   echo "<table id=\"attend-table\" class=\"tablesorter\" width=\"100%\"><thead><tr>";
   echo "<th>"._("Event")."</th><th>"._("Dates")."</th><th>"._("Event Description")."</th><th></th>\n";

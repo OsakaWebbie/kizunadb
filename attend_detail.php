@@ -135,9 +135,9 @@ if ($showemptiesform == 1) {
   }
   echo "</form>\n"; 
 }
-echo '<form id="msform" action="multiselect.php" method="get" target="_top">'."\n";
+echo '<form id="msform" action="batch.php" method="get" target="_top">'."\n";
 echo '<input type="hidden" name="pids" value="'.$pids."\">\n";
-echo '<input type="submit" value="'._('Go to Multi-Select')."\">\n";
+echo '<input type="submit" value="'._('Go to Batch Processing')."\">\n";
 echo "</form>\n"; 
 
 echo '<p>'._('To delete entries: click to select a cell, Ctrl-click to select additional cells, and/or drag to select a range. Then click this button:');

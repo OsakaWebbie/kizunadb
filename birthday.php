@@ -28,7 +28,7 @@ if (!empty($_GET['query'])) {
 
   // Display header and build SQL statement
   if (!$catlist) {
-    echo "<h3>".sprintf(_("All birthdays from %s to %s:"), $start_str, $end_str)."</h3>\n";
+    echo "<h3>".sprintf(_("From %s to %s"), $start_str, $end_str).":</h3>\n";
     $sql = "SELECT DISTINCT p.PersonID FROM person p WHERE ";
   } else {
     $sql = "SELECT DISTINCT p.PersonID FROM person p, percat c "
@@ -40,8 +40,8 @@ if (!empty($_GET['query'])) {
     while ($row = mysqli_fetch_object($result)) {
       $cat_names .= ", " . $row->Category;
     }
-    echo "<h3>".sprintf(_("Birthdays from %1\$s to %2\$s in categories %3\$s:"),
-       $start_str, $end_str, "<i>$cat_names</i>")."</h3>\n";
+    echo "<h3>".sprintf(_("From %s to %s"),$start_str, $end_str).'<br>'.sprintf(_("Categories: %s"),
+       $cat_names)."</h3>\n";
   }
   // Add basket filter
   if (!empty($basket) && !empty($_SESSION['basket'])) {

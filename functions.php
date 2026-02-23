@@ -73,7 +73,7 @@ function header2($nav=0) {
         <a href="#"><?=_('Batch/Basket').' (<span class="basketcount">'.count($_SESSION['basket']).'</span>)'?> &#x25BC;</a>
         <ul class="nav-sub">
           <li class="basket-list"><a class="basket-list" href="list.php?basket=1"><?=_('List Basket contents')?></a></li>
-          <li><a href="multiselect.php?basket=1" target="_top"><?=_('Multi-Select').'/'._('Batch')?></a></li>
+          <li><a href="batch.php?basket=1" target="_top"><?=_('Batch Processing')?></a></li>
           <li class="basket-empty"><a class="ajaxlink basket-empty" href="#"><?=_('Empty the Basket')?></a></li>
         </ul>
       </li>

@@ -58,7 +58,7 @@ function ValidateOrg() {
     return false;
   }
   if ($.trim($('#orgname').text()) == '') {
-    alert('<?=_("The Organization ID you entered is not valid. Please use Search/Browse to find the correct ID.")?>');
+    alert('<?=_("Not a valid Organization ID. If you\'re not sure, try Search/Browse.")?>');
     $('#orgid').focus();
     return false;
   }

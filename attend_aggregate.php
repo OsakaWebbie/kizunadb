@@ -30,7 +30,7 @@ if (!$ajax) {
   header2(1);
 }
 echo "<h1 id=\"title\">"._("Aggregate Attendance Data")."</h1>\n";
-echo "<h3>"._("Aggregate Data for Events").": ".$event_names;
+echo "<h3>"._("Events").": ".$event_names;
 if (!empty($_GET["startdate"]) && !empty($_GET["enddate"])) printf(_(", between %s and %s"),$_GET["startdate"],$_GET["enddate"]);
 elseif (!empty($_GET["startdate"])) printf(_(", on or after %s"),$_GET["startdate"]);
 elseif (!empty($_GET["enddate"])) printf(_(", on or before %s"),$_GET["enddate"]);
@@ -46,7 +46,6 @@ if (!empty($_GET['basket']) && !empty($_SESSION['basket'])) $where .= " AND a.Pe
 
 // Run aggregate query to collect PersonIDs
 $sql = "SELECT DISTINCT a.PersonID, COUNT(a.AttendDate) AS attendnum FROM attendance a ".
-  "LEFT JOIN event e on e.EventID=a.EventID ".
   "WHERE a.EventID IN ($eids) $where ".
   "GROUP BY a.PersonID, a.EventID $having";
 $result = sqlquery_checked($sql);

@@ -76,73 +76,69 @@ if (!empty($_REQUEST['basket']) && !empty($_SESSION['basket'])) {
 }
 if (!empty($criteria))  $criteria = "<ul id=\"criteria\">$criteria</ul>";
 
-// Main query for summary, or prep query for lists
-if ($type=="DonationType") {
-  $sql = "SELECT dt.DonationTypeID, dt.DonationType, d.PersonID, SUM(d.Amount) AS subtotal FROM donationtype dt ".
-  "LEFT JOIN donation d ON d.DonationTypeID=dt.DonationTypeID".$where." OR d.DonationDate IS NULL";
-  $sql .= " GROUP BY dt.DonationTypeID".$having." ORDER BY ".
-    (($_REQUEST['subtotalsort'] ?? false) ? "subtotal DESC," : "")."dt.DonationType,d.DonationTypeID";
-} else {  // single list or grouped/summary by person
-// in the case of a single list, this query is only to get the IDs for multiselect, so we don't need the other information or subtotals
-  $sql = "SELECT ".($type=="Normal" ? "DISTINCT p.PersonID" : "p.PersonID,p.FullName,p.Furigana,SUM(d.Amount) subtotal").
-  " FROM donation d LEFT JOIN person p ON p.PersonID=d.PersonID ".
-  "LEFT JOIN donationtype dt ON d.DonationTypeID=dt.DonationTypeID".$where;
-  if ($type=="Normal") {
-    $sql .= " ORDER BY p.PersonID";
-  } else {
+// Main query for summary or prep query for grouped/list modes
+if ($type == "Normal" && !$summary) {
+  // Normal list: single query for DonationIDs only; all display data fetched by flextable
+  $sql = "SELECT d.DonationID FROM donation d".$where." ORDER BY d.DonationDate DESC";
+  $result = sqlquery_checked($sql);
+  if (mysqli_num_rows($result) == 0) {
+    echo "<h3>"._("There are no records matching your criteria:")."</h3>\n".$criteria;
+    if (!$ajax) footer();
+    exit;
+  }
+  $donation_ids = array();
+  while ($row = mysqli_fetch_object($result)) {
+    $donation_ids[] = $row->DonationID;
+  }
+} else {
+  // Grouped or summary modes: query for person/type groups
+  if ($type=="DonationType") {
+    $sql = "SELECT dt.DonationTypeID, dt.DonationType, d.PersonID, SUM(d.Amount) AS subtotal FROM donationtype dt ".
+    "LEFT JOIN donation d ON d.DonationTypeID=dt.DonationTypeID".$where." OR d.DonationDate IS NULL";
+    $sql .= " GROUP BY dt.DonationTypeID".$having." ORDER BY ".
+      (($_REQUEST['subtotalsort'] ?? false) ? "subtotal DESC," : "")."dt.DonationType,d.DonationTypeID";
+  } else {  // PersonID (possibly with summary)
+    $sql = "SELECT p.PersonID,p.FullName,p.Furigana,SUM(d.Amount) subtotal".
+    " FROM donation d LEFT JOIN person p ON p.PersonID=d.PersonID ".
+    "LEFT JOIN donationtype dt ON d.DonationTypeID=dt.DonationTypeID".$where;
     $sql .= " GROUP BY p.PersonID".$having." ORDER BY ".
     (($_REQUEST['subtotalsort'] ?? false) || ($summary && ($_REQUEST['limit'] ?? false)) ? "subtotal DESC," : "")."p.Furigana,p.PersonID";
-  }
-  if ($summary && $type=="PersonID" && $_REQUEST['limit']) $sql .= " LIMIT ".(int)$_REQUEST['limit'];
-}
-$result = sqlquery_checked($sql);
-if (mysqli_num_rows($result) == 0) {
-  echo "<h3>"._("There are no records matching your criteria:")."</h3>\n".$criteria;
-  if (!$ajax) footer();
-  exit;
-}
-$pidarray = array();
-while ($row = mysqli_fetch_object($result)) {
-  $pidarray[] = $row->PersonID;
-  if ($type=="DonationType") $dtidarray[] = $row->DonationTypeID;
-}
-$pids = implode(",",$pidarray);
-if ($type=="DonationType") $dtids = implode(",",$dtidarray);
-
-if (!$summary) {
-  $sql = "SELECT d.DonationID,d.PersonID,d.PledgeID,d.DonationDate,CAST(d.Amount AS DECIMAL(10,".
-  $_SESSION['currency_decimals'].")) Amount,d.Description,d.Processed,p.FullName,p.Furigana,".
-  "IF(d.PledgeID,pl.DonationTypeID,d.DonationTypeID) DonationTypeID,".
-  "IF(d.PledgeID,dt2.DonationType,dt.DonationType) DonationType,pl.PledgeDesc";
-  if ($type == "Normal") $sql .= ",p.Photo,p.CellPhone,p.Email,p.Country,p.Remarks,h.*,pc.*";
-  $sql .= " FROM donation d LEFT JOIN person p ON p.PersonID=d.PersonID";
-  if ($type == "Normal") $sql .= " LEFT JOIN household h ON p.HouseholdID=h.HouseholdID".
-  " LEFT JOIN postalcode pc ON h.PostalCode=pc.PostalCode";
-  $sql .= " LEFT JOIN donationtype dt ON d.DonationTypeID=dt.DonationTypeID".
-  " LEFT JOIN pledge pl ON d.PledgeID=pl.PledgeID".
-  " LEFT JOIN donationtype dt2 ON pl.DonationTypeID=dt2.DonationTypeID".$where;
-  if ($type == "PersonID") {
-    $sql .= " ORDER BY ".(($_REQUEST['subtotalsort'] ?? false) ? "FIND_IN_SET(d.PersonID, '".$pids."')" : "Furigana,d.PersonID").",d.DonationDate DESC";
-  } elseif ($type == "DonationType") {
-    $sql .= " ORDER BY ".(($_REQUEST['subtotalsort'] ?? false) ? "FIND_IN_SET(d.DonationTypeID, '".$dtids."')" : "dt.DonationType").",d.DonationDate DESC";
-  } else {  // listtype == Normal
-    $sql .= " ORDER BY d.DonationDate DESC";
+    if ($summary && $type=="PersonID" && $_REQUEST['limit']) $sql .= " LIMIT ".(int)$_REQUEST['limit'];
   }
   $result = sqlquery_checked($sql);
+  if (mysqli_num_rows($result) == 0) {
+    echo "<h3>"._("There are no records matching your criteria:")."</h3>\n".$criteria;
+    if (!$ajax) footer();
+    exit;
+  }
+  $pidarray = array();
+  while ($row = mysqli_fetch_object($result)) {
+    $pidarray[] = $row->PersonID;
+    if ($type=="DonationType") $dtidarray[] = $row->DonationTypeID;
+  }
+  $pids = implode(",",$pidarray);
+  if ($type=="DonationType") $dtids = implode(",",$dtidarray);
 
-  // Collect DonationIDs for flextable
-  if ($type == "Normal") {
-    // Normal mode - single flat list
-    $donation_ids = array();
-    while ($row = mysqli_fetch_object($result)) {
-      $donation_ids[] = $row->DonationID;
+  if (!$summary) {
+    // Second query for grouped modes: get donation details for grouping
+    $sql = "SELECT d.DonationID,d.PersonID,d.PledgeID,d.DonationDate,CAST(d.Amount AS DECIMAL(10,".
+    $_SESSION['currency_decimals'].")) Amount,d.Description,d.Processed,p.FullName,p.Furigana,".
+    "IF(d.PledgeID,pl.DonationTypeID,d.DonationTypeID) DonationTypeID,".
+    "IF(d.PledgeID,dt2.DonationType,dt.DonationType) DonationType,pl.PledgeDesc".
+    " FROM donation d LEFT JOIN person p ON p.PersonID=d.PersonID".
+    " LEFT JOIN donationtype dt ON d.DonationTypeID=dt.DonationTypeID".
+    " LEFT JOIN pledge pl ON d.PledgeID=pl.PledgeID".
+    " LEFT JOIN donationtype dt2 ON pl.DonationTypeID=dt2.DonationTypeID".$where;
+    if ($type == "PersonID") {
+      $sql .= " ORDER BY ".(($_REQUEST['subtotalsort'] ?? false) ? "FIND_IN_SET(d.PersonID, '".$pids."')" : "Furigana,d.PersonID").",d.DonationDate DESC";
+    } else { // DonationType
+      $sql .= " ORDER BY ".(($_REQUEST['subtotalsort'] ?? false) ? "FIND_IN_SET(d.DonationTypeID, '".$dtids."')" : "dt.DonationType").",d.DonationDate DESC";
     }
-  } else {
-    // Grouped mode - collect donations by group (DonationType or PersonID)
-    $groups = array();
+    $result = sqlquery_checked($sql);
 
+    // Collect donations by group
+    $groups = array();
     while ($row = mysqli_fetch_object($result)) {
-      // Use numeric ID as group key (safe for HTML IDs)
       if ($type == "DonationType") {
         $group_key = $row->DonationTypeID;
         $group_name = $row->DonationType;
@@ -150,7 +146,6 @@ if (!$summary) {
         $group_key = $row->PersonID;
         $group_name = ''; // Name stored separately
       }
-
       if (!isset($groups[$group_key])) {
         $groups[$group_key] = array(
           'ids' => array(),

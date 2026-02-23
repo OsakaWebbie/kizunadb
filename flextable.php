@@ -602,7 +602,7 @@ function flextable($opt) {
   //echo '<h4>SQL:</h4><xmp style="white-space:pre-wrap">'.$sql.'</xmp>';
   $result = sqlquery_checked($sql);
 
-  /***** BUTTONS: column selector, basket links, multi-select link, and CSV *****/
+  /***** BUTTONS: column selector, basket, batch, and CSV *****/
 
   ?>
   <div style="display:flex; align-items:center; gap:1em; flex-wrap:wrap;">
@@ -622,7 +622,7 @@ function flextable($opt) {
           <li class="basket-set"><a id="<?=$opt->tableid?>-basket-set" class="ajaxlink basket-set" href="#"><?=_('Set Basket to these only')?></a></li>
         </ul>
       </div>
-      <button id="<?=$opt->tableid?>-ms" title="<?=_('Go to Multi-Select with these entries preselected')?>"><?=_('To Multi-Select')?></button>
+      <button id="<?=$opt->tableid?>-ms" title="<?=_('Go to Batch Processing page with these entries preselected')?>"><?=_('To Batch Processing')?></button>
       <?php } ?>
       <?php if ($opt->showCSV) { ?>
       <form id="<?=$opt->tableid?>-csvform" action="download.php" method="post" target="_top" style="display:inline">
@@ -696,12 +696,12 @@ function flextable($opt) {
     /***** TABLE BODY *****/
 
     $pids = ','; //need boundary for duplicate check
-    $person_pids = ','; // separate collection of PersonIDs for basket/multiselect
+    $person_pids = ','; // separate collection of PersonIDs for basket/batch
     while ($row = mysqli_fetch_object($result)) {
       // Collect IDs based on the keyfield (needed for lazy column loading)
       $keyval = $row->$keycol;
       if (!empty($keyval) && strpos($pids,','.$keyval.',') === FALSE) $pids .= $keyval.',';
-      // Collect PersonIDs separately for basket/multiselect when keyfield isn't PersonID
+      // Collect PersonIDs separately for basket/batch when keyfield isn't PersonID
       if ($keycol != 'PersonID' && isset($row->PersonID) && !empty($row->PersonID)
           && strpos($person_pids,','.$row->PersonID.',') === FALSE) {
         $person_pids .= $row->PersonID.',';
@@ -1152,9 +1152,9 @@ function flextable($opt) {
       });
     }
 
-   // link to go directly to multiselect without basket
+   // link to go directly to batch without basket
     $('#<?=$opt->tableid?>-ms').click(function() {
-      location.href = 'multiselect.php?pids=<?=$keycol == "PersonID" ? $pids : $person_pids?>';
+      location.href = 'batch.php?pids=<?=$keycol == "PersonID" ? $pids : $person_pids?>';
     });
 
     // Determine the correct PID source for basket operations
