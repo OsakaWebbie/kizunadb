@@ -55,3 +55,66 @@ table.tablesorter thead tr th.no-arrows {
 td.lazy-col {
   background-color: #f9f9f9;
 }
+
+/* ============================================================
+   RESPONSIVE COLUMN COLLAPSE (ft-resp)
+   ============================================================ */
+
+.ft-resp-wrap {
+  overflow-x: auto;
+  width: 100%;
+}
+
+/* Toggle icon prepended to first visible cell */
+.ft-resp-toggle {
+  display: inline-block;
+  width: 1.1em;
+  height: 1.1em;
+  margin-right: 12px;
+  cursor: pointer;
+  vertical-align: middle;
+  color: #555;
+  font-size: 1.3em;
+  line-height: 1.1em;
+  text-align: center;
+  border: 1px solid #aaa;
+  border-radius: 3px;
+  background: #f0f4f8;
+  user-select: none;
+}
+.ft-resp-toggle::before { content: '\25B6'; display: block; }              /* ▶ */
+.ft-resp-toggle.ft-open::before { transform: rotate(90deg); }              /* ▶ rotated */
+.ft-resp-toggle:hover { background: #d8e4f0; border-color: #888; }
+
+/* Child row */
+tr.ft-child-row td {
+  background-color: #f0f4f8;
+  padding: 8px 12px;
+  border: 1px solid #b0c4d8;
+  border-top: none;
+}
+
+/* Definition list inside child row */
+dl.ft-resp-details {
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(80px, 140px) 1fr;
+  gap: 4px 10px;
+}
+dl.ft-resp-details dt {
+  font-weight: bold;
+  color: #555;
+  padding: 2px 0;
+  word-break: break-word;
+}
+dl.ft-resp-details dd {
+  margin: 0;
+  padding: 2px 0;
+  word-break: break-word;
+}
+@media (max-width: 400px) {
+  dl.ft-resp-details { grid-template-columns: 1fr; }
+  dl.ft-resp-details dt { margin-top: 6px; border-top: 1px solid #ccc; padding-top: 4px; }
+  dl.ft-resp-details dt:first-child { border-top: none; margin-top: 0; }
+}

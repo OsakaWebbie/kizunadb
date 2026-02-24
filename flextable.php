@@ -393,9 +393,11 @@ function flextable($opt) {
     if (!isset($col->classes)) $col->classes = '';
     if (!isset($col->total)) $col->total = FALSE;
     if (!isset($col->lazy)) $col->lazy = FALSE;
+    if (!isset($col->responsive_priority)) $col->responsive_priority = 999;
     // csv defaults to FALSE for checkbox columns (interactive-only), TRUE for everything else
     if (!isset($col->csv)) $col->csv = (empty($col->render) || $col->render != 'checkbox');
   }
+  if (!isset($opt->responsive)) $opt->responsive = TRUE;
 
   // Safety net: If this appears to be a person table but no name columns are shown, show "name"
   $is_person_table = FALSE;
@@ -678,6 +680,9 @@ function flextable($opt) {
   /***** TABLE *****/
 
   ?>
+  <?php if ($opt->responsive) { ?>
+<div id="<?=$opt->tableid?>-resp-wrap" class="ft-resp-wrap">
+  <?php } ?>
   <table id="<?=$opt->tableid?>-table" class="tablesorter">
     <thead><tr>
       <?php
@@ -686,7 +691,9 @@ function flextable($opt) {
 
       foreach ($opt->cols AS $col) {
         echo '<th class="'.$col->key.($col->show?' loaded':'').($col->csv?'':' nocsv').'"'.
-            ($col->show?'':' style="display:none"').'>'._($col->label).'</th>';
+            ($col->show?'':' style="display:none"').
+            ($opt->responsive ? ' data-col-key="'.htmlspecialchars($col->key).'" data-resp-priority="'.(int)$col->responsive_priority.'"' : '').
+            '>'._($col->label).'</th>';
       }
       ?>
     </tr></thead>
@@ -859,6 +866,9 @@ function flextable($opt) {
     ?>
     </tbody>
   </table>
+  <?php if ($opt->responsive) { ?>
+</div><!-- /.ft-resp-wrap -->
+  <?php } ?>
   <div id="<?=$opt->tableid?>-pids" style="display:none"><?=$pids?></div>
   <?php if ($keycol != 'PersonID') { ?>
   <div id="<?=$opt->tableid?>-person-pids" style="display:none"><?=$person_pids?></div>
@@ -1139,6 +1149,8 @@ function flextable($opt) {
         });
 
         $('#<?=$opt->tableid?>-table').trigger('update');
+        var _respHook = $('#<?=$opt->tableid?>-table').data('ft-resp-lazy-hook');
+        if (_respHook) _respHook();
       }, 'json').fail(function(jqXHR, textStatus, errorThrown) {
         var errorMsg = 'Failed to load column data\n\n';
         errorMsg += 'Status: ' + textStatus + '\n';
@@ -1151,6 +1163,214 @@ function flextable($opt) {
         $(colClass + ' .lazy-placeholder').text('Error');
       });
     }
+
+    <?php if ($opt->responsive) { ?>
+    /* ---- Responsive column collapse ---- */
+    (function() {
+      var $table  = $('#<?=$opt->tableid?>-table');
+      var $wrap   = $('#<?=$opt->tableid?>-resp-wrap');
+      var tableId = '<?=$opt->tableid?>';
+      var collapsedCols = {};   // colKey => true
+      var openChildRows = {};   // rowIndex => $childTr
+
+      function isOverflowing() {
+        return $table[0].scrollWidth > $wrap[0].clientWidth + 2;
+      }
+
+      // Column priority order: higher responsive_priority collapses first;
+      // ties broken by column index (rightmost first); anchor (leftmost) never collapses.
+      function getPriorityOrder() {
+        var cols = [];
+        $table.find('thead th').each(function(i) {
+          if ($(this).css('display') === 'none') return; // skip column-selector-hidden
+          var colKey = $(this).data('col-key');
+          if (!colKey) return;
+          cols.push({ key: colKey, priority: parseInt($(this).data('resp-priority'), 10) || 999, idx: i });
+        });
+        if (cols.length > 0) cols[0].priority = -1; // anchor: leftmost visible = never collapse
+        cols.sort(function(a, b) {
+          if (a.priority === -1) return 1;
+          if (b.priority === -1) return -1;
+          if (a.priority !== b.priority) return b.priority - a.priority;
+          return b.idx - a.idx; // rightmost collapses first among ties
+        });
+        return cols;
+      }
+
+      function isColSelHidden(colKey) {
+        var $cb = $('#' + tableId + '-col-' + colKey + '-show');
+        return $cb.length > 0 && !$cb.is(':checked');
+      }
+
+      function collapseCol(colKey) {
+        $table.find('th[data-col-key="' + colKey + '"], td.' + colKey).hide();
+        collapsedCols[colKey] = true;
+      }
+
+      function restoreCol(colKey) {
+        delete collapsedCols[colKey];
+        if (!isColSelHidden(colKey)) {
+          $table.find('th[data-col-key="' + colKey + '"], td.' + colKey).show();
+        }
+      }
+
+      function getCellContent($cell) {
+        var $rm = $cell.find('.readmore');
+        if ($rm.length) {
+          var $clone = $rm.clone();
+          $clone.find('[data-readmore-toggle]').remove();
+          return $clone.html();
+        }
+        if ($cell.find('.lazy-placeholder').length) return '<em>\u2026</em>';
+        return $cell.html();
+      }
+
+      function buildDetailHtml($row) {
+        var labels = {};
+        $table.find('thead th[data-col-key]').each(function() {
+          labels[$(this).data('col-key')] = $(this).text();
+        });
+        var html = '';
+        $row.find('td').each(function() {
+          var $cell = $(this);
+          // Find which collapsed colKey this cell belongs to
+          var colKey = null;
+          var classes = ($cell.attr('class') || '').split(' ');
+          for (var c = 0; c < classes.length; c++) {
+            if (collapsedCols[classes[c]]) { colKey = classes[c]; break; }
+          }
+          if (!colKey) return;
+          var content = getCellContent($cell) || '&mdash;';
+          html += '<dt>' + $('<span>').text(labels[colKey] || colKey).html() + '</dt><dd>' + content + '</dd>';
+        });
+        return html;
+      }
+
+      function updateChildRows() {
+        $table.find('tbody tr.ft-parent-row').each(function() {
+          var idx = $(this).data('ft-row-idx');
+          if (openChildRows[idx]) {
+            openChildRows[idx].find('dl.ft-resp-details').html(buildDetailHtml($(this)));
+          }
+        });
+      }
+
+      function updateToggleIcons() {
+        var hasCollapsed = Object.keys(collapsedCols).length > 0;
+        $table.find('tbody tr.ft-parent-row').each(function() {
+          $(this).find('.ft-resp-toggle').remove(); // clear all first (column order may have changed)
+          if (!hasCollapsed) return;
+          var $firstCell = $(this).find('td:visible:first');
+          if ($firstCell.length) {
+            $firstCell.prepend('<span class="ft-resp-toggle" role="button" tabindex="0"></span>');
+          }
+        });
+      }
+
+      function recalcResponsive() {
+        // Remember which child rows were open before recalc
+        var wasOpen = {};
+        $table.find('tbody tr.ft-parent-row').each(function() {
+          var idx = $(this).data('ft-row-idx');
+          if (openChildRows[idx]) wasOpen[idx] = true;
+        });
+
+        // Close open child rows (will rebuild below if still applicable)
+        $table.find('tbody tr.ft-parent-row').each(function() {
+          var idx = $(this).data('ft-row-idx');
+          if (openChildRows[idx]) { openChildRows[idx].remove(); delete openChildRows[idx]; }
+          $(this).find('.ft-resp-toggle').removeClass('ft-open');
+        });
+
+        // Restore all responsive-collapsed columns
+        var prev = Object.keys(collapsedCols);
+        for (var k = 0; k < prev.length; k++) restoreCol(prev[k]);
+
+        if (!isOverflowing()) {
+          updateToggleIcons();
+          $table.trigger('update');
+          return;
+        }
+
+        // Collapse lowest-priority columns until no overflow
+        var order = getPriorityOrder();
+        for (var i = 0; i < order.length; i++) {
+          if (!isOverflowing()) break;
+          if (order[i].priority === -1) break; // never collapse anchor
+          if (isColSelHidden(order[i].key)) continue; // skip user-hidden columns
+          collapseCol(order[i].key);
+        }
+
+        updateToggleIcons();
+        $table.trigger('update');
+
+        // Reopen child rows that were open before (with refreshed content)
+        if (Object.keys(collapsedCols).length > 0) {
+          $table.find('tbody tr.ft-parent-row').each(function() {
+            var idx = $(this).data('ft-row-idx');
+            if (!wasOpen[idx]) return;
+            var $row = $(this);
+            var detailHtml = buildDetailHtml($row);
+            if (!detailHtml) return;
+            var colCount = $row.find('td:visible').length;
+            var $child = $('<tr class="ft-child-row"><td colspan="' + colCount + '"><dl class="ft-resp-details">' + detailHtml + '</dl></td></tr>');
+            $row.after($child);
+            openChildRows[idx] = $child;
+            $row.find('.ft-resp-toggle').addClass('ft-open');
+          });
+        }
+      }
+
+      // Index rows for child-row tracking
+      $table.find('tbody tr').each(function(i) {
+        $(this).addClass('ft-parent-row').data('ft-row-idx', i);
+      });
+
+      // Initial calc after layout settles
+      setTimeout(recalcResponsive, 50);
+
+      // Debounced window resize
+      var _rsTimer;
+      $(window).on('resize.ftresp-' + tableId, function() {
+        clearTimeout(_rsTimer);
+        _rsTimer = setTimeout(recalcResponsive, 150);
+      });
+
+      // Toggle expand/collapse child row
+      $table.on('click.ftresp keydown.ftresp', 'tbody .ft-resp-toggle', function(e) {
+        if (e.type === 'keydown' && e.which !== 13 && e.which !== 32) return;
+        e.preventDefault();
+        var $toggle = $(this);
+        var $row = $toggle.closest('tr');
+        var idx = $row.data('ft-row-idx');
+
+        if (openChildRows[idx]) {
+          openChildRows[idx].remove();
+          delete openChildRows[idx];
+          $toggle.removeClass('ft-open');
+        } else {
+          var detailHtml = buildDetailHtml($row);
+          if (!detailHtml) return;
+          var colCount = $row.find('td:visible').length;
+          var $child = $('<tr class="ft-child-row"><td colspan="' + colCount + '"><dl class="ft-resp-details">' + detailHtml + '</dl></td></tr>');
+          $row.after($child);
+          openChildRows[idx] = $child;
+          $toggle.addClass('ft-open');
+        }
+      });
+
+      // Re-run after column selector changes (defer so col-sel handler runs first)
+      $('#' + tableId + '-colsel .colsel-checkbox').on('change.ftresp', function() {
+        setTimeout(recalcResponsive, 0);
+      });
+
+      // Hook for lazy load callback (called from loadLazyColumn success)
+      $table.data('ft-resp-lazy-hook', function() {
+        updateChildRows();
+        setTimeout(recalcResponsive, 0);
+      });
+    })();
+    <?php } // end if $opt->responsive ?>
 
    // link to go directly to batch without basket
     $('#<?=$opt->tableid?>-ms').click(function() {

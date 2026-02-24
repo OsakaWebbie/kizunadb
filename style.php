@@ -494,7 +494,6 @@ body.search #search {
 /* specific to list.php */
 body.list.full div#main-container { width:auto; }
 body.list h3 { margin-bottom:0; }
-body.list table { margin-right:auto; margin-left:auto; }
 body.list td.categories { white-space:nowrap; }
 
 /* specific to individual.php */
