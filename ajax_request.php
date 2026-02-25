@@ -268,6 +268,29 @@ case 'PledgeDonationCount':
   }
   break;
 
+case 'BatchPersonSearch':
+  $results = [];
+  if (!empty($_REQUEST['catid'])) {
+    $catid = intval($_REQUEST['catid']);
+    $sql = "SELECT person.PersonID, person.FullName, person.Furigana FROM person ".
+           "INNER JOIN percat ON person.PersonID = percat.PersonID ".
+           "WHERE percat.CategoryID = $catid ".
+           "ORDER BY person.Furigana, person.PersonID";
+  } elseif (isset($_REQUEST['q']) && strlen($_REQUEST['q']) >= 2) {
+    $q = h2d($_REQUEST['q']);
+    $sql = "SELECT person.PersonID, person.FullName, person.Furigana FROM person ".
+           "WHERE person.FullName LIKE '%$q%' OR person.Furigana LIKE '%$q%' ".
+           "ORDER BY person.Furigana, person.PersonID";
+  } else {
+    die(json_encode(array('results' => [])));
+  }
+  $result = sqlquery_checked($sql);
+  while ($row = mysqli_fetch_object($result)) {
+    $results[] = array('pid' => (int)$row->PersonID, 'name' => readable_name($row->FullName, $row->Furigana));
+  }
+  die(json_encode(array('results' => $results)));
+  break;
+
 default:
   die(json_encode(array('alert' => 'Programming error: NO REQUEST RECOGNIZED')));
 }

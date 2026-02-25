@@ -3,298 +3,282 @@ include("functions.php");
 include("accesscontrol.php");
 header1(_("Batch Processing"));
 ?>
-<link rel="stylesheet" href="style.php" type="text/css" />
+<link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
 <style>
-div.buttongroup { border:1px solid gray; margin:6px 0 0 0; padding:0 3px 3px 3px; }
-div.buttongroup h3 { margin:0; }
+#batch-container { display:flex; flex-wrap:wrap; align-items:flex-start; }
+#batch-chooser { flex:1; min-width:520px; margin-right:1em; }
+#batch-actions { flex:1; min-width:280px; }
+#batch-chooser, #batch-actions { margin-top:0; margin-bottom:0; }
+.batch-search-section { margin-bottom:0.5em; }
+#shuttle { display:flex; align-items:flex-start; gap:4px; }
+#shuttle-btns { display:flex; flex-direction:column; gap:4px; padding-top:1.5em; }
+#shuttle-btns button { font-size:1.1em; font-weight:900; transform: scaleY(1.3); margin-top:1em; padding:0.4em 0.4em; }
+.select-block { flex:1; min-width:0; text-align:center; }
+#available, #selected { width:100%; height:300px; }
+.action-btn { margin:2px 2px 2px 0; }
+div.buttongroup { margin:6px 0 0 0; padding:0; }
 </style>
-<script type="text/JavaScript" src="js/jquery-3.6.0.js"></script>
-<script>
-//indexes for arrays (just to keep sane)
-var pid = 0;
-var name = 1;
-var cat = 2;
-var choice = 3;
-var sel = 4;
 <?php
-//get data from person and percat tables and build master array
-
-$sql = "SELECT PersonID, FullName, Furigana FROM person ORDER BY Furigana, PersonID";
-$person = sqlquery_checked($sql);
-$sql = "SELECT percat.PersonID, CategoryID, Furigana FROM percat, person".
-" WHERE percat.PersonID = person.PersonID ORDER BY Furigana, percat.PersonID, CategoryID";
-$percat = sqlquery_checked($sql);
-
-echo "var ar = new Array();\n";
-$ar_index = 0;
-$presel_html = "";
-$presel_num = 0;
+// Build preselected list from ?pids= or basket
+$preselected_js = '[]';
+$preselected_pids = '';
 if (!empty($_REQUEST['pids'])) {
-  $preselected = $_REQUEST['pids'];
-  $psnum = substr_count($preselected,",")+1;
-} elseif (!empty($_REQUEST['basket']) && $_SESSION['basket']) {
-  $preselected = implode(",",$_SESSION['basket']);
+    $preselected_pids = $_REQUEST['pids'];
+} elseif (!empty($_SESSION['basket'])) {
+    $preselected_pids = implode(',', $_SESSION['basket']);
 }
-
-$pc = mysqli_fetch_object($percat);  //pull first one to get started
-while ($per = mysqli_fetch_object($person)) {
-  echo "ar[$ar_index] = new Array();\n";
-  echo "ar[$ar_index][pid] = \"$per->PersonID\";\n";
-  echo "ar[$ar_index][name] = \"".d2h(readable_name($per->FullName,$per->Furigana))."\";\n";
-  $str = ",";
-  while ($pc && ($pc->PersonID == $per->PersonID)) {
-    $str = $str.$pc->CategoryID.",";
-    $pc = mysqli_fetch_object($percat);
-  }
-  echo "ar[$ar_index][cat] = \"$str\";\n";
-  echo "ar[$ar_index][choice] = 0;\n";
-  if (isset($preselected) && strpos(",".$preselected.",",",".$per->PersonID.",")!==FALSE) {
-    $presel_html .= "<option value=$ar_index>".d2h(readable_name($per->FullName,$per->Furigana))."</option>\n";
-    $presel_num++;
-    echo "ar[$ar_index][sel] = 1;\n";
-  } else {
-    echo "ar[$ar_index][sel] = 0;\n";
-  }
-  $ar_index++;
+if ($preselected_pids) {
+    $preselected_pids = preg_replace('/[^0-9,]/', '', $preselected_pids);
+    if ($preselected_pids) {
+        $sql = "SELECT PersonID, FullName, Furigana FROM person WHERE PersonID IN ($preselected_pids) ORDER BY Furigana, PersonID";
+        $result = sqlquery_checked($sql);
+        $preselected_arr = [];
+        while ($row = mysqli_fetch_object($result)) {
+            $preselected_arr[] = ['pid' => (int)$row->PersonID, 'name' => readable_name($row->FullName, $row->Furigana)];
+        }
+        $preselected_js = json_encode($preselected_arr);
+    }
 }
+load_scripts(['jquery', 'jqueryui']);
 ?>
-</script>
 <?php header2(1); ?>
 
-  <table border="0" cellspacing="0" cellpadding="8">
-    <tr>
-      <td valign="top">
-        <form action="(EmptyReference!)" method="get" name="cform">
-          <table width="187" border="0" cellspacing="0" cellpadding="4" bgcolor="white">
-            <tr height="35">
-              <td colspan="3" height="35"><select name="catlist" size="1" onchange="new_cat();">
-                <option value=""><?=_("Choose a category...")?></option>
+<h1 id="title"><?=_("Batch Processing")?></h1>
+<div id="batch-container">
+  <fieldset id="batch-chooser">
+    <legend><?=_("1. Choose people/orgs")?></legend>
+    <div class="batch-search-section">
+      <label><?=_("Category")?>:
+        <select id="catlist" size="1">
+          <option value=""><?=_("Choose a category...")?></option>
 <?php
-//get category list from database and fill rest of select box
 $sql = "SELECT * FROM category ORDER BY Category";
 $result = sqlquery_checked($sql);
-while ($cat = mysqli_fetch_object($result)) {
-  echo "                <option value=\"$cat->CategoryID\">$cat->Category</option>\n";
+while ($row = mysqli_fetch_object($result)) {
+    echo "          <option value=\"$row->CategoryID\">".d2h($row->Category)."</option>\n";
 }
 ?>
-                <option value="all"><?=_("All Categories")?></option>
-                </select><br /><font size=2 color=red><?=_("Highlight and press > or
-                select all with >>")?></font></td>
-            </tr>
-            <tr height="35">
-              <td height="35"><select style="width:220px;" name="choices" size="15" multiple></select></td>
-              <td align="center" height="35">
-                <img onclick="move(1,0);" src="graphics/right.gif" alt="add selected people" name="add" border="0"><br>
-                <img onclick="move(1,1);" src="graphics/right_double.gif" alt="add all people" name="add_all" border="0"><br>
-                <img onclick="move(0,0);" src="graphics/left.gif" alt="remove selected people" name="remove" border="0"><br>
-                <img onclick="move(0,1);" src="graphics/left_double.gif" alt="remove all people" name="remove_all" border="0">
-              </td>
-              <td align="center" height="35">
-                <select style="width:220px;" id="selection" name="selection" size="15" multiple><?=$presel_html?></select>
-              </td>
-            </tr>
-          </table>
-        </form>
-      </td>
-      <td valign="top">
-        <form action="blank.php" method="post" name="sform" id="sform" target="ActionFrame">
-          <input type="hidden" name="pid_list" value="" border="0" />
-          <b><?=sprintf(_("%s Entries Selected"),"<span id=\"selection_count\">$presel_num</span>")?></b><br />
-          <b><?=_("Choose an Action:")?></b><br />
-          <div class="buttongroup">
-            <h3><?=_("Batch Data Entry")?></h3>
-            <input type="submit" name="ms_attendance" value="<?=_("Record Attendance")?>" border="0"
-                onclick="document.sform.action='ms_attendance.php';">
-            <input type="submit" name="ms_actions" value="<?=_("Add a Action for All")?>" border="0"
-                onclick="document.sform.action='ms_action.php';">
-            <input type="submit" name="ms_category" value="<?=_("Add All to a Category")?>" border="0"
-                onclick="document.sform.action='ms_category.php';">
-            <input type="submit" name="ms_cat_remove" value="<?=_("Remove All from a Category")?>" border="0"
-                onclick="document.sform.action='ms_cat_remove.php';">
-            <input type="submit" name="ms_organization" value="<?=_("Connect All to an Organization")?>" border="0"
-                onclick="document.sform.action='ms_organization.php';">
-          </div>
-          <div class="buttongroup">
-            <h3><?=_("Reports")?></h3>
-            <input type="submit" name="ms_person_text" value="<?=_("Person Info (Text)")?>"
-                border="0" onclick="document.sform.action='ms_person_text.php';">
-            <input type="submit" name="ms_custom" value="<?=_("Custom Report")?>"
-                border="0" onclick="document.sform.action='ms_custom.php';">
-            <input type="submit" name="ms_person_xml" value="<?=_("Person Info (XML)")?>"
-                border="0" onclick="document.sform.action='ms_person_xml.php';">
-            <input type="submit" name="ms_person_format" value="<?=_("Person Info (Formatted)")?>"
-                border="0" onclick="document.sform.action='ms_person_format.php';">
-            <input type="submit" name="ms_household_text" value="<?=_("Household Info (Text)")?>"
-                border="0" onclick="document.sform.action='ms_household_text.php';">
-            <input type="submit" name="ms_household_format" value="<?=_("Household Info (Formatted)")?>"
-                border="0" onclick="document.sform.action='ms_household_format.php';">
-            <input type="submit" name="ms_overview" value="<?=_("Overview Pages")?>"
-                border="0" onclick="document.sform.action='ms_overview.php';">
-          </div>
-          <div class="buttongroup">
-            <h3><?=_("Basket")?> (<span class="basketcount"><?=count($_SESSION['basket'])?></span>)</h3>
-            <button type="button" id="basket-add"><?=_("Add to Basket")?></button>
-            <button type="button" id="basket-rem"><?=_("Remove from Basket")?></button>
-            <button type="button" id="basket-set"><?=_("Set Basket to these only")?></button>
-          </div>
-          <div class="buttongroup">
-            <h3><?=_("Specialized Output")?></h3>
-            <input type="submit" name="ms_label" value="<?=_("Print Labels")?>" border="0"
-                onclick="document.sform.action='ms_label.php';document.sform.target='ActionFrame';">
-            <input type="submit" name="ms_printaddr" value="<?=_("Print Envelopes/Postcards")?>" border="0"
-                onclick="document.sform.action='ms_printaddr.php';document.sform.target='ActionFrame';">
-            <input type="submit" name="ms_photos" value="<?=_("Print Photos")?>" border="0"
-                onclick="document.sform.action='ms_photos.php';document.sform.target='ActionFrame';">
-            <input type="submit" name="ms_email" value="<?=_("Prepare Email")?>" border="0"
-                onclick="document.sform.action='ms_email.php';document.sform.target='ActionFrame';">
-          </div>
-        </form>
-      </td>
-    </tr>
-  </table>
-<iframe name="ActionFrame" style="width:100%;height:400px" src="blank.php">
-</iframe>
+        </select>
+      </label>
+    </div>
+    <div class="batch-search-section">
+      <label><?=_("Search by name")?>:
+        <input type="text" id="batch-search-text" maxlength="50" style="width:12em">
+      </label>
+      <button id="text-search"><?=_("Search")?></button>
+      <div class="comment"><?=_("To add or remove individual items, click a name to highlight and/or use Ctrl/Cmd or Shift while ".
+          "clicking to highlight additional names, then click <strong>&gt;</strong> or <strong>&lt;</strong>. ".
+          "To add/remove all, click <strong>&gt;&gt;</strong> or <strong>&lt;&lt;</strong>.")?></div>
+    </div>
+    <div id="shuttle">
+      <div class="select-block">
+        <h4><?=_("Available")?> (<span id="avail_count">0</span>)</h4>
+        <select id="available" multiple></select>
+      </div>
+      <div id="shuttle-btns">
+        <button id="add-sel">&gt;</button>
+        <button id="add-all">&gt;&gt;</button>
+        <button id="rem-sel">&lt;</button>
+        <button id="rem-all">&lt;&lt;</button>
+      </div>
+      <div class="select-block">
+        <h4><?=_("Selected")?> (<span id="selected_count">0</span>)</h4>
+        <select id="selected" multiple></select>
+      </div>
+    </div>
+  </fieldset>
+  <fieldset id="batch-actions">
+    <legend><?=_("2. Choose batch actions")?></legend>
+    <div class="buttongroup">
+      <h3><?=_("Batch Data Entry")?></h3>
+      <button class="action-btn" data-url="batch_attendance.php"><?=_("Record Attendance")?></button>
+      <button class="action-btn" data-url="batch_action.php"><?=_("Add an Action for All")?></button>
+      <button class="action-btn" data-url="batch_category.php"><?=_("Add All to a Category")?></button>
+      <button class="action-btn" data-url="batch_cat_remove.php"><?=_("Remove All from a Category")?></button>
+      <button class="action-btn" data-url="batch_organization.php"><?=_("Connect All to an Organization")?></button>
+    </div>
+    <div class="buttongroup">
+      <h3><?=_("Reports")?></h3>
+      <button class="action-btn" data-url="batch_person_text.php"><?=_("Person Info (Text)")?></button>
+      <button class="action-btn" data-url="batch_custom.php"><?=_("Custom Report")?></button>
+      <button class="action-btn" data-url="batch_person_xml.php"><?=_("Person Info (XML)")?></button>
+      <button class="action-btn" data-url="batch_person_format.php"><?=_("Person Info (Formatted)")?></button>
+      <button class="action-btn" data-url="batch_household_text.php"><?=_("Household Info (Text)")?></button>
+      <button class="action-btn" data-url="batch_household_format.php"><?=_("Household Info (Formatted)")?></button>
+      <button class="action-btn" data-url="batch_overview.php"><?=_("Overview Pages")?></button>
+    </div>
+    <div class="buttongroup">
+      <h3><?=_("Basket")?></h3>
+      <button type="button" id="basket-add"><?=_("Add to Basket")?></button>
+      <button type="button" id="basket-rem"><?=_("Remove from Basket")?></button>
+      <button type="button" id="basket-set"><?=_("Set Basket to these only")?></button>
+    </div>
+    <div class="buttongroup">
+      <h3><?=_("Specialized Output")?></h3>
+      <button class="action-btn" data-url="batch_label.php"><?=_("Print Labels")?></button>
+      <button class="action-btn" data-url="batch_printaddr.php"><?=_("Print Envelopes/Postcards")?></button>
+      <button class="action-btn" data-url="batch_photos.php"><?=_("Print Photos")?></button>
+      <button class="action-btn" data-url="batch_email.php"><?=_("Prepare Email")?></button>
+    </div>
+  </fieldset>
+</div>
+<div id="ResultFrame"></div>
 
 <script>
 $(document).ready(function(){
 
-  $("#sform").find(":submit").click(function(e) {
-//    e.preventDefault();
-    document.sform.pid_list.value = "";
-    for (var array_index = 0; array_index < ar.length; array_index++) {
-      if (ar[array_index][sel]) {
-        if (document.sform.pid_list.value == "") {
-          document.sform.pid_list.value = ar[array_index][pid];
-        } else {
-          document.sform.pid_list.value = document.sform.pid_list.value + "," + ar[array_index][pid];
-        }
-      }
-    }
-    if (document.sform.pid_list.value == "") {
-      alert('<?=_("Please select at least one person/org.")?>');
-      e.preventDefault();
-    }
+  var currentResults = [];
+  var selected = <?=$preselected_js?>;
+
+  // Initialize selected display
+  rebuildSelected();
+
+  // Apply jQuery UI button styling
+  $("#shuttle-btns button, .action-btn, #basket-add, #basket-rem, #basket-set").button();
+
+  // Load available box by category — auto-trigger on change, no Load button
+  $("#catlist").on("change", function() {
+    var catid = $(this).val();
+    if (!catid) { currentResults = []; rebuildAvail(); return; }
+    $("#batch-search-text").val("");
+    $.getJSON("ajax_request.php", {req: "BatchPersonSearch", catid: catid}, populateAvail);
   });
-});
-var cat_regexp = new RegExp(",0,");
 
-function new_cat() {
-  empty(document.cform.choices);
-  var catid = document.cform.catlist.options[document.cform.catlist.selectedIndex].value;
-  cat_regexp.compile(","+catid+",")
-  var list_index = 0;
-  for (var array_index = 0; array_index < ar.length; array_index++) {
-    if ((catid == "all") || (cat_regexp.test(ar[array_index][cat]))) {
-      ar[array_index][choice] = 1;
-      if (!ar[array_index][sel]) {
-        document.cform.choices.options[list_index] = new Option(ar[array_index][name], array_index);
-        list_index++;
+  // Load available box by text search
+  function doTextSearch() {
+    var q = $.trim($("#batch-search-text").val());
+    if (q.length < 2) { alert("<?=_("Please enter at least 2 characters to search.")?>"); return; }
+    $("#catlist").val("");
+    $.getJSON("ajax_request.php", {req: "BatchPersonSearch", q: q}, populateAvail);
+  }
+  $("#batch-search-text").on("keydown", function(e) {
+    if (e.which === 13) { e.preventDefault(); doTextSearch(); }
+  });
+  $("#text-search").on("click", doTextSearch);
+
+  function populateAvail(data) {
+    if (data.alert) { alert(data.alert); return; }
+    currentResults = data.results || [];
+    rebuildAvail();
+  }
+
+  function rebuildAvail() {
+    var selPids = selected.map(function(x){ return x.pid; });
+    $("#available").empty();
+    $.each(currentResults, function(i, item) {
+      if (selPids.indexOf(item.pid) === -1) {
+        $("#available").append($("<option>").val(item.pid).text(item.name));
       }
-    } else {
-      ar[array_index][choice] = 0;
-    }
+    });
+    $("#avail_count").text($("#available option").length);
   }
-}
 
-function move(add_flag, all_flag) {
-//add_flag is 1 for add, 0 for remove
-//all_flag is 1 if double arrow was clicked
-  from = (add_flag ? document.cform.choices : document.cform.selection);
-//update array to show new status for for selected items
-  for(var i = 0; i < from.length; i++) {
-    if(all_flag || from.options[i].selected) {
-      ar[from.options[i].value][sel] = add_flag;
-    }
+  function rebuildSelected() {
+    var prevSelected = $("#selected option:selected").map(function(){ return parseInt($(this).val()); }).get();
+    $("#selected").empty();
+    $.each(selected, function(i, item) {
+      var opt = $("<option>").val(item.pid).text(item.name);
+      if (prevSelected.indexOf(item.pid) !== -1) opt.prop("selected", true);
+      $("#selected").append(opt);
+    });
+    updateCount();
   }
-  empty(document.cform.choices);
-  empty(document.cform.selection);
-  var n_index = 0;
-  var s_index = 0;
-  for (var array_index = 0; array_index < ar.length; array_index++) {
-    if (ar[array_index][sel]) {
-      document.cform.selection.options[s_index] = new Option(ar[array_index][name], array_index);
-      s_index++;
-    } else if (ar[array_index][choice]) {
-      document.cform.choices.options[n_index] = new Option(ar[array_index][name], array_index);
-      n_index++;
-    }
-  }
-  $('#selection_count').text($('#selection option').length);
-  parent.ActionFrame.location.href="blank.php";
-}
 
-function empty(list) {
-   for (var i = list.length-1; i >= 0; i--) {
-     list.options[i] = null;
-   }
-}
+  function updateCount() {
+    $("#selected_count").text(selected.length);
+  }
 
-function make_list() {
-  document.sform.pid_list.value = "";
-  for (var array_index = 0; array_index < ar.length; array_index++) {
-    if (ar[array_index][sel]) {
-      if (document.sform.pid_list.value == "") {
-        document.sform.pid_list.value = ar[array_index][pid];
-      } else {
-        document.sform.pid_list.value = document.sform.pid_list.value + "," + ar[array_index][pid];
-      }
-    }
+  function clearResultFrame() {
+    $("#ResultFrame").empty();
   }
-  if (document.sform.pid_list.value == "") {
-    alert('<?=_("Please select at least one person/org.")?>');
-    return false;
-  }
-}
 
-// Basket functionality - get comma-separated list of selected PIDs
-function get_selected_pids() {
-  var pids = "";
-  for (var array_index = 0; array_index < ar.length; array_index++) {
-    if (ar[array_index][sel]) {
-      pids += (pids == "" ? "" : ",") + ar[array_index][pid];
-    }
-  }
-  return pids;
-}
+  // Shuttle: add highlighted items
+  $("#add-sel").on("click", function() {
+    $("#available option:selected").each(function() {
+      selected.push({pid: parseInt($(this).val()), name: $(this).text()});
+    });
+    rebuildAvail();
+    rebuildSelected();
+    clearResultFrame();
+  });
 
-// Basket button click handlers
-$("#basket-add").click(function() {
-  var pids = get_selected_pids();
-  if (pids == "") {
-    alert('<?=_("Please select at least one person/org.")?>');
-    return;
-  }
-  $.post("basket.php", { add: pids }, function(r) {
-    if (!isNaN(r)) {
-      $('span.basketcount').html(r);
-    } else { alert(r); }
-  }, "text");
-});
+  // Shuttle: add all items
+  $("#add-all").on("click", function() {
+    $("#available option").each(function() {
+      selected.push({pid: parseInt($(this).val()), name: $(this).text()});
+    });
+    rebuildAvail();
+    rebuildSelected();
+    clearResultFrame();
+  });
 
-$("#basket-rem").click(function() {
-  var pids = get_selected_pids();
-  if (pids == "") {
-    alert('<?=_("Please select at least one person/org.")?>');
-    return;
-  }
-  $.post("basket.php", { rem: pids }, function(r) {
-    if (!isNaN(r)) {
-      $('span.basketcount').html(r);
-    } else { alert(r); }
-  }, "text");
-});
+  // Shuttle: remove highlighted from selected box
+  $("#rem-sel").on("click", function() {
+    var toRemove = $("#selected option:selected").map(function(){ return parseInt($(this).val()); }).get();
+    selected = selected.filter(function(x){ return toRemove.indexOf(x.pid) === -1; });
+    rebuildAvail();
+    rebuildSelected();
+    clearResultFrame();
+  });
 
-$("#basket-set").click(function() {
-  var pids = get_selected_pids();
-  if (pids == "") {
-    alert('<?=_("Please select at least one person/org.")?>');
-    return;
+  // Shuttle: remove all from selected box
+  $("#rem-all").on("click", function() {
+    selected = [];
+    rebuildAvail();
+    rebuildSelected();
+    clearResultFrame();
+  });
+
+  // Action buttons: load batch_*.php into #ResultFrame
+  $(".action-btn").on("click", function() {
+    if (!selected.length) { alert("<?=_("Please select at least one person/org.")?>"); return; }
+    var pids = selected.map(function(x){ return x.pid; }).join(",");
+    var url = $(this).data("url");
+    $("#ResultFrame").html("<p><?=_("Loading...")?></p>");
+    $.post(url, {pid_list: pids, ajax: 1}, function(r) {
+      $("#ResultFrame").html(r);
+    });
+  });
+
+  // Event delegation: re-submit forms loaded into #ResultFrame
+  $("#ResultFrame").on("submit", "form", function(e) {
+    var target = $(this).attr("target") || "";
+    if (target === "_blank" || target === "_top") return;
+    e.preventDefault();
+    var url = $(this).attr("action");
+    var data = $(this).serialize() + "&ajax=1";
+    $.post(url, data, function(r) { $("#ResultFrame").html(r); });
+  });
+
+  // Basket buttons
+  function getSelectedPids() {
+    return selected.map(function(x){ return x.pid; }).join(",");
   }
-  $.post("basket.php", { set: pids }, function(r) {
-    if (!isNaN(r)) {
-      $('span.basketcount').html(r);
-    } else { alert(r); }
-  }, "text");
+
+  $("#basket-add").on("click", function() {
+    var pids = getSelectedPids();
+    if (!pids) { alert("<?=_("Please select at least one person/org.")?>"); return; }
+    $.post("basket.php", { add: pids }, function(r) {
+      if (!isNaN(r)) { $('span.basketcount').html(r); } else { alert(r); }
+    }, "text");
+  });
+
+  $("#basket-rem").on("click", function() {
+    var pids = getSelectedPids();
+    if (!pids) { alert("<?=_("Please select at least one person/org.")?>"); return; }
+    $.post("basket.php", { rem: pids }, function(r) {
+      if (!isNaN(r)) { $('span.basketcount').html(r); } else { alert(r); }
+    }, "text");
+  });
+
+  $("#basket-set").on("click", function() {
+    var pids = getSelectedPids();
+    if (!pids) { alert("<?=_("Please select at least one person/org.")?>"); return; }
+    $.post("basket.php", { set: pids }, function(r) {
+      if (!isNaN(r)) { $('span.basketcount').html(r); } else { alert(r); }
+    }, "text");
+  });
+
 });
 </script>
 <?php footer(); ?>

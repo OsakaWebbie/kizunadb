@@ -1,11 +1,15 @@
 <?php
 include("functions.php");
 include("accesscontrol.php");
-header1("");
+$ajax = !empty($_REQUEST['ajax']);
+
+if (!$ajax) header1(_("Add an Action for All"));
+if (!$ajax) {
 ?>
 <link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
 <?php
-header2(0);
+}
+if (!$ajax) header2(0);
 
 if (!empty($_POST['save_action'])) {
   $pid_array = explode(",",$pid_list);
@@ -45,7 +49,7 @@ if (!empty($_POST['save_action'])) {
     $tempresult = sqlquery_checked($sql);
     $temprow = mysqli_fetch_object($tempresult);
 ?>
-<form action="<?=$_SERVER['PHP_SELF']?>" method="post" name="confirmform" target="_self">
+<form action="<?=$_SERVER['PHP_SELF']?>" method="post" name="confirmform">
 <input type="hidden" name="pid_list" value="<?=$prev_pidlist?>">
 <input type="hidden" name="atid" value="<?=$atid?>">
 <input type="hidden" name="adate" value="<?=$adate?>">
@@ -58,11 +62,12 @@ if (!empty($_POST['save_action'])) {
     echo _('(You can click on a name to view their individual info - it will open in a new window/tab.)');
     echo '<table><tr><th>'._('Name').'</th><th>'._('Description')."</th></tr>\n".$prev_info."</table>\n";
   }
+  if (!$ajax) footer();
   exit;
 }
 ?>
   <h3><?=_('Choose action type and date, and fill in a description if desired:')?></h3>
-  <form action="<?=$_SERVER['PHP_SELF']?>" method="post" name="actionform" target="_self" onsubmit="return validate();">
+  <form action="<?=$_SERVER['PHP_SELF']?>" method="post" name="actionform" onsubmit="return validate();">
     <input type="hidden" name="pid_list" value="<?=$pid_list?>">
     <label class="label-n-input"><?=_("Action Type")?>: <select id="atid" name="atid" size="1">
       <option value="" selected>Please select...</option>
@@ -81,9 +86,9 @@ while ($row = mysqli_fetch_object($result)) {
 <?php
 $scripts = ['jquery', 'jqueryui'];
 if ($_SESSION['lang']=="ja_JP") $scripts[] = 'datepicker-ja';
-load_scripts($scripts);
+if (!$ajax) load_scripts($scripts);
 ?>
-<script type="text/JavaScript">
+<script>
 $(document).ready(function(){
   $(document).ajaxError(function(e, xhr, settings, exception) {
     alert('Error calling ' + settings.url + ': ' + exception);
@@ -111,5 +116,4 @@ function validate() {
   }
 }
 </script>
-<?php footer();
-?>
+<?php if (!$ajax) footer(); ?>
