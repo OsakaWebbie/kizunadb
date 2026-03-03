@@ -241,12 +241,22 @@ $(document).ready(function(){
   });
 
   // Event delegation: re-submit forms loaded into #ResultFrame
+  // Track which submit button was clicked (jQuery .serialize() omits submit buttons)
+  var submittedBtn = null;
+  $("#ResultFrame").on("click", "input[type=submit], button[type=submit]", function() {
+    submittedBtn = this;
+  });
   $("#ResultFrame").on("submit", "form", function(e) {
     var target = $(this).attr("target") || "";
     if (target === "_blank" || target === "_top") return;
     e.preventDefault();
     var url = $(this).attr("action");
-    var data = $(this).serialize() + "&ajax=1";
+    var data = $(this).serialize();
+    if (submittedBtn && submittedBtn.name) {
+      data += "&" + encodeURIComponent(submittedBtn.name) + "=" + encodeURIComponent(submittedBtn.value);
+    }
+    submittedBtn = null;
+    data += "&ajax=1";
     $.post(url, data, function(r) { $("#ResultFrame").html(r); });
   });
 

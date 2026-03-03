@@ -45,8 +45,8 @@ $num_households = $row->num;
 <form action="print_addr.php" method="post" name="optionsform" target="_blank" style="text-align:left">
   <input type="hidden" name="pid_list" value="<?=$pid_list?>">
   <div style="display:inline-block;vertical-align:middle;margin:0 2em">
-    <label><input type="radio" name="name_type" value="ind" tabindex="1"><?=_("Individuals")." (".$num_individuals.")"?></label><br />
-    <label><input type="radio" name="name_type" value="label" checked><?=_("Households")." (".$num_households.")"?></label>
+    <label class="label-n-input"><input type="radio" name="name_type" value="ind" tabindex="1"><?=_("Individuals")." (".$num_individuals.")"?></label><br />
+    <label class="label-n-input"><input type="radio" name="name_type" value="label" checked><?=_("Households")." (".$num_households.")"?></label>
   </div>
   <div style="display:inline-block;vertical-align:middle">
     <label class="label-n-input"><?=_("Envelope/Postcard Format")?>: <select id="addrprint-select" name="addr_print_name" size="1">
@@ -64,11 +64,11 @@ while ($row = mysqli_fetch_object($result)) {
     </div>
     <div style="display:inline-block;vertical-align:middle;margin:0 2em">
       <h4><?=_("Post office stamp:")?></h4>
-      <label><input type="radio" name="po_stamp" value="none" checked><?=_("None")?></label><br />
-      <label><input type="radio" name="po_stamp" value="betsunou"><?=_("Standard mail")?></label><br />
-      <label><input type="radio" name="po_stamp" value="yuumail_betsunou"><?=_("'Yuu-mail'")?></label><br />
-      <label><input type="radio" name="po_stamp" value="kounou"><?=_("Standard mail w/ contract")?></label><br />
-      <label><input type="radio" name="po_stamp" value="yuumail_kounou"><?=_("'Yuu-mail' w/ contract")?></label>
+      <label class="label-n-input"><input type="radio" name="po_stamp" value="none" checked><?=_("None")?></label><br />
+      <label class="label-n-input"><input type="radio" name="po_stamp" value="betsunou"><?=_("Standard mail")?></label><br />
+      <label class="label-n-input"><input type="radio" name="po_stamp" value="yuumail_betsunou"><?=_("'Yuu-mail'")?></label><br />
+      <label class="label-n-input"><input type="radio" name="po_stamp" value="kounou"><?=_("Standard mail w/ contract")?></label><br />
+      <label class="label-n-input"><input type="radio" name="po_stamp" value="yuumail_kounou"><?=_("'Yuu-mail' w/ contract")?></label>
     </div>
   </div>
   <input type="submit" name="submit" value="<?=_("Make PDF")?>">
@@ -78,7 +78,8 @@ while ($row = mysqli_fetch_object($result)) {
 if (!$ajax) load_scripts(['jquery', 'jqueryui']);
 ?>
 <script>
-$(document).ready(function() {
+$(document).ready(function(){
+  $("input[type=submit]").button();
   $('#addrprint-select').change(function() {
     $('#kanji_numbers').prop('checked',$('#addrprint-select option:selected').data("kanjinumbers")==1);
     $('input[type="radio"][name=po_stamp]').filter('[value='+$('#addrprint-select option:selected').data("stamp")+']').prop('checked', true);

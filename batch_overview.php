@@ -8,24 +8,27 @@ if (!$ajax) {
   header2(0);
 }
 ?>
-    <h3><font color="#8b4513">Besides basic info, include:</font></h3>
-    <form action="overview.php" method="post" name="overviewform" target="_blank">
-      <input type="hidden" name="pid_list" value="<?=$pid_list?>">
-      <table width="642" border="0" cellspacing="0" cellpadding="5">
-        <tr>
-          <td>
-            <input type="checkbox" name="categories" checked>Categories
-            <br><input type="checkbox" name="household" checked>Household member table
-            <br><input type="checkbox" name="actions" checked>Actions:
-            &nbsp;<input type="radio" name="action_types" value="key" checked>only first, last, & key (colored) ones, or
-            <input type="radio" name="action_types" value="all">all actions
-            <br><input type="checkbox" name="attendance" checked>Event attendance
-<?php if ($_SESSION['donations'] == "yes") echo "            <br><input type=\"checkbox\" name=\"donations\" checked>Donations & Pledges\n"; ?>
-            <br>Between each person: <input type="radio" name="break" value="page" checked>page break
-            <input type="radio" name="break" value="line">just a line
-          </td>
-          <td><input type="submit" name="submit" value="Make Overview Pages"></td>
-        </tr>
-      </table>
-    </form>
+<h3><?=_("Besides basic info, include:")?></h3>
+<form action="overview.php" method="post" name="overviewform" target="_blank">
+  <input type="hidden" name="pid_list" value="<?=$pid_list?>">
+  <div>
+    <label class="label-n-input"><input type="checkbox" name="categories" checked><?=_("Categories")?></label><br>
+    <label class="label-n-input"><input type="checkbox" name="household" checked><?=_("Household member table")?></label><br>
+    <label class="label-n-input"><input type="checkbox" name="actions" checked><?=_("Actions:")?></label>
+    &nbsp;<label class="label-n-input"><input type="radio" name="action_types" value="key" checked><?=_("only first, last, &amp; key (colored) ones")?></label>,
+    <?=_("or")?> <label class="label-n-input"><input type="radio" name="action_types" value="all"><?=_("all actions")?></label><br>
+    <label class="label-n-input"><input type="checkbox" name="attendance" checked><?=_("Event attendance")?></label><br>
+<?php if ($_SESSION['donations'] == "yes"): ?>
+    <label class="label-n-input"><input type="checkbox" name="donations" checked><?=_("Donations &amp; Pledges")?></label><br>
+<?php endif; ?>
+    <?=_("Between each person:")?> <label class="label-n-input"><input type="radio" name="break" value="page" checked><?=_("page break")?></label>
+    <label class="label-n-input"><input type="radio" name="break" value="line"><?=_("just a line")?></label><br>
+    <br>
+    <input type="submit" name="submit" value="<?=_("Make Overview Pages")?>">
+  </div>
+</form>
+<?php if (!$ajax) load_scripts(['jquery', 'jqueryui']); ?>
+<script>
+$(function(){ $("input[type=submit]").button(); });
+</script>
 <?php if (!$ajax) footer(); ?>

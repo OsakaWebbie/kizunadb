@@ -8,5 +8,5 @@ if (!$ajax) {
   header2(0);
 }
 ?>
-        <div align=center>&nbsp;<br>&nbsp;<br>Sorry, this is still under construction...</div>
+        <div style="text-align:center">&nbsp;<br>&nbsp;<br>Sorry, this is still under construction...</div>
 <?php if (!$ajax) footer(); ?>

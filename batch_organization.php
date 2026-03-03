@@ -33,7 +33,7 @@ echo "<p style=\"margin-bottom:10px\">"._("NOTE: A leader cannot be designated h
 ?>
 <form name="orgform" id="orgform" method="POST" action="<?=$_SERVER['PHP_SELF']?>" onSubmit="return ValidateOrg()">
 <input type="hidden" name="pid_list" value="<?=$pid_list?>" />
-<?=_("Organization ID")?>: <input type="text" name="orgid" id="orgid" style="width:5em;ime-mode:disabled" value="" />
+<label class="label-n-input"><?=_("Organization ID")?>: <input type="text" name="orgid" id="orgid" style="width:5em;ime-mode:disabled" value=""></label>
 <span id="orgname" style="color:darkred;font-weight:bold"></span><br />
 (<label for="orgsearchtxt"><?=_("Search")?>: </label><input type="text" name="orgsearchtxt" id="orgsearchtxt" style="width:10em" value="">
 <input type="button" value="<?=_("Search")."/"._("Browse")?>"
@@ -47,6 +47,7 @@ if (!$ajax) load_scripts(['jquery', 'jqueryui']);
 ?>
 <script>
 $(document).ready(function(){
+  $("input[type=submit], input[type=button]").button();
   $(document).ajaxError(function(e, xhr, settings, exception) {
     alert('Error calling ' + settings.url + ': ' + exception);
   });

@@ -113,6 +113,7 @@ if (!$ajax) load_scripts($scripts);
 ?>
 <script>
 $(document).ready(function(){
+  $("input[type=submit]").button();
   $(document).ajaxError(function(e, xhr, settings, exception) {
     alert('Error calling ' + settings.url + ': ' + exception);
   });

@@ -46,8 +46,8 @@ function validate() {
   <form action="<?=$_SERVER['PHP_SELF']?>" method="post" name="catform" onsubmit="return validate();">
     <input type="hidden" name="pid_list" value="<?=$_POST['pid_list']?>">
     <div>
-      <label>Category: <select name="cat_id" size="1">
-        <option value="" selected>Select a category...</option>
+      <label class="label-n-input"><?=_("Category")?>: <select name="cat_id" size="1">
+        <option value="" selected><?=_("Select a category...")?></option>
 <?php
 $result = sqlquery_checked("SELECT * FROM category ORDER BY Category");
 while ($row = mysqli_fetch_object($result)) {
@@ -61,4 +61,8 @@ while ($row = mysqli_fetch_object($result)) {
       <input type="submit" name="save_cat" value="<?=_('Save To This Category')?>">
     </div>
   </form>
+<?php if (!$ajax) load_scripts(['jquery', 'jqueryui']); ?>
+<script>
+$(function(){ $("input[type=submit]").button(); });
+</script>
 <?php if (!$ajax) footer(); ?>

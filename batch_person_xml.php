@@ -9,11 +9,12 @@ if (!$ajax) {
 <meta http-equiv="expires" content="0">
 <link rel="stylesheet" href="style.php" type="text/css" />
 <?php
-  load_scripts(['jquery']);
+  load_scripts(['jquery', 'jqueryui']);
 }
 ?>
 <script>
 $(document).ready(function(){
+  $("button").button();
   $("select[id^=field]").change(function() {
     var number = $(this).attr("id").substr(5,2);
     $("[id$=span"+number+"]").hide();

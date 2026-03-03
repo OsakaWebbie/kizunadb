@@ -45,8 +45,8 @@ $num_households = $row->num;
     <form action="print_label.php" method="post" name="optionsform" target="_blank" style="text-align:left">
       <input type="hidden" name="pid_list" value="<?=$pid_list?>">
       <div style="display:inline-block;vertical-align:middle;margin:0 2em">
-        <input type="radio" name="name_type" value="ind" tabindex="1"><?=_("Individuals")." (".$num_individuals.")"?><br />
-        <input type="radio" name="name_type" value="label" checked><?=_("Households")." (".$num_households.")"?>
+        <label class="label-n-input"><input type="radio" name="name_type" value="ind" tabindex="1"><?=_("Individuals")." (".$num_individuals.")"?></label><br>
+        <label class="label-n-input"><input type="radio" name="name_type" value="label" checked><?=_("Households")." (".$num_households.")"?></label>
       </div>
       <div style="display:inline-block;vertical-align:middle">
         <label class="label-n-input"><?=_("Label Type")?>: <select name="label_type" size="1">
@@ -63,9 +63,8 @@ while ($row = mysqli_fetch_object($result)) {
       <input type="submit" name="submit" value="<?=_("Make PDF")?>">
     </form>
 
-<?php
-if (!$ajax) {
-  load_scripts(['jquery', 'jqueryui']);
-  footer();
-}
-?>
+<?php if (!$ajax) load_scripts(['jquery', 'jqueryui']); ?>
+<script>
+$(function(){ $("input[type=submit]").button(); });
+</script>
+<?php if (!$ajax) footer(); ?>

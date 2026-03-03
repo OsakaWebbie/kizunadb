@@ -22,4 +22,8 @@ while ($row = mysqli_fetch_object($result)) {
       </select></label>
       <input type="submit" name="submit" value="<?=_("Make Report")?>">
     </form>
+<?php if (!$ajax) load_scripts(['jquery', 'jqueryui']); ?>
+<script>
+$(function(){ $("input[type=submit]").button(); });
+</script>
 <?php if (!$ajax) footer(); ?>

@@ -8,11 +8,14 @@ if (!$ajax) {
   header2(0);
 }
 
-if ($submit) {
+if (!empty($submit)) {
   $sql = "SELECT FullName,Furigana,Email FROM person WHERE PersonID IN (".$pid_list.") ORDER BY Furigana";
   $result = sqlquery_checked($sql);
   $num_selected = mysqli_num_rows($result);
-
+  $dup_list = "";
+  $num_dup = 0;
+  $num_used = 0;
+  $url = "";
   while ($row = mysqli_fetch_object($result)) {
     if (($row->Email) && preg_match("/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i",$row->Email)) {
       if (preg_match("/^".$row->Email.";/i", $addr_list) || strpos(";".$row->Email.";", $addr_list)) {
@@ -43,25 +46,22 @@ if ($submit) {
   if (!$ajax) footer();
   exit;
 }
-
 ?>
-
-    <center><h3><font color="#8b4513">Select where you want the email addresses and click the button...</font></h3>
-    <form action="<?=$_SERVER['PHP_SELF']?>" method="post" name="optionsform">
-      <input type="hidden" name="pid_list" value="<?=$pid_list?>">
-      <table border="0" cellspacing="0" cellpadding="10">
-        <tr>
-          <td><input type="radio" name="field" value="to" checked tabindex="1">TO<br>
-            <input type="radio" name="field" value="cc">CC<br>
-            <input type="radio" name="field" value="bcc">BCC</td>
-            <td>(For large lists, it is courteous to use BCC and<br>
-               put your own address in TO. But I can't get this<br>
-               code to talk correctly with some email software,<br>
-               so if you have trouble, select TO here and then<br>
-               change to BCC in the email window.)
-          </td>
-          <td><input type="submit" name="submit" value="Prepare Email Window"></td>
-        </tr>
-      </table>
-    </form></center>
+<h3><?=_("Select where you want the email addresses and click the button...")?></h3>
+<form action="<?=$_SERVER['PHP_SELF']?>" method="post" name="optionsform">
+  <input type="hidden" name="pid_list" value="<?=$pid_list?>">
+  <div style="display:flex; flex-wrap:wrap; gap:1em; align-items:flex-start;">
+    <div>
+      <label class="label-n-input"><input type="radio" name="field" value="to" checked>TO</label><br>
+      <label class="label-n-input"><input type="radio" name="field" value="cc">CC</label><br>
+      <label class="label-n-input"><input type="radio" name="field" value="bcc">BCC</label>
+    </div>
+    <div class="comment"><?=_("For large lists, it is courteous to use BCC and put your own address in TO. However, some email software may not handle this correctly, so if you have trouble, select TO here and change to BCC in the email window.")?></div>
+    <input type="submit" name="submit" value="<?=_("Prepare Email Window")?>">
+  </div>
+</form>
+<?php if (!$ajax) load_scripts(['jquery', 'jqueryui']); ?>
+<script>
+$(function(){ $("input[type=submit]").button(); });
+</script>
 <?php if (!$ajax) footer(); ?>

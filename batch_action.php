@@ -90,6 +90,7 @@ if (!$ajax) load_scripts($scripts);
 ?>
 <script>
 $(document).ready(function(){
+  $("input[type=submit]").button();
   $(document).ajaxError(function(e, xhr, settings, exception) {
     alert('Error calling ' + settings.url + ': ' + exception);
   });
@@ -109,7 +110,7 @@ $(document).ready(function(){
 function validate() {
 //Make sure a action type is selected
   if (document.actionform.atid.value == "") {
-    alert("<?=_("Please select a Action Type.")?>");
+    alert("<?=_("Please select an Action Type.")?>");
     return false;
   } else {
     return true;

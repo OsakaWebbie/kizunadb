@@ -2,10 +2,10 @@
 include("functions.php");
 include("accesscontrol.php");
 if ($format == "xml") {
-  echo "<?xml version=\"1.0\" encoding=\"".$_SESSION['charset']."\" ?>\n<personlist>\n";
+  echo "<?xml version=\"1.0\" encoding=\"".'UTF-8'."\" ?>\n<personlist>\n";
 } elseif ($format == "html") {
   echo "<html><head>";
-  echo "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=".$_SESSION['charset']."\">\n";
+  echo "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=".'UTF-8'."\">\n";
   echo "<style type=\"text/css\">p {margin-bottom: 0; margin-top: 0;}</style>";
   echo "</head><body>";
 }
@@ -20,7 +20,7 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
     "WHERE PersonID=$pid_array[$pid_index] ORDER BY Furigana";
   $result = sqlquery_checked($sql);
   $row = mysqli_fetch_object($result);
-  if ($_POST['xml']) {
+  if (!empty($_POST['xml'])) {
     echo "<person>\n";
   }
   for ($i=1; $i<7; $i++) {
@@ -119,7 +119,7 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
         case "photo":
           if ($row->Photo) {
             $text = "photo.php?f=p".$pid_array[$pid_index];
-          } elseif ($_POST['include_empties']) {
+          } elseif (!empty($_POST['include_empties'])) {
             $text = "graphics/no_photo.jpg";
           }
           break;
@@ -144,7 +144,7 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
         default:
           $text = $row->{${"field".$i}};
       }  //end of switch statement
-      if ($text || $_POST['include_empties'] || $format == "tab") {
+      if ($text || !empty($_POST['include_empties']) || $format == "tab") {
         if ($format == "xml") {
           $text = str_replace("&","&amp;",$text);
           $text = str_replace("'","&apos;",$text);
@@ -157,7 +157,7 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
           $text = preg_replace("/\r\n|\n|\r/","<br>",$text);
           echo ($i == 1) ? $text : "\t".$text;
         } else {
-          if (${"field".$i} == "photo" && ($row->Photo || $_POST['include_empties'])) {
+          if (${"field".$i} == "photo" && ($row->Photo || !empty($_POST['include_empties']))) {
             $text = "<img width=\"150\" src=\"".$text."\" />";
           }
           $text = preg_replace("/\r\n|\n|\r/","<br>\n",$text);
