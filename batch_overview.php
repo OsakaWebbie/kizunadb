@@ -14,14 +14,14 @@ if (!$ajax) {
   <div>
     <label class="label-n-input"><input type="checkbox" name="categories" checked><?=_("Categories")?></label><br>
     <label class="label-n-input"><input type="checkbox" name="household" checked><?=_("Household member table")?></label><br>
-    <label class="label-n-input"><input type="checkbox" name="actions" checked><?=_("Actions:")?></label>
-    &nbsp;<label class="label-n-input"><input type="radio" name="action_types" value="key" checked><?=_("only first, last, &amp; key (colored) ones")?></label>,
+    <label class="label-n-input" style="margin-right:0"><input type="checkbox" name="actions" checked><?=_("Actions:")?></label>
+    &nbsp;<label class="label-n-input" style="margin-right:0"><input type="radio" name="action_types" value="key" checked><?=_("only first, last, &amp; key (colored) ones")?></label>,
     <?=_("or")?> <label class="label-n-input"><input type="radio" name="action_types" value="all"><?=_("all actions")?></label><br>
     <label class="label-n-input"><input type="checkbox" name="attendance" checked><?=_("Event attendance")?></label><br>
 <?php if ($_SESSION['donations'] == "yes"): ?>
     <label class="label-n-input"><input type="checkbox" name="donations" checked><?=_("Donations &amp; Pledges")?></label><br>
 <?php endif; ?>
-    <?=_("Between each person:")?> <label class="label-n-input"><input type="radio" name="break" value="page" checked><?=_("page break")?></label>
+    <?=_("Between each person:")?> <label class="label-n-input" style="margin-right:0"><input type="radio" name="break" value="page" checked><?=_("page break")?></label>
     <label class="label-n-input"><input type="radio" name="break" value="line"><?=_("just a line")?></label><br>
     <br>
     <input type="submit" name="submit" value="<?=_("Make Overview Pages")?>">

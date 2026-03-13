@@ -2,7 +2,7 @@
 include("functions.php");
 include("accesscontrol.php");
 echo "<html><head>";
-echo "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=".$_SESSION['charset']."\">\n";
+echo "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n";
 ?>
 <title>Multiple Person Overviews</title>
 <style>
@@ -14,10 +14,8 @@ h2.hhtitle, h2.contitle, h2.atttitle, h2.dontitle, h2.pltitle {
 table { border-collapse:collapse; empty-cells:show; border:2px solid black;}
 td, th { border:1px solid black; padding:2px 5px;}
 th { border-bottom:2px; background-color:#E0E0E0;}
-table.maininfo { border:0;}
-table.maininfo td { border:0; padding:0; font-size:11pt; vertical-align:top; }
-table.maininfo td.photocell { border:0; padding-right:15px;}
-table.maininfo td.photocell img { border:2px solid black; }
+div.maininfo { display:flex; gap:15px; align-items:flex-start; font-size:11pt; margin-bottom:4px; }
+div.maininfo img.photo { border:2px solid black; flex-shrink:0; }
 span.romajiaddr { font-style:italic; }
 p.cat { font-size:11pt; }
 span.label { font-weight:bold; }
@@ -46,11 +44,11 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
   $person = mysqli_fetch_object($result_per);
 
   echo "<div class=\"person\">\n";
-  echo "<table class=\"maininfo\"><tr>";
+  echo "<div class=\"maininfo\">";
   if ($person->Photo) {
-    echo "<td class=\"photocell\"><img class=\"photo\" src=\"photos/p".$person->PersonID.".jpg\" width=100></td>\n";
+    echo "<img class=\"photo\" src=\"photo.php?f=p".$person->PersonID."\" width='100' alt=''>\n";
   }
-  echo "<td>";
+  echo "<div>";
   echo "<h1 class=\"name\">".readable_name($person->FullName,$person->Furigana)."</h1>\n";
   $text = "";
   if ($person->Sex) {
@@ -76,22 +74,20 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
     $text = "";
   }
   if ($person->Address) {
-    $text .= $person->PostalCode.$person->Prefecture.$person->ShiKuCho.db2table($person->Address);
+    $text .= $person->PostalCode.$person->Prefecture.$person->ShiKuCho.d2h($person->Address);
     if (!$person->NonJapan && ($_SESSION['romajiaddresses']=="yes")) {
-      $text .= "<br />\n<span class=\"romajiaddr\">".db2table($person->RomajiAddress)." "
-      .db2table($person->Romaji)." &nbsp;".$person->PostalCode."</span>\n";
+      $text .= "<br />\n<span class=\"romajiaddr\">".d2h($person->RomajiAddress)." "
+      .d2h($person->Romaji)." &nbsp;".$person->PostalCode."</span>\n";
     }
     echo $text . "<br />\n";
     $text = "";
   }
   if ($person->Phone) $text .= "<span class=\"label\">"._("Phone").":</span> ".$person->Phone;
   if ($person->FAX) $text .= ($text?", ":"") . "<span class=\"label\">"._("FAX").":</span> ".$person->FAX;
-  echo "</td></tr></table>\n";
+  if ($text) echo $text . "<br />\n";
+  echo "</div></div>\n";
   if ($person->Remarks) {
-    echo "<table class=\"maininfo\"><tr>";
-    echo "<td><span class=\"label\">"._("Remarks").":</span>&nbsp;</td>\n";
-    echo "<td>".db2table($person->Remarks)."</td></tr>\n";
-    echo "</table>\n";
+    echo "<p><span class=\"label\">"._("Remarks").":</span> ".d2h($person->Remarks)."</p>\n";
   }
 
 /*** CATEGORIES ***/
@@ -130,7 +126,7 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
       while ($row = mysqli_fetch_object($result)) {
         echo "<tr><td nowrap>".readable_name($row->FullName,$row->Furigana);
         echo "</td>\n<td align=center>";
-        if ($row->Photo == 1) echo "<img border=0 src=\"photos/p".$row->PersonID.".jpg\" width=40>";
+        if ($row->Photo == 1) echo "<img src=\"photo.php?f=p".$row->PersonID."\" width='40' alt=''>";
         echo "</td>\n<td align=center>";
         if ($row->Relation) echo $row->Relation;
         echo "</td>\n<td align=center>";
@@ -166,9 +162,9 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
       $rownum = 1;
       while ($row = mysqli_fetch_object($result)) {
         if (($_POST['action_types']=="all") || ($rownum==1) || ($rownum==$numrows) || ($row->BGColor!="FFFFFF")) {
-          echo "<tr><td align=center style=\"background-color:#".$row->BGColor."\">".$row->ActionDate."</td>\n";
-          echo "<td align=center style=\"background-color:#".$row->BGColor."\">".$row->ActionType."</td>\n";
-          echo "<td align=left style=\"background-color:#".$row->BGColor."\">".$row->Description."</td></tr>\n";
+          echo "<tr><td style=\"background-color:#".$row->BGColor."\">".$row->ActionDate."</td>\n";
+          echo "<td style=\"background-color:#".$row->BGColor."\">".$row->ActionType."</td>\n";
+          echo "<td style=\"background-color:#".$row->BGColor."\">".$row->Description."</td></tr>\n";
         }
         $rownum++;
       }

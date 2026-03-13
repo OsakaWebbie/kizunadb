@@ -249,19 +249,18 @@ CREATE TABLE `person` (
 
 
 CREATE TABLE `photoprint` (
-  `PhotoPrintName` varchar(80) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `PaperSizeName` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `PaperHeight` smallint(6) unsigned NOT NULL DEFAULT 0,
-  `PaperWidth` smallint(6) unsigned NOT NULL DEFAULT 0,
-  `PaperTopMargin` tinyint(4) unsigned NOT NULL DEFAULT 0,
-  `PaperBottomMargin` tinyint(4) unsigned NOT NULL DEFAULT 0,
-  `PaperLeftMargin` tinyint(4) unsigned NOT NULL DEFAULT 0,
-  `PaperRightMargin` tinyint(4) unsigned NOT NULL DEFAULT 0,
-  `PhotoHeight` smallint(8) unsigned NOT NULL DEFAULT 0,
-  `PhotoWidth` smallint(8) unsigned NOT NULL DEFAULT 0,
-  `Gutter` tinyint(4) unsigned NOT NULL DEFAULT 0,
-  `Font` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `PointSize` tinyint(4) unsigned NOT NULL DEFAULT 0,
+  `PhotoPrintName` varchar(80) COLLATE NOT NULL DEFAULT '' COMMENT 'Name shown for selection',
+  `PaperSizeName` varchar(20) COLLATE NOT NULL DEFAULT 'A4',
+  `PaperHeight` smallint(6) unsigned NOT NULL DEFAULT 297 COMMENT 'Full height of paper in mm',
+  `PaperWidth` smallint(6) unsigned NOT NULL DEFAULT 210 COMMENT 'Full width of paper in mm',
+  `PaperTopMargin` tinyint(3) unsigned NOT NULL DEFAULT 5,
+  `PaperBottomMargin` tinyint(3) unsigned NOT NULL DEFAULT 5,
+  `PaperLeftMargin` tinyint(3) unsigned NOT NULL DEFAULT 5,
+  `PaperRightMargin` tinyint(3) unsigned NOT NULL DEFAULT 5,
+  `PhotoMaxHeight` tinyint(3) unsigned NOT NULL DEFAULT 50 COMMENT 'Maximum height of each photo in mm',
+  `Gutter` tinyint(3) unsigned NOT NULL DEFAULT 4 COMMENT 'mm between each row and column',
+  `NumColumns` tinyint(3) unsigned NOT NULL DEFAULT 4,
+  `PointSize` tinyint(3) unsigned NOT NULL DEFAULT 12 COMMENT 'Font size in points',
   PRIMARY KEY (`PhotoPrintName`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

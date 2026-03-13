@@ -5,18 +5,25 @@ include("accesscontrol.php");
 header1(_("Household Information"));
 ?>
 <link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />
-<script type="text/javascript">
-jpg_regexp = /\.[Jj][Pp][Gg]$/;
-function validate() {
-  if ((document.photoform.photofile.value) && (!jpg_regexp.test(document.photoform.photofile.value))) {
-    alert("Only JPG files can be accepted for photos.");
-    document.photoform.photofile.value = "";
-    return false;
-  } else {
-    return true;
-  }
+<style>
+.hh-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5em;
+  margin-bottom: 1.5em;
+  align-items: flex-start;
 }
-</script>
+.hh-info { flex: 1 1 280px; }
+.section figure {
+  border: 1px solid #ccc;
+  max-width: 600px;
+  margin: 0 0 0.5em;
+  padding: 0;
+  text-align: center;
+}
+.section figure img { display: block; width: 100%; height: auto; }
+.section figcaption { padding: 0.3em 0.5em; }
+</style>
 <?php
 header2(1);
 
@@ -50,7 +57,7 @@ if (!empty($newphoto)) {
   }
   $sql = "UPDATE household SET PhotoCaption='".$caption."' WHERE HouseholdID=$hhid LIMIT 1";
   $result = sqlquery_checked($sql);
-  echo "<script type=\"text/javascript\">\nwindow.location=\"household.php?hhid=".$hhid."\";\n</script>\n";
+  echo "<script type='text/javascript'>\nwindow.location=\"household.php?hhid=$hhid\";\n</script>\n";
   exit;
 }
 
@@ -62,43 +69,53 @@ if (mysqli_num_rows($result) == 0) {
 }
 $hh = mysqli_fetch_object($result);
 
-echo "<h1 id=\"title\">"._("Household Information")."</h1>\n";
-echo "<table border=\"0\" cellpadding=\"5\" cellspacing=\"0\"><tr><td align=center valign=middle>\n";
-if ($hh->Photo) {
-  echo "<table border=\"1\" cellspacing=\"0\" cellpadding=\"0\"><tr><td align=center>";
-  echo "<img name=photoimg border=0 src=\"photo.php?f=h".$hhid."\" width=300 hspace=5 vspace=2><br />\n";
-  echo $hh->PhotoCaption."</td></tr></table><br />\n";
-} else {
-  echo "<p>"._("No photo")."</p>\n";
-}
-echo "<form name=\"photoform\" enctype=\"multipart/form-data\" action=\"household.php\" method=POST onsubmit=\"return validate();\">\n";
-echo "Upload photo: <input name=photofile type=file size=40><br />\n";
-echo "Caption: <input type=text name=caption value=\"$hh->PhotoCaption\" size=50><br />\n";
-echo "<input type=hidden name=MAX_FILE_SIZE value=5000000>\n";
-echo "<input type=hidden name=photo value=\"$hh->Photo\">\n";
-echo "<input type=hidden name=hhid value=\"$hhid\">\n";
-echo "<input type=submit name=newphoto value=\"Update Photo and Caption\"></form>\n";
+echo "<h1 id='title'>"._("Household Information")."</h1>\n";
+echo "<div class='hh-layout'>\n";
 
-echo "</td><td>";
+// Left: address and contact info
+echo "<div class='hh-info'>\n";
 if ($hh->NonJapan) {    // There is a non-Japanese address
-  echo "<b>&nbsp;&nbsp;"._("Address").":</b><br />\n".db2table($hh->LabelName)."<br />\n".db2table($hh->Address);
+  echo "<h3>"._("Address").":</h3>\n<p>".d2h($hh->LabelName)."<br>\n".d2h($hh->Address)."</p>\n";
 } elseif ($hh->PostalCode) {    // There is a Japanese address
-  echo "<b>&nbsp;&nbsp;Address:</b><br />\n$hh->PostalCode $hh->Prefecture$hh->ShiKuCho "
-  .db2table($hh->Address)."<br />\n".db2table($hh->LabelName)."<br />\n";
+  echo "<h3>"._("Address").":</h3>\n<p>$hh->PostalCode $hh->Prefecture$hh->ShiKuCho "
+    .d2h($hh->Address)."<br>\n".d2h($hh->LabelName)."</p>\n";
   if ($_SESSION['romajiaddresses']=="yes") {
-    echo "<b>&nbsp;&nbsp;Romaji Address:</b><br />\n".db2table($hh->RomajiAddress)." ".db2table($hh->Romaji)
-    ." $hh->PostalCode<br />\n";
+    echo "<h3>"._("Romaji Address").":</h3>\n<p>".d2h($hh->RomajiAddress)." ".d2h($hh->Romaji)
+      ." $hh->PostalCode</p>\n";
   }
 } else {
-  echo "No address listed.<br />\n";
+  echo "<p>"._("No address listed.")."</p>\n";
 }
-if ($hh->Phone or $hh->FAX) echo "&nbsp;<br />\n";
-if ($hh->Phone) echo "Phone: <span style='color:#C00000'><b>".$hh->Phone."</b></span><br />\n";
-if ($hh->FAX) echo "FAX: <span style='color:#00C000'>".$hh->FAX."</span><br />\n";
-echo " &nbsp;<br /> &nbsp;<br /><span style='color:#0000C0'>(To change the above information, select any<br />\n";
-echo "member below and click &quot;Edit This Record&quot;.)</span><br />&nbsp;<br />&nbsp;<br />\n";
-echo "</td></tr></table>\n";
-echo "<div class=\"section\"><h3 class=\"section-title\">"._("Household Members")."</h3>";
+if ($hh->Phone) echo "<h3>"._("Phone").": ".d2h($hh->Phone)."</h3>\n";
+if ($hh->FAX) echo "<p>"._("FAX").": ".d2h($hh->FAX)."</p>\n";
+echo "<p class='comment' style='margin:15px 0 5px 0'>"._('To change the above information, select a member below '.
+    'and on the page that opens, click "Edit This Record".')."</p>\n";
+echo "</div>\n";
+
+// Right: photo and upload form
+echo "<div class='section'>\n";
+if ($hh->Photo) {
+  echo "<figure>\n";
+  echo "<img src='photo.php?f=h$hhid' alt='"._("Household photo")."'>\n";
+  if ($hh->PhotoCaption) echo "<figcaption>".d2h($hh->PhotoCaption)."</figcaption>\n";
+  echo "</figure>\n";
+} else {
+  echo "<p style='text-align:center;margin:10px 0 20px 0'>("._("No photo").")</p>\n";
+}
+?>
+<form name='photoform' enctype='multipart/form-data' action='household.php' method='POST' onsubmit='return validate();'>
+<p style='display:flex;align-items:center;gap:0.75em'><label><?=_("Upload photo")?>: <input name='photofile' id='photofile' type='file' accept='image/jpeg'></label>
+<img id='preview-img' style='display:none;height:50px;width:auto' alt='<?=_("Preview")?>'></p>
+<p><label><?=_("Caption")?>: <input type='text' name='caption' value='<?=htmlspecialchars($hh->PhotoCaption, ENT_QUOTES)?>' size='40'></label></p>
+<input type='hidden' name='photo' value='<?=(int)$hh->Photo?>'>
+<input type='hidden' name='hhid' value='<?=(int)$hhid?>'>
+<p style='text-align:center'><input type='submit' id='newphoto' name='newphoto' value='<?=_("Update Photo and Caption")?>'></p>
+</form>
+</div>
+
+</div><?php // end .hh-layout ?>
+<div class='section'><h3 class='section-title'><?=_("Household Members")?></h3>
+<?php
 
 $sql = "SELECT PersonID FROM person WHERE HouseholdID=$hhid "
 ."ORDER BY FIELD(Relation,'Child','Spouse','Main') DESC, Birthdate";
@@ -250,9 +267,36 @@ if (mysqli_num_rows($result) == 0) {
 
   flextable($tableopt);
 
-  echo "<h3><a href=\"edit.php?hhid=".$hhid."\">"._("Add a New Member to this Household")."</a></h3>";
+  echo "<h3><a href='edit.php?hhid=$hhid'>"._("Add a New Member to this Household")."</a></h3>";
   echo "</div>";
 }
 
+load_scripts(['jquery', 'jqueryui']);
+?>
+<script type="text/javascript">
+var jpg_regexp = /\.[Jj][Pp][Gg]$/;
+function validate() {
+  if ((document.photoform.photofile.value) && (!jpg_regexp.test(document.photoform.photofile.value))) {
+    alert(<?php echo json_encode(_("Only JPG files can be accepted for photos.")); ?>);
+    document.photoform.photofile.value = "";
+    return false;
+  } else {
+    return true;
+  }
+}
+$(document).ready(function() {
+  $('#newphoto').button();
+  document.getElementById('photofile').addEventListener('change', function() {
+    var file = this.files[0];
+    if (file) {
+      document.getElementById('preview-img').src = URL.createObjectURL(file);
+      document.getElementById('preview-img').style.display = '';
+    } else {
+      document.getElementById('preview-img').style.display = 'none';
+    }
+  });
+});
+</script>
+<?php
 footer();
 ?>

@@ -522,44 +522,42 @@ onchange="editform.updateper.value=1;" /></label>
 type="text" style="width:10em;ime-mode:auto;" maxlength="30" value="<?=$pid?$rec->Country:''?>"
 onchange="editform.updateper.value=1;" /></label>
 
-<label for="photofile" class="label-n-input"><?=_("Upload photo")?>: <input name="photofile" id="photofile"
-type="file" accept=".jpg,.jpeg" style="width:20em" onchange="editform.updateper.value=1;" />
-<button type="button" id="photoclear"><?=_('Clear file')?></button>
-<?php
-$photoimg = ($pid && $rec->PPhoto) ? '<img src="photo.php?f=p'.$pid.'" height="50"/>' : '';
-if ($pid && $rec->PPhoto) echo "<span class=\"comment\">".
-_("(photo already exists, but you can replace it if you want)")."</span>"; ?></label>
-<output id="thumbnail"><?=(($pid && $rec->PPhoto)?'<img src="photo.php?f=p'.$pid.'" height="50"/>':'')?></output>
-<script> /* http://www.onlywebpro.com/2012/01/24/create-thumbnail-preview-of-images-using-html5-api/ */
-  if (window.FileReader) {
-    function handleFileSelect(evt) {
-      var files = evt.target.files;
-      var f = files[0];
-      var reader = new FileReader();
-      reader.onload = (function() {
-        return function(e) {
-          document.getElementById('thumbnail').innerHTML = ['<img src="', e.target.result,'" height="50"/>'].join('');
-        };
-      })(f);
-      reader.readAsDataURL(f);
-    }
-  } else {
-    <?=($_SESSION['userid']=='dev' ? "alert('This browser does not support FileReader');" : '')?>
-  }
-  document.getElementById('photofile').addEventListener('change', handleFileSelect, false);
-  $(document).ready(function(){
-    $("#photoclear").click(function(){
-      $("#photofile").val('');
-      document.getElementById('thumbnail').innerHTML = '<?=$photoimg?>';
-    });
-  });
-</script>
+<span style="white-space:nowrap">
+  <label for="photofile" class="label-n-input"><?=_("Upload photo")?>:
+    <input name="photofile" id="photofile" type="file" accept=".jpg,.jpeg" onchange="editform.updateper.value=1;" />
+    <button type="button" id="photoclear"><?=_('Clear file')?></button>
+  </label>
+<?php if ($pid && $rec->PPhoto): ?>
+  <span style="display:inline-block;text-align:center;line-height:0.7em"><img src="photo.php?f=p<?=$pid?>" height="50"><br><span class="comment" id="current-label" style="visibility:hidden"><?=_("current")?></span></span>
+<?php endif; ?>
+  <span id="preview-wrap" style="display:none;text-align:center;line-height:0.7em"><img id="preview-img" height="50"><br><span class="comment"><?=_("new")?></span></span>
+</span>
 <br>
 <input type="submit" name="edit" id="submit_button" value="<?=_("Save Changes")?>" />
 <label for="remarks" id="remarks_label"><?=_("Remarks")?>: <textarea name="remarks" id="remarks"
 onchange="editform.updateper.value=1;"><?=$pid?$rec->Remarks:''?></textarea></label>
 </form>
 
+<script>
+  document.getElementById('photofile').addEventListener('change', function() {
+    var file = this.files[0];
+    if (file) {
+      document.getElementById('preview-img').src = URL.createObjectURL(file);
+      document.getElementById('preview-wrap').style.display = 'inline-block';
+      <?php if ($pid && $rec->PPhoto): ?>document.getElementById('current-label').style.visibility = '';<?php endif; ?>
+    } else {
+      document.getElementById('preview-wrap').style.display = 'none';
+      <?php if ($pid && $rec->PPhoto): ?>document.getElementById('current-label').style.visibility = 'hidden';<?php endif; ?>
+    }
+  });
+  $(document).ready(function(){
+    $('#photoclear').click(function(){
+      $('#photofile').val('');
+      document.getElementById('preview-wrap').style.display = 'none';
+      <?php if ($pid && $rec->PPhoto): ?>document.getElementById('current-label').style.visibility = 'hidden';<?php endif; ?>
+    });
+  });
+</script>
 <?php
 print_footer();
 ?>

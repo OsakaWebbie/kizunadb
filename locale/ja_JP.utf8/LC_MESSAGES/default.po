@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: KizunaDB\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-27 20:13+0900\n"
-"PO-Revision-Date: 2026-02-27 20:16+0900\n"
+"POT-Creation-Date: 2026-03-05 08:13+0900\n"
+"PO-Revision-Date: 2026-03-05 08:14+0900\n"
 "Last-Translator: Karen Ellrick <osakawebbie@gmail.com>\n"
 "Language-Team: Karen Ellrick\n"
 "Language: ja\n"
@@ -113,7 +113,7 @@ msgstr "%d件のアクション"
 #: action_list.php:122 action_list.php:326 attend_aggregate.php:84
 #: batch_person_xml.php:119 batch_person_xml.php:222 batch_person_xml.php:252
 #: batch_person_xml.php:277 birthday.php:98 donation_list.php:200
-#: functions.php:402 household.php:133 individual.php:431 individual.php:614
+#: functions.php:402 household.php:163 individual.php:431 individual.php:614
 #: list.php:307 pledge_list.php:160 selectorg.php:34
 msgid "ID"
 msgstr "ID"
@@ -123,14 +123,14 @@ msgstr "ID"
 #: batch_person_xml.php:115 batch_person_xml.php:218 batch_person_xml.php:248
 #: batch_person_xml.php:278 birthday.php:106 db_settings.php:418
 #: donation_list.php:209 donation_list.php:416 donation_list.php:419
-#: donation_summary.php:130 donation_summary.php:133 household.php:141
+#: donation_summary.php:130 donation_summary.php:133 household.php:171
 #: individual.php:439 individual.php:622 list.php:316 overview.php:125
 #: pledge_list.php:163 pledge_list.php:307 search.php:34 selectorg.php:35
 msgid "Name"
 msgstr "名前"
 
 #: action_list.php:139 action_list.php:344 attend_aggregate.php:99
-#: birthday.php:113 donation_list.php:217 edit.php:385 household.php:148
+#: birthday.php:113 donation_list.php:217 edit.php:385 household.php:178
 #: individual.php:446 individual.php:629 list.php:335 pledge_list.php:164
 msgid "Full Name"
 msgstr "名前"
@@ -142,7 +142,7 @@ msgstr "名前"
 #: batch_person_xml.php:250 batch_person_xml.php:251 batch_person_xml.php:276
 #: birthday.php:120 donation_list.php:225 donation_list.php:418
 #: donation_list.php:420 donation_summary.php:132 donation_summary.php:134
-#: edit.php:240 edit.php:394 household.php:155 individual.php:453
+#: edit.php:240 edit.php:394 household.php:185 individual.php:453
 #: individual.php:636 list.php:326 pledge_list.php:165 search.php:34
 #: selectorg.php:36
 msgid "Romaji"
@@ -155,7 +155,7 @@ msgstr "ローマ字"
 #: batch_person_xml.php:250 batch_person_xml.php:251 batch_person_xml.php:276
 #: birthday.php:120 donation_list.php:225 donation_list.php:418
 #: donation_list.php:420 donation_summary.php:132 donation_summary.php:134
-#: edit.php:240 edit.php:394 household.php:155 individual.php:453
+#: edit.php:240 edit.php:394 household.php:185 individual.php:453
 #: individual.php:636 list.php:326 pledge_list.php:165 search.php:34
 #: selectorg.php:36
 msgid "Furigana"
@@ -181,7 +181,7 @@ msgstr "内容"
 
 #: action_list.php:185 action_list.php:362 attend_aggregate.php:113
 #: attend_detail.php:170 batch_person_text.php:58 birthday.php:148
-#: household.php:163 individual.php:462 individual.php:645 list.php:343
+#: household.php:193 individual.php:462 individual.php:645 list.php:343
 #: overview.php:126 pledge_list.php:166
 msgid "Photo"
 msgstr "写真"
@@ -194,7 +194,7 @@ msgstr "電話番号"
 
 #: action_list.php:203 action_list.php:381 attend_aggregate.php:130
 #: birthday.php:165 donation_list.php:243 edit.php:502 get_duplicates.php:39
-#: household.php:225 individual.php:272 individual.php:479 individual.php:662
+#: household.php:255 individual.php:272 individual.php:479 individual.php:662
 #: list.php:361 overview.php:73 pledge_list.php:170
 msgid "Email"
 msgstr "メールアドレス"
@@ -202,15 +202,15 @@ msgstr "メールアドレス"
 #: action_list.php:211 action_list.php:390 attend_aggregate.php:138
 #: batch_person_text.php:41 batch_person_xml.php:120 batch_person_xml.php:223
 #: batch_person_xml.php:253 birthday.php:174 donation_list.php:251 edit.php:461
-#: household.php:84 individual.php:293 individual.php:487 individual.php:670
-#: list.php:369 pledge_list.php:171 search.php:35 search.php:159
-#: selectorg.php:37
+#: household.php:93 household.php:95 individual.php:293 individual.php:487
+#: individual.php:670 list.php:369 pledge_list.php:171 search.php:35
+#: search.php:159 selectorg.php:37
 msgid "Address"
 msgstr "住所"
 
 #: action_list.php:222 action_list.php:401 attend_aggregate.php:157
 #: batch_person_text.php:54 batch_person_xml.php:134 batch_person_xml.php:237
-#: birthday.php:184 household.php:189 individual.php:268 individual.php:506
+#: birthday.php:184 household.php:219 individual.php:268 individual.php:506
 #: individual.php:689 list.php:390 overview.php:63 overview.php:129
 #: overview.php:143 pledge_list.php:175
 msgid "Age"
@@ -218,28 +218,28 @@ msgstr "年齢"
 
 #: action_list.php:231 action_list.php:411 batch_person_text.php:53
 #: batch_person_xml.php:132 batch_person_xml.php:235 batch_person_xml.php:282
-#: birthday.php:194 edit.php:511 household.php:199 pledge_list.php:176
+#: birthday.php:194 edit.php:511 household.php:229 pledge_list.php:176
 #: search.php:166
 msgid "Birthdate"
 msgstr "生年月日"
 
 #: action_list.php:240 action_list.php:421 attend_aggregate.php:166
 #: batch_person_text.php:50 batch_person_xml.php:131 batch_person_xml.php:234
-#: batch_person_xml.php:281 birthday.php:204 edit.php:506 household.php:181
+#: batch_person_xml.php:281 birthday.php:204 edit.php:506 household.php:211
 #: individual.php:515 individual.php:698 list.php:400 overview.php:128
 #: pledge_list.php:174 search.php:165
 msgid "Sex"
 msgstr "性別"
 
 #: action_list.php:248 action_list.php:430 attend_aggregate.php:174
-#: birthday.php:212 household.php:239 individual.php:522 individual.php:705
+#: birthday.php:212 household.php:269 individual.php:522 individual.php:705
 #: list.php:408 pledge_list.php:177 search.php:39 search.php:168
 msgid "Country"
 msgstr "母国"
 
 #: action_list.php:256 action_list.php:439 attend_aggregate.php:182
 #: batch_person_xml.php:135 batch_person_xml.php:238 batch_person_xml.php:283
-#: birthday.php:220 edit.php:517 household.php:232 individual.php:275
+#: birthday.php:220 edit.php:517 household.php:262 individual.php:275
 #: individual.php:529 individual.php:712 list.php:416 overview.php:67
 #: pledge_list.php:178 search.php:38 search.php:167
 msgid "URL"
@@ -247,7 +247,7 @@ msgstr "URL"
 
 #: action_list.php:265 batch_overview.php:15 batch_person_xml.php:138
 #: batch_person_xml.php:147 birthday.php:228 birthday.php:305
-#: donation_list.php:279 household.php:209 individual.php:353
+#: donation_list.php:279 household.php:239 individual.php:353
 #: individual.php:544 individual.php:727 list.php:436 overview.php:103
 #: search.php:49
 msgid "Categories"
@@ -262,7 +262,7 @@ msgstr "イベント"
 #: action_list.php:285 action_list.php:448 attend_aggregate.php:190
 #: batch_person_text.php:59 batch_person_xml.php:137 batch_person_xml.php:240
 #: batch_person_xml.php:265 birthday.php:252 donation_list.php:270 edit.php:559
-#: household.php:247 individual.php:332 individual.php:536 individual.php:719
+#: household.php:277 individual.php:332 individual.php:536 individual.php:719
 #: list.php:425 overview.php:92 pledge_list.php:179 search.php:40
 #: search.php:169
 msgid "Remarks"
@@ -1057,7 +1057,7 @@ msgid "%s (Name, if Japanese)"
 msgstr "%s（名前は漢字なら、それも）"
 
 #: batch_person_text.php:43 batch_person_xml.php:122 batch_person_xml.php:225
-#: batch_person_xml.php:255
+#: batch_person_xml.php:255 household.php:98
 msgid "Romaji Address"
 msgstr "住所のローマ字"
 
@@ -1077,7 +1077,7 @@ msgstr "固定電話"
 
 #: batch_person_text.php:48 batch_person_xml.php:128 batch_person_xml.php:231
 #: batch_person_xml.php:261 edit.php:498 get_duplicates.php:38
-#: household.php:219 individual.php:273 overview.php:72 search.php:36
+#: household.php:249 individual.php:273 overview.php:72 search.php:36
 #: search.php:163
 msgid "Cell Phone"
 msgstr "携帯電話"
@@ -1185,7 +1185,8 @@ msgid "Landline and/or Cell Phone"
 msgstr "固定/携帯の電話番号"
 
 #: batch_person_xml.php:129 batch_person_xml.php:232 batch_person_xml.php:262
-#: edit.php:484 individual.php:291 overview.php:88 search.php:36 search.php:162
+#: edit.php:484 household.php:105 individual.php:291 overview.php:88
+#: search.php:36 search.php:162
 msgid "FAX"
 msgstr "FAX"
 
@@ -2058,7 +2059,8 @@ msgstr "この条件の結果（%d項目）："
 msgid "%d results (all records)"
 msgstr "%d件の結果（全項目）"
 
-#: donation_list.php:234 get_duplicates.php:37 overview.php:87 search.php:36
+#: donation_list.php:234 get_duplicates.php:37 household.php:104
+#: overview.php:87 search.php:36
 msgid "Phone"
 msgstr "電話番号"
 
@@ -2175,7 +2177,7 @@ msgstr "ローマ字の住所を完成してください。"
 msgid "Please fill in romaji for the postalcode-related text."
 msgstr "郵便番号関係のテキストのローマ字を入力してください。"
 
-#: edit.php:283
+#: edit.php:283 household.php:31
 msgid "Only JPG files can be accepted for photos."
 msgstr "写真は、ＪＰＧ形のファイルだけです。"
 
@@ -2316,7 +2318,7 @@ msgstr "男性"
 msgid "YYYY-MM-DD, or just MM-DD if year unknown"
 msgstr "YYYY-MM-DD、または MM-DD （年が分からない場合）"
 
-#: edit.php:525
+#: edit.php:525 household.php:121
 msgid "Upload photo"
 msgstr "写真のアップロード"
 
@@ -2541,27 +2543,55 @@ msgstr "（別のタブに編集ページが開かれる）"
 msgid "No, it's none of these, so please submit the new entry"
 msgstr "いいえ、違います。入力した新規項目を保存したい"
 
-#: household.php:5 household.php:65 individual.php:288
+#: household.php:5 household.php:87 individual.php:288
 msgid "Household Information"
 msgstr "世帯情報"
 
-#: household.php:72
+#: household.php:102 individual.php:319
+msgid "No address listed."
+msgstr "住所はない。"
+
+#: household.php:106
+#, fuzzy
+#| msgid ""
+#| "To change the above information, select a member below \".\n"
+#| "    \"and on the page that opens, click \"Edit This Record\"."
+msgid ""
+"To change the above information, select a member below and on the page that "
+"opens, click \"Edit This Record\"."
+msgstr ""
+"上記の情報を変更するには、以下のメンバーを選択して、開いたページで「この項目"
+"を編集」をクリックしてください。"
+
+#: household.php:114
+msgid "Household photo"
+msgstr "世帯の写真"
+
+#: household.php:118
 msgid "No photo"
 msgstr "写真はない"
 
-#: household.php:101
+#: household.php:122
+msgid "Caption"
+msgstr "世帯写真のキャプション"
+
+#: household.php:126
+msgid "Update Photo and Caption"
+msgstr "世帯写真とキャプションを保存"
+
+#: household.php:131
 msgid "Household Members"
 msgstr "世帯のメンバー"
 
-#: household.php:107
+#: household.php:137
 msgid "This household has no members!"
 msgstr "この世帯にメンバーはありません。"
 
-#: household.php:172
+#: household.php:202
 msgid "Relation in Household"
 msgstr "世帯との関係"
 
-#: household.php:253
+#: household.php:283
 msgid "Add a New Member to this Household"
 msgstr "この世帯に新規メンバーを追加"
 
@@ -2605,10 +2635,6 @@ msgstr "HouseholdID %s のデータは見つかりませんでした。"
 #, php-format
 msgid "Missing record for Postal Code %s"
 msgstr "郵便番号 %s のデータは見つかりませんでした。"
-
-#: individual.php:319
-msgid "No address listed."
-msgstr "住所はない。"
 
 #: individual.php:322
 msgid "Household info last edited"
