@@ -120,6 +120,7 @@ $tableopt->cols[] = (object) [
   'sel' => 'Phones',
   'label' => _('Phones'),
   'show' => (stripos($showcols, ',phones,') !== FALSE),
+  'classes' => 'sorter-text',
   'table' => 'person',
   'lazy' => TRUE
 ];
@@ -156,7 +157,7 @@ $tableopt->cols[] = (object) [
   'sel' => "IF(person.Birthdate='0000-00-00','',TIMESTAMPDIFF(YEAR,person.Birthdate,CURDATE()))",
   'label' => _('Age'),
   'show' => (stripos($showcols, ',age,') !== FALSE),
-  'classes' => 'center',
+  'classes' => 'center sorter-digit',
   'lazy' => TRUE
 ];
 

@@ -205,7 +205,7 @@ if (mysqli_num_rows($result) == 0) {
     'sel' => "IF(person.Birthdate='0000-00-00','',TIMESTAMPDIFF(YEAR,person.Birthdate,CURDATE()))",
     'label' => _('Age'),
     'show' => (stripos($showcols, ',age,') !== FALSE),
-    'classes' => 'center',
+    'classes' => 'center sorter-digit',
     'table' => 'person'
   ];
 

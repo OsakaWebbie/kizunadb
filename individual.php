@@ -470,6 +470,7 @@ if (count($org_pids) == 0) {
     'sel' => 'Phones',
     'label' => _('Phones'),
     'show' => (stripos($showcols, ',phones,') !== FALSE),
+    'classes' => 'sorter-text',
     'table' => 'person'
   ];
 
@@ -505,7 +506,7 @@ if (count($org_pids) == 0) {
     'sel' => "IF(person.Birthdate='0000-00-00','',TIMESTAMPDIFF(YEAR,person.Birthdate,CURDATE()))",
     'label' => _('Age'),
     'show' => (stripos($showcols, ',age,') !== FALSE),
-    'classes' => 'center',
+    'classes' => 'center sorter-digit',
     'table' => 'person'
   ];
 
@@ -653,6 +654,7 @@ if ($per->Organization) {
       'sel' => 'Phones',
       'label' => _('Phones'),
       'show' => (stripos($showcols, ',phones,') !== FALSE),
+      'classes' => 'sorter-text',
       'table' => 'person'
     ];
 
@@ -688,7 +690,7 @@ if ($per->Organization) {
       'sel' => "IF(person.Birthdate='0000-00-00','',TIMESTAMPDIFF(YEAR,person.Birthdate,CURDATE()))",
       'label' => _('Age'),
       'show' => (stripos($showcols, ',age,') !== FALSE),
-      'classes' => 'center',
+      'classes' => 'center sorter-digit',
       'table' => 'person'
     ];
 
@@ -1158,7 +1160,7 @@ $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
           'sel' => "CONCAT(pledge.StartDate, IF(pledge.TimesPerYear!=0, CONCAT('～', IF(pledge.EndDate!='0000-00-00', pledge.EndDate, '')), ''))",
           'label' => _('Dates'),
           'show' => TRUE,
-          'classes' => 'nowrap dates'
+          'classes' => 'nowrap dates sorter-text'
         ],
         (object)[
           'key' => 'balance',
@@ -1299,7 +1301,7 @@ if (mysqli_num_rows($result) == 0) {
   echo "<p>"._("No attendance records. (You can add records here or in Batch Processing.)")."</p>";
 } else {
   echo "<table id=\"attend-table\" class=\"tablesorter\" width=\"100%\"><thead><tr>";
-  echo "<th>"._("Event")."</th><th>"._("Dates")."</th><th>"._("Event Description")."</th><th></th>\n";
+  echo "<th>"._("Event")."</th><th class=\"sorter-text\">"._("Dates")."</th><th>"._("Event Description")."</th><th class=\"sorter-false\"></th>\n";
   echo "</tr></thead><tbody>\n";
   while ($row = mysqli_fetch_object($result)) {
     echo "<tr><td nowrap><a href=\"attend_detail.php?nav=1&pidlist={$_GET['pid']}&eid=".$row->EventID."\">".d2h($row->Event)."</a></td>";

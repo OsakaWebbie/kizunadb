@@ -194,6 +194,7 @@ if ($listtype == 'Normal') {
     'sel' => 'Phones',
     'label' => _('Phones'),
     'show' => (stripos($showcols, ',phones,') !== FALSE),
+    'classes' => 'sorter-text',
     'table' => 'person'
   ];
 
@@ -221,7 +222,7 @@ if ($listtype == 'Normal') {
     'sel' => "IF(person.Birthdate='0000-00-00','',TIMESTAMPDIFF(YEAR,person.Birthdate,CURDATE()))",
     'label' => _('Age'),
     'show' => (stripos($showcols, ',age,') !== FALSE),
-    'classes' => 'center',
+    'classes' => 'center sorter-digit',
     'table' => 'person'
   ];
 
@@ -371,6 +372,7 @@ foreach ($groups as $group_key => $group) {
     'sel' => 'Phones',
     'label' => _('Phones'),
     'show' => ($listtype != 'PersonID' && stripos($showcols, ',phones,') !== FALSE),
+    'classes' => 'sorter-text',
     'table' => 'person',
     'colsel' => ($listtype != 'PersonID')
   ];
@@ -400,7 +402,7 @@ foreach ($groups as $group_key => $group) {
     'sel' => "IF(person.Birthdate='0000-00-00','',TIMESTAMPDIFF(YEAR,person.Birthdate,CURDATE()))",
     'label' => _('Age'),
     'show' => ($listtype != 'PersonID' && stripos($showcols, ',age,') !== FALSE),
-    'classes' => 'center',
+    'classes' => 'center sorter-digit',
     'table' => 'person',
     'colsel' => ($listtype != 'PersonID')
   ];

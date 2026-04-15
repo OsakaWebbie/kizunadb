@@ -233,6 +233,7 @@ if (!$summary) {
     'sel' => 'Phones',
     'label' => _('Phone'),
     'show' => ($type != "PersonID" && stripos($showcols, ',phone,') !== FALSE),
+    'classes' => 'sorter-text',
     'table' => 'person',
     'colsel' => ($type != "PersonID")
   ];

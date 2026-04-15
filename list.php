@@ -351,6 +351,7 @@ $tableopt->cols[] = (object)[
   'sel' => 'Phones',
   'label' => _('Phones'),
   'show' => (stripos($showcols, ',phones,') !== FALSE),
+  'classes' => 'sorter-text',
   'table' => 'person'
 ];
 
@@ -389,7 +390,7 @@ $tableopt->cols[] = (object)[
   'sel' => "IF(person.Birthdate='0000-00-00' OR SUBSTRING(person.Birthdate,1,4)='1900', '', TIMESTAMPDIFF(YEAR, person.Birthdate, CURDATE()))",
   'label' => _('Age'),
   'show' => (stripos($showcols, ',age,') !== FALSE),
-  'classes' => 'center',
+  'classes' => 'center sorter-digit',
   'render' => 'age'  // Hides age if birth year is 1900
 ];
 

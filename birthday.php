@@ -155,7 +155,8 @@ if (!empty($_GET['query'])) {
     'key' => 'phones',
     'sel' => 'Phones',
     'label' => _('Phones'),
-    'show' => (stripos($showcols, ',phones,') !== FALSE)
+    'show' => (stripos($showcols, ',phones,') !== FALSE),
+    'classes' => 'sorter-text'
   ];
 
   // Email
@@ -183,7 +184,7 @@ if (!empty($_GET['query'])) {
     'sel' => "IF(person.Birthdate='0000-00-00','',TIMESTAMPDIFF(YEAR,person.Birthdate,CURDATE()))",
     'label' => _('Age'),
     'show' => (stripos($showcols, ',age,') !== FALSE),
-    'classes' => 'center',
+    'classes' => 'center sorter-digit',
     'render' => 'age'
   ];
 

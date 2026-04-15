@@ -166,13 +166,13 @@ $tableopt->cols[] = (object) [ 'key' => 'furigana', 'sel' => 'person.Furigana', 
 $tableopt->cols[] = (object) [ 'key' => 'photo', 'sel' => 'person.Photo', 'label' => _('Photo'), 'show'=>(stripos($showcols, ',photo,') !== FALSE), 'sortable' => false, 'class' => 'align-center' ];
 
 // Contact info
-$tableopt->cols[] = (object) [ 'key' => 'phones', 'sel' => 'Phones', 'label' => _('Phones'), 'show'=>(stripos($showcols, ',phones,') !== FALSE) ];
+$tableopt->cols[] = (object) [ 'key' => 'phones', 'sel' => 'Phones', 'label' => _('Phones'), 'show'=>(stripos($showcols, ',phones,') !== FALSE), 'classes' => 'sorter-text' ];
 $tableopt->cols[] = (object) [ 'key' => 'email', 'sel' => 'person.Email', 'label' => _('Email'), 'show' => (stripos($showcols, ',email,') !== FALSE) ];
 $tableopt->cols[] = (object) [ 'key' => 'address', 'sel' => "CONCAT(IFNULL(household.PostalCode,''), IFNULL(postalcode.Prefecture,''), IFNULL(postalcode.ShiKuCho,''), IFNULL(household.Address,''))", 'label' => _('Address'), 'show' => (stripos($showcols, ',address,') !== FALSE), 'render' => 'multiline', 'table' => 'person', 'lazy' => TRUE ];
 
 // Demographics
 $tableopt->cols[] = (object) [ 'key' => 'sex', 'sel' => 'person.Sex', 'label' => _('Sex'), 'show' => (stripos($showcols, ',sex,') !== FALSE) ];
-$tableopt->cols[] = (object) [ 'key' => 'age', 'sel' => "IF(person.Birthdate='0000-00-00','',TIMESTAMPDIFF(YEAR,person.Birthdate,CURDATE()))", 'label' => _('Age'), 'show' => (stripos($showcols, ',age,') !== FALSE), 'classes' => 'center', 'table' => 'person' ];
+$tableopt->cols[] = (object) [ 'key' => 'age', 'sel' => "IF(person.Birthdate='0000-00-00','',TIMESTAMPDIFF(YEAR,person.Birthdate,CURDATE()))", 'label' => _('Age'), 'show' => (stripos($showcols, ',age,') !== FALSE), 'classes' => 'center sorter-digit', 'table' => 'person' ];
 $tableopt->cols[] = (object) [ 'key' => 'birthdate', 'sel' => 'person.Birthdate', 'label' => _('Birthdate'), 'show' => (stripos($showcols, ',birthdate,') !== FALSE), 'classes' => 'center' ];
 $tableopt->cols[] = (object) [ 'key' => 'country', 'sel' => 'person.Country', 'label' => _('Country'), 'show' => (stripos($showcols, ',country,') !== FALSE) ];
 $tableopt->cols[] = (object) [ 'key' => 'url', 'sel' => 'person.URL', 'label' => _('URL'), 'show' => (stripos($showcols, ',url,') !== FALSE) ];
