@@ -185,7 +185,8 @@ $tableopt->cols[] = (object) [
   'key' => 'dates',
   'sel' => "CONCAT(StartDate,'～',IF(EndDate!='0000-00-00',EndDate,''))",
   'label' => 'Dates',
-  'show' => (stripos($showcols, ',dates,') !== FALSE) ];
+  'show' => (stripos($showcols, ',dates,') !== FALSE),
+  'classes' => 'sorter-text' ];
 $tableopt->cols[] = (object) [
   'key' => 'pledgedesc',
   'sel' => 'PledgeDesc',

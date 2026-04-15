@@ -270,8 +270,9 @@ td.readmore-wrapper div.readmore {
 }
 div.readmore[data-readmore] {
   overflow: hidden;
+  transition: height 75ms;
 }
-div.readmore.readmore-collapsed::after {
+div.readmore[aria-expanded="false"]::after {
   content: '';
   position: absolute;
   bottom: 0;

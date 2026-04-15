@@ -690,7 +690,13 @@ function flextable($opt) {
       /***** TABLE HEAD *****/
 
       foreach ($opt->cols AS $col) {
-        echo '<th class="'.$col->key.($col->show?' loaded':'').($col->csv?'':' nocsv').'"'.
+        // Pass through col->classes to <th> too (e.g. sorter-text, sorter-digit) but strip
+        // 'readmore' since that's a td-only marker handled separately below.
+        $thClasses = '';
+        if (!empty($col->classes)) {
+          $thClasses = ' ' . trim(preg_replace('/\breadmore\b/', '', $col->classes));
+        }
+        echo '<th class="'.$col->key.($col->show?' loaded':'').($col->csv?'':' nocsv').$thClasses.'"'.
             ($col->show?'':' style="display:none"').
             ($opt->responsive ? ' data-col-key="'.htmlspecialchars($col->key).'" data-resp-priority="'.(int)$col->responsive_priority.'"' : '').
             '>'._($col->label).'</th>';
@@ -947,30 +953,14 @@ function flextable($opt) {
     $('#<?=$opt->tableid?>-table').tablesorter(tsConfig);
 
     /*** Initialize readmore on all visible readmore wrappers ***/
-    $('#<?=$opt->tableid?>-table .readmore').readmore({
+    var readmoreOpts = {
       speed: 75,
       collapsedHeight: 100,
       heightMargin: 0,
       moreLink: '<a href="#"><?=_("[Read more]")?></a>',
-      lessLink: '<a href="#"><?=_("[Close]")?></a>',
-      blockProcessed: function(element, collapsible) {
-        if (collapsible) {
-          element.addClass('readmore-collapsed');
-        }
-      }
-    });
-
-    // Work around broken afterToggle callback by manually toggling the class
-    $(document).on('click', '[data-readmore-toggle]', function() {
-      var targetId = $(this).attr('aria-controls');
-      var $target = $('#' + targetId);
-      // Toggle happens after click, so we need to check current state and flip it
-      if ($target.hasClass('readmore-collapsed')) {
-        $target.removeClass('readmore-collapsed');
-      } else {
-        $target.addClass('readmore-collapsed');
-      }
-    });
+      lessLink: '<a href="#"><?=_("[Close]")?></a>'
+    };
+    $('#<?=$opt->tableid?>-table .readmore').readmore(readmoreOpts);
 
     <?php if ($opt->maxnum > 0) { ?>
     /*** Show More/Fewer functionality ***/
@@ -994,6 +984,8 @@ function flextable($opt) {
       if ($hiddenRows.length > 0) {
         // Show more
         $hiddenRows.removeClass('row-hidden').show();
+        // Initialize readmore on rows that were hidden at page load (skipped because outerHeight was 0)
+        $hiddenRows.find('.readmore').not('[data-readmore]').readmore(readmoreOpts);
         $btn.text('<?=_('Show Fewer Records')?>');
         $table.trigger('update'); // Update tablesorter
       } else {
@@ -1128,20 +1120,7 @@ function flextable($opt) {
           // Check if this column needs readmore wrapper
           if ($cell.hasClass('readmore-wrapper') && content) {
             $cell.html('<div class="readmore">' + content + '</div>');
-            // Initialize readmore on the wrapper div
-            $cell.find('.readmore').readmore({
-              speed: 75,
-              collapsedHeight: 100,
-              heightMargin: 0,
-              moreLink: '<a href="#"><?=_("[Read more]")?></a>',
-              lessLink: '<a href="#"><?=_("[Close]")?></a>',
-              blockProcessed: function(element, collapsible) {
-                if (collapsible) {
-                  element.addClass('readmore-collapsed');
-                }
-              }
-            });
-            // Note: click handler for toggle is already bound at document level above
+            $cell.find('.readmore').readmore(readmoreOpts);
           } else {
             $cell.html(content);
           }

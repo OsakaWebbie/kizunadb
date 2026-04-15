@@ -70,7 +70,7 @@ function header2($nav=0) {
         </ul>
       </li>
       <li class="hassub">
-        <a href="#"><?=_('Batch/Basket').' (<span class="basketcount">'.count($_SESSION['basket']).'</span>)'?> &#x25BC;</a>
+        <a href="#"><?=_('Batch/Basket').' (<span class="basketcount">'.count($_SESSION['basket'] ?? []).'</span>)'?> &#x25BC;</a>
         <ul class="nav-sub">
           <li class="basket-list"><a class="basket-list" href="list.php?basket=1"><?=_('List Basket contents')?></a></li>
           <li><a href="batch.php?basket=1" target="_top"><?=_('Batch Processing')?></a></li>
