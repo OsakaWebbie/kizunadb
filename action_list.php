@@ -175,7 +175,9 @@ if ($listtype == 'Normal') {
     'key' => 'description',
     'sel' => 'action.Description',
     'label' => _('Description'),
-    'show' => (stripos($showcols, ',desc,') !== FALSE)
+    'show' => (stripos($showcols, ',desc,') !== FALSE),
+    'render' => 'remarks',
+    'classes' => 'readmore'
   ];
 
   // Photo
@@ -477,7 +479,9 @@ foreach ($groups as $group_key => $group) {
     'key' => 'description',
     'sel' => 'action.Description',
     'label' => _('Description'),
-    'show' => (stripos($showcols, ',desc,') !== FALSE)
+    'show' => (stripos($showcols, ',desc,') !== FALSE),
+    'render' => 'remarks',
+    'classes' => 'readmore'
   ];
 
   // Render this group's table

@@ -996,7 +996,8 @@ $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
           'key' => 'description',
           'sel' => 'donation.Description',
           'label' => _('Description'),
-          'show' => TRUE
+          'show' => TRUE,
+          'render' => 'remarks'
         ],
         (object)[
           'key' => 'processed',
@@ -1146,7 +1147,8 @@ $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
           'sel' => 'pledge.PledgeDesc',
           'label' => _('Description'),
           'show' => TRUE,
-          'classes' => 'description'
+          'classes' => 'description',
+          'render' => 'remarks'
         ],
         (object)[
           'key' => 'amount',

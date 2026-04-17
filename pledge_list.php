@@ -191,7 +191,8 @@ $tableopt->cols[] = (object) [
   'key' => 'pledgedesc',
   'sel' => 'PledgeDesc',
   'label' => 'Description',
-  'show' => (stripos($showcols, ',desc,') !== FALSE) ];
+  'show' => (stripos($showcols, ',desc,') !== FALSE),
+  'render' => 'remarks' ];
 $tableopt->cols[] = (object) [
   'key' => 'amount',
   'sel' => "CONCAT('".$_SESSION['currency_mark']."',FORMAT(pledge.Amount,".$_SESSION['currency_decimals']."))",

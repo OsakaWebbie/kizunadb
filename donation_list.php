@@ -317,7 +317,8 @@ if (!$summary) {
     'sel' => 'pledge.PledgeDesc',
     'label' => _('Pledge?'),
     'show' => (stripos($showcols, ',pledge,') !== FALSE),
-    'join' => 'LEFT JOIN pledge ON donation.PledgeID=pledge.PledgeID'
+    'join' => 'LEFT JOIN pledge ON donation.PledgeID=pledge.PledgeID',
+    'render' => 'remarks'
   ];
 
   // Amount
@@ -334,7 +335,8 @@ if (!$summary) {
     'key' => 'description',
     'sel' => 'donation.Description',
     'label' => _('Description'),
-    'show' => (stripos($showcols, ',desc,') !== FALSE)
+    'show' => (stripos($showcols, ',desc,') !== FALSE),
+    'render' => 'remarks'
   ];
 
   // Processed - interactive checkboxes
