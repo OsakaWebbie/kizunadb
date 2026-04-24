@@ -16,12 +16,32 @@ if (!$ajax) {
 <h1 id="title"><?=_("Action List")?></h1>
 <?php
 
-$where = '';
-if (!empty($_GET['atype'])) $where .= ($where?" AND":" WHERE")." a.ActionTypeID IN (".implode(",",$_GET['atype']).")";
+$where = $criteria = '';
+if (!empty($_GET['atype'])) {
+  $where .= ($where?" AND":" WHERE")." a.ActionTypeID IN (".implode(",",$_GET['atype']).")";
+  $result = sqlquery_checked("SELECT ActionType FROM actiontype WHERE ActionTypeID IN (".implode(",",$_GET['atype']).") ORDER BY ActionType");
+  $atarray = array();
+  while ($row = mysqli_fetch_object($result)) $atarray[] = $row->ActionType;
+  $criteria .= "<li>".sprintf(_("In at least one of these action types: %s"), implode(", ", $atarray))."</li>\n";
+}
 if (!empty($_GET['startdate'])) $where .= ($where?" AND":" WHERE")." ActionDate >= '".$_GET['startdate']."'";
 if (!empty($_GET['enddate'])) $where .= ($where?" AND":" WHERE")." ActionDate <= '".$_GET['enddate']."'";
-if (!empty($_GET['csearch'])) $where .= ($where?" AND":" WHERE")." Description LIKE '%".$_GET['csearch']."%'";
-if (!empty($_GET['basket']) && !empty($_SESSION['basket'])) $where .= ($where?" AND":" WHERE")." a.PersonID IN (".implode(',',$_SESSION['basket']).")";
+if (!empty($_GET['startdate']) || !empty($_GET['enddate'])) {
+  $criteria .= "<li>";
+  if (!empty($_GET['startdate']) && !empty($_GET['enddate'])) $criteria .= sprintf(_("Date between %s and %s"), $_GET['startdate'], $_GET['enddate']);
+  elseif (!empty($_GET['startdate'])) $criteria .= sprintf(_("Date on or after %s"), $_GET['startdate']);
+  else $criteria .= sprintf(_("Date on or before %s"), $_GET['enddate']);
+  $criteria .= "</li>\n";
+}
+if (!empty($_GET['csearch'])) {
+  $where .= ($where?" AND":" WHERE")." Description LIKE '%".$_GET['csearch']."%'";
+  $criteria .= "<li>".sprintf(_("\"%s\" in Description"), htmlspecialchars($_GET['csearch']))."</li>\n";
+}
+if (!empty($_GET['basket']) && !empty($_SESSION['basket'])) {
+  $where .= ($where?" AND":" WHERE")." a.PersonID IN (".implode(',',$_SESSION['basket']).")";
+  $criteria .= "<li>"._('In the Basket')." (".count($_SESSION['basket']).")</li>\n";
+}
+if (!empty($criteria)) $criteria = "<ul id=\"criteria\">$criteria</ul>";
 
 // Get ActionIDs and distinct PersonIDs for flextable / batch button
 if ($listtype == 'Normal') {
@@ -29,8 +49,8 @@ if ($listtype == 'Normal') {
   $result = sqlquery_checked($sql);
   $num_actions = mysqli_num_rows($result);
   if ($num_actions == 0) {
-    echo "<h3>"._("There are no records matching your criteria.")."</h3>";
-    if (!$ajax) footer();
+    echo "<h3>"._("There are no records matching your criteria:")."</h3>\n".$criteria;
+    if (!$ajax) { load_scripts(['jquery']); footer(); }
     exit;
   }
   $action_ids = array();
@@ -45,8 +65,8 @@ if ($listtype == 'Normal') {
   $result = sqlquery_checked($sql);
   $num_people = mysqli_num_rows($result);
   if ($num_people == 0) {
-    echo "<h3>"._("There are no records matching your criteria.")."</h3>";
-    if (!$ajax) footer();
+    echo "<h3>"._("There are no records matching your criteria:")."</h3>\n".$criteria;
+    if (!$ajax) { load_scripts(['jquery']); footer(); }
     exit;
   }
   $pidarray = array();
@@ -96,6 +116,21 @@ if ($listtype != 'Normal') {
   }
 }
 
+// Display results count and criteria
+if ($listtype == 'Normal') {
+  $action_count = $num_actions;
+} else {
+  $action_count = 0;
+  foreach ($groups as $group) {
+    $action_count += count($group['ids']);
+  }
+}
+if (!empty($criteria)) {
+  echo "<h3>".sprintf(_("%d results of these criteria:"),$action_count)."</h3>\n".$criteria;
+} else {
+  echo "<h3>".sprintf(_("%d results (all records)"),$action_count)."</h3>\n";
+}
+
 if ($listtype == 'Normal') {
   // FlexTable implementation for Normal mode
   require_once("flextable.php");
@@ -107,7 +142,7 @@ if ($listtype == 'Normal') {
     'ids' => implode(',', $action_ids),
     'keyfield' => 'action.ActionID',
     'tableid' => 'actionlist',
-    'heading' => sprintf(_('%d matching actions'), $num_actions),
+    'heading' => '',
     'order' => 'ActionDate DESC',
     'cols' => array()
   ];

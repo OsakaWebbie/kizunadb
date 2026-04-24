@@ -135,7 +135,7 @@ $num_pledges = mysqli_num_rows($result);
 if ($num_pledges == 0) {
   echo "<h3>" . _("There are no records matching your criteria:") . "</h3>\n";
   if (!empty($criteria)) echo "<ul id=\"criteria\">" . $criteria . "</ul>";
-  if (!$ajax) footer();
+  if (!$ajax) { load_scripts(['jquery']); footer(); }
   exit;
 }
 

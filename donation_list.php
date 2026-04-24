@@ -83,7 +83,7 @@ if ($type == "Normal" && !$summary) {
   $result = sqlquery_checked($sql);
   if (mysqli_num_rows($result) == 0) {
     echo "<h3>"._("There are no records matching your criteria:")."</h3>\n".$criteria;
-    if (!$ajax) footer();
+    if (!$ajax) { load_scripts(['jquery']); footer(); }
     exit;
   }
   $donation_ids = array();
@@ -108,7 +108,7 @@ if ($type == "Normal" && !$summary) {
   $result = sqlquery_checked($sql);
   if (mysqli_num_rows($result) == 0) {
     echo "<h3>"._("There are no records matching your criteria:")."</h3>\n".$criteria;
-    if (!$ajax) footer();
+    if (!$ajax) { load_scripts(['jquery']); footer(); }
     exit;
   }
   $pidarray = array();
