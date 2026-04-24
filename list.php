@@ -450,6 +450,28 @@ $tableopt->cols[] = (object)[
   'join' => 'LEFT JOIN attendance ON person.PersonID=attendance.PersonID LEFT JOIN event ON attendance.EventID=event.EventID'
 ];
 
+// Organizations, FullName (lazy loaded) — self-join: perorg.PersonID is the member, perorg.OrgID is the org
+$tableopt->cols[] = (object)[
+  'key' => 'org-fullanem',
+  'sel' => "GROUP_CONCAT(DISTINCT org.FullName ORDER BY org.FullName SEPARATOR '\\n')",
+  'label' => _('Orgs').' ('._('Full Name').')',
+  'header_label' => _('Organizations'),
+  'show' => (stripos($showcols, ',organizations,') !== FALSE),
+  'lazy' => TRUE,
+  'join' => 'LEFT JOIN perorg ON person.PersonID=perorg.PersonID LEFT JOIN person AS org ON perorg.OrgID=org.PersonID'
+];
+
+// Organizations, Furigana (lazy loaded) — self-join: perorg.PersonID is the member, perorg.OrgID is the org
+$tableopt->cols[] = (object)[
+    'key' => 'org-furigana',
+    'sel' => "GROUP_CONCAT(DISTINCT org.Furigana ORDER BY org.FullName SEPARATOR '\\n')",
+    'label' => _('Orgs').' ('.($_SESSION['furiganaisromaji']=='yes' ? _('Romaji') : _('Furigana')).')',
+    'header_label' => _('Organizations'),
+    'show' => (stripos($showcols, ',organizations,') !== FALSE),
+    'lazy' => TRUE,
+    'join' => 'LEFT JOIN perorg ON person.PersonID=perorg.PersonID LEFT JOIN person AS org ON perorg.OrgID=org.PersonID'
+];
+
 // Display heading and criteria list
 echo '<div style="float:left; vertical-align:bottom">';
 echo '<h3>' . sprintf(_('%d results of these criteria:'), count($person_ids)) . '</h3>';

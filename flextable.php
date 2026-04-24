@@ -31,9 +31,15 @@ require_once("accesscontrol.php");
  *     * 'person.Photo' - Renders as <img> tag
  *
  * label (String)
- *   - Column header text displayed to user
+ *   - Column header text displayed to user (also used as Column Selector checkbox label)
  *   - Auto-generated if omitted for simple columns (e.g., 'person.FullName' → 'Full Name')
  *   - Required for expression columns containing '('
+ *   - Must be unique per table (used as SQL alias)
+ *
+ * header_label (String, optional)
+ *   - Overrides 'label' for the <th> header text only — Column Selector still uses 'label'
+ *   - Useful when two columns share a header but need distinct selector entries
+ *     (e.g., two "Organizations" columns differing only in which field is concatenated)
  *
  * key (String, REQUIRED)
  *   - Unique identifier for column, used in CSS classes and JavaScript
@@ -699,7 +705,7 @@ function flextable($opt) {
         echo '<th class="'.$col->key.($col->show?' loaded':'').($col->csv?'':' nocsv').$thClasses.'"'.
             ($col->show?'':' style="display:none"').
             ($opt->responsive ? ' data-col-key="'.htmlspecialchars($col->key).'" data-resp-priority="'.(int)$col->responsive_priority.'"' : '').
-            '>'._($col->label).'</th>';
+            '>'._($col->header_label ?? $col->label).'</th>';
       }
       ?>
     </tr></thead>
