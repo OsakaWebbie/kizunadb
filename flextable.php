@@ -112,6 +112,9 @@ require_once("accesscontrol.php");
  *     * 'age' - Hides if birthdate starts with 1900
  *     * 'remarks' - Converts URLs and emails to links, nl2br
  *     * 'multiline' - Applies nl2br for newline display (use for GROUP_CONCAT columns)
+ *     * 'multiline_html' - Like 'multiline' but skips htmlspecialchars; use when the sel
+ *         already produces HTML (e.g., a GROUP_CONCAT that builds <a> links). The column is
+ *         responsible for escaping any user data inside that HTML.
  *     * 'checkbox' - Renders as interactive checkbox (requires checkbox_action and checkbox_idfield)
  *
  * checkbox_action (String, for checkboxes only)
@@ -316,6 +319,10 @@ if (!empty($_REQUEST['loadcol'])) {
     // 5. URL columns
     elseif ($coldef->sel == 'person.URL' || (!empty($coldef->render) && $coldef->render == 'url')) {
       $cellContent = url2link($cellContent ?? '');
+    }
+    // 6a. Pre-formatted HTML with newlines (sel already produces HTML — just nl2br, no escaping)
+    elseif (!empty($coldef->render) && $coldef->render == 'multiline_html') {
+      $cellContent = nl2br($cellContent ?? '');
     }
     // 6. GROUP_CONCAT columns (Categories, Events)
     elseif (preg_match('/GROUP_CONCAT/i', $coldef->sel) || (!empty($coldef->render) && $coldef->render == 'multiline')) {
@@ -830,6 +837,10 @@ function flextable($opt) {
           // 5. URL columns - wrap in url2link
           elseif ($col->sel == 'person.URL' || (!empty($col->render) && $col->render == 'url')) {
             $cellContent = url2link($cellContent ?? '');
+          }
+          // 6a. Pre-formatted HTML with newlines (sel already produces HTML — just nl2br, no escaping)
+          elseif (!empty($col->render) && $col->render == 'multiline_html') {
+            $cellContent = nl2br($cellContent ?? '');
           }
           // 6. GROUP_CONCAT columns (Categories, Events) - apply d2h for newline display
           elseif (preg_match('/GROUP_CONCAT/i', $col->sel) || (!empty($col->render) && $col->render == 'multiline')) {

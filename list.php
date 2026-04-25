@@ -452,24 +452,30 @@ $tableopt->cols[] = (object)[
 
 // Organizations, FullName (lazy loaded) — self-join: perorg.PersonID is the member, perorg.OrgID is the org
 $tableopt->cols[] = (object)[
-  'key' => 'org-fullanem',
-  'sel' => "GROUP_CONCAT(DISTINCT org.FullName ORDER BY org.FullName SEPARATOR '\\n')",
+  'key' => 'org-fullname',
+  'sel' => "CONCAT('<span style=\"display:none\">', GROUP_CONCAT(org.Furigana ORDER BY org.Furigana SEPARATOR ' '), '</span>',".
+      "GROUP_CONCAT(CONCAT('<a href=\"individual.php?pid=',org.PersonID,'\">',".
+      "REPLACE(REPLACE(REPLACE(org.FullName,'&','&amp;'),'<','&lt;'),'>','&gt;'),'</a>') ORDER BY org.Furigana SEPARATOR '\\n'))",
   'label' => _('Orgs').' ('._('Full Name').')',
   'header_label' => _('Organizations'),
-  'show' => (stripos($showcols, ',organizations,') !== FALSE),
+  'show' => (stripos($showcols, ',orgfullname,') !== FALSE),
   'lazy' => TRUE,
-  'join' => 'LEFT JOIN perorg ON person.PersonID=perorg.PersonID LEFT JOIN person AS org ON perorg.OrgID=org.PersonID'
+  'join' => 'LEFT JOIN perorg ON person.PersonID=perorg.PersonID LEFT JOIN person AS org ON perorg.OrgID=org.PersonID',
+  'render' => 'multiline_html'
 ];
 
 // Organizations, Furigana (lazy loaded) — self-join: perorg.PersonID is the member, perorg.OrgID is the org
 $tableopt->cols[] = (object)[
     'key' => 'org-furigana',
-    'sel' => "GROUP_CONCAT(DISTINCT org.Furigana ORDER BY org.FullName SEPARATOR '\\n')",
+    'sel' => "CONCAT('<span style=\"display:none\">', GROUP_CONCAT(org.Furigana ORDER BY org.Furigana SEPARATOR ' '), '</span>',".
+        "GROUP_CONCAT(CONCAT('<a href=\"individual.php?pid=',org.PersonID,'\">',".
+        "REPLACE(REPLACE(REPLACE(org.Furigana,'&','&amp;'),'<','&lt;'),'>','&gt;'),'</a>') ORDER BY org.Furigana SEPARATOR '\\n'))",
     'label' => _('Orgs').' ('.($_SESSION['furiganaisromaji']=='yes' ? _('Romaji') : _('Furigana')).')',
     'header_label' => _('Organizations'),
-    'show' => (stripos($showcols, ',organizations,') !== FALSE),
+    'show' => (stripos($showcols, ',orgfurigana,') !== FALSE),
     'lazy' => TRUE,
-    'join' => 'LEFT JOIN perorg ON person.PersonID=perorg.PersonID LEFT JOIN person AS org ON perorg.OrgID=org.PersonID'
+    'join' => 'LEFT JOIN perorg ON person.PersonID=perorg.PersonID LEFT JOIN person AS org ON perorg.OrgID=org.PersonID',
+    'render' => 'multiline_html'
 ];
 
 // Display heading and criteria list
