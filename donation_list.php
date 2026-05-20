@@ -24,12 +24,22 @@ td.subtotal { background-color:#FFFFE0; white-space:nowrap; font-weight:bold; }
 <h1 id="title"><?=_("Donation List")?></h1>
 <?php
 
+// Process filter parameters
+$dtype = isset($_REQUEST['dtype']) && is_array($_REQUEST['dtype']) ? $_REQUEST['dtype'] : array();
+$start = isset($_REQUEST['start']) ? h2d($_REQUEST['start']) : '';
+$end = isset($_REQUEST['end']) ? h2d($_REQUEST['end']) : '';
+$proc = isset($_REQUEST['proc']) ? $_REQUEST['proc'] : '';
+$search = isset($_REQUEST['search']) ? h2d($_REQUEST['search']) : '';
+$cutoff = isset($_REQUEST['cutoff']) ? $_REQUEST['cutoff'] : '';
+$cutofftype = isset($_REQUEST['cutofftype']) ? $_REQUEST['cutofftype'] : '>=';
+$limit = isset($_REQUEST['limit']) ? (int)$_REQUEST['limit'] : 0;
+
 //construct WHERE clause from criteria
 $wheredone = 0;
 $where = $having = $criteria = '';
-if ($_REQUEST['dtype'] ?? false) {
-  $where .= ($wheredone?" AND":" WHERE")." d.DonationTypeID IN (".implode(",",$_REQUEST['dtype']).")";
-  $result = sqlquery_checked("SELECT DonationType FROM donationtype WHERE DonationTypeID IN (".implode(",",$_REQUEST['dtype']).")");
+if (!empty($dtype)) {
+  $where .= ($wheredone?" AND":" WHERE")." d.DonationTypeID IN (".implode(",",$dtype).")";
+  $result = sqlquery_checked("SELECT DonationType FROM donationtype WHERE DonationTypeID IN (".implode(",",$dtype).")");
   $dtarray = array();
   while ($row = mysqli_fetch_object($result)) {
     $dtarray[] = $row->DonationType;
@@ -37,35 +47,35 @@ if ($_REQUEST['dtype'] ?? false) {
   $criteria .= "<li>".sprintf(_("In at least one of these donation types: %s"),implode(",",$dtarray))."</li>\n";
   $wheredone = 1;
 }
-if ($_REQUEST['start']) {
-  $where .= ($wheredone?" AND":" WHERE")." d.DonationDate>='".$_REQUEST['start']."'";
+if ($start) {
+  $where .= ($wheredone?" AND":" WHERE")." d.DonationDate>='".$start."'";
   $wheredone = 1;
 }
-if ($_REQUEST['end']) {
-  $where .= ($wheredone?" AND":" WHERE")." d.DonationDate<='".$_REQUEST['end']."'";
+if ($end) {
+  $where .= ($wheredone?" AND":" WHERE")." d.DonationDate<='".$end."'";
   $wheredone = 1;
 }
-if ($_REQUEST['start'] || $_REQUEST['end']) {
+if ($start || $end) {
   $criteria .= "<li>";
-  if ($_REQUEST['start'] && $_REQUEST['end']) $criteria .= sprintf(_("Date between %s and %s"),$_REQUEST['start'],$_REQUEST['end']);
-  elseif ($_REQUEST['start']) $criteria .= sprintf(_("Date on or after %s"),$_REQUEST['start']);
-  elseif ($_REQUEST['end']) $criteria .= sprintf(_("Date on or before %s"),$_REQUEST['end']);
+  if ($start && $end) $criteria .= sprintf(_("Date between %s and %s"),$start,$end);
+  elseif ($start) $criteria .= sprintf(_("Date on or after %s"),$start);
+  elseif ($end) $criteria .= sprintf(_("Date on or before %s"),$end);
   $criteria .= "</li>\n";
 }
-if ($_REQUEST['proc']) {
-  $where .= ($wheredone?" AND":" WHERE")." d.Processed=".($_REQUEST['proc']=="proc"?"1":"0");
-  $criteria .= "<li>".($_REQUEST['proc']=="proc" ? _("Processed") : _("Unprocessed"))."</li>\n";
+if ($proc) {
+  $where .= ($wheredone?" AND":" WHERE")." d.Processed=".($proc=="proc"?"1":"0");
+  $criteria .= "<li>".($proc=="proc" ? _("Processed") : _("Unprocessed"))."</li>\n";
   $wheredone = 1;
 }
-if ($_REQUEST['search']!="") {
-  $where .= ($wheredone?" AND":" WHERE")." d.Description LIKE '%".$_REQUEST['search']."%'";
-  $criteria .= "<li>".sprintf(_("\"%s\" in Description"), $_REQUEST['search'])."</li>\n";
+if ($search !== "") {
+  $where .= ($wheredone?" AND":" WHERE")." d.Description LIKE '%".$search."%'";
+  $criteria .= "<li>".sprintf(_("\"%s\" in Description"), $search)."</li>\n";
   $wheredone = 1;
 }
-if ($_REQUEST['cutoff']!="") {
-  if ($summary) $having = " HAVING SUM(d.Amount)".$_REQUEST['cutofftype'].(int)$_REQUEST['cutoff'];
-  else $where .= ($wheredone?" AND":" WHERE")." d.Amount".$_REQUEST['cutofftype'].(int)$_REQUEST['cutoff'];
-  $criteria .= "<li>".sprintf(_("Amount %s %s"),$_REQUEST['cutofftype'],$_REQUEST['cutoff'])."</li>\n";
+if ($cutoff !== "") {
+  if ($summary) $having = " HAVING SUM(d.Amount)".$cutofftype.(int)$cutoff;
+  else $where .= ($wheredone?" AND":" WHERE")." d.Amount".$cutofftype.(int)$cutoff;
+  $criteria .= "<li>".sprintf(_("Amount %s %s"),$cutofftype,$cutoff)."</li>\n";
   $wheredone = 1;
 }
 // Basket filtering
@@ -103,7 +113,7 @@ if ($type == "Normal" && !$summary) {
     "LEFT JOIN donationtype dt ON d.DonationTypeID=dt.DonationTypeID".$where;
     $sql .= " GROUP BY p.PersonID".$having." ORDER BY ".
     (($_REQUEST['subtotalsort'] ?? false) || ($summary && ($_REQUEST['limit'] ?? false)) ? "subtotal DESC," : "")."p.Furigana,p.PersonID";
-    if ($summary && $type=="PersonID" && $_REQUEST['limit']) $sql .= " LIMIT ".(int)$_REQUEST['limit'];
+    if ($summary && $type=="PersonID" && $limit) $sql .= " LIMIT ".$limit;
   }
   $result = sqlquery_checked($sql);
   if (mysqli_num_rows($result) == 0) {
@@ -465,7 +475,7 @@ if (!$ajax) load_scripts(['jquery', 'tablesorter', 'table2csv']);
 ?>
 <script>
 $(function() {
-  $("#summarytable").tablesorter({ sortList:[[<?=($type=="PersonID"?($_REQUEST['limit']?"1,1":"0,0"):"0,0")?>]] });
+  $("#summarytable").tablesorter({ sortList:[[<?=($type=="PersonID"?($limit?"1,1":"0,0"):"0,0")?>]] });
 });
 
 function getCSV() {

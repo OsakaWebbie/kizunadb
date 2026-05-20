@@ -294,9 +294,6 @@ fieldset,input,select,label,label textarea { vertical-align:top; }
 .label-n-input { white-space:nowrap; margin-right:2em;}
 td.button-in-table { text-align:center; }
 
-/* div#actions { margin:8px 0; text-align:center; } *** I don't know why this was here *** */
-/* div#actions form { display:inline; margin:2px 15px; } *** I don't know why this was here *** */
-
 /* TABLES (including tablesorter) */
 
 table { background-color: White; text-align: left; }
@@ -412,7 +409,12 @@ ul#criteria {
 /* AJAX related */
 
 .delconfirm { background-color: <?=(!empty($delconfirm)?$delconfirm:"#808080")?>; }
-.spinner { background: <?=(!empty($delconfirm)?$delconfirm:"#808080")?> url('graphics/ajax_loader.gif'); }
+.is-loading {
+  background-image: url('graphics/ajax-loader.gif');
+  background-repeat: no-repeat;
+  background-position: right 6px center;
+  background-size: 20px 20px;
+}
 
 /* Result frame for AJAX-loaded content */
 #ResultFrame {
@@ -687,6 +689,12 @@ body.dashboard #attend_datesums h3 { display:none; }
   .ui-dialog .ui-dialog-content {
   overflow:visible;
   text-align:left;
+  }
+  .ui-widget { font-size: 1em !important; }  /* override jquery-ui theme's 0.9em so dialogs match body text */
+  p.dlg-choice {
+    margin-top: 1em;
+    padding-left: 2em;
+    text-indent: -2em;
   }
 
 <?php

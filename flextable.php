@@ -120,7 +120,7 @@ require_once("accesscontrol.php");
  * checkbox_action (String, for checkboxes only)
  *   - AJAX action name to call when saving checkbox changes
  *   - Example: 'SaveMembershipStatus'
- *   - Handler in ajax_actions.php receives 'checked_ids' and 'unchecked_ids' parameters
+ *   - Handler in ajax_action.php receives 'checked_ids' and 'unchecked_ids' parameters
  *
  * checkbox_idfield (String, for checkboxes only)
  *   - Field name containing ID for checkbox data-id attribute
@@ -1457,7 +1457,7 @@ function flextable($opt) {
           }
         });
 
-        $.post('ajax_actions.php', {
+        $.post('ajax_action.php', {
           action: action,
           checked_ids: checked_ids.join(','),
           unchecked_ids: unchecked_ids.join(',')

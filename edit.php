@@ -62,7 +62,7 @@ function stopRKey(evt) {
 document.onkeypress = stopRKey;
 
 pc_regexp = /^\d\d\d-\d\d\d\d$/;
-jpg_regexp = /\.[Jj][Pp][Gg]$/;
+jpg_regexp = /\.[Jj][Pp][eE]?[Gg]$/;
 bday_regexp = /^\d{1,2}-\d{1,2}$/;
 bdate_regexp = /^\d\d\d\d-\d{1,2}-\d{1,2}$/;
 phone_regexp = /^[\d-+\(\)Xx\* ]*$/;

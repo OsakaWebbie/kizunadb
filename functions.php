@@ -34,7 +34,7 @@ function header1($title) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" type="image/x-icon" href="kizunadb.ico">
-<title><?=(isset($_SESSION['dbtitle']) ? $_SESSION['dbtitle'].': ' : '').$title?></title>
+<title><?=$title.(isset($_SESSION['dbtitle']) ? ' ('.$_SESSION['dbtitle'].')' : '')?></title>
   <?php
 }
 
@@ -148,7 +148,7 @@ function footer($nav=0) {
             event.preventDefault();
             $.ajax({
                 type: "POST",
-                url: "ajax_actions.php?action=SwitchLang&lang=<?=$_SESSION['lang']=='en_US'?'ja_JP':'en_US' ?>",
+                url: "ajax_action.php?action=SwitchLang&lang=<?=$_SESSION['lang']=='en_US'?'ja_JP':'en_US' ?>",
                 success: function() {
                     location.reload(true);
                 }

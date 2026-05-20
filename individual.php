@@ -1549,7 +1549,7 @@ if($_SESSION['lang']=="ja_JP") {
     if (confirm('<?=_("Are you sure you want to delete this record?")?>')) {
       $row.addClass('delwait').removeClass('delconfirm');
 
-      $.post('ajax_actions.php', {action: 'ActionDelete', id: id}, function(data) {
+      $.post('ajax_action.php', {action: 'ActionDelete', id: id}, function(data) {
         if (data.substr(0,1) == '*') {
           $row.remove();
           $('#actions-table').trigger('update');
@@ -1582,7 +1582,7 @@ if($_SESSION['lang']=="ja_JP") {
     formData.push({name: 'action', value: 'ActionSave'});
     formData.push({name: 'PersonID', value: <?=$_GET['pid']?>}); // Add from page context
 
-    $.post('ajax_actions.php', formData, function(data) {
+    $.post('ajax_action.php', formData, function(data) {
       if (data.substr(0,1) == '*') {
         $('#action-edit-dialog').dialog('close');
 
@@ -1722,7 +1722,7 @@ if($_SESSION['lang']=="ja_JP") {
       $.post('ajax_request.php', {req: 'Donation', id: id}, function(donationData) {
         var pledgeId = donationData.PledgeID;
 
-        $.post('ajax_actions.php', {action: 'DonationDelete', id: id}, function(data) {
+        $.post('ajax_action.php', {action: 'DonationDelete', id: id}, function(data) {
           if (data.substr(0,1) == '*') {
             $row.remove();
             $('#donations-table').trigger('update');
@@ -1773,7 +1773,7 @@ if($_SESSION['lang']=="ja_JP") {
     var oldPledgeId = $('#donation-edit-id').data('old-pledge-id');
     var newPledgeId = $('#donation-edit-PledgeID').val();
 
-    $.post('ajax_actions.php', formData, function(data) {
+    $.post('ajax_action.php', formData, function(data) {
       if (data.substr(0,1) == '*') {
         $('#donation-edit-dialog').dialog('close');
 
@@ -1890,7 +1890,7 @@ if($_SESSION['lang']=="ja_JP") {
         if (confirm('<?=_("Are you sure you want to delete this record?")?>')) {
           $row.addClass('delwait').removeClass('delconfirm');
 
-          $.post('ajax_actions.php', {action: 'PledgeDelete', id: id, pid: <?=$_GET['pid']?>}, function(data) {
+          $.post('ajax_action.php', {action: 'PledgeDelete', id: id, pid: <?=$_GET['pid']?>}, function(data) {
             if (data.substr(0,1) == '*') {
               $row.remove();
               $('#pledges-table').trigger('update');
@@ -1944,7 +1944,7 @@ if($_SESSION['lang']=="ja_JP") {
     formData.push({name: 'action', value: 'PledgeSave'});
     formData.push({name: 'PersonID', value: <?=$_GET['pid']?>});
 
-    $.post('ajax_actions.php', formData, function(data) {
+    $.post('ajax_action.php', formData, function(data) {
       if (data.substr(0,1) == '*') {
         $('#pledge-edit-dialog').dialog('close');
 
@@ -2098,7 +2098,7 @@ if($_SESSION['lang']=="ja_JP") {
       row.addClass("delwait");
       row.removeClass("delconfirm");
       var parameters = $(this).attr("id").replace(/-/g,"=").replace(/_/g,"&");
-      $.post("ajax_actions.php", parameters, function(data) {
+      $.post("ajax_action.php", parameters, function(data) {
         //alert(data);
         if (data.substr(0,1) == "*") {  //my clue that the delete succeeded
           row.remove();

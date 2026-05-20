@@ -50,10 +50,11 @@ case 'PC':
   break;
 case 'Category':
   if (isset($_REQUEST['catid']) && $_REQUEST['catid']!="") {
-    $result = sqlquery_checked("SELECT * FROM category WHERE CategoryID=".$_REQUEST['catid']);
+    $catid = intval($_REQUEST['catid']);
+    $result = sqlquery_checked("SELECT c.*, COUNT(pc.CategoryID) AS percat_count FROM category c LEFT JOIN percat pc ON c.CategoryID=pc.CategoryID WHERE c.CategoryID=$catid GROUP BY c.CategoryID");
     if (mysqli_num_rows($result)>0) {
       $row = mysqli_fetch_object($result);
-      $arr = array('catid' => $row->CategoryID, 'category' => $row->Category, 'usefor' => $row->UseFor);
+      $arr = array('catid' => $row->CategoryID, 'category' => $row->Category, 'usefor' => $row->UseFor, 'percat_count' => (int)$row->percat_count);
       die (json_encode($arr));
     } else {
       die(json_encode(array("alert" => "Record not found.")));
@@ -62,11 +63,12 @@ case 'Category':
   break;
 case 'AType':
   if (isset($_REQUEST['atypeid']) && $_REQUEST['atypeid']!="") {
-    $result = sqlquery_checked("SELECT * FROM actiontype WHERE ActionTypeID=".$_REQUEST['atypeid']);
+    $atypeid = intval($_REQUEST['atypeid']);
+    $result = sqlquery_checked("SELECT atype.*, COUNT(ac.ActionTypeID) AS action_count FROM actiontype atype LEFT JOIN action ac ON atype.ActionTypeID=ac.ActionTypeID WHERE atype.ActionTypeID=$atypeid GROUP BY atype.ActionTypeID");
     if (mysqli_num_rows($result)>0) {
       $row = mysqli_fetch_object($result);
       $arr = array('atypeid' => $row->ActionTypeID, 'atype' => $row->ActionType,
-      'atcolor' => $row->BGColor, 'attemplate' => $row->Template);
+      'atcolor' => $row->BGColor, 'attemplate' => $row->Template, 'action_count' => (int)$row->action_count);
       die (json_encode($arr));
     } else {
       die(json_encode(array('alert' => 'Record not found.')));
@@ -75,10 +77,11 @@ case 'AType':
   break;
 case 'DType':
   if (isset($_REQUEST['dtypeid']) && $_REQUEST['dtypeid']!="") {
-    $result = sqlquery_checked("SELECT * FROM donationtype WHERE DonationTypeID=".$_REQUEST['dtypeid']);
+    $dtypeid = intval($_REQUEST['dtypeid']);
+    $result = sqlquery_checked("SELECT dt.*, (SELECT COUNT(*) FROM donation WHERE DonationTypeID=dt.DonationTypeID) AS donation_count, (SELECT COUNT(*) FROM pledge WHERE DonationTypeID=dt.DonationTypeID) AS pledge_count FROM donationtype dt WHERE dt.DonationTypeID=$dtypeid");
     if (mysqli_num_rows($result)>0) {
       $row = mysqli_fetch_object($result);
-      $arr = array('dtypeid' => $row->DonationTypeID, 'dtype' => $row->DonationType, 'dtcolor' => $row->BGColor);
+      $arr = array('dtypeid' => $row->DonationTypeID, 'dtype' => $row->DonationType, 'dtcolor' => $row->BGColor, 'donation_count' => (int)$row->donation_count, 'pledge_count' => (int)$row->pledge_count);
       die (json_encode($arr));
     } else {
       die(json_encode(array("alert" => "Record not found.")));
@@ -87,12 +90,16 @@ case 'DType':
   break;
 case 'Event':
   if (isset($_REQUEST['eventid']) && $_REQUEST['eventid']!="") {
-    $result = sqlquery_checked("SELECT * FROM event WHERE EventID=".$_REQUEST['eventid']);
+    $eventid = intval($_REQUEST['eventid']);
+    $result = sqlquery_checked("SELECT e.*, COUNT(a.EventID) AS attendance_count, MIN(a.AttendDate) AS attend_first, MAX(a.AttendDate) AS attend_last FROM event e LEFT JOIN attendance a ON e.EventID=a.EventID WHERE e.EventID=$eventid GROUP BY e.EventID");
     if (mysqli_num_rows($result)>0) {
       $row = mysqli_fetch_object($result);
       $arr = array('eventid' => $row->EventID, 'event' => $row->Event, 'eventstartdate' => $row->EventStartDate, 'eventenddate' => $row->EventEndDate, 'remarks' => $row->Remarks);
       $arr['active'] = $row->Active;
       $arr['usetimes'] = $row->UseTimes;
+      $arr['attendance_count'] = (int)$row->attendance_count;
+      $arr['attend_first'] = $row->attend_first;
+      $arr['attend_last'] = $row->attend_last;
       die (json_encode($arr));
     } else {
       die(json_encode(array('alert' => 'Record not found.')));

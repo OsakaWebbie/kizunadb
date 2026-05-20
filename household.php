@@ -88,7 +88,7 @@ if ($hh->NonJapan) {    // There is a non-Japanese address
 }
 if ($hh->Phone) echo "<h3>"._("Phone").": ".d2h($hh->Phone)."</h3>\n";
 if ($hh->FAX) echo "<p>"._("FAX").": ".d2h($hh->FAX)."</p>\n";
-echo "<p class='comment' style='margin:15px 0 5px 0'>"._('To change the above information, select a member below '.
+echo "<p class='comment' style='margin:15px 0 5px 0'>"._('To change the above information, select any member below, '.
     'and on the page that opens, click "Edit This Record".')."</p>\n";
 echo "</div>\n";
 
