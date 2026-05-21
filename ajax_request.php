@@ -95,7 +95,6 @@ case 'Event':
     if (mysqli_num_rows($result)>0) {
       $row = mysqli_fetch_object($result);
       $arr = array('eventid' => $row->EventID, 'event' => $row->Event, 'eventstartdate' => $row->EventStartDate, 'eventenddate' => $row->EventEndDate, 'remarks' => $row->Remarks);
-      $arr['active'] = $row->Active;
       $arr['usetimes'] = $row->UseTimes;
       $arr['attendance_count'] = (int)$row->attendance_count;
       $arr['attend_first'] = $row->attend_first;

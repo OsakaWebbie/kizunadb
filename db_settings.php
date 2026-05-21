@@ -121,12 +121,12 @@ while ($row = mysqli_fetch_object($result))  echo "    <option value=\"".$row->D
 <form name="eventform" id="eventform">
   <fieldset><legend><?=_("Event Management")?></legend>
   <p><?=_("Fill in the information to add a new event.&nbsp; Or select an event, and modify its info ".
-  "(name, remarks, active status, and/or start date).&nbsp; Or select a category to delete and press Delete.")?></p>
+  "(name, remarks, and/or dates).&nbsp; Or select an event to delete and press Delete.")?></p>
   <select id="eventid" name="eventid" size="1">
     <option value="new"><?=_("New Event...")?></option>
 <?php
-$result = sqlquery_checked("SELECT EventID,Event,Active FROM event ORDER BY Event");
-while ($row = mysqli_fetch_object($result))  echo "    <option class=\"".($row->Active ? "active" : "inactive").
+$result = sqlquery_checked("SELECT EventID,Event,IF(EventEndDate AND EventEndDate<CURDATE(),'inactive','active') AS Active FROM event ORDER BY Event");
+while ($row = mysqli_fetch_object($result))  echo "    <option class=\"".$row->Active.
 "\" value=\"".$row->EventID."\">".$row->Event."</option>\n";
 ?>
   </select>

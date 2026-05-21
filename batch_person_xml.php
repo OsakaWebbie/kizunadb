@@ -15,6 +15,17 @@ if (!$ajax) {
 <script>
 $(document).ready(function(){
   $("button").button();
+
+  // Hide inactive events by default; reveal when the checkbox is checked
+  $('select[id^="attend"] option.inactive').hide();
+  $(document).on('change', 'input.showinactiveevents', function() {
+    var $select = $(this).closest('span[id^="attendspan"]').find('select[id^="attend"]');
+    if ($(this).prop('checked')) {
+      $select.find('option.inactive').show();
+    } else {
+      $select.find('option.inactive').prop('selected', false).hide();
+    }
+  });
   $("select[id^=field]").change(function() {
     var number = $(this).attr("id").substr(5,2);
     $("[id$=span"+number+"]").hide();
@@ -199,12 +210,13 @@ for ($i=0; $i<4; $i++) {
         <span class="label-n-input"><label for="attend<?=$s?>"><?=_("Events")?>: </label>
         <select name="attend<?=$s?>[]" id="attend<?=$s?>" size="3" multiple="multiple">
 <?php
-  $result = sqlquery_checked("SELECT * FROM event ORDER BY Event");
+  $result = sqlquery_checked("SELECT EventID,Event,IF(EventEndDate AND EventEndDate<CURDATE(),'inactive','active') AS Active FROM event ORDER BY Event");
   while ($row = mysqli_fetch_object($result)) {
-    echo "          <option value=\"".$row->EventID."\">".d2h($row->Event)."</option>\n";
+    echo "          <option value=\"".$row->EventID."\" class=\"".$row->Active."\">".d2h($row->Event)."</option>\n";
   }
 ?>
-        </select></span>
+        </select>
+        <label class='inactive-toggle'>(<input type='checkbox' class='showinactiveevents'> <?=_("include past events")?>)</label></span>
         <span class="label-n-input"><label for="attendtag<?=$s?>"><?=_("XML Tag Name")?>: </label>
         <input type="text" name="attendtag<?=$s?>" id="attendtag<?=$s?>" value="Attendance" style="width:5em;ime-mode:disabled;" /></span>
         <span class="label-n-input"><label for="attendtext<?=$s?>"><?=_("Fill Text")?>: </label>

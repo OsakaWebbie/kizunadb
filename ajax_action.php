@@ -244,19 +244,17 @@ case 'EventSave':
   $event_esc   = h2d($event);
   $startdate   = mysqli_real_escape_string($db, $_REQUEST['eventstartdate'] ?? '');
   $enddate     = empty($_REQUEST['eventenddate']) ? '0000-00-00' : mysqli_real_escape_string($db, $_REQUEST['eventenddate']);
+  $active      = ($enddate === '0000-00-00' || strtotime($enddate) >= strtotime(date('Y-m-d'))) ? 1 : 0;
   $usetimes    = !empty($_REQUEST['usetimes']) ? 1 : 0;
   $remarks_esc = h2d($_REQUEST['remarks'] ?? '');
   if (($_REQUEST['eventid'] ?? '') == 'new') {
-    sqlquery_checked("INSERT INTO event (Event,EventStartDate,EventEndDate,UseTimes,Active,Remarks) VALUES ('$event_esc','$startdate','$enddate',$usetimes,1,'$remarks_esc')");
+    sqlquery_checked("INSERT INTO event (Event,EventStartDate,EventEndDate,UseTimes,Remarks) VALUES ('$event_esc','$startdate','$enddate',$usetimes,'$remarks_esc')");
     $newid = mysqli_insert_id($db);
-    die(json_encode(array('success' => true, 'eventid' => $newid, 'event' => $event, 'active' => 1,
+    die(json_encode(array('success' => true, 'eventid' => $newid, 'event' => $event, 'active' => $active,
                           'message' => _('Event successfully added.'))));
   } else {
     $eventid = intval($_REQUEST['eventid']);
     sqlquery_checked("UPDATE event SET Event='$event_esc',EventStartDate='$startdate',EventEndDate='$enddate',UseTimes=$usetimes,Remarks='$remarks_esc' WHERE EventID=$eventid");
-    $result = sqlquery_checked("SELECT Active FROM event WHERE EventID=$eventid");
-    $row    = mysqli_fetch_object($result);
-    $active = $row ? (int)$row->Active : 1;
     die(json_encode(array('success' => true, 'eventid' => $eventid, 'event' => $event, 'active' => $active,
                           'message' => _('Event information successfully updated.'))));
   }

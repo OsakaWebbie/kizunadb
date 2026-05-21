@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: KizunaDB\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-20 12:46+0900\n"
-"PO-Revision-Date: 2026-05-20 12:48+0900\n"
+"POT-Creation-Date: 2026-05-21 12:21+0900\n"
+"PO-Revision-Date: 2026-05-21 12:23+0900\n"
 "Last-Translator: Karen Ellrick <osakawebbie@gmail.com>\n"
 "Language-Team: Karen Ellrick\n"
 "Language: ja\n"
@@ -38,7 +38,7 @@ msgstr "人/団体でまとめる"
 msgid "Action Type"
 msgstr "アクションタイプ"
 
-#: action.php:27 attendance.php:23 donation.php:31
+#: action.php:27 attendance.php:24 donation.php:31
 #, php-format
 msgid "Optional Dates: after %s and/or before %s"
 msgstr "日付フィルター：　%sから、および、または %sまで"
@@ -49,7 +49,7 @@ msgstr "日付フィルター：　%sから、および、または %sまで"
 msgid "Search"
 msgstr "検索"
 
-#: action.php:33 attendance.php:27 birthday.php:318 donation.php:52
+#: action.php:33 attendance.php:29 birthday.php:318 donation.php:52
 #, php-format
 msgid "in Basket only (%d)"
 msgstr "かごに入っている限り (%d)"
@@ -58,44 +58,44 @@ msgstr "かごに入っている限り (%d)"
 msgid "Show List"
 msgstr "表を表示"
 
-#: action.php:34 attendance.php:35 attendance.php:45 attendance.php:49
+#: action.php:34 attendance.php:38 attendance.php:48 attendance.php:52
 #: donation.php:67 donation.php:78 donation.php:84
 msgid "below"
 msgstr "下に表示"
 
-#: action.php:35 attendance.php:36 attendance.php:46 attendance.php:50
+#: action.php:35 attendance.php:39 attendance.php:49 attendance.php:53
 #: donation.php:68 donation.php:79 donation.php:85
 msgid "new tab"
 msgstr "新しいタブ"
 
-#: action.php:49 attendance.php:65 batch_attendance.php:69 batch_custom.php:16
-#: birthday.php:379 db_settings.php:51 db_settings.php:825 donation.php:99
+#: action.php:49 attendance.php:68 batch_attendance.php:68 batch_custom.php:16
+#: birthday.php:379 db_settings.php:60 db_settings.php:222 donation.php:99
 #: individual.php:791 individual.php:1087 individual.php:1210
 #: individual.php:1263 search.php:210
 msgid "Select..."
 msgstr "選択…"
 
-#: action.php:50 attendance.php:66 birthday.php:380 donation.php:100
+#: action.php:50 attendance.php:69 birthday.php:380 donation.php:100
 #: search.php:211
 msgid "# selected"
 msgstr "# 選択された"
 
-#: action.php:51 attendance.php:67 birthday.php:381 donation.php:101
+#: action.php:51 attendance.php:70 birthday.php:381 donation.php:101
 #: search.php:212
 msgid "Check all"
 msgstr "全部にチェックを付ける"
 
-#: action.php:52 attendance.php:68 birthday.php:382 donation.php:102
+#: action.php:52 attendance.php:71 birthday.php:382 donation.php:102
 #: search.php:213
 msgid "Uncheck all"
 msgstr "全部にチェックを外す"
 
-#: action.php:54 attendance.php:72 birthday.php:384 donation.php:104
-#: search.php:216 search.php:243
+#: action.php:54 attendance.php:75 birthday.php:384 donation.php:104
+#: search.php:216 search.php:244
 msgid "Search:"
 msgstr "検索："
 
-#: action.php:62 attendance.php:83 attendance.php:95 attendance.php:107
+#: action.php:62 attendance.php:94 attendance.php:106 attendance.php:118
 #: batch.php:237 birthday.php:397 donation.php:112 donation.php:120
 #: donation.php:130
 msgid "Loading..."
@@ -149,8 +149,8 @@ msgid "%d results (all records)"
 msgstr "%d件の結果（全項目）"
 
 #: action_list.php:157 action_list.php:364 attend_aggregate.php:84
-#: batch_person_xml.php:119 batch_person_xml.php:222 batch_person_xml.php:252
-#: batch_person_xml.php:277 birthday.php:98 donation_list.php:210
+#: batch_person_xml.php:130 batch_person_xml.php:234 batch_person_xml.php:264
+#: batch_person_xml.php:289 birthday.php:98 donation_list.php:210
 #: functions.php:402 household.php:150 individual.php:431 individual.php:615
 #: list.php:307 pledge_list.php:160 selectorg.php:34
 msgid "ID"
@@ -158,8 +158,8 @@ msgstr "ID"
 
 #: action_list.php:166 action_list.php:373 attend_aggregate.php:91
 #: attend_detail.php:173 batch_action.php:63 batch_person_text.php:38
-#: batch_person_xml.php:115 batch_person_xml.php:218 batch_person_xml.php:248
-#: batch_person_xml.php:278 birthday.php:106 db_settings.php:940
+#: batch_person_xml.php:126 batch_person_xml.php:230 batch_person_xml.php:260
+#: batch_person_xml.php:290 birthday.php:106 db_settings.php:163
 #: donation_list.php:219 donation_list.php:429 donation_list.php:432
 #: donation_summary.php:130 donation_summary.php:133 household.php:158
 #: individual.php:439 individual.php:623 list.php:316 overview.php:121
@@ -175,10 +175,10 @@ msgid "Full Name"
 msgstr "名前"
 
 #: action_list.php:182 action_list.php:391 attend_aggregate.php:106
-#: batch_person_text.php:39 batch_person_text.php:40 batch_person_xml.php:116
-#: batch_person_xml.php:117 batch_person_xml.php:118 batch_person_xml.php:219
-#: batch_person_xml.php:220 batch_person_xml.php:221 batch_person_xml.php:249
-#: batch_person_xml.php:250 batch_person_xml.php:251 batch_person_xml.php:276
+#: batch_person_text.php:39 batch_person_text.php:40 batch_person_xml.php:127
+#: batch_person_xml.php:128 batch_person_xml.php:129 batch_person_xml.php:231
+#: batch_person_xml.php:232 batch_person_xml.php:233 batch_person_xml.php:261
+#: batch_person_xml.php:262 batch_person_xml.php:263 batch_person_xml.php:288
 #: birthday.php:120 donation_list.php:235 donation_list.php:431
 #: donation_list.php:433 donation_summary.php:132 donation_summary.php:134
 #: edit.php:240 edit.php:394 household.php:172 individual.php:453
@@ -188,10 +188,10 @@ msgid "Romaji"
 msgstr "ローマ字"
 
 #: action_list.php:182 action_list.php:391 attend_aggregate.php:106
-#: batch_person_text.php:39 batch_person_text.php:40 batch_person_xml.php:116
-#: batch_person_xml.php:117 batch_person_xml.php:118 batch_person_xml.php:219
-#: batch_person_xml.php:220 batch_person_xml.php:221 batch_person_xml.php:249
-#: batch_person_xml.php:250 batch_person_xml.php:251 batch_person_xml.php:276
+#: batch_person_text.php:39 batch_person_text.php:40 batch_person_xml.php:127
+#: batch_person_xml.php:128 batch_person_xml.php:129 batch_person_xml.php:231
+#: batch_person_xml.php:232 batch_person_xml.php:233 batch_person_xml.php:261
+#: batch_person_xml.php:262 batch_person_xml.php:263 batch_person_xml.php:288
 #: birthday.php:120 donation_list.php:235 donation_list.php:431
 #: donation_list.php:433 donation_summary.php:132 donation_summary.php:134
 #: edit.php:240 edit.php:394 household.php:172 individual.php:453
@@ -201,19 +201,19 @@ msgid "Furigana"
 msgstr "フリガナ"
 
 #: action_list.php:193 action_list.php:497 batch_action.php:81
-#: batch_attendance.php:85 donation_list.php:309 individual.php:789
+#: batch_attendance.php:81 donation_list.php:309 individual.php:789
 #: individual.php:831 individual.php:881 individual.php:918 individual.php:976
-#: individual.php:1038 individual.php:1272 overview.php:159 overview.php:186
+#: individual.php:1038 individual.php:1271 overview.php:159 overview.php:186
 #: overview.php:213
 msgid "Date"
 msgstr "日付"
 
 #: action_list.php:212 action_list.php:516 batch_action.php:63
-#: batch_action.php:82 db_settings.php:918 donation_list.php:347
+#: batch_action.php:82 db_settings.php:141 donation_list.php:347
 #: edit_pledge.php:95 individual.php:846 individual.php:895 individual.php:944
 #: individual.php:998 individual.php:1060 individual.php:1094
-#: individual.php:1148 individual.php:1220 individual.php:1344
-#: individual.php:1356 overview.php:161 overview.php:187 overview.php:214
+#: individual.php:1148 individual.php:1220 individual.php:1343
+#: individual.php:1355 overview.php:161 overview.php:187 overview.php:214
 #: pledge_list.php:315
 msgid "Description"
 msgstr "内容"
@@ -239,8 +239,8 @@ msgid "Email"
 msgstr "メールアドレス"
 
 #: action_list.php:249 action_list.php:429 attend_aggregate.php:139
-#: batch_person_text.php:41 batch_person_xml.php:120 batch_person_xml.php:223
-#: batch_person_xml.php:253 birthday.php:175 donation_list.php:262 edit.php:461
+#: batch_person_text.php:41 batch_person_xml.php:131 batch_person_xml.php:235
+#: batch_person_xml.php:265 birthday.php:175 donation_list.php:262 edit.php:461
 #: household.php:78 household.php:80 individual.php:293 individual.php:488
 #: individual.php:672 list.php:370 pledge_list.php:171 search.php:35
 #: search.php:159 selectorg.php:37
@@ -248,7 +248,7 @@ msgid "Address"
 msgstr "住所"
 
 #: action_list.php:260 action_list.php:440 attend_aggregate.php:158
-#: batch_person_text.php:54 batch_person_xml.php:134 batch_person_xml.php:237
+#: batch_person_text.php:54 batch_person_xml.php:145 batch_person_xml.php:249
 #: birthday.php:185 household.php:206 individual.php:268 individual.php:507
 #: individual.php:691 list.php:391 overview.php:61 overview.php:125
 #: overview.php:139 pledge_list.php:175
@@ -256,15 +256,15 @@ msgid "Age"
 msgstr "年齢"
 
 #: action_list.php:269 action_list.php:450 batch_person_text.php:53
-#: batch_person_xml.php:132 batch_person_xml.php:235 batch_person_xml.php:282
+#: batch_person_xml.php:143 batch_person_xml.php:247 batch_person_xml.php:294
 #: birthday.php:195 edit.php:511 household.php:216 pledge_list.php:176
 #: search.php:166
 msgid "Birthdate"
 msgstr "生年月日"
 
 #: action_list.php:278 action_list.php:460 attend_aggregate.php:167
-#: batch_person_text.php:50 batch_person_xml.php:131 batch_person_xml.php:234
-#: batch_person_xml.php:281 birthday.php:205 edit.php:506 household.php:198
+#: batch_person_text.php:50 batch_person_xml.php:142 batch_person_xml.php:246
+#: batch_person_xml.php:293 birthday.php:205 edit.php:506 household.php:198
 #: individual.php:516 individual.php:700 list.php:401 overview.php:124
 #: pledge_list.php:174 search.php:165
 msgid "Sex"
@@ -277,33 +277,31 @@ msgid "Country"
 msgstr "母国"
 
 #: action_list.php:294 action_list.php:478 attend_aggregate.php:183
-#: batch_person_xml.php:135 batch_person_xml.php:238 batch_person_xml.php:283
+#: batch_person_xml.php:146 batch_person_xml.php:250 batch_person_xml.php:295
 #: birthday.php:221 edit.php:517 household.php:249 individual.php:275
 #: individual.php:530 individual.php:714 list.php:417 overview.php:65
 #: pledge_list.php:178 search.php:38 search.php:167
 msgid "URL"
 msgstr "URL"
 
-#: action_list.php:303 batch_overview.php:15 batch_person_xml.php:138
-#: batch_person_xml.php:147 birthday.php:229 birthday.php:306
-#: donation_list.php:290 household.php:226 individual.php:353
-#: individual.php:545 individual.php:729 list.php:437 overview.php:99
-#: search.php:49
+#: action_list.php:303 batch_overview.php:15 batch_person_xml.php:149
+#: batch_person_xml.php:158 birthday.php:229 birthday.php:306
+#: donation_list.php:290 household.php:226 individual.php:353 individual.php:545
+#: individual.php:729 list.php:437 overview.php:99 search.php:49
 msgid "Categories"
 msgstr "カテゴリ"
 
 #: action_list.php:313 attend_aggregate.php:33 attend_datesums.php:42
-#: batch_person_xml.php:199 birthday.php:240 donation_list.php:299
+#: batch_person_xml.php:210 birthday.php:240 donation_list.php:299
 #: individual.php:555 individual.php:739 list.php:447
 msgid "Events"
 msgstr "イベント"
 
 #: action_list.php:323 action_list.php:487 attend_aggregate.php:191
-#: batch_person_text.php:59 batch_person_xml.php:137 batch_person_xml.php:240
-#: batch_person_xml.php:265 birthday.php:253 donation_list.php:281 edit.php:537
+#: batch_person_text.php:59 batch_person_xml.php:148 batch_person_xml.php:252
+#: batch_person_xml.php:277 birthday.php:253 donation_list.php:281 edit.php:537
 #: household.php:264 individual.php:332 individual.php:537 individual.php:721
-#: list.php:426 overview.php:90 pledge_list.php:179 search.php:40
-#: search.php:169
+#: list.php:426 overview.php:90 pledge_list.php:179 search.php:40 search.php:169
 msgid "Remarks"
 msgstr "備考"
 
@@ -312,215 +310,220 @@ msgstr "備考"
 msgid "%d actions"
 msgstr "%dのアクション"
 
-#: ajax_action.php:10
+#: ⁨ajax_action - Copy.php⁩:10 ajax_action.php:10
 msgid "Update successful."
 msgstr "変更ができました。"
 
-#: ajax_action.php:26
+#: ⁨ajax_action - Copy.php⁩:26 ajax_action.php:26
 msgid "Delete successful."
 msgstr "削除ができました。"
 
-#: ajax_action.php:27
+#: ⁨ajax_action - Copy.php⁩:27 ajax_action.php:27
 msgid "Record to delete was not found."
 msgstr "削除しようですが、項目は見つかりませんでした。"
 
+#: ⁨ajax_action - Copy.php⁩:43 ⁨ajax_action - Copy.php⁩:63 ⁨ajax_action - Copy.php⁩:84
 #: ajax_action.php:43 ajax_action.php:63 ajax_action.php:84
 msgid "Changes saved."
 msgstr "変更を保存しました。"
 
+#: ⁨ajax_action - Copy.php⁩:43 ⁨ajax_action - Copy.php⁩:63 ⁨ajax_action - Copy.php⁩:84
 #: ajax_action.php:43 ajax_action.php:63 ajax_action.php:84
 msgid "Failed to save."
 msgstr "保存に失敗しました。"
 
+#: ⁨ajax_action - Copy.php⁩:49 ⁨ajax_action - Copy.php⁩:69 ⁨ajax_action - Copy.php⁩:91
 #: ajax_action.php:49 ajax_action.php:69 ajax_action.php:91
 msgid "Deleted."
 msgstr "削除しました。"
 
+#: ⁨ajax_action - Copy.php⁩:49 ⁨ajax_action - Copy.php⁩:69 ⁨ajax_action - Copy.php⁩:91
 #: ajax_action.php:49 ajax_action.php:69 ajax_action.php:91
 msgid "Not found."
 msgstr "見つかりませんでした。"
 
-#: ajax_action.php:96 ajax_action.php:172
+#: ⁨ajax_action - Copy.php⁩:96 ⁨ajax_action - Copy.php⁩:172 ajax_action.php:96
+#: ajax_action.php:172
 msgid "Access denied."
 msgstr "アクセスが拒否されました。"
 
-#: ajax_action.php:101 db_settings.php:764
+#: ⁨ajax_action - Copy.php⁩:101 ajax_action.php:101 db_settings.php:949
 msgid "User Name cannot be blank."
 msgstr "ユーザー名を入力してください。"
 
-#: ajax_action.php:104 db_settings.php:767
+#: ⁨ajax_action - Copy.php⁩:104 ajax_action.php:104 db_settings.php:952
 msgid "UserID cannot be blank."
 msgstr "ユーザーIDを入力してください。"
 
-#: ajax_action.php:116 db_settings.php:770
+#: ⁨ajax_action - Copy.php⁩:116 ajax_action.php:116 db_settings.php:955
 msgid "You must enter a password for a new user."
 msgstr "新規ユーザーのために、パスワードの入力は必要です。"
 
-#: ajax_action.php:122 ajax_action.php:138
+#: ⁨ajax_action - Copy.php⁩:122 ⁨ajax_action - Copy.php⁩:138 ajax_action.php:122
+#: ajax_action.php:138
 #, php-format
 msgid "UserID '%s' is already in use by %s. Please choose a different UserID."
 msgstr ""
-"ユーザーID「%s」は、現在ユーザー「%s」に使われています。他のユーザーIDを選ん"
-"でしてください。"
+"ユーザーID「%s」は、現在ユーザー「%s」に使われています。他のユーザーIDを選んで"
+"してください。"
 
-#: ajax_action.php:129
+#: ⁨ajax_action - Copy.php⁩:129 ajax_action.php:129
 msgid "New user successfully added."
 msgstr "ユーザーを作成しました。"
 
-#: ajax_action.php:164
+#: ⁨ajax_action - Copy.php⁩:164 ajax_action.php:164
 msgid "User information successfully updated."
 msgstr "ユーザー情報を変更しました。"
 
-#: ajax_action.php:176
+#: ⁨ajax_action - Copy.php⁩:176 ajax_action.php:176
 msgid "Invalid user ID"
 msgstr "無効なユーザーID"
 
-#: ajax_action.php:185
+#: ⁨ajax_action - Copy.php⁩:185 ajax_action.php:185
 msgid "User successfully deleted."
 msgstr "ユーザーを削除しました。"
 
-#: ajax_action.php:187
+#: ⁨ajax_action - Copy.php⁩:187 ajax_action.php:187
 msgid "User not found."
 msgstr "ユーザーが見つかりませんでした。"
 
-#: ajax_action.php:197 db_settings.php:720
+#: ⁨ajax_action - Copy.php⁩:197 ajax_action.php:197 db_settings.php:905
 msgid "Category name cannot be blank."
 msgstr "カテゴリ名を入力してください。"
 
-#: ajax_action.php:200 db_settings.php:724
+#: ⁨ajax_action - Copy.php⁩:200 ajax_action.php:200 db_settings.php:909
 msgid "Please choose an application."
 msgstr "適用を指定してください。"
 
-#: ajax_action.php:208
+#: ⁨ajax_action - Copy.php⁩:208 ajax_action.php:208
 msgid "Category successfully added."
 msgstr "カテゴリを作成しました。"
 
-#: ajax_action.php:213
+#: ⁨ajax_action - Copy.php⁩:213 ajax_action.php:213
 msgid "Category successfully updated."
 msgstr "カテゴリを変更しました。"
 
-#: ajax_action.php:223
+#: ⁨ajax_action - Copy.php⁩:223 ajax_action.php:223
 msgid "Invalid category ID"
 msgstr "無効なカテゴリID"
 
-#: ajax_action.php:231
+#: ⁨ajax_action - Copy.php⁩:231 ajax_action.php:231
 msgid "Category successfully deleted."
 msgstr "カテゴリを削除しました。"
 
-#: ajax_action.php:233
+#: ⁨ajax_action - Copy.php⁩:233 ajax_action.php:233
 msgid "Category not found."
 msgstr "カテゴリが見つかりませんでした。"
 
-#: ajax_action.php:242 db_settings.php:730
+#: ⁨ajax_action - Copy.php⁩:242 ajax_action.php:242 db_settings.php:915
 msgid "Event name cannot be blank."
 msgstr "イベント名を入力してください。"
 
-#: ajax_action.php:253
+#: ⁨ajax_action - Copy.php⁩:253 ajax_action.php:254
 msgid "Event successfully added."
 msgstr "イベントを作成しました。"
 
-#: ajax_action.php:261
+#: ⁨ajax_action - Copy.php⁩:261 ajax_action.php:259
 msgid "Event information successfully updated."
 msgstr "イベント情報を変更しました。"
 
-#: ajax_action.php:271
+#: ⁨ajax_action - Copy.php⁩:271 ajax_action.php:269
 msgid "Invalid event ID"
 msgstr "無効なイベントID"
 
-#: ajax_action.php:278 db_settings.php:575
+#: ⁨ajax_action - Copy.php⁩:278 ajax_action.php:276 db_settings.php:760
 msgid "Please select an event to reassign to."
 msgstr "再割り当て先のイベントを選んでください。"
 
-#: ajax_action.php:290
+#: ⁨ajax_action - Copy.php⁩:290 ajax_action.php:288
 msgid "Event successfully deleted."
 msgstr "イベントを削除しました。"
 
-#: ajax_action.php:292
+#: ⁨ajax_action - Copy.php⁩:292 ajax_action.php:290
 msgid "Event not found."
 msgstr "イベントが見つかりませんでした。"
 
-#: ajax_action.php:301 db_settings.php:758
+#: ⁨ajax_action - Copy.php⁩:301 ajax_action.php:299 db_settings.php:943
 msgid "Donation Type name cannot be blank."
 msgstr "献金タイプの名前を入力してください。"
 
-#: ajax_action.php:310
+#: ⁨ajax_action - Copy.php⁩:310 ajax_action.php:308
 msgid "Donation Type successfully added."
 msgstr "献金タイプを作成しました。"
 
-#: ajax_action.php:315
+#: ⁨ajax_action - Copy.php⁩:315 ajax_action.php:313
 msgid "Donation Type successfully updated."
 msgstr "献金タイプを更新しました。"
 
-#: ajax_action.php:325
+#: ⁨ajax_action - Copy.php⁩:325 ajax_action.php:323
 msgid "Invalid Donation Type ID"
 msgstr "無効な献金タイプID"
 
-#: ajax_action.php:347
+#: ⁨ajax_action - Copy.php⁩:347 ajax_action.php:345
 msgid "Donation Type successfully deleted."
 msgstr "献金タイプを削除しました。"
 
-#: ajax_action.php:349
+#: ⁨ajax_action - Copy.php⁩:349 ajax_action.php:347
 msgid "Donation Type not found."
 msgstr "献金タイプが見つかりませんでした。"
 
-#: ajax_action.php:358 db_settings.php:752
+#: ⁨ajax_action - Copy.php⁩:358 ajax_action.php:356 db_settings.php:937
 msgid "Action Type name cannot be blank."
 msgstr "アクションタイプの名前を入力してください。"
 
-#: ajax_action.php:368
+#: ⁨ajax_action - Copy.php⁩:368 ajax_action.php:366
 msgid "Action Type successfully added."
 msgstr "アクションタイプを作成しました。"
 
-#: ajax_action.php:373
+#: ⁨ajax_action - Copy.php⁩:373 ajax_action.php:371
 msgid "Action Type successfully updated."
 msgstr "アクションタイプを更新しました。"
 
-#: ajax_action.php:383
+#: ⁨ajax_action - Copy.php⁩:383 ajax_action.php:381
 msgid "Invalid Action Type ID"
 msgstr "無効なアクションタイプID"
 
-#: ajax_action.php:400
+#: ⁨ajax_action - Copy.php⁩:400 ajax_action.php:398
 msgid "Action Type successfully deleted."
 msgstr "アクションタイプを削除しました。"
 
-#: ajax_action.php:402
+#: ⁨ajax_action - Copy.php⁩:402 ajax_action.php:400
 msgid "Action Type not found."
 msgstr "アクションタイプが見つかりませんでした。"
 
-#: ajax_action.php:413 db_settings.php:746
+#: ⁨ajax_action - Copy.php⁩:413 ajax_action.php:411 db_settings.php:931
 msgid "All fields must be filled in."
 msgstr "空白のフィールドはいけません。"
 
-#: ajax_action.php:423
+#: ⁨ajax_action - Copy.php⁩:423 ajax_action.php:421
 msgid "Postal Code data successfully updated."
 msgstr "郵便番号関係のデータを変更しました。"
 
-#: ajax_action.php:425
+#: ⁨ajax_action - Copy.php⁩:425 ajax_action.php:423
 msgid "No data was changed."
 msgstr "データは変更されませんでした。"
 
 #: ajax_request.php:35
 msgid ""
-"Postal Code was not found - please double-check the number using the "
-"internet."
+"Postal Code was not found - please double-check the number using the internet."
 msgstr "郵便番号は見つかりませんでした。ウエブで番号を確認してください。"
 
-#: ajax_request.php:140
+#: ajax_request.php:139
 msgid "Never logged in"
 msgstr "ログインしたことがない"
 
-#: ajax_request.php:142
+#: ajax_request.php:141
 #, php-format
 msgid "Last login: %s"
 msgstr "前回のログイン：%s"
 
-#: ajax_request.php:143
+#: ajax_request.php:142
 #, php-format
 msgid "Total: %d"
 msgstr "合計：%d"
 
-#: ajax_request.php:202 ajax_request.php:215 ajax_request.php:228
-#: ajax_request.php:264
+#: ajax_request.php:201 ajax_request.php:214 ajax_request.php:227
+#: ajax_request.php:263
 msgid "Record not found."
 msgstr "項目は見つかりませんでした。"
 
@@ -564,8 +567,8 @@ msgstr "%d人/団体"
 msgid "Born"
 msgstr "誕生日"
 
-#: attend_aggregate.php:200 batch_attendance.php:67 db_settings.php:910
-#: individual.php:1261 individual.php:1306 overview.php:185 overview.php:212
+#: attend_aggregate.php:200 batch_attendance.php:66 db_settings.php:133
+#: individual.php:1261 individual.php:1305 overview.php:185 overview.php:212
 msgid "Event"
 msgstr "イベント"
 
@@ -623,9 +626,9 @@ msgid ""
 "To delete entries: click to select a cell, Ctrl-click to select additional "
 "cells, and/or drag to select a range. Then click this button:"
 msgstr ""
-"項目を削除するには：セルをクリックして選択、Ctrlキーを押しながらクリックして"
-"追加のセルを選択、またはドラッグして範囲を選択します。その後、このボタンをク"
-"リック："
+"項目を削除するには：セルをクリックして選択、Ctrlキーを押しながらクリックして追"
+"加のセルを選択、またはドラッグして範囲を選択します。その後、このボタンをクリッ"
+"ク："
 
 #: attend_detail.php:144
 msgid "Delete Selected Cells"
@@ -670,53 +673,58 @@ msgstr "削除対象のために選択されたセルはありません。"
 msgid "Event Attendance"
 msgstr "イベントの参加"
 
-#: attendance.php:30
+#: attendance.php:32
 msgid "Single Event, Detail Info"
 msgstr "ひとつのイベントの詳細情報"
 
-#: attendance.php:32
+#: attendance.php:34
 msgid "Select an event..."
 msgstr "イベントを選択…"
 
-#: attendance.php:35 attendance.php:36
+#: attendance.php:37 batch_attendance.php:78 batch_person_xml.php:219
+#: individual.php:1269
+msgid "include past events"
+msgstr "過去のイベントを含む"
+
+#: attendance.php:38 attendance.php:39
 msgid "Show Detail Chart"
 msgstr "詳細表"
 
-#: attendance.php:39
+#: attendance.php:42
 msgid "Multiple Events, Aggregate Info"
 msgstr "複数のイベントのまとめる情報"
 
-#: attendance.php:43
+#: attendance.php:46
 #, php-format
 msgid "Show only attendance of at least %sX"
 msgstr "%sX 以上の参加回だけを表示"
 
-#: attendance.php:45 attendance.php:46
+#: attendance.php:48 attendance.php:49
 msgid "Aggregate List by Attendee"
 msgstr "参加者ごとのまとめの表"
 
-#: attendance.php:49 attendance.php:50
+#: attendance.php:52 attendance.php:53
 msgid "Number Chart by Event and Date"
 msgstr "イベントと日付ごとの参加数の表"
 
-#: attendance.php:80
+#: attendance.php:91
 msgid "Please select an event."
 msgstr "イベントを選んでください。"
 
-#: attendance.php:92 attendance.php:104
+#: attendance.php:103 attendance.php:115
 msgid "Please select at least one event."
 msgstr "イベントをひとつ以上選択する必要があります。"
 
-#: basket.php:10 db_settings.php:88 db_settings.php:128 db_settings.php:150
-#: db_settings.php:198 db_settings.php:222 db_settings.php:256
-#: db_settings.php:287 db_settings.php:313 db_settings.php:338
-#: db_settings.php:381 db_settings.php:440 db_settings.php:482
-#: db_settings.php:553 db_settings.php:602 db_settings.php:672
-#: db_settings.php:702 functions.php:204
+#: basket.php:10 db_settings.php:273 db_settings.php:313 db_settings.php:335
+#: db_settings.php:383 db_settings.php:407 db_settings.php:441
+#: db_settings.php:472 db_settings.php:498 db_settings.php:523
+#: db_settings.php:566 db_settings.php:625 db_settings.php:667
+#: db_settings.php:738 db_settings.php:787 db_settings.php:857
+#: db_settings.php:887 functions.php:204
 msgid "Your login has timed out - please refresh the page."
 msgstr ""
-"あなたのログインはタイムアウトしました。このページを更新すれば、またログイン"
-"できます。"
+"あなたのログインはタイムアウトしました。このページを更新すれば、またログインで"
+"きます。"
 
 #: batch.php:4 batch.php:46 functions.php:76
 msgid "Batch Processing"
@@ -745,8 +753,8 @@ msgid ""
 "<strong>&gt;</strong> or <strong>&lt;</strong>. To add/remove all, click "
 "<strong>&gt;&gt;</strong> or <strong>&lt;&lt;</strong>."
 msgstr ""
-"名前をクリックして選択し、&gt; または &lt; で追加・削除します。Ctrl/Cmd・"
-"Shiftキーで複数選択できます。&gt;&gt; / &lt;&lt; で全件を追加・削除します。"
+"名前をクリックして選択し、&gt; または &lt; で追加・削除します。Ctrl/Cmd・Shift"
+"キーで複数選択できます。&gt;&gt; / &lt;&lt; で全件を追加・削除します。"
 
 #: batch.php:75
 msgid "Available"
@@ -870,8 +878,8 @@ msgstr "%s の項目を追加しました。"
 msgid ""
 "However, the following %s people already had a action of type \"%s\" on %s."
 msgstr ""
-"しかし、下記の %s人は、「%s」と言うアクションタイプで %sにアクション項目が既"
-"にありました。"
+"しかし、下記の %s人は、「%s」と言うアクションタイプで %sにアクション項目が既に"
+"ありました。"
 
 #: batch_action.php:60
 msgid "Do you still want the additional records added?"
@@ -915,81 +923,81 @@ msgstr "既に存在していた %s の記録を変更しました。"
 msgid "%s existing records were unchanged."
 msgstr "もう存在して変更不必要な項目は%s個ありました。"
 
-#: batch_attendance.php:63
+#: batch_attendance.php:62
 msgid "Select an event and at least one date, and click the button."
 msgstr "イベントと日付一つ以上を選んでから、ボタンをクリックしてください。"
 
-#: batch_attendance.php:87 individual.php:1274
+#: batch_attendance.php:83 individual.php:1273
 msgid "Optional End Date"
 msgstr "最終日付（任意）"
 
-#: batch_attendance.php:91 individual.php:1276
+#: batch_attendance.php:87 individual.php:1275
 msgid "Days of week for date range"
 msgstr "日付期間のための曜日"
 
-#: batch_attendance.php:92 individual.php:1277
+#: batch_attendance.php:88 individual.php:1276
 msgid "Sunday"
 msgstr "日曜日"
 
-#: batch_attendance.php:93 individual.php:1278
+#: batch_attendance.php:89 individual.php:1277
 msgid "Monday"
 msgstr "月曜日"
 
-#: batch_attendance.php:94 individual.php:1279
+#: batch_attendance.php:90 individual.php:1278
 msgid "Tuesday"
 msgstr "火曜日"
 
-#: batch_attendance.php:95 individual.php:1280
+#: batch_attendance.php:91 individual.php:1279
 msgid "Wednesday"
 msgstr "水曜日"
 
-#: batch_attendance.php:96 individual.php:1281
+#: batch_attendance.php:92 individual.php:1280
 msgid "Thursday"
 msgstr "木曜日"
 
-#: batch_attendance.php:97 individual.php:1282
+#: batch_attendance.php:93 individual.php:1281
 msgid "Friday"
 msgstr "金曜日"
 
-#: batch_attendance.php:98 individual.php:1283
+#: batch_attendance.php:94 individual.php:1282
 msgid "Saturday"
 msgstr "土曜日"
 
-#: batch_attendance.php:101 individual.php:1284
+#: batch_attendance.php:97 individual.php:1283
 msgid "Start Time"
 msgstr "開日付"
 
-#: batch_attendance.php:103 individual.php:1286
+#: batch_attendance.php:99 individual.php:1285
 msgid "End Time"
 msgstr "終末時"
 
-#: batch_attendance.php:106
+#: batch_attendance.php:102
 msgid "Save Attendance Entries"
 msgstr "参加記録を保存"
 
-#: batch_attendance.php:148 individual.php:2253
+#: batch_attendance.php:140 individual.php:2242
 msgid "You must select an event."
 msgstr "イベントを選択してください。"
 
-#: batch_attendance.php:152 individual.php:1569 individual.php:1748
-#: individual.php:2161 individual.php:2179 individual.php:2257
+#: batch_attendance.php:144 individual.php:1568 individual.php:1747
+#: individual.php:2150 individual.php:2168 individual.php:2246
 msgid "You must enter a date."
 msgstr "日付が必要です。"
 
-#: batch_attendance.php:158 batch_attendance.php:164 individual.php:2167
-#: individual.php:2185 individual.php:2263 individual.php:2269
+#: batch_attendance.php:150 batch_attendance.php:156 individual.php:2156
+#: individual.php:2174 individual.php:2252 individual.php:2258
 msgid "Date is invalid."
 msgstr "日付は正しくありません。"
 
-#: batch_attendance.php:171 individual.php:2276
+#: batch_attendance.php:163 individual.php:2265
 msgid "You must enter both start and end times for this event."
 msgstr "このイベントの開始時間と終了時間の両方を入力してください。"
 
-#: batch_attendance.php:177 individual.php:2282
+#: batch_attendance.php:169 individual.php:2271
 msgid "Start time must be in HH:MM format (e.g., 09:30 or 14:00)."
 msgstr "開始時間はHH:MM形式で入力してください（例：09:30、14:00）。"
 
-#: batch_attendance.php:182 individual.php:2287
+#: batch_attendance.php:174 individual.php:2276
 msgid "End time must be in HH:MM format (e.g., 09:30 or 14:00)."
 msgstr "終了時間はHH:MM形式で入力してください（例：09:30、14:00）。"
 
@@ -1167,7 +1175,7 @@ msgstr "団体所属を保存"
 msgid "Please enter an Organization ID."
 msgstr "団体IDを入力してください。"
 
-#: batch_organization.php:67 individual.php:2152
+#: batch_organization.php:67 individual.php:2141
 msgid "Not a valid Organization ID. If you\\'re not sure, try Search/Browse."
 msgstr ""
 "団体IDは正しくありません。IDを分からない場合、「検索/参照」を使ってみてくださ"
@@ -1229,13 +1237,13 @@ msgstr "並び替え"
 msgid "Name (by Furigana/Romaji)"
 msgstr "名前（ふりがな/ローマ字順）"
 
-#: batch_person_format.php:25 batch_person_text.php:52 batch_person_xml.php:133
-#: batch_person_xml.php:236 birthday.php:128 individual.php:266 overview.php:59
+#: batch_person_format.php:25 batch_person_text.php:52 batch_person_xml.php:144
+#: batch_person_xml.php:248 birthday.php:128 individual.php:266 overview.php:59
 #: overview.php:125
 msgid "Birthday"
 msgstr "誕生日"
 
-#: batch_person_format.php:26 batch_person_xml.php:279 db_settings.php:790
+#: batch_person_format.php:26 batch_person_xml.php:291 db_settings.php:25
 #: edit.php:454 edit.php:457
 msgid "Postal Code"
 msgstr "郵便番号"
@@ -1262,13 +1270,13 @@ msgstr "名前（漢字の場合、%sも）"
 msgid "%s (Name, if Japanese)"
 msgstr "%s（名前は漢字なら、それも）"
 
-#: batch_person_text.php:43 batch_person_xml.php:122 batch_person_xml.php:225
-#: batch_person_xml.php:255 household.php:83
+#: batch_person_text.php:43 batch_person_xml.php:133 batch_person_xml.php:237
+#: batch_person_xml.php:267 household.php:83
 msgid "Romaji Address"
 msgstr "住所のローマ字"
 
-#: batch_person_text.php:45 batch_person_xml.php:124 batch_person_xml.php:227
-#: batch_person_xml.php:257
+#: batch_person_text.php:45 batch_person_xml.php:135 batch_person_xml.php:239
+#: batch_person_xml.php:269
 msgid "Postal Code Only"
 msgstr "郵便番号のみ"
 
@@ -1276,20 +1284,19 @@ msgstr "郵便番号のみ"
 msgid "Landline Phone and/or Cell Phone"
 msgstr "固定/携帯の電話番号"
 
-#: batch_person_text.php:47 batch_person_xml.php:127 batch_person_xml.php:230
-#: batch_person_xml.php:260 edit.php:481 individual.php:290 search.php:161
+#: batch_person_text.php:47 batch_person_xml.php:138 batch_person_xml.php:242
+#: batch_person_xml.php:272 edit.php:481 individual.php:290 search.php:161
 msgid "Landline Phone"
 msgstr "固定電話"
 
-#: batch_person_text.php:48 batch_person_xml.php:128 batch_person_xml.php:231
-#: batch_person_xml.php:261 edit.php:498 get_duplicates.php:38
-#: household.php:236 individual.php:273 overview.php:70 search.php:36
-#: search.php:163
+#: batch_person_text.php:48 batch_person_xml.php:139 batch_person_xml.php:243
+#: batch_person_xml.php:273 edit.php:498 get_duplicates.php:38 household.php:236
+#: individual.php:273 overview.php:70 search.php:36 search.php:163
 msgid "Cell Phone"
 msgstr "携帯電話"
 
-#: batch_person_text.php:51 batch_person_xml.php:130 batch_person_xml.php:233
-#: batch_person_xml.php:263 batch_person_xml.php:280 search.php:37
+#: batch_person_text.php:51 batch_person_xml.php:141 batch_person_xml.php:245
+#: batch_person_xml.php:275 batch_person_xml.php:292 search.php:37
 #: search.php:164
 msgid "Email Address"
 msgstr "メールアドレス"
@@ -1298,8 +1305,8 @@ msgstr "メールアドレス"
 msgid "Birthdate (Age)"
 msgstr "生年月日（年齢）"
 
-#: batch_person_text.php:57 batch_person_xml.php:136 batch_person_xml.php:239
-#: batch_person_xml.php:264 batch_person_xml.php:284 donation_list.php:273
+#: batch_person_text.php:57 batch_person_xml.php:147 batch_person_xml.php:251
+#: batch_person_xml.php:276 batch_person_xml.php:296 donation_list.php:273
 #: edit.php:521 individual.php:274 overview.php:64
 msgid "Home Country"
 msgstr "母国"
@@ -1373,105 +1380,105 @@ msgstr "空白のフィールドも含む"
 msgid "Please select a category for field %s."
 msgstr "フィールド%sのカテゴリを選択してください。"
 
-#: batch_person_xml.php:94
+#: batch_person_xml.php:105
 msgid "Invalid XML tag name (no spaces or Japanese characters allowed)."
 msgstr "正しくないXMLタッグ名（スペースや全角字は禁止）"
 
-#: batch_person_xml.php:112
+#: batch_person_xml.php:123
 msgid "Data"
 msgstr "データ"
 
-#: batch_person_xml.php:125 batch_person_xml.php:228 batch_person_xml.php:258
+#: batch_person_xml.php:136 batch_person_xml.php:240 batch_person_xml.php:270
 #: edit.php:465 search.php:34 search.php:160
 msgid "Label Name"
 msgstr "ラベル用名前"
 
-#: batch_person_xml.php:126 batch_person_xml.php:229 batch_person_xml.php:259
+#: batch_person_xml.php:137 batch_person_xml.php:241 batch_person_xml.php:271
 msgid "Landline and/or Cell Phone"
 msgstr "固定/携帯の電話番号"
 
-#: batch_person_xml.php:129 batch_person_xml.php:232 batch_person_xml.php:262
+#: batch_person_xml.php:140 batch_person_xml.php:244 batch_person_xml.php:274
 #: edit.php:484 household.php:90 individual.php:291 overview.php:86
 #: search.php:36 search.php:162
 msgid "FAX"
 msgstr "FAX"
 
-#: batch_person_xml.php:139 functions.php:66 individual.php:779
-#: overview.php:156 search.php:76
+#: batch_person_xml.php:150 functions.php:66 individual.php:779 overview.php:156
+#: search.php:76
 msgid "Actions"
 msgstr "アクション"
 
-#: batch_person_xml.php:140 search.php:129
+#: batch_person_xml.php:151 search.php:129
 msgid "Attendance"
 msgstr "イベントの参加"
 
-#: batch_person_xml.php:141
+#: batch_person_xml.php:152
 msgid "Members (organizations only)"
 msgstr "メンバー（団体のみ）"
 
-#: batch_person_xml.php:142
+#: batch_person_xml.php:153
 msgid "Organizations (people only)"
 msgstr "所属する団体（人のみ）"
 
-#: batch_person_xml.php:156 batch_person_xml.php:180 batch_person_xml.php:208
+#: batch_person_xml.php:167 batch_person_xml.php:191 batch_person_xml.php:220
 msgid "XML Tag Name"
 msgstr "XMLタッグ名"
 
-#: batch_person_xml.php:159 batch_person_xml.php:183
+#: batch_person_xml.php:170 batch_person_xml.php:194
 msgid "Combine in one element"
 msgstr "ひとつのエレメントにする"
 
-#: batch_person_xml.php:162
+#: batch_person_xml.php:173
 msgid "Category names"
 msgstr "カテゴリ名"
 
-#: batch_person_xml.php:171 db_settings.php:838
+#: batch_person_xml.php:182 db_settings.php:73
 msgid "Action Types"
 msgstr "アクションタイプ"
 
-#: batch_person_xml.php:186
+#: batch_person_xml.php:197
 msgid "All data in XML sub-elements"
 msgstr "すべてのXMLサブエレメントにあるデータ"
 
-#: batch_person_xml.php:188
+#: batch_person_xml.php:199
 msgid "Action type names only"
 msgstr "アクションタイプ名のみ"
 
-#: batch_person_xml.php:190
+#: batch_person_xml.php:201
 msgid "Descriptions only"
 msgstr "内容のみ"
 
-#: batch_person_xml.php:192
+#: batch_person_xml.php:203
 msgid "Custom value text"
 msgstr "特別な値のテキスト"
 
-#: batch_person_xml.php:210
+#: batch_person_xml.php:222
 msgid "Fill Text"
 msgstr "フィルのテキスト"
 
-#: batch_person_xml.php:216
+#: batch_person_xml.php:228
 msgid "Member Fields"
 msgstr "メンバーのフィールド"
 
-#: batch_person_xml.php:246
+#: batch_person_xml.php:258
 msgid "Org Fields"
 msgstr "団体のフィールド"
 
-#: batch_person_xml.php:272 search.php:46 search.php:64 search.php:89
+#: batch_person_xml.php:284 search.php:46 search.php:64 search.php:89
 #: search.php:102 search.php:125 search.php:148 search.php:174
 msgid "Add another..."
 msgstr "同じような条件を追加…"
 
-#: batch_person_xml.php:274
+#: batch_person_xml.php:286
 msgid "Order By"
 msgstr "順番"
 
-#: batch_person_xml.php:276
+#: batch_person_xml.php:288
 #, php-format
 msgid "%s (family name)"
 msgstr "%s （苗字）"
 
-#: batch_person_xml.php:286
+#: batch_person_xml.php:298
 msgid "Make XML File"
 msgstr "XMLファイルを作成"
 
@@ -1587,312 +1594,148 @@ msgstr "ダッシュボード"
 
 #: dashboard.php:39
 msgid ""
-"You don't have a dashboard yet.  If you would like one, talk to your "
-"KizunaDB administrator."
+"You don't have a dashboard yet.  If you would like one, talk to your KizunaDB "
+"administrator."
 msgstr ""
-"あなたはまだダッシュボードはありません。ほしいなら、KizunaDBの管理者にお問い"
-"合わせください。"
+"あなたはまだダッシュボードはありません。ほしいなら、KizunaDBの管理者にお問い合"
+"わせください。"
 
 #: dashboard.php:44
 msgid "'s Dashboard"
 msgstr "のダッシュボード"
 
-#: db_settings.php:5 db_settings.php:784
+#: db_settings.php:5 db_settings.php:19
 msgid "Database Settings"
 msgstr "基本データ設定"
 
-#: db_settings.php:301
-#, php-format
-msgid "Delete category \"%s\"?"
-msgstr "カテゴリ「%s」を削除しますか。"
-
-#: db_settings.php:302
-#, php-format
-msgid "%d people are currently in this category and will lose it."
-msgstr "現在%d人がこのカテゴリに入っており、外れます。"
-
-#: db_settings.php:356 db_settings.php:458
-msgid "Reassign and Delete"
-msgstr "再割り当てして削除"
-
-#: db_settings.php:358 db_settings.php:460
-msgid "Please select a type to reassign to."
-msgstr "再割り当て先のタイプを選んでください。"
-
-#: db_settings.php:364 db_settings.php:466 db_settings.php:583
-#: individual.php:1515 individual.php:1639 individual.php:1838
-msgid "Cancel"
-msgstr "キャンセル"
-
-#: db_settings.php:398
-#, php-format
-msgid "Are you sure you want to delete action type \"%s\"?"
-msgstr "アクションタイプ「%s」を削除してよろしいですか。"
-
-#: db_settings.php:403
-msgid "click here to view actions in a new tab"
-msgstr "ここをクリックすると、新しいタブでアクション一覧が開きます"
-
-#: db_settings.php:404
-#, php-format
-msgid ""
-"This type has been used on %1$d action records (%2$s). They are important "
-"history, so before deleting the type, the records need to be reassigned to "
-"another type:"
-msgstr ""
-"このタイプは%1$dのアクション記録（%2$s）に使われています。これらは履歴データ"
-"なので、タイプを削除する前に、別のタイプに再割り当てする必要があります："
-
-#: db_settings.php:412 db_settings.php:526
-msgid "Reassign to:"
-msgstr "再割り当て先："
-
-#: db_settings.php:419
-msgid "Prepend this text to action descriptions:"
-msgstr "アクションの「内容」の頭にこのテキストを入れる："
-
-#: db_settings.php:424
-#, php-format
-msgid "Delete action type \"%s\"?"
-msgstr "アクションタイプ「%s」を削除しますか。"
-
-#: db_settings.php:499
-#, php-format
-msgid "Are you sure you want to delete donation type \"%s\"?"
-msgstr "献金タイプ「%s」を削除してよろしいですか。"
-
-#: db_settings.php:504
-msgid "click here to view donations in a new tab"
-msgstr "ここをクリックすると、新しいタブで献金一覧が開きます"
-
-#: db_settings.php:506
-msgid "click here to view pledges in a new tab"
-msgstr "ここをクリックすると、新しいタブで約束一覧が開きます"
-
-#: db_settings.php:509
-#, php-format
-msgid ""
-"This type has been used on %1$d donations (%2$s) and %3$d pledges (%4$s). "
-"They are important history, so before deleting the type, the records need to "
-"be reassigned to another type:"
-msgstr ""
-"このタイプは%1$d件の献金（%2$s）と%3$d件の約束（%4$s）に使われています。これ"
-"らは履歴データなので、タイプを削除する前に、別のタイプに再割り当てする必要が"
-"あります："
-
-#: db_settings.php:513
-#, php-format
-msgid ""
-"This type has been used on %1$d donations (%2$s). They are important "
-"history, so before deleting the type, the records need to be reassigned to "
-"another type:"
-msgstr ""
-"このタイプは%1$d件の献金（%2$s）に使われています。これらは履歴データなので、"
-"タイプを削除する前に、別のタイプに再割り当てする必要があります："
-
-#: db_settings.php:517
-#, php-format
-msgid ""
-"This type has been used on %1$d pledges (%2$s). They are important history, "
-"so before deleting the type, the records need to be reassigned to another "
-"type:"
-msgstr ""
-"このタイプは%1$d件の献金の約束（%2$s）に使われています。これらは履歴データな"
-"ので、タイプを削除する前に、別のタイプに再割り当てする必要があります："
-
-#: db_settings.php:533
-msgid "Prepend this text to donation descriptions:"
-msgstr "献金の「内容」の頭にこのテキストを入れる："
-
-#: db_settings.php:538
-#, php-format
-msgid "Delete donation type \"%s\"?"
-msgstr "献金タイプ「%s」を削除しますか。"
-
-#: db_settings.php:571
-msgid "Confirm"
-msgstr "確認"
-
-#: db_settings.php:619
-#, php-format
-msgid "Are you sure you want to delete event \"%s\"?"
-msgstr "イベント「%s」を削除してよろしいですか。"
-
-#: db_settings.php:626
-msgid "click here to view attendance in a new tab"
-msgstr "ここをクリックすると、新しいタブで参加記録一覧が開きます"
-
-#: db_settings.php:627
-#, php-format
-msgid ""
-"This event has been used for %1$d attendance records, %2$s (%3$s). You can "
-"reassign the attendance records to another event to consolidate, or delete "
-"them completely. They are history, so it is best not to delete them, but "
-"here are your choices:"
-msgstr ""
-"このイベントは%1$d件の参加記録（%2$s、%3$s）に使用されています。記録を別のイ"
-"ベントに再割り当てして統合することも、完全に削除することもできます。これらは"
-"履歴データなので削除しないことをお勧めしますが、以下の選択肢があります："
-
-#: db_settings.php:636
-msgid "Reassign these records to another event:"
-msgstr "これらの記録を別のイベントに再割り当て："
-
-#: db_settings.php:645
-#, php-format
-msgid "Delete all %d attendance records along with the event."
-msgstr "イベントとともに%d件の参加記録を削除する。"
-
-#: db_settings.php:649
-#, php-format
-msgid "Delete event \"%s\"?"
-msgstr "イベント「%s」を削除しますか。"
-
-#: db_settings.php:693
-#, php-format
-msgid "Are you sure you want to delete user \"%1$s\" (UserID: %2$s)?"
-msgstr "ユーザー「%1$s」（ユーザーID：%2$s）を削除してよろしいですか。"
-
-#: db_settings.php:734
-msgid "Start date cannot be blank."
-msgstr "イベントの始まりの日付を指定してください。"
-
-#: db_settings.php:739
-msgid "End date cannot be blank."
-msgstr "イベントの終わりの日付を指定してください。"
-
-#: db_settings.php:773
-msgid "The two password entries don't match."
-msgstr "入力された二つのパスワードは異なります。"
-
-#: db_settings.php:781
+#: db_settings.php:16
 msgid "Delete Action Type"
 msgstr "アクションタイプを削除"
 
-#: db_settings.php:782
+#: db_settings.php:17
 msgid "Delete Donation Type"
 msgstr "献金タイプを削除"
 
-#: db_settings.php:783
+#: db_settings.php:18
 msgid "Delete Event"
 msgstr "イベントを削除"
 
-#: db_settings.php:789
+#: db_settings.php:24
 msgid "Edit Postal Code Data"
 msgstr "郵便番号関係の情報を変更"
 
-#: db_settings.php:793
+#: db_settings.php:28
 msgid ""
-"(The Japanese data here is originally from the Japan post office database, "
-"so be sure you are right before disagreeing with them!)"
+"(The Japanese data here is originally from the Japan post office database, so "
+"be sure you are right before disagreeing with them!)"
 msgstr ""
 "（元の情報は郵便局のデータベースから取りましたので、変更する前に、十分確認し"
 "て、確認して、もう一回確認してください。）"
 
-#: db_settings.php:794
+#: db_settings.php:29
 msgid "Prefecture"
 msgstr "都道府県"
 
-#: db_settings.php:795
+#: db_settings.php:30
 msgid "City, etc."
 msgstr "市区町"
 
-#: db_settings.php:799
+#: db_settings.php:34
 msgid "Romaji of Postal Text"
 msgstr "郵便番号関係情報のローマ字"
 
-#: db_settings.php:801
+#: db_settings.php:36
 msgid "(reverse order from Japanese, carriage return after first item)"
 msgstr "（日本語の逆順番、最初の部分から次の行に入る）"
 
-#: db_settings.php:805
+#: db_settings.php:40
 msgid "Update Postal Code Data"
 msgstr "郵便番号関係データを保存"
 
-#: db_settings.php:812
+#: db_settings.php:47
 msgid "Category Management"
 msgstr "カテゴリ管理"
 
-#: db_settings.php:813
+#: db_settings.php:48
 msgid ""
-"Select a category to rename or delete. Or select &quot;New Category&quot; "
-"and type a new category name."
+"Select a category to rename or delete. Or select &quot;New Category&quot; and "
+"type a new category name."
 msgstr ""
-"カテゴリを選択したら、名前を変更できます。また、「新規カテゴリ」が表示される"
-"状態で、新しいカテゴリの名前を入力して作成できます。それとも、カテゴリを選択"
-"して、削除もできます。"
+"カテゴリを選択したら、名前を変更できます。また、「新規カテゴリ」が表示される状"
+"態で、新しいカテゴリの名前を入力して作成できます。それとも、カテゴリを選択し"
+"て、削除もできます。"
 
-#: db_settings.php:815
+#: db_settings.php:50
 msgid "New Category..."
 msgstr "新規カテゴリ…"
 
-#: db_settings.php:821
+#: db_settings.php:56
 msgid "Category Name"
 msgstr "カテゴリ名前"
 
-#: db_settings.php:823
+#: db_settings.php:58
 msgid "Application"
 msgstr "適用"
 
-#: db_settings.php:826
+#: db_settings.php:61
 msgid "Individuals only"
 msgstr "個人のみ"
 
-#: db_settings.php:827 list.php:43
+#: db_settings.php:62 list.php:43
 msgid "Organizations only"
 msgstr "団体のみ"
 
-#: db_settings.php:828
+#: db_settings.php:63
 msgid "All records"
 msgstr "全項目"
 
-#: db_settings.php:831
+#: db_settings.php:66
 msgid "Add or Rename"
 msgstr "作成や名前を変更"
 
-#: db_settings.php:832 db_settings.php:860 db_settings.php:890
-#: db_settings.php:920 db_settings.php:962
+#: db_settings.php:67 db_settings.php:89 db_settings.php:113 db_settings.php:143
+#: db_settings.php:185
 msgid "Delete"
 msgstr "削除"
 
-#: db_settings.php:839
+#: db_settings.php:74
 msgid ""
 "Fill in the information to add a new Action Type (the color is optional). Or "
 "select an existing entry to make changes or delete."
 msgstr ""
-"新規アクションタイプの情報を入力する。または、タイプを選択したら、変更や削除"
-"できます。"
+"新規アクションタイプの情報を入力する。または、タイプを選択したら、変更や削除で"
+"きます。"
 
-#: db_settings.php:841
+#: db_settings.php:76
 msgid "New Action Type..."
 msgstr "新規アクションタイプ…"
 
-#: db_settings.php:847
+#: db_settings.php:82
 msgid "Action Type Name"
 msgstr "アクションタイプの名前"
 
-#: db_settings.php:849 db_settings.php:880
+#: db_settings.php:84 db_settings.php:109
 msgid "Optional background color (choose something light)"
 msgstr "背景色（テキストの読みやすさのため薄い色の方がいい）"
 
-#: db_settings.php:850 db_settings.php:881
+#: db_settings.php:85 db_settings.php:110
 msgid "Click to pick a color..."
 msgstr "色を選ぶにはクリック…"
 
-#: db_settings.php:858
+#: db_settings.php:87
 msgid "Template"
 msgstr "テンプレート"
 
-#: db_settings.php:859 db_settings.php:889 db_settings.php:919
-#: db_settings.php:961
+#: db_settings.php:88 db_settings.php:112 db_settings.php:142
+#: db_settings.php:184
 msgid "Add or Update"
 msgstr "作成や変更"
 
-#: db_settings.php:869 donation.php:24
+#: db_settings.php:98 donation.php:24
 msgid "Donation Types"
 msgstr "献金タイプ"
 
-#: db_settings.php:870
+#: db_settings.php:99
 msgid ""
 "Fill in the information to add a new Donation Type. Or select an existing "
 "entry to make changes or delete."
@@ -1900,106 +1743,270 @@ msgstr ""
 "新規献金タイプの情報を入力する。または、タイプを選択したら、変更や削除できま"
 "す。"
 
-#: db_settings.php:872
+#: db_settings.php:101
 msgid "New Donation Type..."
 msgstr "新規献金タイプ…"
 
-#: db_settings.php:878
+#: db_settings.php:107
 msgid "Donation Type Name"
 msgstr "献金タイプ名"
 
-#: db_settings.php:899
+#: db_settings.php:122
 msgid "Event Management"
 msgstr "イベント管理"
 
-#: db_settings.php:900
+#: db_settings.php:123
 msgid ""
 "Fill in the information to add a new event.&nbsp; Or select an event, and "
-"modify its info (name, remarks, active status, and/or start date).&nbsp; Or "
-"select a category to delete and press Delete."
+"modify its info (name, remarks, and/or dates).&nbsp; Or select an event to "
+"delete and press Delete."
 msgstr ""
-"作成したい新しいイベントの情報を記入する、またはイベントを選択して情報を変更"
-"する、またはイベントを選択して削除する。"
+"作成したい新しいイベントの情報を記入する、またはイベントを選択して情報を変更す"
+"る、またはイベントを選択して削除する。"
 
-#: db_settings.php:903
+#: db_settings.php:126
 msgid "New Event..."
 msgstr "新規イベント…"
 
-#: db_settings.php:911 edit_pledge.php:97 individual.php:1098
+#: db_settings.php:134 edit_pledge.php:97 individual.php:1098
 #: individual.php:1224
 msgid "Start Date"
 msgstr "開日付"
 
-#: db_settings.php:913 edit_pledge.php:99 individual.php:1102
+#: db_settings.php:136 edit_pledge.php:99 individual.php:1102
 #: individual.php:1228
 msgid "End Date"
 msgstr "終了日付"
 
-#: db_settings.php:917
+#: db_settings.php:140
 msgid "Use Times"
 msgstr "時間を使う"
 
-#: db_settings.php:929
+#: db_settings.php:152
 msgid "User Management"
 msgstr "ユーザー（ログイン）管理"
 
-#: db_settings.php:930
+#: db_settings.php:153
 msgid ""
 "Fill in the information to add a new user.  Or select an existing user to "
 "make changes or delete.NOTE: You cannot see the existing password, but you "
 "can enter a new one if the user forgot his/her password."
 msgstr ""
-"ユーザーを作成するには、情報を入力する。現在のユーザーを変更や削除することも"
-"できます。注意：現在のパスワードを表示できないですが、パスワードを忘れたユー"
-"ザーのために新しいパスワードを上書きできます。"
+"ユーザーを作成するには、情報を入力する。現在のユーザーを変更や削除することもで"
+"きます。注意：現在のパスワードを表示できないですが、パスワードを忘れたユーザー"
+"のために新しいパスワードを上書きできます。"
 
-#: db_settings.php:933
+#: db_settings.php:156
 msgid "New User..."
 msgstr "新しいユーザー…"
 
-#: db_settings.php:942
+#: db_settings.php:165
 msgid "UserID (to log in)"
 msgstr "UserID （ログインする時に使う）"
 
-#: db_settings.php:944
+#: db_settings.php:167
 msgid "(max. 16 English characters, no spaces or punctuation)"
 msgstr "（16文字以下、半角英字だけ、スペースや句読点はダメ）"
 
-#: db_settings.php:945
+#: db_settings.php:168
 msgid "Language for Interface"
 msgstr "インタフェースの言語"
 
-#: db_settings.php:946 user_settings.php:53
+#: db_settings.php:169 user_settings.php:53
 msgid "English"
 msgstr "英語"
 
-#: db_settings.php:947 user_settings.php:54
+#: db_settings.php:170 user_settings.php:54
 msgid "Japanese"
 msgstr "日本語"
 
-#: db_settings.php:949
+#: db_settings.php:172
 msgid "Admin Privileges"
 msgstr "管理者許可"
 
-#: db_settings.php:952
+#: db_settings.php:175
 msgid "Hide Donation Info"
 msgstr "献金情報を隠す"
 
-#: db_settings.php:954
+#: db_settings.php:177
 msgid "New Password"
 msgstr "新しいパスワード"
 
-#: db_settings.php:956
+#: db_settings.php:179
 msgid "(leave blank if not changing password)"
 msgstr "（パスワード変更しない場合、空けておいてください。）"
 
-#: db_settings.php:957
+#: db_settings.php:180
 msgid "New Password again"
 msgstr "新しいパスワード（確認用）"
 
-#: db_settings.php:959
+#: db_settings.php:182
 msgid "Dashboard Files"
 msgstr "ダッシュボードファイル"
+
+#: db_settings.php:486
+#, php-format
+msgid "Delete category \"%s\"?"
+msgstr "カテゴリ「%s」を削除しますか。"
+
+#: db_settings.php:487
+#, php-format
+msgid "%d people are currently in this category and will lose it."
+msgstr "現在%d人がこのカテゴリに入っており、外れます。"
+
+#: db_settings.php:541 db_settings.php:643
+msgid "Reassign and Delete"
+msgstr "再割り当てして削除"
+
+#: db_settings.php:543 db_settings.php:645
+msgid "Please select a type to reassign to."
+msgstr "再割り当て先のタイプを選んでください。"
+
+#: db_settings.php:549 db_settings.php:651 db_settings.php:768
+#: individual.php:1514 individual.php:1638 individual.php:1837
+msgid "Cancel"
+msgstr "キャンセル"
+
+#: db_settings.php:583
+#, php-format
+msgid "Are you sure you want to delete action type \"%s\"?"
+msgstr "アクションタイプ「%s」を削除してよろしいですか。"
+
+#: db_settings.php:588
+msgid "click here to view actions in a new tab"
+msgstr "ここをクリックすると、新しいタブでアクション一覧が開きます"
+
+#: db_settings.php:589
+#, php-format
+msgid ""
+"This type has been used on %1$d action records (%2$s). They are important "
+"history, so before deleting the type, the records need to be reassigned to "
+"another type:"
+msgstr ""
+"このタイプは%1$dのアクション記録（%2$s）に使われています。これらは履歴データな"
+"ので、タイプを削除する前に、別のタイプに再割り当てする必要があります："
+
+#: db_settings.php:597 db_settings.php:711
+msgid "Reassign to:"
+msgstr "再割り当て先："
+
+#: db_settings.php:604
+msgid "Prepend this text to action descriptions:"
+msgstr "アクションの「内容」の頭にこのテキストを入れる："
+
+#: db_settings.php:609
+#, php-format
+msgid "Delete action type \"%s\"?"
+msgstr "アクションタイプ「%s」を削除しますか。"
+
+#: db_settings.php:684
+#, php-format
+msgid "Are you sure you want to delete donation type \"%s\"?"
+msgstr "献金タイプ「%s」を削除してよろしいですか。"
+
+#: db_settings.php:689
+msgid "click here to view donations in a new tab"
+msgstr "ここをクリックすると、新しいタブで献金一覧が開きます"
+
+#: db_settings.php:691
+msgid "click here to view pledges in a new tab"
+msgstr "ここをクリックすると、新しいタブで約束一覧が開きます"
+
+#: db_settings.php:694
+#, php-format
+msgid ""
+"This type has been used on %1$d donations (%2$s) and %3$d pledges (%4$s). "
+"They are important history, so before deleting the type, the records need to "
+"be reassigned to another type:"
+msgstr ""
+"このタイプは%1$d件の献金（%2$s）と%3$d件の約束（%4$s）に使われています。これら"
+"は履歴データなので、タイプを削除する前に、別のタイプに再割り当てする必要があり"
+"ます："
+
+#: db_settings.php:698
+#, php-format
+msgid ""
+"This type has been used on %1$d donations (%2$s). They are important history, "
+"so before deleting the type, the records need to be reassigned to another "
+"type:"
+msgstr ""
+"このタイプは%1$d件の献金（%2$s）に使われています。これらは履歴データなので、タ"
+"イプを削除する前に、別のタイプに再割り当てする必要があります："
+
+#: db_settings.php:702
+#, php-format
+msgid ""
+"This type has been used on %1$d pledges (%2$s). They are important history, "
+"so before deleting the type, the records need to be reassigned to another "
+"type:"
+msgstr ""
+"このタイプは%1$d件の献金の約束（%2$s）に使われています。これらは履歴データなの"
+"で、タイプを削除する前に、別のタイプに再割り当てする必要があります："
+
+#: db_settings.php:718
+msgid "Prepend this text to donation descriptions:"
+msgstr "献金の「内容」の頭にこのテキストを入れる："
+
+#: db_settings.php:723
+#, php-format
+msgid "Delete donation type \"%s\"?"
+msgstr "献金タイプ「%s」を削除しますか。"
+
+#: db_settings.php:756
+msgid "Confirm"
+msgstr "確認"
+
+#: db_settings.php:804
+#, php-format
+msgid "Are you sure you want to delete event \"%s\"?"
+msgstr "イベント「%s」を削除してよろしいですか。"
+
+#: db_settings.php:811
+msgid "click here to view attendance in a new tab"
+msgstr "ここをクリックすると、新しいタブで参加記録一覧が開きます"
+
+#: db_settings.php:812
+#, php-format
+msgid ""
+"This event has been used for %1$d attendance records, %2$s (%3$s). You can "
+"reassign the attendance records to another event to consolidate, or delete "
+"them completely. They are history, so it is best not to delete them, but here "
+"are your choices:"
+msgstr ""
+"このイベントは%1$d件の参加記録（%2$s、%3$s）に使用されています。記録を別のイベ"
+"ントに再割り当てして統合することも、完全に削除することもできます。これらは履歴"
+"データなので削除しないことをお勧めしますが、以下の選択肢があります："
+
+#: db_settings.php:821
+msgid "Reassign these records to another event:"
+msgstr "これらの記録を別のイベントに再割り当て："
+
+#: db_settings.php:830
+#, php-format
+msgid "Delete all %d attendance records along with the event."
+msgstr "イベントとともに%d件の参加記録を削除する。"
+
+#: db_settings.php:834
+#, php-format
+msgid "Delete event \"%s\"?"
+msgstr "イベント「%s」を削除しますか。"
+
+#: db_settings.php:878
+#, php-format
+msgid "Are you sure you want to delete user \"%1$s\" (UserID: %2$s)?"
+msgstr "ユーザー「%1$s」（ユーザーID：%2$s）を削除してよろしいですか。"
+
+#: db_settings.php:919
+msgid "Start date cannot be blank."
+msgstr "イベントの始まりの日付を指定してください。"
+
+#: db_settings.php:924
+msgid "End date cannot be blank."
+msgstr "イベントの終わりの日付を指定してください。"
+
+#: db_settings.php:958
+msgid "The two password entries don't match."
+msgstr "入力された二つのパスワードは異なります。"
 
 #: donation.php:5 donation.php:20
 msgid "Donations & Pledges"
@@ -2135,8 +2142,8 @@ msgid "Phone"
 msgstr "電話番号"
 
 #: donation_list.php:318 donation_list.php:435 donation_summary.php:136
-#: edit_pledge.php:85 individual.php:934 individual.php:1046
-#: individual.php:1085 individual.php:1140 individual.php:1208
+#: edit_pledge.php:85 individual.php:934 individual.php:1046 individual.php:1085
+#: individual.php:1140 individual.php:1208
 msgid "Donation Type"
 msgstr "献金タイプ"
 
@@ -2146,9 +2153,8 @@ msgstr "約束？"
 
 #: donation_list.php:338 donation_list.php:437 donation_list.php:438
 #: donation_summary.php:138 donation_summary.php:139 edit_pledge.php:101
-#: individual.php:942 individual.php:991 individual.php:1057
-#: individual.php:1107 individual.php:1156 individual.php:1233
-#: pledge_list.php:311
+#: individual.php:942 individual.php:991 individual.php:1057 individual.php:1107
+#: individual.php:1156 individual.php:1233 pledge_list.php:311
 msgid "Amount"
 msgstr "金額"
 
@@ -2191,8 +2197,8 @@ msgstr "新規項目"
 #: edit.php:97
 msgid "Your session has timed out - please refresh the page."
 msgstr ""
-"あなたのログインはタイムアウトしました。このページを更新すれば、またログイン"
-"できます。"
+"あなたのログインはタイムアウトしました。このページを更新すれば、またログインで"
+"きます。"
 
 #: edit.php:160
 msgid "Should I also change end of label name to \"御中\"?"
@@ -2211,8 +2217,8 @@ msgid ""
 "No info was modified.  If you want to exit this page, just use your BACK "
 "button."
 msgstr ""
-"何も変更されませんでした。このページから去るには、ブラウザの「戻る」ボタンを"
-"クリックしてください。"
+"何も変更されませんでした。このページから去るには、ブラウザの「戻る」ボタンをク"
+"リックしてください。"
 
 #: edit.php:233
 msgid "Please enter the name!"
@@ -2260,11 +2266,11 @@ msgstr "同じ世帯に %s人のメンバーがいます。この情報の変更
 
 #: edit.php:291
 msgid ""
-" Do you want to continue? (If just this person has moved out, cancel and "
-"then select New Household.)"
+" Do you want to continue? (If just this person has moved out, cancel and then "
+"select New Household.)"
 msgstr ""
-"続きたいですか。（もしこの人だけが世帯から引っ越して行った場合は、「新規世"
-"帯」をクリックしてください。）"
+"続きたいですか。（もしこの人だけが世帯から引っ越して行った場合は、「新規世帯」"
+"をクリックしてください。）"
 
 #: edit.php:299
 msgid ""
@@ -2292,9 +2298,9 @@ msgid ""
 "duplicates). Continue anyway? (To try checking again, click Cancel and then "
 "Save Changes again.)"
 msgstr ""
-"ダブルがないかどうかを検索するとき、何かのエラーが発生しました。それなのに続"
-"行しますか。（再びチェックするには、キャンセル、それから保存をクリックしてく"
-"ださい。）"
+"ダブルがないかどうかを検索するとき、何かのエラーが発生しました。それなのに続行"
+"しますか。（再びチェックするには、キャンセル、それから保存をクリックしてくださ"
+"い。）"
 
 #: edit.php:390
 msgid "Organization (church, company, etc.)"
@@ -2325,8 +2331,8 @@ msgid ""
 "Romaji for PostalCode-related text (<span class=\"highlight\">highlighted</"
 "span> above)"
 msgstr ""
-"郵便番号関係のテキストのローマ字（上記に<span class=\"highlight\">ハイライト"
-"されている</span>）"
+"郵便番号関係のテキストのローマ字（上記に<span class=\"highlight\">ハイライトさ"
+"れている</span>）"
 
 #: edit.php:442
 msgid "(Adjust formatting and punctuation as desired; see reference below)"
@@ -2405,7 +2411,7 @@ msgid "new"
 msgstr "新規の写真"
 
 #: edit.php:536 edit_pledge.php:118 individual.php:803 individual.php:949
-#: individual.php:1831 user_settings.php:56
+#: individual.php:1830 user_settings.php:56
 msgid "Save Changes"
 msgstr "変更を保存"
 
@@ -2413,8 +2419,8 @@ msgstr "変更を保存"
 #, php-format
 msgid ""
 "There are %s donations applied to this pledge - please <a "
-"href=\"individual.php?pid=%s#donations\">go back</a> and reassign them "
-"before deleting."
+"href=\"individual.php?pid=%s#donations\">go back</a> and reassign them before "
+"deleting."
 msgstr ""
 "この約束には、%s個の献金の項目が属しています。削除する前、<a "
 "href=\"individual.php?pid=%s#donations\">戻って</a>、変更してください。"
@@ -2434,22 +2440,22 @@ msgid "(leave blank if no specified end to pledge)"
 msgstr "（指定される終了日付はない場合、空けておいてください。）"
 
 #: edit_pledge.php:113 individual.php:1110 individual.php:1155
-#: individual.php:1237 individual.php:1970
+#: individual.php:1237 individual.php:1969
 msgid "month"
 msgstr "月"
 
 #: edit_pledge.php:114 individual.php:1111 individual.php:1155
-#: individual.php:1238 individual.php:1969
+#: individual.php:1238 individual.php:1968
 msgid "quarter"
 msgstr "四半期"
 
 #: edit_pledge.php:115 individual.php:1112 individual.php:1155
-#: individual.php:1239 individual.php:1968
+#: individual.php:1239 individual.php:1967
 msgid "year"
 msgstr "年"
 
 #: edit_pledge.php:116 individual.php:1113 individual.php:1155
-#: individual.php:1240 individual.php:1967
+#: individual.php:1240 individual.php:1966
 msgid "(one time)"
 msgstr "(一回)"
 
@@ -2463,23 +2469,23 @@ msgstr "約束を終えるには、終了日付を入れる。しかし、約束
 msgid "Delete This Pledge"
 msgstr "この約束を削除"
 
-#: edit_pledge.php:151 individual.php:1914 individual.php:2218
+#: edit_pledge.php:151 individual.php:1913 individual.php:2207
 msgid "Please choose a Donation Type."
 msgstr "献金タイプを選択してください。"
 
-#: edit_pledge.php:156 individual.php:1922 individual.php:2228
+#: edit_pledge.php:156 individual.php:1921 individual.php:2217
 msgid "Please fill in a Start Date."
 msgstr "始まりの日付を入力してください。"
 
-#: edit_pledge.php:162 individual.php:1935 individual.php:2244
+#: edit_pledge.php:162 individual.php:1934 individual.php:2233
 msgid "Please fill in the Amount."
 msgstr "金額を入力してください。"
 
-#: edit_pledge.php:168 individual.php:1926 individual.php:2233
+#: edit_pledge.php:168 individual.php:1925 individual.php:2222
 msgid "Start Date must be in the form of YYYY-MM-DD."
 msgstr "始まりの日付は、YYYY-MM-DD です。"
 
-#: edit_pledge.php:174 individual.php:1931 individual.php:2239
+#: edit_pledge.php:174 individual.php:1930 individual.php:2228
 msgid "End Date must be in the form of YYYY-MM-DD."
 msgstr "終わりの日付は、YYYY-MM-DD です。"
 
@@ -2521,11 +2527,11 @@ msgstr "チェックボックスの変更を保存"
 msgid "Show More Records"
 msgstr "もっと表示"
 
-#: flextable.php:977 individual.php:1480 individual.php:1608
+#: flextable.php:977 individual.php:1479 individual.php:1607
 msgid "[Read more]"
 msgstr "[続きを読む]"
 
-#: flextable.php:978 individual.php:1481 individual.php:1609
+#: flextable.php:978 individual.php:1480 individual.php:1608
 msgid "[Close]"
 msgstr "[閉じる]"
 
@@ -2594,8 +2600,8 @@ msgid ""
 "Is one of these existing entries the same<br />as the new one you are "
 "entering?"
 msgstr ""
-"入力しようとしている項目は、このすでに存在している項目のいずれかと一緒でしょ"
-"うか？"
+"入力しようとしている項目は、このすでに存在している項目のいずれかと一緒でしょう"
+"か？"
 
 #: get_duplicates.php:29
 msgid "(click on a name to see details in a new window/tab)"
@@ -2630,8 +2636,8 @@ msgid ""
 "To change the above information, select any member below, and on the page "
 "that opens, click \"Edit This Record\"."
 msgstr ""
-"上記の情報を変更するには、以下のメンバーを選択して、開いたページで「この項目"
-"を編集」をクリックしてください。"
+"上記の情報を変更するには、以下のメンバーを選択して、開いたページで「この項目を"
+"編集」をクリックしてください。"
 
 #: household.php:99
 msgid "Household photo"
@@ -2675,8 +2681,7 @@ msgstr "CSVのインポート"
 
 #: individual.php:78
 msgid ""
-"A donation on that date for that purpose and amount has already been "
-"recorded."
+"A donation on that date for that purpose and amount has already been recorded."
 msgstr "同じ日付と目的と金額は既に記録されています。"
 
 #: individual.php:117
@@ -2752,7 +2757,7 @@ msgid ""
 msgstr "団体所属はありません。（追加するには、ここでも一括処理でもできます。）"
 
 #: individual.php:574 individual.php:758 individual.php:862 individual.php:1019
-#: individual.php:1186 individual.php:1324 individual.php:1366
+#: individual.php:1186 individual.php:1323 individual.php:1365
 msgid "Del"
 msgstr "削除"
 
@@ -2764,8 +2769,8 @@ msgstr "この団体のメンバー"
 msgid ""
 "No members. (Add them on a member's personal page or in Batch Processing.)"
 msgstr ""
-"団体のメンバーはありません。（メンバーのページで、または一括処理のページで、"
-"所属情報を記入のはできます。）"
+"団体のメンバーはありません。（メンバーのページで、または一括処理のページで、所"
+"属情報を記入のはできます。）"
 
 #: individual.php:783
 msgid "Edit fields as needed and press 'Save Action Entry'"
@@ -2799,7 +2804,7 @@ msgstr "変更したいところを編集して、「保存」のボタンをク
 msgid "Pledge"
 msgstr "献金約束"
 
-#: individual.php:927 individual.php:1043 individual.php:1691
+#: individual.php:927 individual.php:1043 individual.php:1690
 msgid "Select if pledge..."
 msgstr "約束の場合は選択…"
 
@@ -2827,7 +2832,7 @@ msgstr "献金約束を保存"
 msgid "No pledges recorded."
 msgstr "献金約束の記録はありません。"
 
-#: individual.php:1163 individual.php:1306 pledge_list.php:312
+#: individual.php:1163 individual.php:1305 pledge_list.php:312
 msgid "Dates"
 msgstr "日付"
 
@@ -2835,7 +2840,7 @@ msgstr "日付"
 msgid "Balance"
 msgstr "残高"
 
-#: individual.php:1290
+#: individual.php:1289
 #, php-format
 msgid ""
 "Record for: %sthis org only&nbsp; %sonly its members&nbsp; %sboth org and "
@@ -2843,159 +2848,142 @@ msgid ""
 msgstr ""
 "対象：　%sこの団体のみ&nbsp; %s団体のメンバーのみ&nbsp; %s団体もメンバーも"
 
-#: individual.php:1295
+#: individual.php:1294
 msgid "Save Attendance Entry"
 msgstr "参加記録を保存"
 
-#: individual.php:1303
+#: individual.php:1302
 msgid ""
 "No attendance records. (You can add records here or in Batch Processing.)"
 msgstr ""
-"イベント参加記録はありません。（追加するには、ここでも一括処理でもできま"
-"す。）"
+"イベント参加記録はありません。（追加するには、ここでも一括処理でもできます。）"
 
-#: individual.php:1306
+#: individual.php:1305
 msgid "Event Description"
 msgstr "イベントの内容"
 
-#: individual.php:1316
+#: individual.php:1315
 #, php-format
 msgid "[Total time %s]"
 msgstr "[合計時間 %s]"
 
-#: individual.php:1320
+#: individual.php:1319
 #, php-format
 msgid "Are you sure you want to delete these %s attendance records?"
 msgstr "この %s のイベント参加記録を削除してよろしいですか。"
 
-#: individual.php:1328
+#: individual.php:1327
 msgid "(Note: to remove records, use Event Attendance's Detail Chart.)"
 msgstr ""
 "（参加項目を削除するには、「イベントの参加」の詳細表を使ってください。）"
 
-#: individual.php:1337 individual.php:1350
+#: individual.php:1336 individual.php:1349
 msgid "Uploaded Files"
 msgstr "アップロードされているファイル"
 
-#: individual.php:1342
+#: individual.php:1341
 msgid "File"
 msgstr "ファイル"
 
-#: individual.php:1342
+#: individual.php:1341
 msgid " (max 8MB)"
 msgstr "（最大８MB）"
 
-#: individual.php:1346
+#: individual.php:1345
 msgid "Upload File and Save Entry"
 msgstr "ファイルをアップロードし、記録を保存"
 
-#: individual.php:1353
+#: individual.php:1352
 msgid "No uploaded files"
 msgstr "アップロードされているファイルはありません。"
 
-#: individual.php:1356
+#: individual.php:1355
 msgid "Upload Date"
 msgstr "アップロード日付"
 
-#: individual.php:1356
+#: individual.php:1355
 msgid "File Name"
 msgstr "ファイル名"
 
-#: individual.php:1362
+#: individual.php:1361
 msgid "Are you sure you want to delete this file?"
 msgstr "このファイルを削除してよろしいですか。"
 
-#: individual.php:1402
+#: individual.php:1401
 msgid "[Leader]"
 msgstr "[リーダー]"
 
-#: individual.php:1506
+#: individual.php:1505
 msgid "Edit Action"
 msgstr "アクションを編集"
 
-#: individual.php:1508 individual.php:1632
+#: individual.php:1507 individual.php:1631
 msgid "Save"
 msgstr "保存"
 
-#: individual.php:1549 individual.php:1718 individual.php:1890
-#: individual.php:2097
+#: individual.php:1548 individual.php:1717 individual.php:1889
+#: individual.php:2086
 msgid "Are you sure you want to delete this record?"
 msgstr "この情報を削除してよろしいですか。"
 
-#: individual.php:1573
+#: individual.php:1572
 msgid "You must select an action type."
 msgstr "アクションタイプを選択してください。"
 
-#: individual.php:1630
+#: individual.php:1629
 msgid "Edit Donation"
 msgstr "献金を編集"
 
-#: individual.php:1752 individual.php:2199
+#: individual.php:1751 individual.php:2188
 msgid "You must enter an amount."
 msgstr "金額が必要です。"
 
-#: individual.php:1757
+#: individual.php:1756
 msgid "You must select either a pledge or a donation type."
 msgstr "献金約束、または献金タイプを選択してください。"
 
-#: individual.php:1829
+#: individual.php:1828
 msgid "Edit Pledge"
 msgstr "献金約束を編集"
 
-#: individual.php:1888
+#: individual.php:1887
 #, php-format
 msgid ""
-"There are %s donations applied to this pledge - please reassign the "
-"donations before deleting the pledge."
+"There are %s donations applied to this pledge - please reassign the donations "
+"before deleting the pledge."
 msgstr ""
-"この約束には%s個の献金が属しています。約束を削除する前に、献金を他に割り当て"
-"てください。"
+"この約束には%s個の献金が属しています。約束を削除する前に、献金を他に割り当てて"
+"ください。"
 
-#: individual.php:1918 individual.php:2223
+#: individual.php:1917 individual.php:2212
 msgid "Please fill in the Description."
 msgstr "内容を入力してください。"
 
-#: individual.php:2063 individual.php:2068
-msgid "Show Active"
-msgstr "現在のを表示"
-
-#: individual.php:2065
-msgid "Hide Active"
-msgstr "現在のを隠す"
-
-#: individual.php:2072 individual.php:2077
-msgid "Show Old"
-msgstr "過去のを表示"
-
-#: individual.php:2074
-msgid "Hide Old"
-msgstr "過去のを隠す"
-
-#: individual.php:2147
+#: individual.php:2136
 msgid "You must fill in an Organization ID or use Search/Browse."
 msgstr "団体IDを入力するか、または「検索/参照」を使ってください。"
 
-#: individual.php:2171
+#: individual.php:2160
 msgid "You must select a Action Type."
 msgstr "アクションタイプを選択してください。"
 
-#: individual.php:2190
+#: individual.php:2179
 msgid "Date cannot be in the future."
 msgstr "日付は将来にしてはなれません。"
 
-#: individual.php:2195
+#: individual.php:2184
 msgid "You must select either a Pledge or a Donation Type."
 msgstr "献金約束、または献金タイプを選択してください。"
 
-#: individual.php:2205
+#: individual.php:2194
 msgid "Amount must be a number."
 msgstr "金額には半角数字しか無効です。"
 
-#: individual.php:2297
+#: individual.php:2286
 msgid "You must select a file."
 msgstr "ファイルを選択してください。"
 
-#: individual.php:2301
+#: individual.php:2290
 msgid "File size cannot exceed 8MB. Yours is: "
 msgstr "８MBを超えるファイルは受け入れません。このファイルは："
 
@@ -3048,16 +3036,15 @@ msgstr "このアクションタイプのいずれかのアクションがある
 #, php-format
 msgid "Has at least one action of type(s) [%s] and none later of type(s) [%s]"
 msgstr ""
-"[%s]のアクションタイプいずれか、合っているアクションがありますが、その後に"
-"[%s]のアクションタイプのアクションはない"
+"[%s]のアクションタイプいずれか、合っているアクションがありますが、その後に[%s]"
+"のアクションタイプのアクションはない"
 
 #: list.php:168
 #, php-format
-msgid ""
-"Has at least one action of type(s) [%s] and none earlier of type(s) [%s]"
+msgid "Has at least one action of type(s) [%s] and none earlier of type(s) [%s]"
 msgstr ""
-"[%s]のアクションタイプいずれか、合っているアクションがありますが、その前に"
-"[%s]のアクションタイプのアクションはない"
+"[%s]のアクションタイプいずれか、合っているアクションがありますが、その前に[%s]"
+"のアクションタイプのアクションはない"
 
 #: list.php:186
 #, php-format
@@ -3271,8 +3258,8 @@ msgid ""
 "...have one of these action types:%s without any of these %slater%searlier%s:"
 "%s"
 msgstr ""
-"%sのアクションタイプいずれか、合っているアクションがありますが、その%s後%s"
-"前%sに%sのアクションタイプのアクションはない"
+"%sのアクションタイプいずれか、合っているアクションがありますが、その%s後%s前%s"
+"に%sのアクションタイプのアクションはない"
 
 #: search.php:120
 #, php-format
@@ -3282,8 +3269,8 @@ msgid ""
 "span>"
 msgstr ""
 "%4$sの献金タイプ<span class=\"inputgroup\"><label>(%5$sから)</"
-"label><label>(%6$sまで)</label></span>いずれか、合っている献金が%1$sある%2$s"
-"ない%3$s"
+"label><label>(%6$sまで)</label></span>いずれか、合っている献金が%1$sある%2$sな"
+"い%3$s"
 
 #: search.php:143
 #, php-format
@@ -3292,9 +3279,8 @@ msgid ""
 "class=\"inputgroup\"><label>(after %s)</label><label>(before %s)</label></"
 "span>"
 msgstr ""
-"%4$sのイベント<span class=\"inputgroup\"><label>(%5$sから)</"
-"label><label>(%6$sまで)</label></span>いずれか、参加したことが%1$sある%2$sな"
-"い%3$s"
+"%4$sのイベント<span class=\"inputgroup\"><label>(%5$sから)</label><label>(%6$s"
+"まで)</label></span>いずれか、参加したことが%1$sある%2$sない%3$s"
 
 #: search.php:151
 msgid "Blanks"
@@ -3399,6 +3385,18 @@ msgstr "確証のため、現在のパスワードを入力してください。
 msgid "You must enter a new password in both fields."
 msgstr "新しいパスワードを両方のフィールドに入力してください。"
 
+#~ msgid "Show Active"
+#~ msgstr "現在のを表示"
+
+#~ msgid "Hide Active"
+#~ msgstr "現在のを隠す"
+
+#~ msgid "Show Old"
+#~ msgstr "過去のを表示"
+
+#~ msgid "Hide Old"
+#~ msgstr "過去のを隠す"
+
 #, php-format
 #~ msgid "%d people will be removed from this category."
 #~ msgstr "このカテゴリから%d人が除外されます。"
@@ -3415,8 +3413,8 @@ msgstr "新しいパスワードを両方のフィールドに入力してくだ
 #~ msgstr "下記の %s の項目は、カテゴリ「%s」に入っています。"
 
 #~ msgid ""
-#~ " If you are sure you want to delete these category associations, click "
-#~ "the button. (If not, just press your browser's Back button.)"
+#~ " If you are sure you want to delete these category associations, click the "
+#~ "button. (If not, just press your browser's Back button.)"
 #~ msgstr ""
 #~ "このカテゴリとのつながりを削除したい場合は、ボタンをクリックしてください。"
 #~ "（キャンセルしたい場合は、ブラウザの「戻る」ボタンをクリックしてくださ"
@@ -3444,11 +3442,10 @@ msgstr "新しいパスワードを両方のフィールドに入力してくだ
 #, php-format
 #~ msgid ""
 #~ "There are %s action entries of this action type.  If you delete this "
-#~ "action type, I must assign a different action type to those action "
-#~ "entries."
+#~ "action type, I must assign a different action type to those action entries."
 #~ msgstr ""
-#~ "このタイプには、%s のアクション記録あります。このアクションタイプを削除す"
-#~ "れば、そのアクション記録を別のタイプに変更しなければなりません。"
+#~ "このタイプには、%s のアクション記録あります。このアクションタイプを削除すれ"
+#~ "ば、そのアクション記録を別のタイプに変更しなければなりません。"
 
 #~ msgid ""
 #~ " If you don't want to do this, just press your browser's Back button.  To "
@@ -3479,8 +3476,8 @@ msgstr "新しいパスワードを両方のフィールドに入力してくだ
 #~ "If you delete this donation type, I must assign a different donation type "
 #~ "to these donation entries."
 #~ msgstr ""
-#~ "タイプ「%2$s」には、%1$s の献金記録あります（%3$sリストを表示%4$s）。この"
-#~ "献金タイプを削除すれば、属する献金記録を別のタイプに変更しなければなりませ"
+#~ "タイプ「%2$s」には、%1$s の献金記録あります（%3$sリストを表示%4$s）。この献"
+#~ "金タイプを削除すれば、属する献金記録を別のタイプに変更しなければなりませ"
 #~ "ん。"
 
 #~ msgid ""
@@ -3579,8 +3576,8 @@ msgstr "新しいパスワードを両方のフィールドに入力してくだ
 #~ "The Organization ID you entered is not valid. Please use Search/Browse to "
 #~ "find the correct ID."
 #~ msgstr ""
-#~ "入力された団体IDは正しくありません。「検索/参照」を使って正しいIDを見つけ"
-#~ "てください。"
+#~ "入力された団体IDは正しくありません。「検索/参照」を使って正しいIDを見つけて"
+#~ "ください。"
 
 #~ msgid "Multiple Selection/Action"
 #~ msgstr "複数選択/作業"
@@ -3611,8 +3608,7 @@ msgstr "新しいパスワードを両方のフィールドに入力してくだ
 #~ msgstr "「処理済」の変更を保存"
 
 #~ msgid ""
-#~ "(Community/town name on first line, then ward, city, etc. in reverse "
-#~ "order)"
+#~ "(Community/town name on first line, then ward, city, etc. in reverse order)"
 #~ msgstr "（一行目に町ぐらいだけで、二行目に区、市や県）"
 
 #~ msgid "https://yubin.senmon.net/en/index.html"
@@ -3691,8 +3687,7 @@ msgstr "新しいパスワードを両方のフィールドに入力してくだ
 #~ msgid ""
 #~ "(To select multiple possible categories (\"this one OR that one\"), hold "
 #~ "Ctrl key while clicking.)"
-#~ msgstr ""
-#~ "（「Ctrl」キーを押しながら選択すれば、複数のカテゴリを選択できる。）"
+#~ msgstr "（「Ctrl」キーを押しながら選択すれば、複数のカテゴリを選択できる。）"
 
 #~ msgid ""
 #~ "(To select multiple possible types (\"this one OR that one\"), hold Ctrl "
@@ -3704,8 +3699,7 @@ msgstr "新しいパスワードを両方のフィールドに入力してくだ
 #~ msgid ""
 #~ "(To select multiple possible events (\"this one OR that one\"), hold Ctrl "
 #~ "key while clicking.)"
-#~ msgstr ""
-#~ "（「Ctrl」キーを押しながら選択すれば、複数のイベントを選択できる。）"
+#~ msgstr "（「Ctrl」キーを押しながら選択すれば、複数のイベントを選択できる。）"
 
 #~ msgid " (People/Orgs Pre-selected)"
 #~ msgstr "（人/団体のフィルター有効）"

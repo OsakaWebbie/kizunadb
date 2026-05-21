@@ -1257,18 +1257,17 @@ echo "<h3 class=\"section-title\">"._("Event Attendance")."</h3>\n";
 echo "<form name=\"attendform\" id=\"attendform\" method=\"post\" action=\"{$_SERVER['PHP_SELF']}?pid={$_GET['pid']}#attendance\" onSubmit=\"return ValidateAttendance()\">\n";
 echo "<input type=\"hidden\" name=\"pid\" value=\"{$_GET['pid']}\" />\n";
 $result = sqlquery_checked("SELECT EventID,Event,UseTimes,IF(EventEndDate AND EventEndDate<CURDATE(),'inactive','active') AS Active FROM event ORDER BY Event");
-//echo "<div style=\"display:inline-block\">\n";
-echo "  <label class=\"label-n-input\">"._("Event").": ";
+echo "<div style=\"display:inline-block\">\n";
+echo "  <label>"._("Event").": ";
 echo "    <select size=\"1\" id=\"eventid\" name=\"eid\">\n";
 echo "      <option value=\"0\" selected>"._("Select...")."</option>\n";
 while ($row = mysqli_fetch_object($result)) {
-//  echo "      <option value=\"".$row->EventID."\" class=\"".(($row->UseTimes==1)?"times ":"days ").$row->Active."\"".
-//  ($row->Active=="active"?"":" style=\"display:none\"").">".$row->Event."</option>\n";
   echo "      <option value=\"".$row->EventID."\" class=\"".(($row->UseTimes==1)?"times ":"days ").$row->Active."\"".
   ">".$row->Event."</option>\n";
 }
-echo "    </select>\n  </label><br />\n";
-//echo "<button id=\"activeevents\">"._("Hide Active")."</button><button id=\"oldevents\">"._("Show Old")."</button>\n</div>";
+echo "    </select>\n  </label>\n";
+echo "<label class=\"label-n-input\">(<input type='checkbox' class='showinactiveevents'> "._("include past events").")</label>\n";
+echo "</div>\n";
 echo "<label class=\"label-n-input\">"._("Date").
 ": <input type=\"text\" name=\"date\" id=\"attenddate\" style=\"width:6em\" value=\"\" /></label>\n";
 echo "<label class=\"label-n-input date\">"._("Optional End Date").": ".
@@ -2059,22 +2058,12 @@ if($_SESSION['lang']=="ja_JP") {
     });
   }
 
-  $("#activeevents").click(function(){  //show or hide active events
-    if ($("#activeevents").val()=="<?=_("Show Active")?>") {
-      $("#eventid.active").show();
-      $("#activeevents").val("<?=_("Hide Active")?>");
+  $('#eventid option.inactive').hide();
+  $('input.showinactiveevents').change(function() {
+    if ($(this).prop('checked')) {
+      $('#eventid option.inactive').show();
     } else {
-      $("#eventid.active").hide();
-      $("#activeevents").val("<?=_("Show Active")?>");
-    }
-  });
-  $("#oldevents").click(function(){  //show or hide old events
-    if ($("#oldevents").val()=="<?=_("Show Old")?>") {
-      $("#eventid.old").show();
-      $("#oldevents").val("<?=_("Hide Old")?>");
-    } else {
-      $("#eventid.old").hide();
-      $("#oldevents").val("<?=_("Show Old")?>");
+      $('#eventid option.inactive').prop('selected', false).hide();
     }
   });
   $("#eventid").change(function(){  //display form stuff based on type of event selected

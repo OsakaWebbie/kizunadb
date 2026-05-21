@@ -53,7 +53,6 @@ if (!$ajax) {
 <link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
 <style>
 body { margin:20px; }
-#eventselect label.label-n-input { margin-right:0; }
 #dayofweek label { margin-right: 0.5em; }
 </style>
 <?php
@@ -64,7 +63,7 @@ if (!$ajax) header2(0);
 <form name="attendform" method="post" action="<?=$_SERVER['PHP_SELF']?>" onSubmit="return ValidateAttendance()">
   <input type="hidden" name="pid_list" value="<?=$_POST['pid_list']?>" />
   <div id="eventselect">
-    <label class="label-n-input"><?=_("Event")?>:
+    <label><?=_("Event")?>:
       <select size="1" id="eventid" name="eid">
         <option value="0" selected><?=_("Select...")?></option>
 <?php
@@ -76,10 +75,7 @@ while ($row = mysqli_fetch_object($result)) {
 ?>
       </select>
     </label>
-    <span id="currentevents" style="display:none">
-      <span class="comment"><?=("(Showing only current events)")?></span> <a id="showpast" href="#"><?=("Show All")?></a>
-    </span>
-    <span id="allevents" style="display:none"><a id="hidepast" href="#"><?=("Hide Past Events")?></a></span>
+    <label class="label-n-input">(<input type="checkbox" class="showinactiveevents"> <?=_("include past events")?>)</label>
   </div>
   <div id="dates">
     <label class="label-n-input"><?=_("Date")?>:
@@ -118,18 +114,14 @@ $(document).ready(function(){
     alert('Error calling ' + settings.url + ': ' + exception);
   });
 
-/* initially hide past events in dropdown list, but allow toggling */
-  $("a#showpast").click(function(e) {
-    e.preventDefault();
-    $("#currentevents").hide();
-    $("#allevents, #eventid option.inactive").show();
+  $('#eventid option.inactive').hide();
+  $('input.showinactiveevents').change(function() {
+    if ($(this).prop('checked')) {
+      $('#eventid option.inactive').show();
+    } else {
+      $('#eventid option.inactive').prop('selected', false).hide();
+    }
   });
-  $("a#hidepast").click(function(e) {
-    e.preventDefault();
-    $("#allevents, #eventid option.inactive").hide();
-    $("#currentevents").show();
-  });
-  $("a#hidepast").click();
   $("#attenddate").datepicker({ dateFormat: 'yy-mm-dd' });
   $("#attendenddate").datepicker({ dateFormat: 'yy-mm-dd' });
 

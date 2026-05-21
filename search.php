@@ -133,9 +133,9 @@ $in = "<span class=\"radiogroup\"><label><input type=\"radio\" name=\"attendinou
 $out = "</label><label><input type=\"radio\" name=\"attendinout1\" value=\"OUT\" />";
 $inoutfinish = "</label></span>\n";
 $eventselect = "<select size=\"3\" id=\"eventselect1\" name=\"eventselect1[]\" multiple=\"multiple\">\n";
-$result = sqlquery_checked("SELECT * FROM event ORDER BY Event");
+$result = sqlquery_checked("SELECT EventID,Event,IF(EventEndDate AND EventEndDate<CURDATE(),'inactive','active') AS Active FROM event ORDER BY Event");
 while ($row = mysqli_fetch_object($result)) {
-  $eventselect .= "    <option value=\"".$row->EventID."\">".d2h($row->Event)."</option>";
+  $eventselect .= "    <option value=\"".$row->EventID."\" class=\"".$row->Active."\">".d2h($row->Event)."</option>";
 }
 $eventselect .= "</select>\n";
 $astartdate = "<input type=\"text\" name=\"astartdate1\" id=\"astartdate1\" style=\"width:6em\" />";
@@ -216,6 +216,7 @@ $(document).ready(function(){
     label: '<?=_("Search:")?>'
   });
 
+
   $("button.dup").click(function(){  //add a new instance of the same type of search option
     var newsearch = $(this).prev().clone();
     var oldnumber = parseInt(newsearch.attr("id").substr(newsearch.attr("id").length-1,1));
@@ -256,6 +257,16 @@ $(document).ready(function(){
   $('#showadvanced').click(function(){
     $('.advanced').show();
     $('.simpleonly').hide();
+    // Multiselects were initialized inside a hidden container, so the plugin measured 0px
+    // and fell back to minWidth:225. Now that the container is visible, briefly un-hide each
+    // native <select> (the plugin set it to display:none) to get the real content width.
+    $('#catselect1,#ctselect1,#seqctqual1,#seqctelim1,#dtselect1,#eventselect1').each(function() {
+      var $sel = $(this);
+      $sel.show();
+      var w = $sel.outerWidth();
+      $sel.hide();
+      if (w > 0) $sel.multiselect('option', 'minWidth', Math.ceil(w));
+    });
   });
   
   $('input[type="radio"].OP').click(function() {

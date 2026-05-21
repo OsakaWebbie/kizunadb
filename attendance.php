@@ -7,7 +7,7 @@ header1(_('Event Attendance')); ?>
 <link rel="stylesheet" href="style.php?jquery=1&multiselect=1&table=1" type="text/css" />
 <?php header2(1);
 // Build option list from event table contents
-$result = sqlquery_checked("SELECT * FROM event ORDER BY (EventEndDate!='0000-00-00' AND EventEndDate<NOW()),Event");
+$result = sqlquery_checked("SELECT * FROM event ORDER BY Event");
 $opts = '';
 while ($row = mysqli_fetch_object($result)) {
   $opts .= '    <option value="'.$row->EventID.'" class="'.
@@ -19,12 +19,14 @@ while ($row = mysqli_fetch_object($result)) {
 <h1 id="title"><?=_('Event Attendance')?></h1>
 <form id="eform" method="get" action="blank.php">
 <div id="filter">
+  <label class="label-n-input">
 <?php
 printf(_('Optional Dates: after %s and/or before %s'),
    '<input type="text" name="startdate" id="startdate" style="width:6em" />',
    '<input type="text" name="enddate" id="enddate" style="width:6em" />');
 ?>
-  <label class="label-n-input basketfilter"<?=(empty($_SESSION['basket'])?' style="color:#BBB"':'')?>><input type="checkbox" name="basket" value="1"<?=(empty($_SESSION['basket'])?' disabled':'')?>><?=sprintf(_("in Basket only (%d)"), count($_SESSION['basket']))?></label>
+  </label>
+  <label class="label-n-input"<?=(empty($_SESSION['basket'])?' style="color:#BBB"':'')?>><input type="checkbox" name="basket" value="1"<?=(empty($_SESSION['basket'])?' disabled':'')?>><?=sprintf(_("in Basket only (%d)"), count($_SESSION['basket']))?></label>
 </div>
 <div class="section">
   <label for="eid"><?=_("Single Event, Detail Info")?>: </label>
@@ -32,6 +34,7 @@ printf(_('Optional Dates: after %s and/or before %s'),
     <option value=""><?=_("Select an event...")?></option>
 <?=$opts?>
   </select>
+  <label class="label-n-input">(<input type="checkbox" class="showinactiveevents"> <?=_("include past events")?>)</label>
   <input type="button" id="show_detail_below" value="<?=_("Show Detail Chart").' ('._('below').')'?>">
   <input type="submit" id="show_detail_tab" value="<?=_("Show Detail Chart").' ('._('new tab').')'?>" formaction="attend_detail.php" formtarget="_blank">
 </div>
@@ -70,6 +73,14 @@ load_scripts($scripts);
       hide: null
     }).multiselectfilter({
       label: '<?=_('Search:')?>'
+    });
+    $('#eid option.inactive').hide();
+    $('input.showinactiveevents').change(function() {
+      if ($(this).prop('checked')) {
+        $('#eid option.inactive').show();
+      } else {
+        $('#eid option.inactive').prop('selected', false).hide();
+      }
     });
     $('#startdate').datepicker({ dateFormat: 'yy-mm-dd' });
     $('#enddate').datepicker({ dateFormat: 'yy-mm-dd' });
