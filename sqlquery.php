@@ -2,16 +2,19 @@
  include("functions.php");
  include("accesscontrol.php");
 
-header1("SQL Query");
-
+pageheader("SQL Query", 1);
+?>
+<style>
+/* page-specific rules (moved from style.php) */
+body.sqlquery h2 { text-align:center; margin-bottom:10px; }
+body.sqlquery input#submit { margin:10px auto 5px auto; padding:5px 40px 5px 40px; font-size: 1.5em; font-weight:bold; }
+body.sqlquery form { margin:10px auto 5px auto; }
+body.sqlquery #mainTable tbody td { vertical-align:top; }
+</style>
+<?php
 if (!empty($_POST['query'])) {
   $query = stripslashes($_POST['query']);
   $result = mysqli_query($db, $query);
-?>
-<link rel="stylesheet" href="style.php?table=1" type="text/css" />
-<?php
-  header2(1);
-  
   echo "<h2>Results of this query:</h2>\n";
   echo "<form action=\"sqlquery.php\" method=\"post\">\n";
   echo "<textarea name=\"query\" style=\"height:5em;width:100%\">".$query."</textarea>\n";
@@ -65,8 +68,6 @@ if (!empty($_POST['query'])) {
     echo "Something unknown succeeded - return value ".$result.".";
   }
 } else {
-  ?> <link rel="stylesheet" href="style.php" type="text/css" /> <?php
-  header2(1);
   echo "<h2>SQL Query in Kizuna Database</h2>";
   echo "<form action=\"sqlquery.php\" method=\"post\">\n";
   echo "<textarea name=\"query\"  style=\"height:5em;width:100%\"></textarea>";

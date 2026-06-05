@@ -35,13 +35,34 @@ if (!empty($_GET['pid'])) {
   }
 }
 
-if ($pid) {
-  header1(sprintf(_("Edit %s"),$rec->FullName));
-} else {
-  header1(_("New Entry"));
-}
+pageheader($pid ? sprintf(_("Edit %s"),$rec->FullName) : _("New Entry"), 1);
 ?>
-<link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
+<style>
+/* page-specific rules (moved from style.php) */
+body.edit #editform input { margin-bottom:5px;}
+body.edit div#name_section,body.edit div#furigana_section,body.edit div#title_section { float:left; vertical-align:top; margin:0 15px 10px 0; }
+body.edit div#household_section { clear:both; border: 1px solid var(--section-border); padding: 5px; margin: 10px 0 5px 0; }
+body.edit div#household_setup { text-align:center; }
+body.edit div#household_setup button { margin:0 5px; }
+body.edit label#addresslabel,body.edit label#labelnamelabel,body.edit label#romajiaddresslabel { display:block; }
+body.edit div#address_display { float:left; margin:10px;}
+body.edit div#address_input { float:left; margin:10px;}
+body.edit div#jp_address_display,body.edit div#rom_address_display { width: 400px; margin: 10px 2px; padding: 10px; vertical-align: top; }
+body.edit div#jp_address_display { border: 1px dashed Gray; font-weight:bold; }
+body.edit div#rom_address_display { font-style:italic; }
+body.edit span#labelname_display { font-size:1.5em; }
+body.edit span#romajiaddress_section { white-space:nowrap; line-height:1.0em; padding-top:0.3em; }
+body.edit div#householdfinal_section { clear:both; }
+body.edit div#photo_section { border: 2px solid Gray; background-color: White; text-align: center; float: right; }
+body.edit #submit_button,body.edit #remarks_label { display:inline-block; vertical-align:top; margin-top:5px; }
+body.edit #remarks { width:420px; height:6em; vertical-align:top; margin-bottom:5px; }
+body.edit #submit_button { margin:20px; padding:5px 15px; font-size: 1.3em; font-weight:bold; }
+body.edit #duplicates { text-align:left; }
+body.edit #duplicates .dup { border:2px solid LightGray; padding:5px;margin:3px 0; }
+body.edit #duplicates .name { font-size:1.2em; font-weight:bold; }
+body.edit #duplicates .button_section { white-space:nowrap; }
+body.edit #duplicates .button_section form { display:inline; }
+</style>
 <script type="text/javascript" src="js/functions.js"></script>
 <script type="text/JavaScript" src="js/jquery-3.6.0.js"></script>
 <script type="text/JavaScript" src="js/jquery-ui-13.min.js"></script>
@@ -370,7 +391,6 @@ function validate() {
 }
 </script>
 <?php
-header2(1);
 echo "<h1 id=\"title\">".($pid ? sprintf(_("Edit %s"),$rec->FullName) : _("New Entry"))."</h1>\n";
 ?>
 <div id="duplicates" style="display:none"></div>
@@ -559,5 +579,5 @@ onchange="editform.updateper.value=1;"><?=$pid?$rec->Remarks:''?></textarea></la
   });
 </script>
 <?php
-print_footer();
+footer();
 ?>

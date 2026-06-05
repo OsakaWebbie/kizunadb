@@ -1,17 +1,10 @@
 <?php
 include("functions.php");
 include("accesscontrol.php");
-header1(_("Custom Report"));
 $result = sqlquery_checked("SELECT * FROM custom WHERE CustomName='".$_POST['customname']."'");
 $custom = mysqli_fetch_object($result);
-if ($custom->IsTable) {
-?>
-<link rel="stylesheet" href="style.php?table=1" type="text/css" />
-<?php
-} else {
-  echo "<style>\n".$custom->CSS."/n</style>\n";
-}
-header2($custom->IsTable);
+pageheader(_("Custom Report"), $custom->IsTable);
+if (!$custom->IsTable) echo "<style>\n".$custom->CSS."/n</style>\n";
 $result = sqlquery_checked(str_replace("%PIDS%",$_POST['pids'],$custom->SQL));
 $fields = mysqli_num_fields($result);
 $rows = mysqli_num_rows($result);

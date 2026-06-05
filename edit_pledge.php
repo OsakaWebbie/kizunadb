@@ -66,12 +66,7 @@ if (isset($_GET['plid'])) {  // EDITING
   $pagetitle = sprintf(_("New Pledge Entry for %s"),readable_name($rec->FullName,$rec->Furigana));
 }
 
-header1($pagetitle);
-
-?>
-<link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
-<?php
-header2(1);
+pageheader($pagetitle, 1);
 
 //echo "<pre>".print_r($donation,true)."</pre>";
 if (!empty($message)) echo "<h3>$message</h3>\n";

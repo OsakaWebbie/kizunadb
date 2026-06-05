@@ -3,13 +3,7 @@ include("functions.php");
 include("accesscontrol.php");
 $ajax = !empty($_REQUEST['ajax']);
 
-if (!$ajax) header1(_("Print Labels"));
-if (!$ajax) {
-?>
-<link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
-<?php
-}
-if (!$ajax) header2(0);
+if (!$ajax) pageheader(_("Print Labels"), 0);
 
 /* CHECK FOR RECORDS WITH NO HOUSEHOLD OR ADDRESS */
 $sql = "SELECT p.PersonID, FullName, Furigana ".

@@ -5,12 +5,7 @@ include('accesscontrol.php');
 $ajax = !empty($_GET['ajax']);
 
 if (!$ajax) {
-  header1(_('Attendance Summary'));
-  ?>
-  <meta http-equiv="expires" content="0">
-  <link rel="stylesheet" href="style.php" type="text/css" />
-  <?php
-  header2(1);
+  pageheader(_('Attendance Summary'), 1);
 }
 ?>
 <style>

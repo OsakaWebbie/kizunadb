@@ -6,11 +6,7 @@ $ajax = !empty($_GET['ajax']);
 $type = $_REQUEST['summarytype'] ?? 'DonationType';
 
 if (!$ajax) {
-  header1(_("Donation Summary"));
-  ?>
-  <link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />
-  <?php
-  header2(1);
+  pageheader(_("Donation Summary"), 1);
 }
 ?>
 <style>

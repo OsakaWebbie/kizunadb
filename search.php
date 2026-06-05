@@ -2,10 +2,34 @@
 include("functions.php");
 include("accesscontrol.php");
 
-header1(_("Search")); ?>
-
-<link rel="stylesheet" type="text/css" href="style.php?page=<?=$_SERVER['PHP_SELF']?>&jquery=1&multiselect=1" />
-<?php header2(1); ?>
+pageheader(_("Search"), 1); ?>
+<style>
+/* page-specific rules (moved from style.php; variables stay in style.css :root) */
+body.search div#content { margin-top:0px; }
+body.search ul.nav { margin-bottom:0px; }
+body.search div#opening h1.title { text-align:left; margin-left:280px; margin-top:0px; padding-top:5px;}
+body.search div#opening h3 { text-align:left; margin-left:330px; color:white; }
+body.search .advanced { display:none; }
+body.search .comment { text-align:center; }
+body.search div.criteria,body.search div.criteria select { vertical-align: middle; margin-bottom:3px; }
+body.search span.radiogroup, body.search span.inputgroup { display:inline-block; vertical-align: middle; }
+body.search h2 span.radiogroup { border:1px solid var(--h2); font-size: 0.8em; }
+body.search h2 span.radiogroup label { display:inline-block; margin:3px 5px; }
+body.search fieldset span.radiogroup label, body.search fieldset span.inputgroup label { display:block; }
+body.search fieldset span.plus { font-size:2em; width:20px; display:inline-block; }
+body.search #showadvanced,body.search #search { display:block; }
+body.search #buttonsection { border: 1px solid Black; padding: 10px 8px; background: white; position: fixed; top: 100px; right: 18px; text-align: center; }
+body.search #buttonsection label.label-n-input { margin-right:0; }
+body.search #search { margin:0 auto; padding:5px 40px 5px 40px; font-size: 1.5em; font-weight:bold; }
+@media screen and (max-width: 900px) {
+  body.search fieldset { margin: 8px 0; }
+  body.search div.criteria,body.search div.criteria select { line-height: 3em; }
+  body.search div.criteria span.radiogroup label { line-height: 1.5em; }
+  body.search #showadvanced { display:inline-block; margin-bottom: 10px; }
+  body.search #buttonsection { display:inline-block; position: static; margin-bottom: 10px; }
+  body.search #search { display:inline-block; }
+}
+</style>
 <h1 id="title"><?=$_SESSION['dbtitle'].": "._("Search")?></h1>
 <?php if (isset($text)) echo "<h3 class=\"alert\">".urldecode($text)."</h3>"; ?>
 

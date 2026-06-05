@@ -80,12 +80,8 @@ if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="/kizunadb.ico">
   <title>KizunaDB Login</title>
-<?php
-$hostarray = explode(".",$_SERVER['HTTP_HOST']);
-?>
-  <link rel="stylesheet" type="text/css" href="style.php?page=<?=$_SERVER['PHP_SELF']?>&jquery=1" />
+<?php css_bundle(); ?>
   <style>
     #nav-main ul {
       padding-top:6px;

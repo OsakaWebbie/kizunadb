@@ -23,11 +23,7 @@ $event_names = substr($event_names,2);
 if (!isset($_SESSION['attendaggr_showcols']))  $_SESSION['attendaggr_showcols'] = "name,event,first,last,count";
 
 if (!$ajax) {
-  header1(_("Aggregate Attendance Data"));
-  ?>
-  <link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />
-  <?php
-  header2(1);
+  pageheader(_("Aggregate Attendance Data"), 1);
 }
 echo "<h1 id=\"title\">"._("Aggregate Attendance Data")."</h1>\n";
 echo "<h3>"._("Events").": ".$event_names;

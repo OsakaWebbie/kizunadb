@@ -6,11 +6,7 @@ $listtype = $_GET['listtype'] ?? 'Normal';
 $ajax = !empty($_GET['ajax']);
 
 if (!$ajax) {
-  header1(_("Action List"));
-  ?>
-  <link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />
-  <?php
-  header2(1);
+  pageheader(_("Action List"), 1);
 }
 ?>
 <h1 id="title"><?=_("Action List")?></h1>

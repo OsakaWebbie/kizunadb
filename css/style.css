@@ -1,0 +1,511 @@
+/* KizunaDB main stylesheet */
+:root {
+  /* ── Brand palette: change these to retheme ───────────────── */
+  --primary-light:    LightSteelBlue;
+  --primary-medium:   SteelBlue;
+  --secondary-medium: #CC9944;
+  --secondary-dark:   #844E0C;   /* was rgb(132,78,12) */
+  --dark-header:      #583907;   /* was rgb(88,57,7) */
+
+  /* ── Derived semantic variables ───────────────────────────── */
+
+  /* layout */
+  --body-bg:          DarkGrey;
+  --main-bg:          White;
+  --main-border:      Black;
+
+  /* navigation */
+  --nav-bg:           var(--dark-header);
+  --nav-link:         var(--primary-light);
+  --nav-bg-hover:     var(--secondary-dark);
+  --nav-link-hover:   White;
+  --scrollnav-bg:     color-mix(in srgb, var(--nav-bg) 70%, transparent);
+
+  /* page chrome */
+  --title:            var(--primary-medium);
+  --title-bg:         White;
+
+  /* sections & fieldsets */
+  --section-border:        var(--secondary-dark);
+  --section-title-border:  var(--secondary-dark);
+  --section-title-bg:      var(--secondary-dark);
+  --section-title:         White;
+  --fieldset-border:       var(--secondary-dark);
+  --legend-bg:             var(--secondary-dark);
+  --legend:                White;
+
+  /* typography */
+  --h1:               var(--secondary-medium);
+  --h2:               var(--primary-medium);
+  --h3:               Black;
+  --link:             #333399;
+  --link-hover:       DarkBlue;
+  --link-more:        Black;
+  --alert:            Red;
+  --validation:       Red;
+  --highlight:        var(--primary-light);
+
+  /* forms & tables */
+  --input-bg:         White;
+  --input-border:     DimGray;
+  --inline-label:     var(--secondary-dark);
+  --table-header-bg:  var(--primary-light);
+
+  /* special */
+  --del-confirm:      #808080;
+
+  /* page-specific variables (rules now live in the relevant page, but the
+     variables stay here so client colors.css can still override them) */
+  --photo-border:       Gray;
+  --person-info-title:  var(--secondary-medium);
+  --person-info-border: var(--secondary-medium);
+  --leader-bg:          #FFF0C0;
+  --inner-border:       var(--primary-medium);
+  --active-event-bg:    White;
+  --inactive-event-bg:  #BBBBBB;
+
+  /* jQuery UI brand-chrome seam (consumed by jquery-ui-vars.css) */
+  --ui-header-bg:    var(--secondary-dark);
+  --ui-header-text:  White;
+  --ui-default-bg:   var(--primary-light);
+  --ui-default-text: var(--primary-medium);
+  --ui-active-bg:    var(--primary-medium);
+  --ui-active-text:  White;
+  --ui-hover-bg:     color-mix(in srgb, var(--primary-light) 60%, White);
+  --ui-hover-text:   var(--primary-medium);
+}
+
+/* theme layout and styling */
+
+body.full {
+  text-align:center;
+  background-color: var(--body-bg);
+}
+body.simple {
+  text-align:center;
+  background-color: White;
+}
+
+body.full div#main-container {
+  background:var(--main-bg) url('../graphics/kizunadb-logo.png') no-repeat 3px 3px;
+  text-align:left;
+  width:auto;
+  border: 1px solid var(--main-border);
+  margin: 10px;
+}
+body.simple div#main-container, body.simple div#content {
+  text-align:left;
+  background-color: White;
+}
+
+div#content {
+  margin:0 10px 10px 10px;
+  background-color: White;
+  z-index: 1;
+}
+
+/* MAIN MENU (WIDE SCREENS) */
+ul.nav {
+  background-color:var(--nav-bg);
+  list-style-type: none;
+  margin:10px 10px 0 58px;
+  padding:7px 0 7px 0;
+  border-radius: 15px;
+  text-align: center;
+  vertical-align: middle;
+  min-height: 30px;
+}
+ul.nav li, div.hassub {
+  display: inline-block;
+  position: relative;
+  color: var(--nav-link);
+}
+ul.nav-sub { /* second level menus */
+  display: none;
+  position: absolute;
+  z-index:100;
+  background-color:var(--nav-bg);
+  margin: -2px 0 0 15px;
+  border: 1px solid var(--nav-link);
+  padding: 0;
+  border-radius: 0;
+  text-align: left;
+  min-height: 0;
+}
+ul.nav-sub li {
+  display: block;
+}
+ul.nav a, div.hassub a {
+  display: block;
+  color: var(--nav-link);
+  padding: 10px 15px;
+  margin: 0;
+  font-family: arial, helvetica, sans-serif;
+  font-weight: bold;
+  text-decoration: none;
+  white-space:nowrap;
+}
+ul.nav span.username { font-weight:normal; white-space:wrap; }
+ul.nav a:hover, div.hassub a:hover {
+  background-color: var(--nav-bg-hover);
+  color: var(--nav-link-hover);
+}
+
+ul.nav a.disabledlink, div.hassub a.disabledlink {
+  opacity: 0.5;
+  pointer-events: none;
+}
+ul.nav a.disabledlink:hover, div.hassub a.disabledlink:hover {
+  background-color:var(--nav-bg);
+  color: var(--nav-link);
+}
+
+/* MENU THAT APPEARS WHEN SCROLLING (WIDE SCREENS) */
+#scrollnav {
+  position: fixed;
+  top: -100px;
+  transition: top 0.5s ease-in-out 0s;
+  width: 100%;
+  z-index: 9999;
+}
+#scrollnav ul.nav {
+  background-color: var(--scrollnav-bg);
+  margin:0;
+  padding:5px;
+  -moz-border-radius: 0;
+  border-radius: 0;
+  min-height: 0;
+}
+#scrollnav ul a {
+  padding: 3px 10px 3px 10px;
+}
+#scrollnav.visible {
+  top: 0;
+}
+
+/* TRIGGER (BUTTON) FOR MOBILE MENU */
+#nav-trigger {
+  display: none;
+  text-align: center;
+  background-color:var(--nav-bg);
+}
+#nav-trigger img {
+  float:left;
+  width:24px;
+  padding:3px;
+  background-color:White;
+  border-radius:7px;
+  margin:3px;
+}
+#nav-trigger span {
+  display: inline-block;
+  padding: 10px 30px;
+  color: var(--nav-link);
+  cursor: pointer;
+  font-family: arial, helvetica, sans-serif;
+  font-size: 120%;
+  font-weight: bold;
+}
+#nav-trigger span:after {
+  display: inline-block;
+  box-sizing: border-box;
+  margin-left: 10px;
+  width: 20px;
+  height: 10px;
+  content: "";
+  border-left: solid 10px transparent;
+  border-top: solid 10px var(--nav-link);
+  border-right: solid 10px transparent;
+}
+#nav-trigger.open { background-color: var(--nav-bg-hover); }
+#nav-trigger.open span { color:var(--nav-link-hover); }
+#nav-trigger.open span:after {
+  border-left: solid 10px transparent;
+  border-top: none;
+  border-bottom: solid 10px var(--nav-link-hover);
+  border-right: solid 10px transparent;
+}
+
+/* MOBILE MENU */
+#nav-mobile {
+  position: relative;
+  display: none;
+  margin-left:35px;
+  background-color: var(--nav-bg);
+}
+#nav-mobile ul.nav {
+  display: none;
+  list-style-type: none;
+  position: absolute;
+  z-index: 9998;
+  border-radius: 0;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  padding: 0;
+  text-align: left;
+}
+#nav-mobile ul.nav li {
+  display: block;
+  padding: 5px 0 5px 10px;
+  margin: 0 5px;
+  border-bottom: solid 1px var(--primary-medium);
+}
+#nav-mobile ul.nav-sub { /* second level menus */
+  display: block;
+  position: static;
+  padding: 0 0 0 20px;
+  min-height: 0;
+  border: none;
+}
+#nav-mobile ul.nav-sub li {
+  display: block;
+}
+nav#nav-mobile ul.nav li:last-child { border-bottom: none; }
+nav#nav-mobile a {
+  display: block;
+  color: var(--nav-link);
+  padding: 8px 0;
+  font-family: arial, helvetica, sans-serif;
+  font-size: 120%;
+  font-weight: bold;
+}
+nav#nav-mobile li.menu-usersettings a span { font-weight:normal; white-space:wrap; }
+nav#nav-mobile a:hover, nav#nav-mobile a:active {
+  background-color: var(--nav-bg-hover);
+  color: var(--nav-link-hover);
+}
+
+/* general purpose typography */
+
+body { font-family:Arial,"ＭＳ Ｐゴシック",sans-serif; }
+textarea { font-family:Arial,"ＭＳ Ｐゴシック",sans-serif; } /* because inherit doesn't work in IE <8 */
+
+h1 {
+  margin:6px 0 6px 0;
+  text-align:center;
+  font-size: 1.8em;
+  line-height:1;
+  font-weight:bold;
+  color: var(--h1);
+}
+h2 {
+  text-align:left;
+  font-size: 1.5em;
+  line-height:1.1;
+  color: var(--h2);
+  font-weight:bold;
+}
+h3 {
+  text-align:left;
+  font-size: 1.2em;
+  font-weight:bold;
+  font-style:italic;
+  color: var(--h3);
+  margin:10px 0 4px 0;
+}
+a:link,a:visited { color:var(--link); }
+a:hover,a:active { color:var(--link-hover); }
+a.more { cursor:pointer; color:var(--link-more); text-decoration:underline; }
+
+.dropdown-closed::after { content: ' ▼'; }
+.dropdown-open::after { content: ' ▲'; }
+
+.alert { color:var(--alert); }
+.comment { font-size:0.8em; font-style:italic; }
+.highlight { background-color:var(--highlight); }
+.validation { background-color:var(--validation); }
+
+/* Readmore fadeout effect */
+td.readmore-wrapper, div.readmore {
+  position: relative;
+}
+td.readmore-wrapper div.readmore {
+  display: block;
+  width: 100%;
+}
+div.readmore[data-readmore] {
+  overflow: hidden;
+  transition: height 75ms;
+}
+div.readmore[aria-expanded="false"]::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  background: linear-gradient(to bottom, transparent, white);
+  pointer-events: none;
+}
+
+/*forms*/
+
+form div { margin-top:0.1em; margin-bottom:0.1em; }
+input.text {
+  background-color: var(--input-bg);
+  border: var(--input-border) solid 1px;
+}
+fieldset,input,select,label,label textarea { vertical-align:top; }
+.label-n-input { white-space:nowrap; margin-right:2em;}
+td.button-in-table { text-align:center; }
+
+/* TABLES (including tablesorter) */
+
+table { background-color: White; text-align: left; }
+table tbody td {
+  padding: 4px;
+  vertical-align: top;
+  border: 1px solid var(--primary-light);
+}
+
+table.tablesorter thead tr th.tablesorter-header,
+table.tablesorter tfoot tr th.tablesorter-footer {
+  background-color: var(--table-header-bg);
+  border: 1px solid White;
+  background-repeat: no-repeat;
+  background-position: center right;
+  padding: 4px 20px 4px 4px;
+}
+table.tablesorter thead tr th.tablesorter-headerUnSorted {
+  background-image: url(images/tablesorter_bg.gif);
+  cursor: pointer;
+}
+table.tablesorter thead tr th.tablesorter-headerAsc {
+  background-image: url(images/tablesorter_asc.gif);
+}
+table.tablesorter thead tr th.tablesorter-headerDesc {
+  background-image: url(images/tablesorter_desc.gif);
+}
+table.tablesorter thead tr th.tablesorter-headerAsc,
+table.tablesorter thead tr th.tablesorter-headerDesc {
+  background-color: var(--secondary-dark);
+  color: White;
+}
+
+/* specialized classes and IDs */
+
+div.section  {
+  margin: 15px 0 15px 0;
+  border: 2px solid var(--section-border);
+  padding: 5px;
+  background-color: White;
+}
+h3.section-title {
+  margin:0 0 3px 5px;
+  padding:2px 7px 2px 7px;
+  border: 2px solid var(--section-title-border);
+  text-align:left;
+  display:inline;
+  position:relative;
+  top:-12px;
+  font-size:1.2em;
+  font-weight:bold;
+  font-style:italic;
+  color: var(--section-title);
+  background-color: var(--section-title-bg);
+}
+fieldset {
+  margin: 15px 0 15px 0;
+  border: 2px solid var(--fieldset-border);
+  padding: 5px;
+  background-color: White;
+}
+fieldset legend {
+  margin:0 0 3px 5px;
+  padding:2px 7px 2px 7px;
+  font-size:1.2em;
+  font-weight:bold;
+  font-style:italic;
+  color: var(--legend);
+  background-color: var(--legend-bg);
+}
+
+h1#title {
+  margin: 0 0 0 48px;
+  padding:4px 0 10px 0;
+  color: var(--title);
+  background-color:var(--title-bg);
+}
+
+span.inlinelabel {
+  font-weight: bold;
+  color: var(--inline-label);
+}
+
+option.active. li.active { background-color:var(--active-event-bg); }
+option.inactive, li.inactive { background-color:var(--inactive-event-bg); }
+
+ul#criteria {
+  margin-left:30px;
+  padding-left:12px;
+  list-style-type: disc;
+}
+
+  /* MOBILE MEDIA QUERIES */
+
+@media screen and (max-width: 900px) {
+  body.full div#main-container {
+    border: none;
+    margin: 0;
+  }
+  body.full div#main-container { background-image:none; }
+  #nav-trigger { display: block; }
+  nav#nav-main { display: none; }
+  nav#nav-mobile { display: block; }
+  #scrollnav { display: none; }
+  ul.nav li.menu-user a { white-space:wrap; }
+  h1#title { margin:0; }
+}
+@media screen and (orientation:landscape) {
+  #nav-trigger span, nav#nav-mobile a { font-size: 100%; }
+  #nav-trigger img { width:20px; }
+}
+
+/* AJAX related */
+
+.delconfirm { background-color: var(--del-confirm); }
+.is-loading {
+  background-image: url('../graphics/ajax-loader.gif');
+  background-repeat: no-repeat;
+  background-position: right 6px center;
+  background-size: 20px 20px;
+}
+
+/* Result frame for AJAX-loaded content */
+#ResultFrame {
+  min-height: 100px;
+  max-height: 500px;
+  overflow-y: auto;
+  resize: vertical;
+  border: 1px solid var(--primary-light);
+  padding: 1em;
+  margin-top: 1em;
+}
+
+/* NOTE: page-specific rules (body.search, body.list, body.individual, body.edit,
+   body.action, body.donation, body.sqlquery, body.dashboard) now live in their own
+   page files as a <style> block after header(). Only global/shared rules belong here. */
+
+@media print {
+  body.full {
+    background:none;
+  }
+  body.full div#main-container {
+    background:none;
+    border:none;
+  }
+  ul.nav { display:none; }
+}
+
+  /*** jQuery UI CSS exceptions ***/
+  .ui-dialog .ui-dialog-content {
+  overflow:visible;
+  text-align:left;
+  }
+  .ui-widget { font-size: 1em !important; }  /* override jquery-ui theme's 0.9em so dialogs match body text */
+  p.dlg-choice {
+    margin-top: 1em;
+    padding-left: 2em;
+    text-indent: -2em;
+  }

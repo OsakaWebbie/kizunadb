@@ -259,11 +259,7 @@ if (!empty($_GET['query'])) {
 }
 
 // Normal page load - render the form
-header1(_("Birthdays"));
-?>
-<link rel="stylesheet" href="style.php?jquery=1&multiselect=1&table=1" type="text/css" />
-<?php
-header2(1);
+pageheader(_("Birthdays"), 1);
 
 // Build localized month and day options
 $gen = new IntlDatePatternGenerator($_SESSION['lang']);

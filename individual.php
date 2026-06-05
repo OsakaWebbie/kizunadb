@@ -227,12 +227,11 @@ if (mysqli_num_rows($result) == 0) {
   exit;
 }
 $per = mysqli_fetch_object($result);
-header1("$per->FullName");
+pageheader("$per->FullName", 1);
 
 // Legacy column definitions removed - tables now use flextable
 ?>
 
-<link rel="stylesheet" type="text/css" href="style.php?jquery=1&table=1" />
 <style>
     div#personal-info div,div#household-info div { margin-bottom:0.3em; }
     div#nonjapan-address,div#address,div#romaji-address { padding-left:15px; margin:0em; }
@@ -242,9 +241,47 @@ header1("$per->FullName");
     div#links { clear:both; text-align:center; padding:0; }
     div#links a, div#links button { margin:10px 20px 5px 20px; }
     div#cats-button { text-align:center; margin:-10px 0 10px 0; }
+
+    /* moved from style.php (page-specific; variables stay in style.css :root) */
+    body.individual div#photo { float:left; width:150px; text-align:center; }
+    body.individual div#photo img { width:150px; border:1px solid var(--photo-border);}
+    body.individual div#photo p { margin-top:60px; text-align:center; }
+    body.individual div#info-block { float:left; }
+    body.individual div#personal-info,div#household-info {
+      border:2px solid var(--person-info-border);
+      float:left;
+      margin-left: 8px;
+      padding:5px;
+    }
+    body.individual h3.info-title {
+      margin:0 0 3px 0;
+      padding:0;
+      font-size:1.2em;
+      font-weight:bold;
+      font-style:italic;
+      color: var(--person-info-title);
+    }
+    body.individual div#cats-in {
+      margin:5px 0;
+      padding:5px 0;
+      border-top: 2px solid var(--section-border);
+      border-bottom: 2px solid var(--section-border);
+    }
+    body.individual div#orgsection form.msform { margin-top:15px; }
+    body.individual tr.leader { background-color:var(--leader-bg); }
+    body.individual div.section h3 { margin:5px 0 0 0; }
+    body.individual form#orgform,
+    body.individual form#actionform,
+    body.individual form#donationform,
+    body.individual form#pledgeform,
+    body.individual form#attendform { margin:0 0 5px 30px; padding:5px; border:1px solid LightGray; }
+    body.individual form#actionform textarea { height:2em; }
+    body.individual td.categories, body.individual td.events { white-space:nowrap; }
+    body.individual #dayofweek, body.individual #attend-apply { display:block; }
+    body.individual #dayofweek label, body.individual #attend-apply label { margin-right:0.5em; }
 </style>
 
-<?php header2(1);
+<?php
 echo "<h1 id=\"title\">".readable_name($per->FullName,$per->Furigana,$per->PersonID,$per->Organization,
     ($per->Organization?'<br /><span class="smaller">':'')).($per->Organization?'</span>':'')."</h1>";
 if ($per->Photo) echo "<div id=\"photo\"><img src=\"photo.php?f=p".$_GET['pid']."\" width=\"150\" /></div>\n";

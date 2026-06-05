@@ -256,9 +256,7 @@ $sql .= $join . $where . $closing . " GROUP BY $grouptable.PersonID";
 $criterialist .= "</ul>\n";
 
 if (!$result = mysqli_query($db, $sql)) {
-  header1(_('Error'));
-  echo '<link rel="stylesheet" href="style.php" type="text/css" />';
-  header2(1);
+  pageheader(_('Error'), 1);
   echo $criterialist;
   echo "<div style=\"border: 2px solid darkred;background-color:#ffe0e0;color:darkred;padding-left:5px;margin:20px 0;\">$sql</div>";
   echo "<div style=\"font-weight:bold;margin:10px 0\">The query had an error:<br>".mysqli_errno($db).": ".mysqli_error($db)."</div>";
@@ -273,12 +271,15 @@ if (mysqli_num_rows($result) == 0) {
   header("Location: individual.php?pid=".$person->PersonID);
   exit;
 }
-header1(_("Search Results"));
-
+pageheader(_("Search Results"), 1);
 ?>
-<link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />
+<style>
+/* page-specific rules (moved from style.php) */
+body.list.full div#main-container { width:auto; }
+body.list h3 { margin-bottom:0; }
+body.list td.categories { white-space:nowrap; }
+</style>
 <?php
-header2(1);
 
 // Build flextable options
 require_once("flextable.php");

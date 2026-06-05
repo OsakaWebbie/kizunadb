@@ -1,9 +1,8 @@
 <?php
 include("functions.php");
 include("accesscontrol.php");
-header1(_("Batch Processing"));
+pageheader(_("Batch Processing"), 1);
 ?>
-<link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
 <style>
 #batch-container { display:flex; flex-wrap:wrap; align-items:flex-start; }
 #batch-chooser { flex:1; min-width:520px; margin-right:1em; }
@@ -41,7 +40,6 @@ if ($preselected_pids) {
 }
 load_scripts(['jquery', 'jqueryui']);
 ?>
-<?php header2(1); ?>
 
 <h1 id="title"><?=_("Batch Processing")?></h1>
 <div id="batch-container">

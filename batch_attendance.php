@@ -3,8 +3,6 @@ include("functions.php");
 include("accesscontrol.php");
 $ajax = !empty($_REQUEST['ajax']);
 
-if (!$ajax) header1(_("Record Attendance"));
-
 // A REQUEST TO ADD ATTENDANCE RECORD(S)?
 if (!empty($_POST['newattendance'])) {
   $pidarray = explode(",",$_POST['pid_list']);
@@ -39,7 +37,7 @@ if (!empty($_POST['newattendance'])) {
       elseif ($affected == 1)  $added++;
     }
   }
-  if (!$ajax) header2(0);
+  if (!$ajax) pageheader(_("Record Attendance"), 0);
   echo '<h3>'.sprintf(_('%s attendance records added.'),$added);
   if ($updated > 0) echo '<br>'.sprintf(_('%s existing records had times updated.'),$updated);
   if ($added+$updated > count($datearray)*count($pidarray)) echo '<br>'.sprintf(_('%s existing records were unchanged.'),
@@ -49,15 +47,14 @@ if (!empty($_POST['newattendance'])) {
   exit;
 }
 if (!$ajax) {
+  pageheader(_("Record Attendance"), 0);
 ?>
-<link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
 <style>
 body { margin:20px; }
 #dayofweek label { margin-right: 0.5em; }
 </style>
 <?php
 }
-if (!$ajax) header2(0);
 ?>
 <h3><?=_("Select an event and at least one date, and click the button.")?></h3>
 <form name="attendform" method="post" action="<?=$_SERVER['PHP_SELF']?>" onSubmit="return ValidateAttendance()">

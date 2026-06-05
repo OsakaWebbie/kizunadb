@@ -17,8 +17,7 @@ $sql .= ' ORDER BY Furigana';
 $result = sqlquery_checked($sql);
 if (mysqli_num_rows($result) == 0) {
   if (!$ajax) {
-    header1(_('Attendance Detail Chart'));
-    header2($_GET['nav']);
+    pageheader(_('Attendance Detail Chart'), $_GET['nav']);
   }
   echo _('There are no records matching your criteria.');
   if (!$ajax) footer();
@@ -37,19 +36,11 @@ $pids = substr($pids,1);
 
 $pstext = '';
 
-if (!$ajax) {
-  header1(_('Attendance Detail Chart').$pstext);
-}
-
 if (!$_GET['eid']) die('No event ID passed.');
 $eid = $_GET['eid'];
 
 if (!$ajax) {
-  ?>
-  <meta http-equiv="expires" content="0">
-  <link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
-  <?php
-  header2(1);
+  pageheader(_('Attendance Detail Chart').$pstext, 1);
 }
 ?>
 <style>
@@ -266,5 +257,5 @@ $(document).ready(function(){
 });
 </script>
 <?php
-if (!$ajax) print_footer();
+if (!$ajax) footer();
 ?>
