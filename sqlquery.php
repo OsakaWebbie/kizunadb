@@ -6,7 +6,12 @@ header1("SQL Query");
 
 if (!empty($_POST['query'])) {
   $query = stripslashes($_POST['query']);
-  $result = mysqli_query($db, $query);
+  try {
+    $result = mysqli_query($db, $query);
+  } catch (mysqli_sql_exception $e) {
+    // PHP 8.1+ throws instead of returning false; the $result===false block below shows the error.
+    $result = false;
+  }
 ?>
 <link rel="stylesheet" href="style.php?table=1" type="text/css" />
 <?php

@@ -255,7 +255,13 @@ if (!empty($_GET['basket']) && $_SESSION['basket']) {
 $sql .= $join . $where . $closing . " GROUP BY $grouptable.PersonID";
 $criterialist .= "</ul>\n";
 
-if (!$result = mysqli_query($db, $sql)) {
+try {
+  $result = mysqli_query($db, $sql);
+} catch (mysqli_sql_exception $e) {
+  // PHP 8.1+ throws instead of returning false; fall through to the error page below.
+  $result = false;
+}
+if (!$result) {
   header1(_('Error'));
   echo '<link rel="stylesheet" href="style.php" type="text/css" />';
   header2(1);
