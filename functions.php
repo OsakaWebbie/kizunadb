@@ -546,6 +546,13 @@ $db = mysqli_connect("localhost", "kizuna_".CLIENT, $config['password'], "kizuna
     or die("Failed to connect to database. Notify the developer.");
 
 mysqli_set_charset($db, "utf8mb4");
+// Pin the connection collation to match the schema (all utf8mb4 columns are
+// utf8mb4_unicode_ci). Without this, string literals default to
+// utf8mb4_general_ci, which is harmless against unicode_ci columns (the column
+// collation wins) but caused "Illegal mix of collations" once we also start
+// comparing literals to each other or to ascii columns. Keep mysqli_set_charset
+// above (don't switch to SET NAMES) so escaping stays correct.
+mysqli_query($db, "SET collation_connection = 'utf8mb4_unicode_ci'");
 
 // Set internal character encoding to UTF-8
 //die('current internal_encoding is '.mb_internal_encoding().' and current regex_encoding is '.mb_regex_encoding());

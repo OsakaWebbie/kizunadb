@@ -15,6 +15,15 @@ body.sqlquery #mainTable tbody td { vertical-align:top; }
 if (!empty($_POST['query'])) {
   $query = stripslashes($_POST['query']);
   $result = mysqli_query($db, $query);
+  try {
+    $result = mysqli_query($db, $query);
+  } catch (mysqli_sql_exception $e) {
+    // PHP 8.1+ throws instead of returning false; the $result===false block below shows the error.
+    $result = false;
+  }
+?>
+<?php
+
   echo "<h2>Results of this query:</h2>\n";
   echo "<form action=\"sqlquery.php\" method=\"post\">\n";
   echo "<textarea name=\"query\" style=\"height:5em;width:100%\">".$query."</textarea>\n";
