@@ -2,6 +2,82 @@
 
 error_reporting(E_ALL ^ E_NOTICE);
 ini_set('display_errors',0);
+ini_set('log_errors', '1');
+ini_set('error_log', dirname(__DIR__).'/log/error.log');   // app-owned, outside webroot; FPM's default destination is unreliable
+
+// --- Centralized failure handling -----------------------------------------
+// Logs full detail for the developer and shows users a deliberate notice,
+// instead of raw PHP/SQL output bleeding into pages, PDFs, or AJAX responses.
+// App-neutral except the log label below; copy verbatim to sister apps.
+
+function error_context() {   // where is this request's output going?
+  $self = basename($_SERVER['PHP_SELF'] ?? '');
+  if (str_starts_with($self, 'ajax_')) return 'json';
+  if (strcasecmp($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '', 'XMLHttpRequest') === 0) return 'json';
+  foreach (headers_list() as $h)
+    if (stripos($h, 'content-type:') === 0)
+      return stripos($h, 'text/html') !== false ? 'html' : 'binary';
+  return 'html';
+}
+
+// $logmsg: developer-facing, always logged. $devextra (e.g. the SQL): shown on screen only to dev.
+function fail($logmsg, $devextra = '') {
+  static $already = false;
+  if ($already) return;            // guard against exception-then-shutdown double-fire
+  $already = true;
+
+  $ref = strtoupper(substr(md5($logmsg.microtime(true)), 0, 6));
+  error_log('KizunaDB [ref '.$ref.']: '.$logmsg.($devextra !== '' ? ' || '.$devextra : ''));
+
+  if (!headers_sent()) http_response_code(500);
+  $dev = (($_SESSION['userid'] ?? '') === 'dev');
+  $usermsg = sprintf(_('Something broke on my end — not your fault. Please tell the developer what you were doing (reference: %s).'), $ref);
+
+  switch (error_context()) {
+    case 'json':
+      if (!headers_sent()) header('Content-Type: application/json; charset=utf-8');
+      echo json_encode([
+        'success' => false,
+        'ref'     => $ref,
+        'error'   => $dev ? $logmsg.($devextra !== '' ? "\n\n".$devextra : '') : $usermsg,
+      ]);
+      break;
+
+    case 'binary':   // a PDF/audio/CSV stream; can't inject readable output once it's flowing
+      if (!headers_sent()) {
+        header('Content-Type: text/plain; charset=utf-8', true);
+        echo $dev ? $logmsg."\n\n".$devextra : $usermsg;
+      }
+      break;
+
+    default:         // html
+      if ($dev) {
+        echo '<pre style="white-space:pre-wrap;font-size:15px;font-weight:bold;color:#85001f">'
+           . htmlspecialchars($logmsg, ENT_QUOTES, 'UTF-8').'</pre>';
+        if ($devextra !== '')
+          echo '<pre style="white-space:pre-wrap">'.htmlspecialchars($devextra, ENT_QUOTES, 'UTF-8').'</pre>';
+      } else {
+        echo '<div style="margin:1em auto;max-width:40em;padding:1em 1.25em;border:2px solid #85001f;'
+           . 'border-radius:6px;background:#fff5f5;font-size:16px;line-height:1.5">'
+           . $usermsg
+           . '<p style="margin:1em 0 0">'
+           . sprintf(_("%sReturn to the home page%s, or press your browser's Back button to try again."), '<a href="index.php">', '</a>')
+           . '</p></div>';
+      }
+  }
+  exit;
+}
+
+set_exception_handler(function (Throwable $e) {
+  fail(get_class($e).': '.$e->getMessage().' in '.$e->getFile().':'.$e->getLine(),
+       $e->getTraceAsString());
+});
+
+register_shutdown_function(function () {
+  $e = error_get_last();
+  if ($e && ($e['type'] & (E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR)))
+    fail('Fatal: '.$e['message'].' in '.$e['file'].':'.$e['line']);
+});
 
 // Maintenance mode check - blocks POST requests during migration
 // Enable: touch /var/www/kizunadb/MAINTENANCE_MODE
@@ -121,6 +197,14 @@ function footer($nav=0) {
   <script type="text/javascript">
     if (window.jQuery) { //really simple files that don't have jQuery don't need this stuff either
       $(function() {
+        $(document).ajaxError(function(event, jqXHR) {
+          if (jqXHR.statusText === 'abort') return;   // user navigated away mid-request
+          var msg = (jqXHR.responseJSON && jqXHR.responseJSON.error)
+            ? jqXHR.responseJSON.error
+            : '<?=_("Something went wrong. Please try again, and let the developer know if it keeps happening.")?>';
+          alert(msg);
+        });
+
         $(window).scroll(function() {
           if ($(this).scrollTop() > 150 && !$('#scrollnav').hasClass('visible')) {
             $('#scrollnav').addClass('visible');
@@ -342,24 +426,10 @@ function load_jqueryui() {
 // function sqlquery_checked: shorten the repeated checks for SQL errors
 function sqlquery_checked($sql) {
   global $db;
-
   try {
-    $result = mysqli_query($db, $sql);
-
-    // Handle PHP 7.x where mysqli_query returns false on error
-    if ($result === false) {
-      throw new Exception(mysqli_error($db));
-    }
-
-    return $result;
-
-  } catch (Exception $e) {
-    // This catches both:
-    // - PHP 8.x: mysqli_sql_exception thrown automatically
-    // - PHP 7.x: our manually thrown Exception
-
-    // Use your existing error formatting
-    die('<xmp style="white-space:pre-wrap;font-size:15px;font-weight:bold">SQL Error in file '.$_SERVER['PHP_SELF'].': '.$e->getMessage().'</xmp><xmp style="white-space:pre-wrap">'.$sql.'</xmp>');
+    return mysqli_query($db, $sql);
+  } catch (mysqli_sql_exception $e) {
+    fail('SQL error in '.basename($_SERVER['PHP_SELF']).': '.$e->getMessage(), $sql);
   }
 }
 

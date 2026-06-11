@@ -32,8 +32,7 @@ header1(_("Database Settings"));
 if ($_SESSION['romajiaddresses'] == "yes") {
 ?>
     <span class="input romaji"><label for="romaji"><?=_("Romaji of Postal Text")?>:</label>
-    <textarea id="romaji" name="romaji" style="height:4em;width:20em"></textarea>
-    <span class="comment"><?=_("(reverse order from Japanese, carriage return after first item)")?></span></span>
+    <textarea id="romaji" name="romaji" style="height:2em;width:20em"></textarea></span>
 <?php
 } //end of if romajiaddresses=yes
 ?>
@@ -317,7 +316,6 @@ $(document).ready(function(){
       showStatus(data.message);
     }, 'json').fail(function(jqxhr, textStatus, error) {
       $prefecture.removeClass('is-loading');
-      alert('AJAX Error: ' + textStatus + ', ' + error);
     });
   });
 
@@ -478,7 +476,6 @@ $(document).ready(function(){
       showStatus(data.message);
     }, 'json').fail(function(jqxhr, textStatus, error) {
       $category.removeClass('is-loading');
-      alert('AJAX Error: ' + textStatus + ', ' + error);
     });
   });
   $('#cat_del').click(function() {
@@ -504,7 +501,6 @@ $(document).ready(function(){
       showStatus(data.message);
     }, 'json').fail(function(jqxhr, textStatus, error) {
       $category.removeClass('is-loading');
-      alert('AJAX Error: ' + textStatus + ', ' + error);
     });
   });
 
@@ -529,7 +525,6 @@ $(document).ready(function(){
       showStatus(data.message);
     }, 'json').fail(function(jqxhr, textStatus, error) {
       $atype.removeClass('is-loading');
-      alert('AJAX Error: ' + textStatus + ', ' + error);
     });
   }
 
@@ -572,7 +567,6 @@ $(document).ready(function(){
       showStatus(data.message);
     }, 'json').fail(function(jqxhr, textStatus, error) {
       $atype.removeClass('is-loading');
-      alert('AJAX Error: ' + textStatus + ', ' + error);
     });
   });
 
@@ -631,7 +625,6 @@ $(document).ready(function(){
       showStatus(data.message);
     }, 'json').fail(function(jqxhr, textStatus, error) {
       $dtype.removeClass('is-loading');
-      alert('AJAX Error: ' + textStatus + ', ' + error);
     });
   }
 
@@ -673,7 +666,6 @@ $(document).ready(function(){
       showStatus(data.message);
     }, 'json').fail(function(jqxhr, textStatus, error) {
       $dtype.removeClass('is-loading');
-      alert('AJAX Error: ' + textStatus + ', ' + error);
     });
   });
 
@@ -744,7 +736,6 @@ $(document).ready(function(){
       showStatus(data.message);
     }, 'json').fail(function(jqxhr, textStatus, error) {
       $event.removeClass('is-loading');
-      alert('AJAX Error: ' + textStatus + ', ' + error);
     });
   }
 
@@ -793,7 +784,6 @@ $(document).ready(function(){
       showStatus(data.message);
     }, 'json').fail(function(jqxhr, textStatus, error) {
       $event.removeClass('is-loading');
-      alert('AJAX Error: ' + textStatus + ', ' + error);
     });
   });
 
@@ -869,7 +859,6 @@ $(document).ready(function(){
       showStatus(data.message);
     }, 'json').fail(function(jqxhr, textStatus, error) {
       $username.removeClass('is-loading');
-      alert('AJAX Error: ' + textStatus + ', ' + error);
     });
   });
 
@@ -893,7 +882,6 @@ $(document).ready(function(){
       showStatus(data.message);
     }, 'json').fail(function(jqxhr, textStatus, error) {
       $username.removeClass('is-loading');
-      alert('AJAX Error: ' + textStatus + ', ' + error);
     });
   });
 });

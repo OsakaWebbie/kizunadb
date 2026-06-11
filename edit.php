@@ -88,10 +88,10 @@ $(document).ready(function(){
       if (pc_regexp.test($('#postalcode').val())) {
         $.ajax({
           type: "GET",
-          url: "get_postalcode.php",
-          data: "pc="+$("#postalcode").val()+"&aux=1",
+          url: "ajax_request.php",
+          data: "req=PostalCodeText&pc="+$("#postalcode").val()+"&aux=1",
           dataType: "json",
-          error: function(x, y, z) { alert("AJAX Error: "+y); $('#postalcode').blur();},
+          error: function(x, y, z) { $('#postalcode').blur(); },
           success: function(data, status, z) {
             if (data.alert === "NOSESSION") {
               alert("<?=_("Your session has timed out - please refresh the page.")?>");
