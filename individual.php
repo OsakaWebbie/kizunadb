@@ -1143,11 +1143,12 @@ $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
   // Amount and Interval
   echo "<span style=\"white-space:nowrap\"><label class=\"label-n-input\" style=\"margin-right:0\">"._("Amount").": ".$_SESSION['currency_mark'];
   echo "<input type=\"text\" name=\"amount\" id=\"pledge-amount\" style=\"width:8em\" maxlength=\"12\"></label> / \n";
+  $tpy = isset($_SESSION['pledge_tpy']) ? $_SESSION['pledge_tpy'] : 12;
   echo "<select name=\"tpy\" id=\"pledge-tpy\" size=\"1\">\n";
-  echo "<option value=\"12\" selected>"._("month")."</option>\n";
-  echo "<option value=\"4\">"._("quarter")."</option>\n";
-  echo "<option value=\"1\">"._("year")."</option>\n";
-  echo "<option value=\"0\">"._("(one time)")."</option>\n";
+  echo "<option value=\"12\"".($tpy==12?" selected":"").">"._("month")."</option>\n";
+  echo "<option value=\"4\"".($tpy==4?" selected":"").">"._("quarter")."</option>\n";
+  echo "<option value=\"1\"".($tpy==1?" selected":"").">"._("year")."</option>\n";
+  echo "<option value=\"0\"".($tpy==0?" selected":"").">"._("(one time)")."</option>\n";
   echo "</select></span>\n";
 
   echo "<input type=\"submit\" value=\""._("Save Pledge Entry")."\" name=\"newpledge\">\n";

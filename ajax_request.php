@@ -26,17 +26,19 @@ case 'ActionTemplate':
   }
   break;
 case 'PC':
-  if (isset($_REQUEST['pc']) && $_REQUEST['pc']!="") {
-    $result = sqlquery_checked("SELECT * FROM postalcode WHERE PostalCode='".$_REQUEST['pc']."'");
+  // Postal-code lookup for the db_settings editor. If local row is not found, kizuna_common.auxpostalcode
+  // is searched, and if found, row is copied to postalcode table, so PostalCodeSave (an UPDATE) has a row to edit.
+  $pc = mysqli_real_escape_string($db, $_REQUEST['pc'] ?? '');
+  if ($pc != "") {
+    $result = sqlquery_checked("SELECT * FROM postalcode WHERE PostalCode='$pc'");
     if (mysqli_num_rows($result)==0) {
-      $aux = 1;
-      $result = sqlquery_checked("SELECT * FROM kizuna_common.auxpostalcode WHERE PostalCode='".$_REQUEST['pc']."'");
+      $result = sqlquery_checked("SELECT * FROM kizuna_common.auxpostalcode WHERE PostalCode='$pc'");
       if (mysqli_num_rows($result)==0) {
         die(json_encode(array("alert" => _("Postal Code was not found - please double-check the number using the internet."))));
       } else {
         sqlquery_checked("INSERT INTO postalcode(PostalCode,Prefecture,ShiKuCho,Romaji)".
-        " SELECT PostalCode,Prefecture,CONCAT(ShiKu,Cho),CONCAT(RomajiShiKuCho,', ',RomajiPref) FROM kizuna_common.auxpostalcode WHERE PostalCode='".$_REQUEST['pc']."'");
-        $result = sqlquery_checked("SELECT * FROM postalcode WHERE PostalCode='".$_REQUEST['pc']."'");
+        " SELECT PostalCode,Prefecture,CONCAT(ShiKu,Cho),CONCAT(RomajiShiKuCho,', ',RomajiPref) FROM kizuna_common.auxpostalcode WHERE PostalCode='$pc'");
+        $result = sqlquery_checked("SELECT * FROM postalcode WHERE PostalCode='$pc'");
         if (mysqli_num_rows($result)==0) {
           die(json_encode(array("alert" => "Programming error: Failed to insert new Postal Code data.")));
         }
@@ -46,6 +48,29 @@ case 'PC':
     $arr = array("prefecture" => $row->Prefecture, "shikucho" => $row->ShiKuCho);
     if ($_SESSION['romajiaddresses']) $arr["romaji"] = d2j($row->Romaji);
     die (json_encode($arr));
+  }
+  break;
+case 'PostalCodeText':
+  // Read-only postal-code lookup for edit.php: returns the client's row, or the shared kizuna_common.auxpostalcode row (flagged "fromaux").
+  // Copying an aux code into the client postalcode table is deferred to do_edit.php, which inserts it only on save.
+  $pc = mysqli_real_escape_string($db, $_GET['pc'] ?? '');
+  if ($pc != "") {
+    $result = sqlquery_checked("SELECT * FROM postalcode WHERE PostalCode='$pc'");
+    if (mysqli_num_rows($result)>0) {
+      $row = mysqli_fetch_object($result);
+      echo '{ "pref":"'.$row->Prefecture.'","shi":"'.$row->ShiKuCho.'"';
+      if ($_SESSION['romajiaddresses']) echo ',"rom":"'.d2j($row->Romaji).'"';
+      die('}');
+    } elseif ($_GET['aux']) {
+      $result = sqlquery_checked("SELECT * FROM kizuna_common.auxpostalcode WHERE PostalCode='$pc'");
+      if (mysqli_num_rows($result)>0) {
+        $row = mysqli_fetch_object($result);
+        echo '{ "pref":"'.$row->Prefecture.'","shi":"'.$row->ShiKu.$row->Cho.'"';
+        if ($_SESSION['romajiaddresses']) echo ',"rom":"'.$row->RomajiShiKuCho.', '.$row->RomajiPref.'"';
+        die(',"fromaux":"yes"}');
+      }
+    }
+    die('{ "alert":"PCNOTFOUND" }');
   }
   break;
 case 'Category':
