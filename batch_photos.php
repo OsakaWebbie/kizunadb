@@ -4,8 +4,7 @@ include("accesscontrol.php");
 $ajax = !empty($_REQUEST['ajax']);
 
 if (!$ajax) {
-  header1(_("Print Photos"));
-  header2(0);
+  pageheader(_("Print Photos"), 0);
 }
 
 $sql = "SELECT PhotoPrintName FROM photoprint ORDER BY PhotoPrintName";

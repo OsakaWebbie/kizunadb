@@ -4,8 +4,7 @@ include("accesscontrol.php");
 $ajax = !empty($_REQUEST['ajax']);
 
 if (!$ajax) {
-  header1(_("Add All to a Category"));
-  header2(0);
+  pageheader(_("Add All to a Category"), 0);
 }
 
 if (!empty($_POST['save_cat'])) {

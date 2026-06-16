@@ -10,8 +10,6 @@ Client theme assets live here, in the webroot, named by subdomain:
 public/css/custom/<client>/
     colors.css            ← REQUIRED for a customized client: a :root {} override block
     favicon.ico           ← OPTIONAL: per-client browser-tab icon (else the KizunaDB default)
-    jquery-ui-theme.css   ← OPTIONAL: a full ThemeRoller theme for this client
-    images/               ← OPTIONAL: the PNGs that ThemeRoller theme references
 ```
 
 If a `favicon.ico` is present in a client's folder, `css_bundle()` links it (cache-busted) for
@@ -19,16 +17,16 @@ that subdomain instead of the site default `public/favicon.ico` — handy for te
 KizunaDB tabs apart (e.g. the same logo in a different color or with a border).
 
 `<client>` is the subdomain (e.g. `acme.kizunadb.com` → `css/custom/acme/`).
-**A client on the default brown theme needs no folder here at all.**
+**A client on the default theme needs no folder here at all.**
 
-`header()`/`pageheader()` (in `functions.php`, via `css_bundle()`) automatically links
-a client's `colors.css` after `style.css`, so its `:root` values win.
+`css_bundle()` (in `functions.php`) automatically links a client's `colors.css` after
+`style.css`, so its `:root` values win.
 
 ---
 
 ## Creating a `colors.css` (the common case)
 
-Most clients only need to change the five **brand** colors; everything else
+Most clients only need to change the **brand** colors; everything else
 (navigation, sections, table headers, links, jQuery UI chrome…) derives from them.
 
 ```css
@@ -36,6 +34,8 @@ Most clients only need to change the five **brand** colors; everything else
 :root {
   --primary-light:    #cfe0c0;   /* light accent (table headers, highlights, default buttons) */
   --primary-medium:   #6a8a4f;   /* medium accent (h2, titles, active states) */
+  --primary-dark:     #3a5028;   /* dark accent (button text) */
+  --secondary-light:  #e8c39a;   /* light logo-tone (datepicker "today") */
   --secondary-medium: #b5651d;   /* logo-tone accent (h1, person-info) */
   --secondary-dark:   #7a3e10;   /* nav hover, section/legend borders, sorted columns, UI header */
   --dark-header:      #4a2a08;   /* nav bar background */
@@ -54,67 +54,70 @@ that uses no blue could also re-point the link colors (which default to blue and
 }
 ```
 
-### All overridable variables (defaults shown)
+### All overridable variables
+
+Override any of these in a client `colors.css`. The brand palette is what you usually
+change; everything else derives from it. For the actual default values (and how each
+derives), see the `:root` block in `css/style.css` — that's the single source of truth.
+
+**Brand palette** (the ones you usually change):
+
+| Variable | Drives |
+|---|---|
+| `--primary-light` | table headers/cell borders, highlight, nav link, default buttons |
+| `--primary-medium` | h2, active states, UI borders/text, inner borders |
+| `--primary-dark` | button text |
+| `--secondary-light` | datepicker "today" |
+| `--secondary-medium` | h1, page title, person-info |
+| `--secondary-dark` | nav hover, section/legend/fieldset borders, sorted columns, UI header |
+| `--dark-header` | nav bar background |
+
+**Everything else** (derived/semantic — override individually if you need to):
 
 ```
-Brand palette:
-  --primary-light: LightSteelBlue   --primary-medium: SteelBlue
-  --secondary-medium: #CC9944       --secondary-dark: #844E0C   --dark-header: #583907
 Layout:        --body-bg --main-bg --main-border
 Navigation:    --nav-bg --nav-link --nav-bg-hover --nav-link-hover --scrollnav-bg
-Page chrome:   --title --title-bg
+Page chrome:   --title
 Sections:      --section-border --section-title-border --section-title-bg --section-title
                --fieldset-border --legend-bg --legend
 Typography:    --h1 --h2 --h3 --link --link-hover --link-more --alert --validation --highlight
-Forms/tables:  --input-bg --input-border --inline-label --table-header-bg
+Forms/tables:  --input-bg --input-border --inline-label
+               --table-header-bg --table-header-border --table-cell-border
 Special:       --del-confirm --photo-border --person-info-title --person-info-border
                --leader-bg --inner-border --active-event-bg --inactive-event-bg
-jQuery UI:     --ui-header-bg --ui-header-text --ui-default-bg --ui-default-text
-               --ui-active-bg --ui-active-text --ui-hover-bg --ui-hover-text
+jQuery UI:     --ui-header-bg --ui-header-text
+               --ui-default-bg --ui-default-border --ui-default-text
+               --ui-active-bg --ui-active-text
+               --ui-hover-bg --ui-hover-border --ui-hover-text
 ```
 
-(See the `:root` block in `css/style.css` for how each derives from the palette.)
+### Lightening or darkening a palette color
+
+To derive a shade of an existing color (e.g. a hover state from a resting one),
+use CSS `color-mix()` rather than hardcoding a second hex value:
+
+```css
+color-mix(in srgb, var(--primary-medium) 75%, White)   /* 75% color + 25% White → lighter  */
+color-mix(in srgb, var(--primary-medium) 80%, Black)   /* 80% color + 20% Black → darker   */
+```
+
+The percentage is the knob: lower = a bigger shift toward White/Black. This is how the
+default hover seams derive their shade from the resting widget colors, so the effect
+tracks whatever palette a client sets.
 
 ---
 
-## Converting an old `colors.php` → `colors.css`
+## jQuery UI widgets
 
-The old per-client `client/<client>/css/colors.php` set PHP variables. Convert each
-`$varName = "value";` to a CSS line `--var-name: value;` — i.e. drop the `$`, insert a
-hyphen at each word boundary (kebab-case), and put it inside `:root { … }`.
+There are no per-client jQuery UI themes — one mechanism serves everyone. A single
+**grayscale** base theme (`css/jquery-ui.min.css`) ships neutral widgets (gray icons,
+light-gray panels; error states stay red), and `css/style.css` — loaded *after* the base
+so it wins the cascade — recolors the widget *chrome* (header bars, buttons, hover/active
+states, borders) to the palette via the `--ui-*` variables above, with a translucent
+CSS-gradient "sheen" for a subtle raised look. This applies to every client; a `colors.css`
+just changes the palette those `--ui-*` variables resolve to.
 
-| old `colors.php` | new `colors.css` |
-|---|---|
-| `$primarylight`   | `--primary-light` |
-| `$primarymedium`  | `--primary-medium` |
-| `$secondarymedium`| `--secondary-medium` |
-| `$secondarydark`  | `--secondary-dark` |
-| `$darkheader`     | `--dark-header` |
-| `$navbghover`     | `--nav-bg-hover` |
-| `$navlinkhover`   | `--nav-link-hover` |
-| `$sectiontitlebg` | `--section-title-bg` |
-| `$personinfotitle`| `--person-info-title` |
-| `$inactiveeventbg`| `--inactive-event-bg` |
-| …(same pattern for the rest)… | |
-
-Old values that referenced another PHP variable (e.g. `$navbg = $darkheader;`) become a
-`var()` reference: `--nav-bg: var(--dark-header);` — but if the client only customized the
-five brand colors, you can usually omit the derived ones entirely and let `style.css`'s
-defaults do the work.
-
-Empty old values (e.g. `$bodybg = "";`) were placeholders that fell back to a default —
-just omit them.
-
----
-
-## jQuery UI: three tiers
-
-1. **No `colors.css`** → default textured brown/blue ThemeRoller theme (unchanged).
-2. **`colors.css` only** → `css/jquery-ui-vars.css` automatically re-tints the widget
-   *chrome* (header bars, default/hover/active buttons) toward the client palette using
-   **flat** colors. Caution/error states and icons keep their defaults. No extra files
-   needed. (Flat because ThemeRoller's glass textures are baked PNGs that CSS can't recolor.)
-3. **Texture-perfect** → generate a theme at <https://jqueryui.com/themeroller/>, download
-   it, and drop the theme CSS here as **`jquery-ui-theme.css`** plus its **`images/`**
-   folder. When present, it's linked after the base theme and fully replaces the look
-   (textures and all). The `colors.css` still themes everything else on the page.
+Why grayscale base + CSS instead of a per-client ThemeRoller theme: ThemeRoller's textured
+themes are baked, per-color PNGs, and its image generator no longer produces them — so custom
+textured themes aren't possible. A neutral base plus a CSS recolor gives every palette
+consistent, texture-free widgets with no per-client files.

@@ -63,333 +63,6 @@ body.edit #duplicates .name { font-size:1.2em; font-weight:bold; }
 body.edit #duplicates .button_section { white-space:nowrap; }
 body.edit #duplicates .button_section form { display:inline; }
 </style>
-<script type="text/javascript" src="js/functions.js"></script>
-<script type="text/JavaScript" src="js/jquery-3.6.0.js"></script>
-<script type="text/JavaScript" src="js/jquery-ui-13.min.js"></script>
-
-<script type="text/javascript">
-
-function stopRKey(evt) {
-  var evt = (evt) ? evt : ((event) ? event : null);
-  var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
-  // Only block Enter key for text inputs within the editform (not quick search or other forms)
-  if ((evt.keyCode == 13) && (node.type=="text") && node.name!="textinput1") {
-    var form = node.form || $(node).closest('form')[0];
-    if (form && form.id === "editform") {
-      return false;
-    }
-  }
-}
-document.onkeypress = stopRKey;
-
-pc_regexp = /^\d\d\d-\d\d\d\d$/;
-jpg_regexp = /\.[Jj][Pp][eE]?[Gg]$/;
-bday_regexp = /^\d{1,2}-\d{1,2}$/;
-bdate_regexp = /^\d\d\d\d-\d{1,2}-\d{1,2}$/;
-phone_regexp = /^[\d-+\(\)Xx\* ]*$/;
-
-$(document).ready(function(){
-  var oldPostalCode = '';
-  $('#postalcode').keyup(function(){  //fill other fields when applicable Postal Code is typed
-    var newPostalCode = $('#postalcode').val();
-    if (newPostalCode != oldPostalCode) {
-      if ($('#postalcode_display').text() != '') {
-        $('#postalcode_display').text('');
-        $('#pctext_display').text('');
-        $('#prefecture').val('');
-        $('#shikucho').val('');
-        <?php if ($_SESSION['romajiaddresses'] == "yes") { ?>
-        $('#pcromtext_display').text('');
-        $('#pcrom_display').text('');
-        $('#pcromtext_section').hide();
-        $('#pcromtext_display').removeClass('highlight');
-        <?php } ?>
-      }
-      oldPostalCode = newPostalCode;
-      if (pc_regexp.test($('#postalcode').val())) {
-        $.ajax({
-          type: "GET",
-          url: "ajax_request.php",
-          data: "req=PostalCodeText&pc="+$("#postalcode").val()+"&aux=1",
-          dataType: "json",
-          error: function(x, y, z) { $('#postalcode').blur(); },
-          success: function(data, status, z) {
-            if (data.alert === "NOSESSION") {
-              alert("<?=_("Your session has timed out - please refresh the page.")?>");
-            } else if (data.alert !== "PCNOTFOUND")  {
-              $('#postalcode_display').text('〒' + $('#postalcode').val());
-              $('#pctext_display').text(data.pref + data.shi);
-              $('#prefecture').val(data.pref);
-              $('#shikucho').val(data.shi);
-              if ($('#fullname').val()!='' && $('#labelname').val()=='') {
-                $('#labelname').val(($('#fullname').val()+$('#nametitle').val())).keyup();
-              }
-              $('#address').focus();
-<?php if ($_SESSION['romajiaddresses'] == "yes") { ?>
-              $('#pcromtext_display').html(d2h(data.rom));
-              $('#pcrom_display').text($('#postalcode').val());
-              if (data.fromaux) {
-                $('#pcromtext_section').show();
-                $('#pcromtext').val(d2h(data.rom));
-                $('#pctext_display').addClass('highlight');
-              }
-<?php } ?>
-            }
-          }
-        });
-      }
-    }
-  });
-  $(document).on('input paste', '#postalcode', function(){ $('#postalcode').keyup(); });
-
-  $('#mirror_address').change(function(){
-    if ($(this).prop('checked')) {
-      $('#romajiaddress').attr('readonly',true);
-      $('#romajiaddress').val(($('#address').val()));
-      $('#banchirom_display').html(d2h($('#romajiaddress').val()));
-    } else {
-      $('#romajiaddress').attr('readonly',false);
-    }
-  });
-
-  $('#address').keyup(function(){
-    $('#banchi_display').html(d2h($('#address').val()));
-    if ($('#mirror_address').prop('checked')) {
-      $('#romajiaddress').val(($('#address').val()));
-      $('#banchirom_display').html(d2h($('#romajiaddress').val()));
-    }
-  });
-  $(document).on('input paste', '#address', function(){ $('#address').keyup(); });
-
-  $('#romajiaddress').keyup(function(){ $('#banchirom_display').html(d2h($('#romajiaddress').val())); });
-  $(document).on('input paste', '#romajiaddress', function(){ $('#romajiaddress').keyup(); });
-  
-  $('#pcromtext').keyup(function(){ $('#pcromtext_display').html(d2h($('#pcromtext').val())); });
-  $(document).on('input paste', '#pcromtext', function(){ $('#pcromtext').keyup(); });
-  
-  $('#labelname').keyup(function() {
-    $('#labelname_display').html(d2h($('#labelname').val()));
-    $('#labelname_nonjapan_display').html(d2h($('#labelname').val()));
-  });
-  $(document).on('input paste', '#labelname', function(){ $('#labelname').keyup(); });
-
-  $('#organization').change(function() {
-    if ($('#organization').is(':checked')) {
-      if ($('#nametitle').val()=='様') {
-        $('#nametitle').val('御中');
-        if ($('#labelname').val() == $('#fullname').val()+'様') {
-          if (confirm('<?=_('Should I also change end of label name to "御中"?')?>')) {
-            $('#labelname').val($('#fullname').val()+'御中').keyup();
-          }
-        }
-      }
-    } else {
-      if ($('#nametitle').val()=='御中') {
-        $('#nametitle').val('様');
-        if ($('#labelname').val() == $('#fullname').val()+'御中') {
-          if (confirm('<?=_('Should I also change end of label name to "様"?')?>')) {
-            $('#labelname').val($('#fullname').val()+'様').keyup();
-          }
-        }
-      }
-    }
-  });
-  $("#duplicates").dialog({
-    autoOpen: false,
-    resizable: false,
-    modal: true,
-    width: "auto",
-    title: "<?=_('Possible Duplicates')?>"
-  });
-  cleanhhview();
-  document.editform.fullname.focus();
-});
-
-function newhh() {
-  $('#household_section input').val("");
-  $('#household_section textarea').val("");
-  if (document.editform.nonjapan.checked) {
-    document.editform.nonjapan.checked=false;
-    check_nonjapan();
-  }
-  $('#relation').val("Main");
-  document.editform.updateper.value=1;
-  document.editform.updatehh.value=0;
-  cleanhhview();
-}
-
-function check_nonjapan() {
-  if(document.editform.nonjapan.checked) {
-    $("#address").height("5em").focus();
-    $(".japanonly").hide();
-    $(".nonjapanonly").show();
-    if ($('#fullname').val()!='' && $('#labelname').val()=='') {
-      $('#labelname').val(($('#fullname').val())).keyup();
-    }
-  } else {
-    $(".japanonly").show();
-    $("#postalcode").focus();
-    $("#address").height("3em");
-    $(".nonjapanonly").hide();
-  }
-}
-
-function cleanhhview() {
-  check_nonjapan();
-  $('#postalcode').keyup();
-  $('#address').keyup();
-  $('#romajiaddress').keyup();
-  $('#labelname').keyup();
-}
-
-function validate() {
-  f = document.editform;  //just an abbreviation
-  f.edit.disable = true;  //to prevent double submit
-
-  //if ((f.updateper.value == 0) && (f.updatehh.value == 0)) {
-    //alert("<?=_("No info was modified.  If you want to exit this page, just use your BACK button.")?>");
-    //return false;
-  //}
-  if (f.fullname.value.length == 0) {
-    alert("<?=_("Please enter the name!")?>");
-    f.fullname.select();
-    return false;
-  }
-  
-  if (f.furigana.value.length == 0) {
-    alert("<?php printf(_("Please fill in %s field.  For non-Japanese names, just repeat the name with last name first."),
-    ($_SESSION['furiganaisromaji']=="yes" ? _("Romaji") : _("Furigana"))); ?>");
-    f.furigana.select();
-    return false;
-  }
-
-  /* clean up field contents */
-  f.fullname.value = trim(fixchartypes(f.fullname.value));
-  f.furigana.value = hiragana2katakana(trim(fixchartypes(f.furigana.value)));
-  f.furigana.value = f.furigana.value.replace(/([ァ-ヶ]+) ([ァ-ヶ]+)/,"$1　$2");
-  f.address.value = trim(fixchartypes(f.address.value));
-  if (f.romajiaddress !== undefined) f.romajiaddress.value = trim(fixchartypes(f.romajiaddress.value));
-  if (f.pcromaji !== undefined) f.pcromaji.value = trim(fixchartypes(f.pcromaji.value));
-  f.remarks.value = trim(f.remarks.value);
-
-  if (!document.editform.nonjapan.checked && $('#postalcode').val().length > 0) {
-    if (!pc_regexp.test($('#postalcode').val())) {
-      alert("<?=_("Postal Code must be in the form 999-9999.")?>");
-      $('#postalcode').focus();
-      return false;
-    } else if ($('#postalcode_display').text() == "") {
-      alert("<?=_("Postal code not found in post office database.")?>");
-      $('#postalcode').focus();
-      return false;
-    }
-    if ($('#address').val().length == 0) {
-      alert("<?=_("Please complete the address.")?>");
-      $('#address').focus();
-      return false;
-    }
-<?php if ($_SESSION['romajiaddresses']=="yes") { ?>
-    if ($('#romajiaddress').val().length == 0) {
-      alert("<?=_("Please complete the romaji address.")?>");
-      $('#address').focus();
-      return false;
-    }
-    if ($('#pcromtext_display').text() == '' && $('#pcromtext').text() == '') {
-      alert("<?=_("Please fill in romaji for the postalcode-related text.")?>");
-      $('#address').focus();
-      return false;
-    }
-<?php } //if romaji addresses ?>
-  }
-  if ((f.photofile.value) && (!jpg_regexp.test(f.photofile.value))) {
-    alert("<?=_("Only JPG files can be accepted for photos.")?>");
-    f.photofile.value = "";
-    return false;
-  }
-
-<?php if ($pid && !empty($hh) && $hh->count > 1) { ?>
-  if ((f.householdid.value) && (f.householdid.value == f.orig_hhid.value) && (f.updatehh.value==1)) {
-    if (!confirm('<?=sprintf(_("There are %s members in this household - changing this info will affect them all."),$hh->count).
-    _(" Do you want to continue? (If just this person has moved out, cancel and then select New Household.)")?>')) {
-      return false;
-    }
-  }
-<?php } //if household with multiple members ?>
-  if (f.phone.value && !phone_regexp.test(f.phone.value)) {
-    f.phone.value = fixchartypes(f.phone.value);
-    if (f.phone.value && !phone_regexp.test(f.phone.value)) {
-      alert("<?=_("Phone number can only include numbers, -, +, (), X (extension), and * (for footnote - explain in Remarks).")?>");
-      f.phone.select();
-      return false;
-    }
-  }
-  if (f.fax.value && !phone_regexp.test(f.fax.value)) {
-    f.fax.value = fixchartypes(f.fax.value);
-    if (f.fax.value && !phone_regexp.test(f.fax.value)) {
-      alert("<?=_("FAX number can only include numbers, -, +, (), X (extension), and * (for footnote - explain in Remarks).")?>");
-      f.fax.select();
-      return false;
-    }
-  }
-  if (f.cellphone.value && !phone_regexp.test(f.cellphone.value)) {
-    f.cellphone.value = fixchartypes(f.cellphone.value);
-    if (f.cellphone.value && !phone_regexp.test(f.cellphone.value)) {
-      alert("<?=_("Cell Phone number can only include numbers, -, +, and ().")?>");
-      f.cellphone.select();
-      return false;
-    }
-  }
-  if (f.birthdate.value && !bdate_regexp.test(f.birthdate.value)) {
-    if (bday_regexp.test(f.birthdate.value)) {
-      f.birthdate.value = "1900-"+f.birthdate.value;
-    } else {
-      alert("<?=_("Birthdate must be in the form of either YYYY-MM-DD or MM-DD.")?>");
-      f.birthdate.select();
-      return false;
-    }
-  }
-<?php if (!$pid) {  /* if new entry, check for duplicates */ ?>
-  if ($("#duplicates").html() != $("#fullname").val()+"/"+$("#furigana").val()+"/"+$("#postalcode").val()+"/"+
-  $("#cellphone").val()+"/"+$("#email").val()+"/"+"CHECKED") {
-    $("#duplicates").load("get_duplicates.php",{
-      'fullname':$("#fullname").val(),
-      'furigana':$("#furigana").val(),
-      'postalcode':$("#postalcode").val(),
-      'cellphone':$("#cellphone").val(),
-      'email':$("#email").val()
-    },function(response, status, xhr) {
-      switch(status) {
-      case "error":
-      case "timeout":
-        if (!confirm("<?php
-        echo _("There was an error checking for similar existing entries (to avoid duplicates). ".
-        "Continue anyway? (To try checking again, click Cancel and then Save Changes again.)");
-        ?> ("+xhr.status+" "+xhr.statusText+")")) return false;
-      case "parsererror":
-        alert("Karen: there was a parse error when checking for duplicates");
-        return false;
-        break;
-      default:
-        if ($("#duplicates").html() == "NODUPS") {
-          $("#duplicates").html($("#fullname").val()+"/"+$("#furigana").val()+"/"+$("#postalcode").val()+"/"+
-          $("#cellphone").val()+"/"+$("#email").val()+"/"+"CHECKED");
-          $("#editform").submit();
-        } else {
-          $("#duplicates").dialog("open");
-          $("#duplicates #continue").click(function(){
-            $("#duplicates").dialog("close");
-            $("#duplicates").html($("#fullname").val()+"/"+$("#furigana").val()+"/"+$("#postalcode").val()+"/"+
-            $("#cellphone").val()+"/"+$("#email").val()+"/"+"CHECKED");
-            $("#editform").submit();
-          });
-        }
-      }
-    });
-    return false;
-  }
-<?php } /* end of if not pid */ ?>
-  return true;  //everything is cool
-}
-</script>
 <?php
 echo "<h1 id=\"title\">".($pid ? sprintf(_("Edit %s"),$rec->FullName) : _("New Entry"))."</h1>\n";
 ?>
@@ -558,26 +231,347 @@ onchange="editform.updateper.value=1;" /></label>
 onchange="editform.updateper.value=1;"><?=$pid?$rec->Remarks:''?></textarea></label>
 </form>
 
-<script>
-  document.getElementById('photofile').addEventListener('change', function() {
-    var file = this.files[0];
-    if (file) {
-      document.getElementById('preview-img').src = URL.createObjectURL(file);
-      document.getElementById('preview-wrap').style.display = 'inline-block';
-      <?php if ($pid && $rec->PPhoto): ?>document.getElementById('current-label').style.visibility = '';<?php endif; ?>
-    } else {
-      document.getElementById('preview-wrap').style.display = 'none';
-      <?php if ($pid && $rec->PPhoto): ?>document.getElementById('current-label').style.visibility = 'hidden';<?php endif; ?>
+<?php load_scripts(['jquery', 'jqueryui', 'functions']); ?>
+
+<script type="text/javascript">
+
+  function stopRKey(evt) {
+    var node = evt.target;
+    // Only block Enter key for text inputs within the editform (not quick search or other forms)
+    if ((evt.keyCode == 13) && (node.type=="text") && node.name!="textinput1") {
+      var form = node.form || $(node).closest('form')[0];
+      if (form && form.id === "editform") {
+        return false;
+      }
     }
-  });
+  }
+  document.onkeypress = stopRKey;
+
+  pc_regexp = /^\d\d\d-\d\d\d\d$/;
+  jpg_regexp = /\.[Jj][Pp][eE]?[Gg]$/;
+  bday_regexp = /^\d{1,2}-\d{1,2}$/;
+  bdate_regexp = /^\d\d\d\d-\d{1,2}-\d{1,2}$/;
+  phone_regexp = /^[\d-+\(\)Xx\* ]*$/;
+
   $(document).ready(function(){
-    $('#photoclear').click(function(){
-      $('#photofile').val('');
-      document.getElementById('preview-wrap').style.display = 'none';
-      <?php if ($pid && $rec->PPhoto): ?>document.getElementById('current-label').style.visibility = 'hidden';<?php endif; ?>
+    var oldPostalCode = '';
+    $('#postalcode').keyup(function(){  //fill other fields when applicable Postal Code is typed
+      var newPostalCode = $('#postalcode').val();
+      if (newPostalCode != oldPostalCode) {
+        if ($('#postalcode_display').text() != '') {
+          $('#postalcode_display').text('');
+          $('#pctext_display').text('');
+          $('#prefecture').val('');
+          $('#shikucho').val('');
+          <?php if ($_SESSION['romajiaddresses'] == "yes") { ?>
+          $('#pcromtext_display').text('');
+          $('#pcrom_display').text('');
+          $('#pcromtext_section').hide();
+          $('#pcromtext_display').removeClass('highlight');
+          <?php } ?>
+        }
+        oldPostalCode = newPostalCode;
+        if (pc_regexp.test($('#postalcode').val())) {
+          $.ajax({
+            type: "GET",
+            url: "ajax_request.php",
+            data: "req=PostalCodeText&pc="+$("#postalcode").val()+"&aux=1",
+            dataType: "json",
+            error: function(x, y, z) { $('#postalcode').blur(); },
+            success: function(data, status, z) {
+              if (data.alert === "NOSESSION") {
+                alert("<?=_("Your session has timed out - please refresh the page.")?>");
+              } else if (data.alert !== "PCNOTFOUND")  {
+                $('#postalcode_display').text('〒' + $('#postalcode').val());
+                $('#pctext_display').text(data.pref + data.shi);
+                $('#prefecture').val(data.pref);
+                $('#shikucho').val(data.shi);
+                if ($('#fullname').val()!='' && $('#labelname').val()=='') {
+                  $('#labelname').val(($('#fullname').val()+$('#nametitle').val())).keyup();
+                }
+                $('#address').focus();
+                <?php if ($_SESSION['romajiaddresses'] == "yes") { ?>
+                $('#pcromtext_display').html(d2h(data.rom));
+                $('#pcrom_display').text($('#postalcode').val());
+                if (data.fromaux) {
+                  $('#pcromtext_section').show();
+                  $('#pcromtext').val(d2h(data.rom));
+                  $('#pctext_display').addClass('highlight');
+                }
+                <?php } ?>
+              }
+            }
+          });
+        }
+      }
     });
+    $(document).on('input paste', '#postalcode', function(){ $('#postalcode').keyup(); });
+
+    $('#mirror_address').change(function(){
+      if ($(this).prop('checked')) {
+        $('#romajiaddress').attr('readonly',true);
+        $('#romajiaddress').val(($('#address').val()));
+        $('#banchirom_display').html(d2h($('#romajiaddress').val()));
+      } else {
+        $('#romajiaddress').attr('readonly',false);
+      }
+    });
+
+    $('#address').keyup(function(){
+      $('#banchi_display').html(d2h($('#address').val()));
+      if ($('#mirror_address').prop('checked')) {
+        $('#romajiaddress').val(($('#address').val()));
+        $('#banchirom_display').html(d2h($('#romajiaddress').val()));
+      }
+    });
+    $(document).on('input paste', '#address', function(){ $('#address').keyup(); });
+
+    $('#romajiaddress').keyup(function(){ $('#banchirom_display').html(d2h($('#romajiaddress').val())); });
+    $(document).on('input paste', '#romajiaddress', function(){ $('#romajiaddress').keyup(); });
+
+    $('#pcromtext').keyup(function(){ $('#pcromtext_display').html(d2h($('#pcromtext').val())); });
+    $(document).on('input paste', '#pcromtext', function(){ $('#pcromtext').keyup(); });
+
+    $('#labelname').keyup(function() {
+      $('#labelname_display').html(d2h($('#labelname').val()));
+      $('#labelname_nonjapan_display').html(d2h($('#labelname').val()));
+    });
+    $(document).on('input paste', '#labelname', function(){ $('#labelname').keyup(); });
+
+    $('#organization').change(function() {
+      if ($('#organization').is(':checked')) {
+        if ($('#nametitle').val()=='様') {
+          $('#nametitle').val('御中');
+          if ($('#labelname').val() == $('#fullname').val()+'様') {
+            if (confirm('<?=_('Should I also change end of label name to "御中"?')?>')) {
+              $('#labelname').val($('#fullname').val()+'御中').keyup();
+            }
+          }
+        }
+      } else {
+        if ($('#nametitle').val()=='御中') {
+          $('#nametitle').val('様');
+          if ($('#labelname').val() == $('#fullname').val()+'御中') {
+            if (confirm('<?=_('Should I also change end of label name to "様"?')?>')) {
+              $('#labelname').val($('#fullname').val()+'様').keyup();
+            }
+          }
+        }
+      }
+    });
+    $("#duplicates").dialog({
+      autoOpen: false,
+      resizable: false,
+      modal: true,
+      width: "auto",
+      title: "<?=_('Possible Duplicates')?>"
+    });
+    $('#photofile').change(function() {
+      var file = this.files[0];
+      if (file) {
+        $('#preview-img').attr('src', URL.createObjectURL(file));
+        $('#preview-wrap').css('display', 'inline-block');
+        <?php if ($pid && $rec->PPhoto): ?>$('#current-label').css('visibility', '');<?php endif; ?>
+      } else {
+        $('#preview-wrap').hide();
+        <?php if ($pid && $rec->PPhoto): ?>$('#current-label').css('visibility', 'hidden');<?php endif; ?>
+      }
+    });
+    $('#photoclear').click(function() {
+      $('#photofile').val('');
+      $('#preview-wrap').hide();
+      <?php if ($pid && $rec->PPhoto): ?>$('#current-label').css('visibility', 'hidden');<?php endif; ?>
+    });
+    cleanhhview();
+    document.editform.fullname.focus();
   });
+
+  function newhh() {
+    $('#household_section input').val("");
+    $('#household_section textarea').val("");
+    if (document.editform.nonjapan.checked) {
+      document.editform.nonjapan.checked=false;
+      check_nonjapan();
+    }
+    $('#relation').val("Main");
+    document.editform.updateper.value=1;
+    document.editform.updatehh.value=0;
+    cleanhhview();
+  }
+
+  function check_nonjapan() {
+    if(document.editform.nonjapan.checked) {
+      $("#address").height("5em").focus();
+      $(".japanonly").hide();
+      $(".nonjapanonly").show();
+      if ($('#fullname').val()!='' && $('#labelname').val()=='') {
+        $('#labelname').val(($('#fullname').val())).keyup();
+      }
+    } else {
+      $(".japanonly").show();
+      $("#postalcode").focus();
+      $("#address").height("3em");
+      $(".nonjapanonly").hide();
+    }
+  }
+
+  function cleanhhview() {
+    check_nonjapan();
+    $('#postalcode').keyup();
+    $('#address').keyup();
+    $('#romajiaddress').keyup();
+    $('#labelname').keyup();
+  }
+
+  function validate() {
+    f = document.editform;  //just an abbreviation
+    f.edit.disable = true;  //to prevent double submit
+
+    //if ((f.updateper.value == 0) && (f.updatehh.value == 0)) {
+    //alert("<?=_("No info was modified.  If you want to exit this page, just use your BACK button.")?>");
+    //return false;
+    //}
+    if (f.fullname.value.length == 0) {
+      alert("<?=_("Please enter the name!")?>");
+      f.fullname.select();
+      return false;
+    }
+
+    if (f.furigana.value.length == 0) {
+      alert("<?php printf(_("Please fill in %s field.  For non-Japanese names, just repeat the name with last name first."),
+          ($_SESSION['furiganaisromaji']=="yes" ? _("Romaji") : _("Furigana"))); ?>");
+      f.furigana.select();
+      return false;
+    }
+
+    /* clean up field contents */
+    f.fullname.value = trim(fixchartypes(f.fullname.value));
+    f.furigana.value = hiragana2katakana(trim(fixchartypes(f.furigana.value)));
+    f.furigana.value = f.furigana.value.replace(/([ァ-ヶ]+) ([ァ-ヶ]+)/,"$1　$2");
+    f.address.value = trim(fixchartypes(f.address.value));
+    if (f.romajiaddress !== undefined) f.romajiaddress.value = trim(fixchartypes(f.romajiaddress.value));
+    if (f.pcromaji !== undefined) f.pcromaji.value = trim(fixchartypes(f.pcromaji.value));
+    f.remarks.value = trim(f.remarks.value);
+
+    if (!document.editform.nonjapan.checked && $('#postalcode').val().length > 0) {
+      if (!pc_regexp.test($('#postalcode').val())) {
+        alert("<?=_("Postal Code must be in the form 999-9999.")?>");
+        $('#postalcode').focus();
+        return false;
+      } else if ($('#postalcode_display').text() == "") {
+        alert("<?=_("Postal code not found in post office database.")?>");
+        $('#postalcode').focus();
+        return false;
+      }
+      if ($('#address').val().length == 0) {
+        alert("<?=_("Please complete the address.")?>");
+        $('#address').focus();
+        return false;
+      }
+      <?php if ($_SESSION['romajiaddresses']=="yes") { ?>
+      if ($('#romajiaddress').val().length == 0) {
+        alert("<?=_("Please complete the romaji address.")?>");
+        $('#address').focus();
+        return false;
+      }
+      if ($('#pcromtext_display').text() == '' && $('#pcromtext').text() == '') {
+        alert("<?=_("Please fill in romaji for the postalcode-related text.")?>");
+        $('#address').focus();
+        return false;
+      }
+      <?php } //if romaji addresses ?>
+    }
+    if ((f.photofile.value) && (!jpg_regexp.test(f.photofile.value))) {
+      alert("<?=_("Only JPG files can be accepted for photos.")?>");
+      f.photofile.value = "";
+      return false;
+    }
+
+    <?php if ($pid && !empty($hh) && $hh->count > 1) { ?>
+    if ((f.householdid.value) && (f.householdid.value == f.orig_hhid.value) && (f.updatehh.value==1)) {
+      if (!confirm('<?=sprintf(_("There are %s members in this household - changing this info will affect them all."),$hh->count).
+      _(" Do you want to continue? (If just this person has moved out, cancel and then select New Household.)")?>')) {
+        return false;
+      }
+    }
+    <?php } //if household with multiple members ?>
+    if (f.phone.value && !phone_regexp.test(f.phone.value)) {
+      f.phone.value = fixchartypes(f.phone.value);
+      if (f.phone.value && !phone_regexp.test(f.phone.value)) {
+        alert("<?=_("Phone number can only include numbers, -, +, (), X (extension), and * (for footnote - explain in Remarks).")?>");
+        f.phone.select();
+        return false;
+      }
+    }
+    if (f.fax.value && !phone_regexp.test(f.fax.value)) {
+      f.fax.value = fixchartypes(f.fax.value);
+      if (f.fax.value && !phone_regexp.test(f.fax.value)) {
+        alert("<?=_("FAX number can only include numbers, -, +, (), X (extension), and * (for footnote - explain in Remarks).")?>");
+        f.fax.select();
+        return false;
+      }
+    }
+    if (f.cellphone.value && !phone_regexp.test(f.cellphone.value)) {
+      f.cellphone.value = fixchartypes(f.cellphone.value);
+      if (f.cellphone.value && !phone_regexp.test(f.cellphone.value)) {
+        alert("<?=_("Cell Phone number can only include numbers, -, +, and ().")?>");
+        f.cellphone.select();
+        return false;
+      }
+    }
+    if (f.birthdate.value && !bdate_regexp.test(f.birthdate.value)) {
+      if (bday_regexp.test(f.birthdate.value)) {
+        f.birthdate.value = "1900-"+f.birthdate.value;
+      } else {
+        alert("<?=_("Birthdate must be in the form of either YYYY-MM-DD or MM-DD.")?>");
+        f.birthdate.select();
+        return false;
+      }
+    }
+    <?php if (!$pid) {  /* if new entry, check for duplicates */ ?>
+    if ($("#duplicates").html() != $("#fullname").val()+"/"+$("#furigana").val()+"/"+$("#postalcode").val()+"/"+
+        $("#cellphone").val()+"/"+$("#email").val()+"/"+"CHECKED") {
+      $("#duplicates").load("get_duplicates.php",{
+        'fullname':$("#fullname").val(),
+        'furigana':$("#furigana").val(),
+        'postalcode':$("#postalcode").val(),
+        'cellphone':$("#cellphone").val(),
+        'email':$("#email").val()
+      },function(response, status, xhr) {
+        switch(status) {
+          case "error":
+          case "timeout":
+            if (!confirm("<?php
+                echo _("There was an error checking for similar existing entries (to avoid duplicates). ".
+                    "Continue anyway? (To try checking again, click Cancel and then Save Changes again.)");
+                ?> ("+xhr.status+" "+xhr.statusText+")")) return false;
+          case "parsererror":
+            alert("Karen: there was a parse error when checking for duplicates");
+            return false;
+            break;
+          default:
+            if ($("#duplicates").html() == "NODUPS") {
+              $("#duplicates").html($("#fullname").val()+"/"+$("#furigana").val()+"/"+$("#postalcode").val()+"/"+
+                  $("#cellphone").val()+"/"+$("#email").val()+"/"+"CHECKED");
+              $("#editform").submit();
+            } else {
+              $("#duplicates").dialog("open");
+              $("#duplicates #continue").click(function(){
+                $("#duplicates").dialog("close");
+                $("#duplicates").html($("#fullname").val()+"/"+$("#furigana").val()+"/"+$("#postalcode").val()+"/"+
+                    $("#cellphone").val()+"/"+$("#email").val()+"/"+"CHECKED");
+                $("#editform").submit();
+              });
+            }
+        }
+      });
+      return false;
+    }
+    <?php } /* end of if not pid */ ?>
+    return true;  //everything is cool
+  }
 </script>
+
 <?php
 footer();
 ?>

@@ -103,7 +103,7 @@ if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
     }
     #nav-trigger span::after { display:none; }
   </style>
-  <script type="text/JavaScript" src="js/jquery.js"></script>
+  <script type="text/JavaScript" src="js/jquery-3.6.0.min.js"></script>
 </head>
 <body class="accesscontrol full" onload="document.lform.usr.focus();">
   <div id="main-container">

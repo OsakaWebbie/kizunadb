@@ -222,8 +222,7 @@ function cloneSelectExcept(sourceSel, excludeId, newName) {
 }
 
 function stopRKey(evt) {
-  var evt = (evt) ? evt : ((event) ? event : null);
-  var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
+  var node = evt.target;
   // Only block Enter key for text inputs within this page's forms (not quick search or other forms)
   if ((evt.keyCode == 13) && (node.type=="text") && node.name!="textinput1") {
     var form = node.form || $(node).closest('form')[0];

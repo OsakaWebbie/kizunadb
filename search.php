@@ -215,11 +215,7 @@ if ($_SESSION['admin'] == 1) {
 </div>
 </form>
 
-<script type="text/JavaScript" src="js/jquery-3.6.0.js"></script>
-<script type="text/JavaScript" src="js/jquery-ui-13.min.js"></script>
-<script type="text/JavaScript" src="js/i18n/datepicker-ja.js"></script>
-<script type="text/javascript" src="js/jquery.multiselect.min.js"></script>
-<script type="text/javascript" src="js/jquery.multiselect.filter.js"></script>
+<?php load_scripts(['jquery', 'jqueryui', 'datepicker-ja', 'multiselect']); ?>
 
 <script type="text/JavaScript">
 $(document).ready(function(){

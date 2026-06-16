@@ -102,82 +102,11 @@ if (file_exists($maintenance_file)) {
     }
 }
 
-function header1($title) {
-  ?>
-<!doctype html>
-<html>
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="icon" type="image/x-icon" href="favicon.ico">
-<title><?=$title.(isset($_SESSION['dbtitle']) ? ' ('.$_SESSION['dbtitle'].')' : '')?></title>
-  <?php
-}
-
-function header2($nav=0) {
-  echo "</head>\n";
-  $fileroot = substr($_SERVER['PHP_SELF'],(strrpos($_SERVER['PHP_SELF'],"/")+1),(strrpos($_SERVER['PHP_SELF'],".")-strrpos($_SERVER['PHP_SELF'],"/")-1));
-  echo "<body class=\"".$fileroot.($nav?" full":" simple")."\">\n";
-
-  if ($nav) {  // build main desktop menu and create divs for menu for scrolling and mobile menu (duplicated by jQuery in footer)
-?>
-<nav id="scrollnav"></nav>
-
-<div id="main-container">
-  <nav id="nav-main">
-    <ul class="nav">
-      <?=(!empty($_SESSION['hasdashboard']) ? '<li><a href="dashboard.php" target="_top">'._('Dashboard').'</a></li>' : '')?>
-      <li class="not-on-scroll"><form action="list.php" style="display:inline"><input class="qs-text" name="qs" maxlength="30" placeholder="<?=_('(quick search)')?>"
-          style="width:7em;vertical-align:baseline" autofocus></form>(<span class="qs-hits">-</span>)</li>
-      <li class="hassub">
-        <a href="#"><?=_('People/Orgs')?> &#x25BC;</a>
-        <ul class="nav-sub">
-          <li><a href="search.php" target="_top"><?=_('Search')?></a></li>
-          <li><a href="edit.php" target="_top"><?=_('New Person/Org')?></a></li>
-        </ul>
-      </li>
-      <li class="hassub">
-        <a href="#"><?=_('Aux. Searches')?> &#x25BC;</a>
-        <ul class="nav-sub">
-          <li><a href="action.php" target="_top"><?=_('Actions')?></a></li>
-<?=(!empty($_SESSION['donations']) ? '          <li><a href="donation.php" target="_top">'._('Donations &amp; Pledges').'</a></li>' : '')?>
-          <li><a href="attendance.php" target="_top"><?=_('Event Attendance')?></a></li>
-          <li><a href="birthday.php" target="_top"><?=_('Birthdays')?></a></li>
-        </ul>
-      </li>
-      <li class="hassub">
-        <a href="#"><?=_('Batch/Basket').' (<span class="basketcount">'.count($_SESSION['basket'] ?? []).'</span>)'?> &#x25BC;</a>
-        <ul class="nav-sub">
-          <li class="basket-list"><a class="basket-list" href="list.php?basket=1"><?=_('List Basket contents')?></a></li>
-          <li><a href="batch.php?basket=1" target="_top"><?=_('Batch Processing')?></a></li>
-          <li class="basket-empty"><a class="ajaxlink basket-empty" href="#"><?=_('Empty the Basket')?></a></li>
-        </ul>
-      </li>
-      <li><a href="db_settings.php" target="_top"><?=_('DB Settings')?></a></li>
-<?=(!empty($_SESSION['admin']) ? '      <li><a href="sqlquery.php" target="_top">'._('(Raw SQL)').'</a></li>' : '')?>
-      <li><a class="switchlang" href="#"><?=($_SESSION['lang']=='en_US'?'日本語':'English')?></a></li>
-      <li class="menu-usersettings hassub">
-        <a href="#"><?=_('User')?><span class="username">: <?=$_SESSION['username']?></span> &#x25BC;</a>
-        <ul class="nav-sub">
-          <li><a href="user_settings.php" target="_top"><?=_('User Settings')?></a></li>
-          <li><a href="index.php?logout=1" target="_top"><?=_('Log Out')?></a></li>
-        </ul>
-      </li>
-    </ul>
-  </nav>
-
-  <div id="nav-trigger"><img src="graphics/kizunadb-logo.png" alt="Logo"><span>Menu</span></div>
-  <nav id="nav-mobile"></nav>
-  <input type="hidden" id="pids-for-basket" value="">
-<?php
-  }  // end of if $nav
-  echo "<div id=\"content\">\n";
-}  // end of header2()
-
 /*** CSS_BUNDLE: emit the standard static stylesheet bundle (shared by pageheader() ***/
-/*** and the login head in accesscontrol.php). All files are static & cacheable;     ***/
-/*** per-client overrides live in css/custom/<client>/ (colors.css + optional         ***/
-/*** ThemeRoller jquery-ui-theme.css). ***/
+/*** and the login head in accesscontrol.php). All files are static & cacheable.      ***/
+/*** Order: reset, stock jquery-ui, then style.css (our theme incl. the jQuery UI     ***/
+/*** retint+sheen) so it wins the cascade, then the client's optional                 ***/
+/*** css/custom/<client>/colors.css (palette overrides). ***/
 function css_bundle() {
   $client = explode(".",$_SERVER['HTTP_HOST'])[0];
   $dir = __DIR__;                       // filesystem base (public/) for filemtime/is_file
@@ -188,15 +117,11 @@ function css_bundle() {
   $favurl = is_file("$customfs/favicon.ico") ? "$customurl/favicon.ico" : "favicon.ico";
   echo '<link rel="icon" type="image/x-icon" href="'.$favurl.'?v='.filemtime($favfs).'">'."\n";
   echo '<link rel="stylesheet" type="text/css" href="css/reset.css">'."\n";
+  // stock jquery-ui BEFORE style.css so style.css (our theme + the jQuery UI retint) wins the cascade
+  echo '<link rel="stylesheet" type="text/css" href="css/jquery-ui.min.css">'."\n";
   echo '<link rel="stylesheet" type="text/css" href="css/style.css?v='.filemtime("$dir/css/style.css").'">'."\n";
-  $hascolors = is_file("$customfs/colors.css");
-  if ($hascolors)
+  if (is_file("$customfs/colors.css"))            // per-client palette overrides, win over style.css
     echo '<link rel="stylesheet" type="text/css" href="'.$customurl.'/colors.css?v='.filemtime("$customfs/colors.css").'">'."\n";
-  echo '<link rel="stylesheet" type="text/css" href="css/jquery-ui-13.min.css">'."\n";
-  if (is_file("$customfs/jquery-ui-theme.css"))   // client's own ThemeRoller theme (textures and all)
-    echo '<link rel="stylesheet" type="text/css" href="'.$customurl.'/jquery-ui-theme.css?v='.filemtime("$customfs/jquery-ui-theme.css").'">'."\n";
-  elseif ($hascolors)                             // colors-only client: flat retint toward their palette
-    echo '<link rel="stylesheet" type="text/css" href="css/jquery-ui-vars.css?v='.filemtime("$dir/css/jquery-ui-vars.css").'">'."\n";
   echo '<link rel="stylesheet" type="text/css" href="css/tablesorter.css?v='.filemtime("$dir/css/tablesorter.css").'">'."\n";
   echo '<link rel="stylesheet" type="text/css" href="css/jquery.multiselect.css">'."\n";
   echo '<link rel="stylesheet" type="text/css" href="css/jquery.multiselect.filter.css">'."\n";
@@ -472,7 +397,7 @@ function load_scripts($scripts) {
           echo '<script type="text/JavaScript" src="js/jquery-3.6.0.min.js"></script>'."\n";
           break;
         case 'jqueryui':
-          echo '<script type="text/JavaScript" src="js/jquery-ui-13.min.js"></script>'."\n";
+          echo '<script type="text/JavaScript" src="js/jquery-ui.min.js"></script>'."\n";
           break;
         case 'tablesorter':
           echo '<script type="text/JavaScript" src="js/jquery.tablesorter.min.js"></script>'."\n";
@@ -503,13 +428,6 @@ function load_scripts($scripts) {
       }
       $scripts_loaded[$script] = 1;
     }
-  }
-}
-
-function load_jqueryui() {
-  if (!empty($jqueryui_loaded)) {
-    echo '<script type="text/JavaScript" src="js/jquery.js"></script>'."\n";
-    $jqueryui_loaded = 1;
   }
 }
 

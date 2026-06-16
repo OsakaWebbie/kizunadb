@@ -288,7 +288,7 @@ $endmonth_sel   = '<select id="endmonth" name="endmonth">' . $month_options . '<
 $endday_sel     = '<select id="endday" name="endday" class="day-select">' . $day_options_end . '</select>';
 ?>
 
-<h1 class="title"><?=_('Birthdays')?></h1>
+<h1 id="title"><?=_('Birthdays')?></h1>
 
 <form id="bform" method="GET">
   <div style="display:flex; flex-wrap:wrap; gap:1em; align-items:center">

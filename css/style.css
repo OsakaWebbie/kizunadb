@@ -1,11 +1,13 @@
 /* KizunaDB main stylesheet */
 :root {
   /* ── Brand palette: change these to retheme ───────────────── */
-  --primary-light:    LightSteelBlue;
-  --primary-medium:   SteelBlue;
-  --secondary-medium: #CC9944;
-  --secondary-dark:   #844E0C;   /* was rgb(132,78,12) */
-  --dark-header:      #583907;   /* was rgb(88,57,7) */
+  --primary-light:    #B0C4DE; /* LightSteelBlue */
+  --primary-medium:   #4682B4; /* SteelBlue */
+  --primary-dark:     #114488; /* darker blue */
+  --secondary-light:  #fddba1;
+  --secondary-medium: #BB8833;
+  --secondary-dark:   #844E0C;
+  --dark-header:      #583907;
 
   /* ── Derived semantic variables ───────────────────────────── */
 
@@ -22,8 +24,7 @@
   --scrollnav-bg:     color-mix(in srgb, var(--nav-bg) 70%, transparent);
 
   /* page chrome */
-  --title:            var(--primary-medium);
-  --title-bg:         White;
+  --title:            var(--secondary-medium);
 
   /* sections & fieldsets */
   --section-border:        var(--secondary-dark);
@@ -50,6 +51,8 @@
   --input-border:     DimGray;
   --inline-label:     var(--secondary-dark);
   --table-header-bg:  var(--primary-light);
+  --table-header-border: White;
+  --table-cell-border: var(--primary-light);
 
   /* special */
   --del-confirm:      #808080;
@@ -64,14 +67,17 @@
   --active-event-bg:    White;
   --inactive-event-bg:  #BBBBBB;
 
-  /* jQuery UI brand-chrome seam (consumed by jquery-ui-vars.css) */
+  /* jQuery UI widget colors — map the palette onto jQuery UI's chrome (header bars,
+     buttons, hover/active states, borders); used by the retint rules at the end of this file. */
   --ui-header-bg:    var(--secondary-dark);
   --ui-header-text:  White;
-  --ui-default-bg:   var(--primary-light);
-  --ui-default-text: var(--primary-medium);
+  --ui-default-bg:     var(--primary-light);
+  --ui-default-border: var(--primary-medium);
+  --ui-default-text:   var(--primary-dark);
   --ui-active-bg:    var(--primary-medium);
   --ui-active-text:  White;
-  --ui-hover-bg:     color-mix(in srgb, var(--primary-light) 60%, White);
+  --ui-hover-bg:     color-mix(in srgb, var(--primary-light) 90%, White);
+  --ui-hover-border: color-mix(in srgb, var(--primary-medium) 75%, White);
   --ui-hover-text:   var(--primary-medium);
 }
 
@@ -281,6 +287,11 @@ nav#nav-mobile a:hover, nav#nav-mobile a:active {
 body { font-family:Arial,"ＭＳ Ｐゴシック",sans-serif; }
 textarea { font-family:Arial,"ＭＳ Ｐゴシック",sans-serif; } /* because inherit doesn't work in IE <8 */
 
+button,
+input[type=submit],
+input[type=button],
+input[type=reset] { cursor: pointer; }
+
 h1 {
   margin:6px 0 6px 0;
   text-align:center;
@@ -356,13 +367,13 @@ table { background-color: White; text-align: left; }
 table tbody td {
   padding: 4px;
   vertical-align: top;
-  border: 1px solid var(--primary-light);
+  border: 1px solid var(--table-cell-border);
 }
 
 table.tablesorter thead tr th.tablesorter-header,
 table.tablesorter tfoot tr th.tablesorter-footer {
   background-color: var(--table-header-bg);
-  border: 1px solid White;
+  border: 1px solid var(--table-header-border);
   background-repeat: no-repeat;
   background-position: center right;
   padding: 4px 20px 4px 4px;
@@ -425,7 +436,6 @@ h1#title {
   margin: 0 0 0 48px;
   padding:4px 0 10px 0;
   color: var(--title);
-  background-color:var(--title-bg);
 }
 
 span.inlinelabel {
@@ -433,7 +443,7 @@ span.inlinelabel {
   color: var(--inline-label);
 }
 
-option.active. li.active { background-color:var(--active-event-bg); }
+option.active, li.active { background-color:var(--active-event-bg); }
 option.inactive, li.inactive { background-color:var(--inactive-event-bg); }
 
 ul#criteria {
@@ -503,9 +513,108 @@ ul#criteria {
   overflow:visible;
   text-align:left;
   }
-  .ui-widget { font-size: 1em !important; }  /* override jquery-ui theme's 0.9em so dialogs match body text */
+  .ui-widget { font-size: 1em; }  /* match body text (jquery-ui base sets 0.9em; style.css loads after it) */
   p.dlg-choice {
     margin-top: 1em;
     padding-left: 2em;
     text-indent: -2em;
   }
+
+/*** jQuery UI palette retint + sheen ────────────────────────────────────────
+   Recolors the jQuery UI brand-chrome roles to the --ui-* seams (defined in :root
+   above; a client colors.css overrides them), with a translucent gradient "sheen"
+   layered over each seam color (set --ui-sheen* to `none` for a flat look). Icon
+   sprites and content panels come from the base theme; .ui-state-error stays red. ***/
+:root {
+  /* raised glass (default / hover surfaces) */
+  --ui-sheen: linear-gradient(to bottom,
+    hsla(0,0%,100%,.6) 45%,
+    hsla(0,0%,100%,.4) 55%,
+    hsla(0,0%,100%,.8) 80%);
+  /* pressed / selected */
+  --ui-sheen-active: linear-gradient(to bottom,
+    hsla(0,0%,0%,0) 45%,
+    hsla(0,0%,0%,.1) 55%,
+    hsla(0,0%,100%,.1) 80%);
+  /* header bars */
+  --ui-sheen-header: linear-gradient(to bottom,
+    hsla(0,0%,100%,.35) 0%,
+    hsla(0,0%,100%,0) 60%);
+}
+
+/* Header bars (dialog titlebars, datepicker header, accordion headers, etc.) */
+.ui-widget-header {
+  background: var(--ui-sheen-header), var(--ui-header-bg);
+  color: var(--ui-header-text);
+  border-color: var(--ui-header-bg);
+}
+.ui-widget-header a { color: var(--ui-header-text); }
+
+/* Default / resting clickable state (buttons, datepicker days, etc.) */
+.ui-state-default,
+.ui-widget-content .ui-state-default,
+.ui-widget-header .ui-state-default,
+.ui-button,
+html .ui-button.ui-state-disabled:hover,
+html .ui-button.ui-state-disabled:active {
+  background: var(--ui-sheen), var(--ui-default-bg);
+  color: var(--ui-default-text);
+  border-color: var(--ui-default-border);
+}
+.ui-state-default a,
+.ui-state-default a:link,
+.ui-state-default a:visited,
+a.ui-button,
+a:link.ui-button,
+a:visited.ui-button,
+.ui-button { color: var(--ui-default-text); }
+
+/* Hover / focus */
+.ui-state-hover,
+.ui-widget-content .ui-state-hover,
+.ui-widget-header .ui-state-hover,
+.ui-state-focus,
+.ui-widget-content .ui-state-focus,
+.ui-widget-header .ui-state-focus,
+.ui-button:hover,
+.ui-button:focus {
+  background: var(--ui-sheen), var(--ui-hover-bg);
+  color: var(--ui-hover-text);
+  border-color: var(--ui-hover-border);
+}
+.ui-state-hover a,
+.ui-state-hover a:hover,
+.ui-state-hover a:link,
+.ui-state-hover a:visited,
+.ui-state-focus a,
+.ui-state-focus a:hover,
+.ui-state-focus a:link,
+.ui-state-focus a:visited,
+a.ui-button:hover,
+a.ui-button:focus { color: var(--ui-hover-text); }
+
+/* Highlight (e.g. the datepicker's "today"): placed after default/hover so it
+   wins over them, but BEFORE active so a selected day still wins. Secondary
+   palette + the button sheen. */
+.ui-state-highlight,
+.ui-widget-content .ui-state-highlight,
+.ui-widget-header .ui-state-highlight {
+  background: var(--ui-sheen), var(--secondary-light);
+  border: 1px solid var(--secondary-medium);
+  color: var(--secondary-dark);
+}
+
+/* Active / selected */
+.ui-state-active,
+.ui-widget-content .ui-state-active,
+.ui-widget-header .ui-state-active,
+a.ui-button:active,
+.ui-button:active,
+.ui-button.ui-state-active:hover {
+  background: var(--ui-sheen-active), var(--ui-active-bg);
+  color: var(--ui-active-text);
+  border-color: var(--ui-active-bg);
+}
+.ui-state-active a,
+.ui-state-active a:link,
+.ui-state-active a:visited { color: var(--ui-active-text); }

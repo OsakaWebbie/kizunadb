@@ -4,8 +4,7 @@ include("accesscontrol.php");
 $ajax = !empty($_REQUEST['ajax']);
 
 if (!$ajax) {
-  header1(_("Remove All from a Category"));
-  header2(0);
+  pageheader(_("Remove All from a Category"), 0);
 }
 
 if (!empty($remove_cat)) {

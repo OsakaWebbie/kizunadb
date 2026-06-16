@@ -4,8 +4,7 @@ include("accesscontrol.php");
 $ajax = !empty($_REQUEST['ajax']);
 
 if (!$ajax) {
-  header1(_("Custom Report"));
-  header2(0);
+  pageheader(_("Custom Report"), 0);
 }
 $result = sqlquery_checked("SELECT CustomName FROM custom ORDER BY CustomName");
 ?>
