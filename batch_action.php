@@ -3,13 +3,7 @@ include("functions.php");
 include("accesscontrol.php");
 $ajax = !empty($_REQUEST['ajax']);
 
-if (!$ajax) header1(_("Add an Action for All"));
-if (!$ajax) {
-?>
-<link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
-<?php
-}
-if (!$ajax) header2(0);
+if (!$ajax) pageheader(_("Add an Action for All"), 0);
 
 if (!empty($_POST['save_action'])) {
   $pid_array = explode(",",$pid_list);

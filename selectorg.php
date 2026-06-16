@@ -1,24 +1,7 @@
 <?php
 include("functions.php");
 include("accesscontrol.php");
-header1(_("Select Organization"));
-?>
-<link rel="stylesheet" href="style.php?table=1" type="text/css" />
-<?php load_scripts(['jquery', 'tablesorter']); ?>
-<script language=Javascript>
-$(document).ready(function() {
-  $("#mainTable").tablesorter({ sortList:[[3,0]], headers:{0:{sorter:false}}
-  });
-}); 
-
-function finish(form) {
-  opener.document.forms['orgform'].elements['orgid'].value = form.id.value;
-  opener.document.getElementById('orgname').innerHTML = form.name.value;
-  window.close();
-}
-</script>
-<?php
-header2();
+pageheader(_("Select Organization"), 0);
 
 $sql = "SELECT FullName,Furigana,PersonID,household.PostalCode,Address,Prefecture,ShiKuCho FROM person ".
 "LEFT JOIN household ON person.HouseholdID=household.HouseholdID ".
@@ -50,5 +33,19 @@ while ($row = mysqli_fetch_object($result)) {
 }
 echo "</tbody></table>\n";
 
+load_scripts(['jquery', 'tablesorter']);
+?>
+<script language=Javascript>
+$(document).ready(function() {
+  $("#mainTable").tablesorter({ sortList:[[3,0]], headers:{0:{sorter:false}} });
+});
+
+function finish(form) {
+  opener.document.forms['orgform'].elements['orgid'].value = form.id.value;
+  opener.document.getElementById('orgname').innerHTML = form.name.value;
+  window.close();
+}
+</script>
+<?php
 footer();
 ?>

@@ -2,9 +2,8 @@
 include("functions.php");
 include("accesscontrol.php");
 
-header1(_("Household Information"));
+pageheader(_("Household Information"), 1);
 ?>
-<link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />
 <style>
 .hh-layout {
   display: flex;
@@ -25,7 +24,6 @@ header1(_("Household Information"));
 .section figcaption { padding: 0.3em 0.5em; }
 </style>
 <?php
-header2(1);
 
 if (empty($hhid)) {
   echo "HouseholdID not passed.  You cannot call this page directly.";

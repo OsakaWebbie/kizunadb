@@ -30,17 +30,24 @@ if ($_SESSION['admin'] && isset($_GET['user'])) {  /* to test or view other user
     $username = $_SESSION['username'];
   }
 }
-header1(_("Dashboard"));
+pageheader(_("Dashboard"), 1);
 ?>
-<link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css">
+<style>
+/* page-specific rules (moved from style.php) */
+body.dashboard .dashboard-item { float: left; border: 2px solid var(--section-border); margin: 10px; padding: 10px; }
+body.dashboard .item-icon { float: left; border: none; margin: 5px; }
+body.dashboard p, body.dashboard h2, body.dashboard h3, body.dashboard h4  { text-align: center; }
+body.dashboard table th, body.dashboard table td { border: 1px solid gray; padding: 5px; margin: 5px; white-space: nowrap; }
+body.dashboard table th { background-color: #FFFFC0; text-align: center; }
+body.dashboard table td.number { text-align: center; font-weight: bold; }
+body.dashboard #attend_datesums h3 { display:none; }
+</style>
 <?php
 if (!$hasdashboard) {
-  header2(1);
   echo "<h3>"._("You don't have a dashboard yet.  If you would like one, talk to your KizunaDB administrator.")."</h3>\n";
   load_scripts(['jquery', 'jqueryui', 'tablesorter', 'table2csv']);
   footer();
 } else {
-  header2(1);
   echo "<h1 id='title'>" . $_SESSION['dbtitle'] . ": " . $username . _("'s Dashboard") . "</h1>\n";
   $files = explode(',', $row->Dashboard);
   foreach ($files as $file) {

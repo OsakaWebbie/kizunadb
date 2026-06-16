@@ -2,9 +2,8 @@
 include("functions.php");
 include("accesscontrol.php");
 
-header1(_("Database Settings"));
+pageheader(_("Database Settings"), 1);
 ?>
-<link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
 <style>
 #status-msg {
   position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -12,7 +11,6 @@ header1(_("Database Settings"));
   box-shadow: 0 2px 8px rgba(0,0,0,.2); z-index: 10000; display: none;
 }
 </style>
-<?php header2(1); ?>
 <div id="at_del_dialog" title="<?=_("Delete Action Type")?>"><div id="at_del_dialog_body"></div></div>
 <div id="dt_del_dialog" title="<?=_("Delete Donation Type")?>"><div id="dt_del_dialog_body"></div></div>
 <div id="event_del_dialog" title="<?=_("Delete Event")?>"><div id="event_del_dialog_body"></div></div>
@@ -224,8 +222,7 @@ function cloneSelectExcept(sourceSel, excludeId, newName) {
 }
 
 function stopRKey(evt) {
-  var evt = (evt) ? evt : ((event) ? event : null);
-  var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
+  var node = evt.target;
   // Only block Enter key for text inputs within this page's forms (not quick search or other forms)
   if ((evt.keyCode == 13) && (node.type=="text") && node.name!="textinput1") {
     var form = node.form || $(node).closest('form')[0];

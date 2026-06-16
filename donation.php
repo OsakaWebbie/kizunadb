@@ -2,11 +2,20 @@
 include("functions.php");
 include("accesscontrol.php");
 
-header1(_("Donations & Pledges").(isset($_POST['pid_list']) ?
-sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($_POST['pid_list'],",")+1) : "")); ?>
-<meta http-equiv="expires" content="0">
-<link rel="stylesheet" href="style.php?jquery=1&multiselect=1&table=1" type="text/css" />
-<?php header2(1);
+pageheader(_("Donations & Pledges").(isset($_POST['pid_list']) ?
+sprintf(_(" (%d People/Orgs Pre-selected)"),substr_count($_POST['pid_list'],",")+1) : ""), 1);
+?>
+<style>
+/* page-specific rules (moved from style.php) */
+body.donation #typefilter { display:inline-block; vertical-align:middle; border:none; margin:0 20px 5px 0; padding:0; }
+body.donation #typefilter label, body.donation #dtselect { display:block; }
+body.donation #datefilter { display:inline-block; vertical-align:middle; border:none; margin:0 0 5px 0; padding:0; }
+body.donation .actions { border:1px solid var(--inner-border); margin:6px 20px 0 20px; padding:8px; }
+body.donation #show_list, body.donation #show_summary { display:inline-block; vertical-align:middle; margin-right:20px; }
+body.donation .actiontypes { display:inline-block; vertical-align:middle; margin-right:20px; }
+body.donation .proctype, body.donation .actiontype { display:block; }
+</style>
+<?php
 // Build option list from donationtype table contents
 $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
 $opts = "";

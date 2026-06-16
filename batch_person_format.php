@@ -4,8 +4,7 @@ include("accesscontrol.php");
 $ajax = !empty($_REQUEST['ajax']);
 
 if (!$ajax) {
-  header1(_("Person Info (Formatted)"));
-  header2(0);
+  pageheader(_("Person Info (Formatted)"), 0);
 }
 
 $sql = "SELECT DISTINCT SetName FROM outputset WHERE ForHousehold=0 ORDER BY SetName";

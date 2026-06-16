@@ -4,8 +4,7 @@ include("accesscontrol.php");
 $ajax = !empty($_REQUEST['ajax']);
 
 if (!$ajax) {
-  header1(_("Prepare Email"));
-  header2(0);
+  pageheader(_("Prepare Email"), 0);
 }
 
 if (!empty($submit)) {

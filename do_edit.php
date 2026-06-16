@@ -2,7 +2,7 @@
 include("functions.php");
 include("accesscontrol.php");
 
-print_header("Editing Record...","#FFFFFF",0);
+pageheader("Editing Record...", 0);
 
 echo "<h3>Editing (or adding) record...<h3>";
 
@@ -129,5 +129,5 @@ echo "<script for=\"window\" event=\"onload\" type=\"text/javascript\">\n";
 echo "window.location = \"individual.php?pid=".$_POST['pid']."\";\n";
 echo "</script>\n";
 
-print_footer();
+footer();
 ?>

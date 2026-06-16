@@ -102,19 +102,47 @@ if (file_exists($maintenance_file)) {
     }
 }
 
-function header1($title) {
-  ?>
+/*** CSS_BUNDLE: emit the standard static stylesheet bundle (shared by pageheader() ***/
+/*** and the login head in accesscontrol.php). All files are static & cacheable.      ***/
+/*** Order: reset, stock jquery-ui, then style.css (our theme incl. the jQuery UI     ***/
+/*** retint+sheen) so it wins the cascade, then the client's optional                 ***/
+/*** css/custom/<client>/colors.css (palette overrides). ***/
+function css_bundle() {
+  $client = explode(".",$_SERVER['HTTP_HOST'])[0];
+  $dir = __DIR__;                       // filesystem base (public/) for filemtime/is_file
+  $customfs  = "$dir/css/custom/$client";
+  $customurl = "css/custom/$client";    // webroot-relative for hrefs
+  // favicon: per-client (css/custom/<client>/favicon.ico) else the site default (favicon.ico)
+  $favfs  = is_file("$customfs/favicon.ico") ? "$customfs/favicon.ico" : "$dir/favicon.ico";
+  $favurl = is_file("$customfs/favicon.ico") ? "$customurl/favicon.ico" : "favicon.ico";
+  echo '<link rel="icon" type="image/x-icon" href="'.$favurl.'?v='.filemtime($favfs).'">'."\n";
+  echo '<link rel="stylesheet" type="text/css" href="css/reset.css">'."\n";
+  // stock jquery-ui BEFORE style.css so style.css (our theme + the jQuery UI retint) wins the cascade
+  echo '<link rel="stylesheet" type="text/css" href="css/jquery-ui.min.css">'."\n";
+  echo '<link rel="stylesheet" type="text/css" href="css/style.css?v='.filemtime("$dir/css/style.css").'">'."\n";
+  if (is_file("$customfs/colors.css"))            // per-client palette overrides, win over style.css
+    echo '<link rel="stylesheet" type="text/css" href="'.$customurl.'/colors.css?v='.filemtime("$customfs/colors.css").'">'."\n";
+  echo '<link rel="stylesheet" type="text/css" href="css/tablesorter.css?v='.filemtime("$dir/css/tablesorter.css").'">'."\n";
+  echo '<link rel="stylesheet" type="text/css" href="css/jquery.multiselect.css">'."\n";
+  echo '<link rel="stylesheet" type="text/css" href="css/jquery.multiselect.filter.css">'."\n";
+}
+
+/*** PAGEHEADER: single-call replacement for header1()+header2(). ***/
+/*** (Can't be named header() — that's a built-in PHP function.) ***/
+/*** Emits the full <head> incl. the static CSS bundle + per-client overrides, ***/
+/*** then opens <body> + (optional) nav + #content. Page-specific <style>/<script> ***/
+/*** go AFTER the call (in <body>), where they still override the main stylesheet. ***/
+function pageheader($title, $nav=0) {
+?>
 <!doctype html>
 <html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="icon" type="image/x-icon" href="kizunadb.ico">
+<meta http-equiv="expires" content="0">
 <title><?=$title.(isset($_SESSION['dbtitle']) ? ' ('.$_SESSION['dbtitle'].')' : '')?></title>
-  <?php
-}
-
-function header2($nav=0) {
+<?php
+  css_bundle();   /* emits the favicon (client-aware) + the stylesheet bundle */
   echo "</head>\n";
   $fileroot = substr($_SERVER['PHP_SELF'],(strrpos($_SERVER['PHP_SELF'],"/")+1),(strrpos($_SERVER['PHP_SELF'],".")-strrpos($_SERVER['PHP_SELF'],"/")-1));
   echo "<body class=\"".$fileroot.($nav?" full":" simple")."\">\n";
@@ -172,7 +200,7 @@ function header2($nav=0) {
 <?php
   }  // end of if $nav
   echo "<div id=\"content\">\n";
-}  // end of header2()
+}  // end of pageheader()
 
 // Function footer: sends final html
 function footer($nav=0) {
@@ -357,19 +385,6 @@ function footer($nav=0) {
 <?php
 }
 
-//DEPRECATED
-function print_header($title,$color,$nav) {
-  header1($title);
-  header2($nav);
-  echo "<table><tr><td>";
-}
-
-//DEPRECATED
-function print_footer() {
-  echo "</td></tr></table>";
-  footer();
-}
-
 /*** LOAD SCRIPTS - common location for version #, and makes sure only loaded once ***/
 /*** pass array of script name roots ***/
 $scripts_loaded = array();
@@ -382,7 +397,7 @@ function load_scripts($scripts) {
           echo '<script type="text/JavaScript" src="js/jquery-3.6.0.min.js"></script>'."\n";
           break;
         case 'jqueryui':
-          echo '<script type="text/JavaScript" src="js/jquery-ui-13.min.js"></script>'."\n";
+          echo '<script type="text/JavaScript" src="js/jquery-ui.min.js"></script>'."\n";
           break;
         case 'tablesorter':
           echo '<script type="text/JavaScript" src="js/jquery.tablesorter.min.js"></script>'."\n";
@@ -413,13 +428,6 @@ function load_scripts($scripts) {
       }
       $scripts_loaded[$script] = 1;
     }
-  }
-}
-
-function load_jqueryui() {
-  if (!empty($jqueryui_loaded)) {
-    echo '<script type="text/JavaScript" src="js/jquery.js"></script>'."\n";
-    $jqueryui_loaded = 1;
   }
 }
 

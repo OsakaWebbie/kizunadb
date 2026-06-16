@@ -4,11 +4,7 @@ include("accesscontrol.php");
 $ajax = !empty($_REQUEST['ajax']);
 
 if (!$ajax) {
-  header1(_("Person Info (Text)"));
-?>
-<link rel="stylesheet" href="style.php" type="text/css" />
-<?php
-  header2(0);
+  pageheader(_("Person Info (Text)"), 0);
 }
 
 // Fetch category list once for the inline category selectors

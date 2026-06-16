@@ -259,11 +259,7 @@ if (!empty($_GET['query'])) {
 }
 
 // Normal page load - render the form
-header1(_("Birthdays"));
-?>
-<link rel="stylesheet" href="style.php?jquery=1&multiselect=1&table=1" type="text/css" />
-<?php
-header2(1);
+pageheader(_("Birthdays"), 1);
 
 // Build localized month and day options
 $gen = new IntlDatePatternGenerator($_SESSION['lang']);
@@ -292,7 +288,7 @@ $endmonth_sel   = '<select id="endmonth" name="endmonth">' . $month_options . '<
 $endday_sel     = '<select id="endday" name="endday" class="day-select">' . $day_options_end . '</select>';
 ?>
 
-<h1 class="title"><?=_('Birthdays')?></h1>
+<h1 id="title"><?=_('Birthdays')?></h1>
 
 <form id="bform" method="GET">
   <div style="display:flex; flex-wrap:wrap; gap:1em; align-items:center">

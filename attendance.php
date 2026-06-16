@@ -2,10 +2,7 @@
 include('functions.php');
 include('accesscontrol.php');
 
-header1(_('Event Attendance')); ?>
-<meta http-equiv="expires" content="0">
-<link rel="stylesheet" href="style.php?jquery=1&multiselect=1&table=1" type="text/css" />
-<?php header2(1);
+pageheader(_('Event Attendance'), 1);
 // Build option list from event table contents
 $result = sqlquery_checked("SELECT * FROM event ORDER BY Event");
 $opts = '';

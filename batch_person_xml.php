@@ -3,12 +3,8 @@ include("functions.php");
 include("accesscontrol.php");
 $ajax = !empty($_REQUEST['ajax']);
 
-if (!$ajax) header1(_("Person Info (XML)"));
 if (!$ajax) {
-?>
-<meta http-equiv="expires" content="0">
-<link rel="stylesheet" href="style.php" type="text/css" />
-<?php
+  pageheader(_("Person Info (XML)"), 0);
   load_scripts(['jquery', 'jqueryui']);
 }
 ?>
@@ -109,7 +105,6 @@ function validate() {
   return true;  //everything is cool*/
 }
 </script>
-<?php if (!$ajax) header2(0); ?>
 
   <form action="person_xml.php" method="post" name="optionsform" target="_blank" onsubmit="return validate();">
     <input type="hidden" name="pid_list" value="<?=$pid_list?>">

@@ -4,8 +4,7 @@ include("accesscontrol.php");
 $ajax = !empty($_REQUEST['ajax']);
 
 if (!$ajax) {
-  header1(_("Household Info (Formatted)"));
-  header2(0);
+  pageheader(_("Household Info (Formatted)"), 0);
 }
 ?>
 <h3><?=_("Select preset format from list and click the button...")?></h3>

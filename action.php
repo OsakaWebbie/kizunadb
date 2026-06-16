@@ -2,11 +2,14 @@
 include("functions.php");
 include("accesscontrol.php");
 
-header1(_("Action List")); ?>
-<meta http-equiv="expires" content="0">
-<link rel="stylesheet" href="style.php?jquery=1&multiselect=1&table=1" type="text/css" />
-
-<?php header2(1); ?>
+pageheader(_("Action List"), 1); ?>
+<style>
+/* page-specific rules (moved from style.php) */
+body.action #listtypes { float:right; }
+body.action #listtypes label { display:block; }
+body.action div.section { float:left; }  /* needed to force the div to fully surround the inner float */
+body.action div.section:after { clear:both; }  /* needed because we had to float the section div */
+</style>
 <h1 id="title"><?=_("Action List")?></h1>
 
 <form id="aform" method="get" action="blank.php">

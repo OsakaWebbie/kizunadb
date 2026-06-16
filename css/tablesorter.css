@@ -4,8 +4,8 @@ table.tablesorter {
 	text-align: left;
 }
 table.tablesorter thead tr th, table.tablesorter tfoot tr th {
-	background-color: LightSteelBlue;
-	border: 1px solid White;
+	background-color: var(--table-header-bg);
+	border: 1px solid var(--table-header-border);
 }
 table.tablesorter thead tr .header,
 table.tablesorter thead tr th.tablesorter-headerUnSorted {
@@ -18,7 +18,7 @@ table.tablesorter thead tr th.tablesorter-headerUnSorted {
 table.tablesorter tbody td {
 	padding: 4px;
 	vertical-align: top;
-  border: 1px solid LightSteelBlue;
+  border: 1px solid var(--table-cell-border);
 }
 table.tablesorter tbody tr.odd td {
 }
@@ -34,7 +34,7 @@ table.tablesorter thead tr .headerSortDown,
 table.tablesorter thead tr .headerSortUp,
 table.tablesorter thead tr th.tablesorter-headerAsc,
 table.tablesorter thead tr th.tablesorter-headerDesc {
-  background-color: rgb(132,78,12);
+  background-color: var(--secondary-dark);
   color: White;
 }
 

@@ -7,11 +7,7 @@ $summary = $_REQUEST['show_summary'] ?? 0;
 $type = $_REQUEST['listtype'] ?? 'Normal';
 
 if (!$ajax) {
-  header1(_("Donation List"));
-  ?>
-  <link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />
-  <?php
-  header2(1);
+  pageheader(_("Donation List"), 1);
 }
 ?>
 <style>
@@ -419,7 +415,6 @@ if (!$summary) {
 // Summary mode - legacy table building
 if (!$ajax) {
   ?>
-  <link rel="stylesheet" href="style.php?jquery=1&table=1" type="text/css" />
   <style>
   td.amount-for-display { text-align:right; }
   </style>

@@ -5,9 +5,7 @@ include("accesscontrol.php");
 mysqli_select_db($db,"kizuna_common");
 
 setlocale(LC_ALL, 'ja_JP.UTF8');
-header1(_("Update of Auxiliary Postal Code Data"));
-?> <link rel="stylesheet" type="text/css" href="style.php" /> <?php
-header2(1);
+pageheader(_("Update of Auxiliary Postal Code Data"),1);
 
 $filename = (empty($_GET['file']) ? 'KEN_ALL_ROME' : $_GET['file']);
 if (!is_file($filename.'.CSV')) {

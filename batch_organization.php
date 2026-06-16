@@ -3,8 +3,6 @@ include("functions.php");
 include("accesscontrol.php");
 $ajax = !empty($_REQUEST['ajax']);
 
-if (!$ajax) header1(_("Connect All to an Organization"));
-
 // A REQUEST TO ADD A PERORG RECORD?
 if (!empty($_POST['newperorg'])) {
   $result = sqlquery_checked("SELECT * FROM person WHERE PersonID=".$_POST['orgid']." AND Organization=1");
@@ -16,18 +14,13 @@ if (!empty($_POST['newperorg'])) {
     "VALUES($eachpid,{$_POST['orgid']},0) ON DUPLICATE KEY UPDATE Leader=Leader");
     if (mysqli_affected_rows($db) == 1)  $added++;
   }
-  if (!$ajax) header2(0);
+  if (!$ajax) pageheader(_("Connect All to an Organization"), 0);
   echo "<h3>".sprintf(_("%s organization association records added."),$added)."</h3>";
   if (!$ajax) footer();
   exit;
 }
 
-if (!$ajax) {
-?>
-<link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
-<?php
-}
-if (!$ajax) header2(0);
+if (!$ajax) pageheader(_("Connect All to an Organization"), 0);
 echo "<h3>"._("Type the ID of an organization or search by name.")."</h3>\n";
 echo "<p style=\"margin-bottom:10px\">"._("NOTE: A leader cannot be designated here - do that on the leader's detail page.")."</p>\n";
 ?>

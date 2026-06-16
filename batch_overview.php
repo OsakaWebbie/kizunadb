@@ -4,8 +4,7 @@ include("accesscontrol.php");
 $ajax = !empty($_REQUEST['ajax']);
 
 if (!$ajax) {
-  header1(_("Overview Pages"));
-  header2(0);
+  pageheader(_("Overview Pages"), 0);
 }
 ?>
 <h3><?=_("Besides basic info, include:")?></h3>

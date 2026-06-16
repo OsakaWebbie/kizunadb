@@ -1,9 +1,8 @@
 <?php
 include("functions.php");
 include("accesscontrol.php");
-header1("Select Household");
+pageheader("Select Household", 0);
 ?>
-<link rel="stylesheet" href="style.php?jquery=1" type="text/css" />
 <style>
 h2 { margin-bottom:8px; }
 table th, table td { border:1px solid black; padding:2px; }
@@ -38,8 +37,6 @@ e = opener.document.forms['editform'];
 </script>
 
 <?php
-header2(0);
-
 $sql = "SELECT household.* FROM household";
 if (isset($_GET['getall'])) {
   echo "<h2>"._("Select a Household: All")."</h2>\n";
@@ -92,5 +89,5 @@ echo "</tbody>\n</table>\n";
 if (!isset($_GET['getall'])) {
   echo "<h3><a href=\"".$_SERVER['REQUEST_URI']."&getall=1\">"._("Get All Households")."</a></h3>\n";
 }
-print_footer();
+footer();
 ?>

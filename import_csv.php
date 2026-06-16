@@ -10,9 +10,7 @@
 include("functions.php");
 include("accesscontrol.php");
 
-header1(_("CSV Import"));
-?> <link rel="stylesheet" type="text/css" href="style.php" /> <?php
-header2(1);
+pageheader(_("CSV Import"),1);
 
 if (!empty($_GET['file'])) { //file pre-placed on server
   if (!is_file(CLIENT_PATH."/".$_GET['file'].".csv")) {
@@ -57,8 +55,7 @@ foreach ($data as $record) {
   if (!empty($_GET['dryrun'])) {
     echo "<tr>";
     $num++;
-    echo "<td>$num</td>";
-    //die ("<pre>".print_r($record,TRUE)."</pre>");
+  echo "<td>$num</td>";
   }
   
   if (isset($_GET['fullname'])) {
@@ -78,9 +75,6 @@ foreach ($data as $record) {
           $furigana = $namearray[2].", ".$namearray[1];
         }
       }
-      //echo "<pre>Fullname:\n".print_r($fullname,TRUE)."</pre>";
-      //echo "<pre>Furigana:\n".print_r($furigana,TRUE)."</pre>";
-      //exit;
     }
   } elseif (isset($_GET['firstname']) && isset($_GET['lastname'])) {
     //echo "</table><pre>There are first and last name columns</pre>\n";
