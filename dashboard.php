@@ -82,13 +82,14 @@ function querytable($result, $table_id, $top='-10px') {
   while ($row_array = mysqli_fetch_row($result)) {
   echo "  <tr>\n";
     for ($i=0; $i<$fields; $i++) {
-    if (substr($row_array[$i],0,2)=="<a") {
-    echo ("    <td nowrap>".$row_array[$i]."</td>\n");
-    } elseif (mysqli_fetch_field_direct($result,$i)->name=="PersonID") {
-    echo ("    <td><a href=\"individual.php?pid=".$row_array[$i]."\" target=\"_blank\">".$row_array[$i]."</a></td>\n");
-    } else {
-    echo ("    <td>".d2h($row_array[$i])."</td>\n");
-    }
+      if ($row_array[$i]==NULL) $row_array[$i] = '';
+      if (substr($row_array[$i],0,2)=="<a") {
+      echo ("    <td nowrap>".$row_array[$i]."</td>\n");
+      } elseif (mysqli_fetch_field_direct($result,$i)->name=="PersonID") {
+      echo ("    <td><a href=\"individual.php?pid=".$row_array[$i]."\" target=\"_blank\">".$row_array[$i]."</a></td>\n");
+      } else {
+      echo ("    <td>".d2h($row_array[$i])."</td>\n");
+      }
     }
     echo "  </tr>\n";
   }

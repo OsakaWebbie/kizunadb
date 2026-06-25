@@ -390,40 +390,43 @@ function footer($nav=0) {
 $scripts_loaded = array();
 function load_scripts($scripts) {
   global $scripts_loaded;
+  $dir = __DIR__;                       // filesystem base (public/) for filemtime cache-busting
   foreach ($scripts as $script) {
     if (empty($scripts_loaded[$script])) {
       switch ($script) {
         case 'jquery':
-          echo '<script type="text/JavaScript" src="js/jquery-3.6.0.min.js"></script>'."\n";
+          echo '<script type="text/JavaScript" src="js/jquery-3.6.0.min.js?v='.filemtime("$dir/js/jquery-3.6.0.min.js").'"></script>'."\n";
           break;
         case 'jqueryui':
-          echo '<script type="text/JavaScript" src="js/jquery-ui.min.js"></script>'."\n";
+          echo '<script type="text/JavaScript" src="js/jquery-ui.min.js?v='.filemtime("$dir/js/jquery-ui.min.js").'"></script>'."\n";
           break;
         case 'tablesorter':
-          echo '<script type="text/JavaScript" src="js/jquery.tablesorter.min.js"></script>'."\n";
+          echo '<script type="text/JavaScript" src="js/jquery.tablesorter.min.js?v='.filemtime("$dir/js/jquery.tablesorter.min.js").'"></script>'."\n";
+          // empties sort with the column (top when ascending) instead of the fork's always-at-bottom default
+          echo '<script>$.tablesorter.defaults.emptyTo = "none";</script>'."\n";
           break;
         case 'table2csv':
-          echo '<script type="text/JavaScript" src="js/table2CSV.js"></script>'."\n";
+          echo '<script type="text/JavaScript" src="js/table2CSV.js?v='.filemtime("$dir/js/table2CSV.js").'"></script>'."\n";
           break;
         case 'expanding':
-          echo '<script type="text/JavaScript" src="js/expanding.js"></script>'."\n";
+          echo '<script type="text/JavaScript" src="js/expanding.js?v='.filemtime("$dir/js/expanding.js").'"></script>'."\n";
           break;
         case 'multiselect':
-          echo '<script type="text/JavaScript" src="js/jquery.multiselect.js"></script>'."\n";
-          echo '<script type="text/JavaScript" src="js/jquery.multiselect.filter.js"></script>'."\n";
+          echo '<script type="text/JavaScript" src="js/jquery.multiselect.js?v='.filemtime("$dir/js/jquery.multiselect.js").'"></script>'."\n";
+          echo '<script type="text/JavaScript" src="js/jquery.multiselect.filter.js?v='.filemtime("$dir/js/jquery.multiselect.filter.js").'"></script>'."\n";
           break;
         case 'multiselect-classes':
-          echo '<script type="text/JavaScript" src="js/jquery.multiselect-classes.js"></script>'."\n";
-          echo '<script type="text/JavaScript" src="js/jquery.multiselect.filter.js"></script>'."\n";
+          echo '<script type="text/JavaScript" src="js/jquery.multiselect-classes.js?v='.filemtime("$dir/js/jquery.multiselect-classes.js").'"></script>'."\n";
+          echo '<script type="text/JavaScript" src="js/jquery.multiselect.filter.js?v='.filemtime("$dir/js/jquery.multiselect.filter.js").'"></script>'."\n";
           break;
         case 'datepicker-ja':
-          echo '<script type="text/JavaScript" src="js/i18n/datepicker-ja.js"></script>'."\n";
+          echo '<script type="text/JavaScript" src="js/i18n/datepicker-ja.js?v='.filemtime("$dir/js/i18n/datepicker-ja.js").'"></script>'."\n";
           break;
         case 'readmore':
-          echo '<script type="text/JavaScript" src="js/readmore.js"></script>'."\n";
+          echo '<script type="text/JavaScript" src="js/readmore.js?v='.filemtime("$dir/js/readmore.js").'"></script>'."\n";
           break;
         case 'functions':
-          echo '<script type="text/JavaScript" src="js/functions.js"></script>'."\n";
+          echo '<script type="text/JavaScript" src="js/functions.js?v='.filemtime("$dir/js/functions.js").'"></script>'."\n";
           break;
       }
       $scripts_loaded[$script] = 1;

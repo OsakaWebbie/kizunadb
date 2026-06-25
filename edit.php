@@ -423,6 +423,8 @@ onchange="editform.updateper.value=1;"><?=$pid?$rec->Remarks:''?></textarea></la
     $('#labelname').keyup();
   }
 
+  var dupChecked = '';  //field values whose duplicate-check has been done/acknowledged
+
   function validate() {
     f = document.editform;  //just an abbreviation
     f.edit.disable = true;  //to prevent double submit
@@ -529,8 +531,9 @@ onchange="editform.updateper.value=1;"><?=$pid?$rec->Remarks:''?></textarea></la
       }
     }
     <?php if (!$pid) {  /* if new entry, check for duplicates */ ?>
-    if ($("#duplicates").html() != $("#fullname").val()+"/"+$("#furigana").val()+"/"+$("#postalcode").val()+"/"+
-        $("#cellphone").val()+"/"+$("#email").val()+"/"+"CHECKED") {
+    var dupkey = $("#fullname").val()+"/"+$("#furigana").val()+"/"+$("#postalcode").val()+"/"+
+        $("#cellphone").val()+"/"+$("#email").val();
+    if (dupChecked != dupkey) {
       $("#duplicates").load("get_duplicates.php",{
         'fullname':$("#fullname").val(),
         'furigana':$("#furigana").val(),
@@ -551,15 +554,13 @@ onchange="editform.updateper.value=1;"><?=$pid?$rec->Remarks:''?></textarea></la
             break;
           default:
             if ($("#duplicates").html() == "NODUPS") {
-              $("#duplicates").html($("#fullname").val()+"/"+$("#furigana").val()+"/"+$("#postalcode").val()+"/"+
-                  $("#cellphone").val()+"/"+$("#email").val()+"/"+"CHECKED");
+              dupChecked = dupkey;
               $("#editform").submit();
             } else {
               $("#duplicates").dialog("open");
               $("#duplicates #continue").click(function(){
                 $("#duplicates").dialog("close");
-                $("#duplicates").html($("#fullname").val()+"/"+$("#furigana").val()+"/"+$("#postalcode").val()+"/"+
-                    $("#cellphone").val()+"/"+$("#email").val()+"/"+"CHECKED");
+                dupChecked = dupkey;
                 $("#editform").submit();
               });
             }

@@ -13,13 +13,13 @@ $sql = "SELECT DISTINCT person.*, household.*, postalcode.* FROM person ".
 $sql .= " WHERE (LOWER(REPLACE(FullName,' ',''))=LOWER(REPLACE('".$fullname."',' ',''))";
 $sql .= " OR LOWER(REPLACE(REPLACE(Furigana,' ',''),',',''))=LOWER(REPLACE(REPLACE('".$furigana."',' ',''),',','')))";
 if ($_REQUEST['postalcode'] != "") {
-  $sql .= " AND (household.PostalCode='".$_REQUEST['postalcode']."' OR household.PostalCode IS NULL OR household.PostalCode = '')";
+  $sql .= " AND (household.PostalCode='".h2d($_REQUEST['postalcode'])."' OR household.PostalCode IS NULL OR household.PostalCode = '')";
 }
 if ($_REQUEST['cellphone'] != "") {
-  $sql .= " OR (REPLACE(person.CellPhone,'-','')=REPLACE('".$_REQUEST['cellphone']."','-',''))";
+  $sql .= " OR (REPLACE(person.CellPhone,'-','')=REPLACE('".h2d($_REQUEST['cellphone'])."','-',''))";
 }
 if ($_REQUEST['email'] != "") {
-  $sql .= " OR (LOWER(person.Email)=LOWER('".$_REQUEST['email']."'))";
+  $sql .= " OR (LOWER(person.Email)=LOWER('".h2d($_REQUEST['email'])."'))";
 }
 $result = sqlquery_checked($sql);
 if (mysqli_num_rows($result)==0) {
