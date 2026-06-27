@@ -5,23 +5,8 @@ if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
   die("NOSESSION");
 }
 
-$fullname = h2d(str_replace(" ","",$_POST['fullname']));
-$furigana = h2d(str_replace(",","",str_replace(" ","",$_POST['furigana'])));
-$sql = "SELECT DISTINCT person.*, household.*, postalcode.* FROM person ".
-    "LEFT JOIN household ON person.HouseholdID=household.HouseholdID LEFT JOIN postalcode ".
-    "ON household.PostalCode=postalcode.PostalCode";
-$sql .= " WHERE (LOWER(REPLACE(FullName,' ',''))=LOWER(REPLACE('".$fullname."',' ',''))";
-$sql .= " OR LOWER(REPLACE(REPLACE(Furigana,' ',''),',',''))=LOWER(REPLACE(REPLACE('".$furigana."',' ',''),',','')))";
-if ($_REQUEST['postalcode'] != "") {
-  $sql .= " AND (household.PostalCode='".h2d($_REQUEST['postalcode'])."' OR household.PostalCode IS NULL OR household.PostalCode = '')";
-}
-if ($_REQUEST['cellphone'] != "") {
-  $sql .= " OR (REPLACE(person.CellPhone,'-','')=REPLACE('".h2d($_REQUEST['cellphone'])."','-',''))";
-}
-if ($_REQUEST['email'] != "") {
-  $sql .= " OR (LOWER(person.Email)=LOWER('".h2d($_REQUEST['email'])."'))";
-}
-$result = sqlquery_checked($sql);
+$result = find_duplicate_persons($_POST['fullname'], $_POST['furigana'],
+    $_REQUEST['postalcode'], $_REQUEST['cellphone'], $_REQUEST['email']);
 if (mysqli_num_rows($result)==0) {
   die("NODUPS");
 } else {

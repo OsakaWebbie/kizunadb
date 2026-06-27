@@ -120,7 +120,7 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
       echo "<table class=\"hhtable\">";
       echo "<tr><th>"._("Name")."</th>";
       echo "<th>"._("Photo")."</th>";
-      echo "<th>"._("Household")." "._("Relation")."</th>";
+      echo "<th>"._("Relation in Household")."</th>";
       echo "<th>"._("Sex")."</th>";
       echo "<th>"._("Birthday")." ("._("Age").")</th></tr>";
       while ($row = mysqli_fetch_object($result)) {

@@ -16,6 +16,16 @@ case 'OrgName':
     }
   }
   break;
+case 'PersonName':
+  // readable name for any person/org by id (used by merge_duplicates.php id-entry preview)
+  if (isset($_REQUEST['pid']) && $_REQUEST['pid']!="") {
+    $result = sqlquery_checked("SELECT FullName,Furigana FROM person WHERE PersonID=".intval($_REQUEST['pid']));
+    if (mysqli_num_rows($result)>0) {
+      $row = mysqli_fetch_object($result);
+      echo readable_name($row->FullName,$row->Furigana,intval($_REQUEST['pid']));
+    }
+  }
+  break;
 case 'ActionTemplate':
   if (isset($_REQUEST['atid']) && $_REQUEST['atid']!="") {
     $result = sqlquery_checked("SELECT Template FROM actiontype WHERE ActionTypeID=".$_REQUEST['atid']);

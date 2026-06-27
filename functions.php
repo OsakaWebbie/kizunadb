@@ -444,6 +444,36 @@ function sqlquery_checked($sql) {
   }
 }
 
+// Find existing person/org records that look like potential duplicates of the given
+// field values. Shared by get_duplicates.php (the new-entry check in edit.php) and by
+// merge_duplicates.php (the duplicate finder). Pass RAW (un-escaped) values; normalization
+// and escaping happen here. $excludePid omits a record from matching itself.
+// Returns a mysqli result of person.* + household.* + postalcode.* (matches across name,
+// and optionally narrowed by postal code, or broadened by cell phone / email).
+function find_duplicate_persons($fullname, $furigana, $postalcode, $cellphone, $email, $excludePid = 0) {
+  $fullname = h2d(str_replace(" ", "", $fullname));
+  $furigana = h2d(str_replace(",", "", str_replace(" ", "", $furigana)));
+  $cond = "(LOWER(REPLACE(FullName,' ',''))=LOWER(REPLACE('".$fullname."',' ',''))".
+      " OR LOWER(REPLACE(REPLACE(Furigana,' ',''),',',''))=LOWER(REPLACE(REPLACE('".$furigana."',' ',''),',','')))";
+  if ($postalcode != "") {
+    $cond .= " AND (household.PostalCode='".h2d($postalcode)."' OR household.PostalCode IS NULL OR household.PostalCode = '')";
+  }
+  if ($cellphone != "") {
+    $cond .= " OR (REPLACE(person.CellPhone,'-','')=REPLACE('".h2d($cellphone)."','-',''))";
+  }
+  if ($email != "") {
+    $cond .= " OR (LOWER(person.Email)=LOWER('".h2d($email)."'))";
+  }
+  $sql = "SELECT DISTINCT person.*, household.*, postalcode.* FROM person ".
+      "LEFT JOIN household ON person.HouseholdID=household.HouseholdID ".
+      "LEFT JOIN postalcode ON household.PostalCode=postalcode.PostalCode ".
+      "WHERE (".$cond.")";
+  if ($excludePid) {
+    $sql .= " AND person.PersonID <> ".intval($excludePid);
+  }
+  return sqlquery_checked($sql);
+}
+
 
 function today() {
   return date("Y-m-d",mktime(gmdate("H")+9));

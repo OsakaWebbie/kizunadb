@@ -241,6 +241,7 @@ pageheader("$per->FullName", 1);
     div#links { clear:both; text-align:center; padding:0; }
     div#links a, div#links button { margin:10px 20px 5px 20px; }
     div#cats-button { text-align:center; margin:-10px 0 10px 0; }
+    div#merge-link { clear:both; text-align:center; margin:2em 0 1em; }
 
     /* moved from style.php (page-specific; variables stay in style.css :root) */
     body.individual div#photo { float:left; width:150px; text-align:center; }
@@ -1339,7 +1340,7 @@ $result = sqlquery_checked("SELECT e.Event, e.EventID, e.Remarks, min(a.AttendDa
 if (mysqli_num_rows($result) == 0) {
   echo "<p>"._("No attendance records. (You can add records here or in Batch Processing.)")."</p>";
 } else {
-  echo "<table id=\"attend-table\" class=\"tablesorter\" width=\"100%\"><thead><tr>";
+  echo "<table id=\"attend-table\" class=\"tablesorter\"><thead><tr>";
   echo "<th>"._("Event")."</th><th class=\"sorter-text\">"._("Dates")."</th><th>"._("Event Description")."</th><th class=\"sorter-false\"></th>\n";
   echo "</tr></thead><tbody>\n";
   while ($row = mysqli_fetch_object($result)) {
@@ -1389,7 +1390,7 @@ $result = sqlquery_checked("SELECT *,DATE(UploadTime) AS UploadDate FROM upload 
 if (mysqli_num_rows($result) == 0) {
   echo "<p>"._("No uploaded files")."</p>";
 } else {
-  echo "<table id=\"upload-table\" class=\"tablesorter\" width=\"100%\" border=\"1\">";
+  echo "<table id=\"upload-table\" class=\"tablesorter\">";
   echo "<thead><tr><th>"._("Upload Date")."</th><th>"._("File Name")."</th><th>"._("Description")."</th><th>&nbsp;</th></tr></thead>\n<tbody>";
   while ($row = mysqli_fetch_object($result)) {
     echo "<tr><td nowrap><span style=\"display:none\">".$row->UploadTime."</span>".$row->UploadDate."</td>\n";
@@ -1408,6 +1409,10 @@ if (mysqli_num_rows($result) == 0) {
 echo "</div>";
 mysqli_free_result($result);
 ?>
+
+<div id="merge-link">
+  <a href="merge_duplicates.php?from=<?=$_GET['pid']?>" class="linkbutton"><?=_("Merge duplicate records")?></a>
+</div>
 
 <?php
 // Load additional scripts needed by individual.php
@@ -2140,7 +2145,7 @@ if($_SESSION['lang']=="ja_JP") {
   });
 
   // Style the link buttons at top of page
-  $('#links > a.linkbutton, #ind-basket-toggle').button();
+  $('#links > a.linkbutton, #ind-basket-toggle, #merge-link a.linkbutton').button();
 
   // Basket: Add to Basket
   $('#ind-basket-add').click(function() {

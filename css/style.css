@@ -433,8 +433,6 @@ fieldset legend {
 }
 
 h1#title {
-  margin: 0 0 0 48px;
-  padding:4px 0 10px 0;
   color: var(--title);
 }
 
