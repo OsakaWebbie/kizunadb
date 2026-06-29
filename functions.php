@@ -323,6 +323,11 @@ function footer($nav=0) {
           }
         });
 
+        // Don't submit (run a full list.php search) unless the 3-char minimum is met — matches the live-count threshold above
+        $(".qs-text").closest("form").on("submit", function(e) {
+          if ($(this).find(".qs-text").val().trim().length < 3) e.preventDefault();
+        });
+
         /* BASKET MANAGEMENT */
 
         // Make the basket contain only these PIDs (any previous contents are replaced)

@@ -361,6 +361,26 @@ fieldset,input,select,label,label textarea { vertical-align:top; }
 .label-n-input { white-space:nowrap; margin-right:2em;}
 td.button-in-table { text-align:center; }
 
+/* Small round icon badge (white letter on a colored circle, darkens on hover).
+   Reusable for "i" info, "?" help, etc. — circle is drawn in CSS so it never relies
+   on a pixelated Unicode glyph or the CJK fallback font. */
+.icon-badge {
+  display: inline-block;
+  width: 17px;
+  height: 17px;
+  line-height: 17px;
+  text-align: center;
+  border-radius: 50%;
+  background: var(--secondary-dark);
+  color: White;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+  vertical-align: middle;
+  user-select: none;
+}
+.icon-badge:hover { background: var(--primary-medium); }
+
 /* TABLES (including tablesorter) */
 
 table { background-color: White; text-align: left; }

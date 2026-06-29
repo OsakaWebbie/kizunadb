@@ -16,6 +16,44 @@ case 'OrgName':
     }
   }
   break;
+case 'SelectOrg':
+  // Live name/furigana search for the Related Organizations picker (individual.php, batch_organization.php).
+  $q = trim($_REQUEST['q'] ?? '');
+  if (mb_strlen($q) < 2) die(json_encode(array('hits' => 0, 'rows' => array())));
+  // Escape LIKE wildcards (literal %/_), then escape for SQL — same approach as Quicksearch.
+  $like = h2d(str_replace(array('%', '_'), array('\%', '\_'), $q));
+  $sql = "SELECT PersonID,FullName,Furigana FROM person".
+    " WHERE Organization>0 AND (FullName LIKE '%".$like."%' OR Furigana LIKE '%".$like."%')".
+    " ORDER BY Furigana";
+  $result = sqlquery_checked($sql);
+  $rows = array();
+  while ($row = mysqli_fetch_object($result)) {
+    $rows[] = array(
+      'pid'  => (int)$row->PersonID,
+      'name' => readable_name($row->FullName, $row->Furigana)   // "Name (reading)"; used for the row label and for #orgname. The row appends the ID separately.
+    );
+  }
+  die(json_encode(array('hits' => count($rows), 'rows' => $rows)));
+  break;
+case 'OrgDetail':
+  // Lazy per-org detail for the picker's info toggle: Categories + Address for one organization.
+  $orgid = intval($_REQUEST['orgid'] ?? 0);
+  if (!$orgid) die(json_encode(array('categories' => '', 'address' => '')));
+  $sql = "SELECT household.PostalCode,postalcode.Prefecture,postalcode.ShiKuCho,household.Address,".
+    "GROUP_CONCAT(DISTINCT category.Category ORDER BY category.Category SEPARATOR ', ') AS cats".
+    " FROM person".
+    " LEFT JOIN household ON person.HouseholdID=household.HouseholdID".
+    " LEFT JOIN postalcode ON household.PostalCode=postalcode.PostalCode".
+    " LEFT JOIN percat ON percat.PersonID=person.PersonID".
+    " LEFT JOIN category ON percat.CategoryID=category.CategoryID".
+    " WHERE person.PersonID=$orgid GROUP BY person.PersonID";
+  $result = sqlquery_checked($sql);
+  if ($row = mysqli_fetch_object($result)) {
+    $address = trim($row->PostalCode." ".$row->Prefecture.$row->ShiKuCho." ".$row->Address);
+    die(json_encode(array('categories' => $row->cats ?? '', 'address' => $address)));
+  }
+  die(json_encode(array('categories' => '', 'address' => '')));
+  break;
 case 'PersonName':
   // readable name for any person/org by id (used by merge_duplicates.php id-entry preview)
   if (isset($_REQUEST['pid']) && $_REQUEST['pid']!="") {

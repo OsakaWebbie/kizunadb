@@ -280,6 +280,38 @@ pageheader("$per->FullName", 1);
     body.individual td.categories, body.individual td.events { white-space:nowrap; }
     body.individual #dayofweek, body.individual #attend-apply { display:block; }
     body.individual #dayofweek label, body.individual #attend-apply label { margin-right:0.5em; }
+
+    /* Related Organizations search picker (replaces the old selectorg.php popup) */
+    .org-picker { position:relative; display:inline-block; margin:0 0 5px 30px; }
+    .org-picker .label-n-input { margin-right:0; }   /* keep the (N) count close to the field */
+    #orgsearchtxt { width:12em; }
+    #org-results {
+      display:none; position:absolute; left:0; top:100%; z-index:50;
+      width:max-content; min-width:12em; max-width:90vw; box-sizing:border-box;
+      scrollbar-gutter:stable;                 /* reserve the scrollbar's space so the longest row's icons don't wrap */
+      max-height:250px; overflow-y:auto;
+      margin:2px 0 0; padding:0; list-style:none;
+      background:var(--main-bg); border:1px solid var(--section-border);
+      box-shadow:0 2px 6px rgba(0,0,0,0.25);
+    }
+    /* #org-results' max-width is tightened in JS to #orgsection's right edge, so it can stay wide while .org-picker is only inline-block */
+    #org-results li { padding:4px 6px; }
+    #org-results li.org-result { cursor:pointer; border-bottom:1px solid var(--table-cell-border); }
+    #org-results li.org-result:hover { background:var(--primary-light); }
+    #org-results li.org-noresults { color:Gray; font-style:italic; }
+    #org-results .org-result-id { color:Gray; font-size:0.9em; white-space:nowrap; }
+    /* icons flow inline right after the name (not pinned to the right edge) so they stay tied to it */
+    #org-results .org-info { margin-left:6px; }
+    #org-results .org-open {
+      margin-left:6px; cursor:pointer; text-decoration:none;
+      font-weight:bold; line-height:17px; color:var(--person-info-title);
+    }
+    #org-results .org-open:hover { color:var(--link-hover); }
+    #org-results .org-detail {
+      margin-top:4px; padding-top:4px;
+      border-top:1px dotted var(--input-border);
+      font-size:0.85em; color:Gray; cursor:default;
+    }
 </style>
 
 <?php
@@ -422,13 +454,17 @@ echo "</div>";  //end of cats-out
 <div class="section" id="orgsection">
 <h3 class="section-title"><?=_("Related Organizations")?></h3>
 
+<?php // SEARCH PICKER — kept OUTSIDE orgform so pressing Enter here never submits the add-org form ?>
+<div class="org-picker">
+<label class="label-n-input" for="orgsearchtxt"><?=_("Search")?>: <input type="text" id="orgsearchtxt" autocomplete="off" /></label>
+(<span id="org-hits">-</span>)
+<ul id="org-results"></ul>
+</div>
+
 <?php // FORM FOR ADDING ORGS ?>
 <form name="orgform" id="orgform" method="POST" action="<?=$_SERVER['PHP_SELF']."?pid=".$_GET['pid']?>" onSubmit="return ValidateOrg()">
 <input type="hidden" name="pid" value="<?=$_GET['pid']?>" />
-<label class="label-n-input"><?=_("Organization ID")?>: <input type="text" name="orgid" id="orgid" style="width:5em;ime-mode:disabled" value="" /><span id="orgname" style="color:darkred;font-weight:bold"></span></label>
-(<label class="label-n-input"><?=_("Search")?>: <input type="text" name="orgsearchtxt" id="orgsearchtxt" style="width:7em" value=""></label>
-<input type="button" value="<?=_("Search")."/"._("Browse")?>"
-onclick="window.open('selectorg.php?txt='+encodeURIComponent(document.getElementById('orgsearchtxt').value),'selectorg','scrollbars=yes,width=800,height=600');">)
+<label><?=_("Organization ID")?>: <input type="text" name="orgid" id="orgid" style="width:5em;ime-mode:disabled" value="" /></label> <span id="orgname" style="color:darkred;font-weight:bold"></span>
 <br />
 <label class="label-n-input"><input type="checkbox" name="leader"><?=_("Leader")?></label>
 <input type="submit" value="<?=_("Save Organization Assignment")?>" name="newperorg">
@@ -1484,6 +1520,87 @@ if($_SESSION['lang']=="ja_JP") {
     } else {
       $("#orgname").empty();
     }
+  });
+
+  // ----- Related Organizations search picker (replaces the old selectorg.php popup) -----
+  var orgSearchTimer = null;
+  var $orgResults = $("#org-results");
+
+  function hideOrgResults() { $orgResults.hide().empty(); $("#org-hits").text("-"); }
+
+  function sizeOrgResults() {   // grow to content, but cap at #orgsection's right edge so it never overflows the section
+    var picker = $(".org-picker")[0].getBoundingClientRect();
+    var section = document.getElementById("orgsection").getBoundingClientRect();
+    $orgResults.css("max-width", Math.max(120, Math.floor(section.right - picker.left - 6)) + "px");
+  }
+
+  function selectOrg($li) {   // fill the add-org form with the chosen organization
+    $("#orgid").val($li.data("pid"));
+    $("#orgname").text($li.data("name"));
+    hideOrgResults();
+  }
+
+  function orgDetailLine(label, value) {   // safe label + value (value inserted as text, never HTML)
+    return $("<div>").append($("<strong>").text(label + ": ")).append(document.createTextNode(value));
+  }
+
+  $("#orgsearchtxt").on("keyup", function() {
+    var q = $.trim($(this).val());
+    if (q.length < 2) { hideOrgResults(); return; }   // org-search minimum is 2 characters
+    if (orgSearchTimer) clearTimeout(orgSearchTimer);  // only fire after the user pauses typing
+    orgSearchTimer = setTimeout(function() {
+      $.getJSON("ajax_request.php", { req: "SelectOrg", q: q }, function(data) {
+        if (data.alert === "NOSESSION") { alert("<?=_("Your login has timed out - please refresh the page.")?>"); return; }
+        $orgResults.empty();
+        $("#org-hits").text(data.hits);
+        if (!data.rows || !data.rows.length) {
+          $orgResults.append($("<li>", { "class": "org-noresults" }).text("<?=_("No matching organizations")?>"));
+          sizeOrgResults(); $orgResults.show();
+          return;
+        }
+        $.each(data.rows, function(i, r) {
+          var $li = $("<li>", { "class": "org-result" }).data("pid", r.pid).data("name", r.name);
+          // from readable_name(), then a muted ID at the end
+          var $name = $("<span>", { "class": "org-result-name" }).text(r.name);
+          $name.append($("<span>", { "class": "org-result-id" }).text(" [<?=_("ID")?>: " + r.pid + "]"));
+          $li.append($name);
+          $li.append($("<span>", { "class": "icon-badge org-info", title: "<?=_("Show categories & address")?>" }).text("i"));
+          $li.append($("<a>", { "class": "org-open", target: "_blank",
+            title: "<?=_("Open record in new tab")?>", href: "individual.php?pid=" + r.pid }).html("&#8599;"));
+          $li.append($("<div>", { "class": "org-detail" }).hide());
+          $orgResults.append($li);
+        });
+        sizeOrgResults(); $orgResults.show();
+      });
+    }, 300);
+  });
+
+  // click a result row (anywhere but its icons/detail) fills in the Organization ID
+  $orgResults.on("click", "li.org-result", function() { selectOrg($(this)); });
+
+  // (i) info icon: lazily fetch & toggle this org's Categories + Address inline
+  $orgResults.on("click", ".org-info", function(e) {
+    e.stopPropagation();
+    var $li = $(this).closest("li"), $d = $li.find(".org-detail");
+    if ($d.is(":visible")) { $d.slideUp(120); return; }
+    if ($li.data("loaded")) { $d.slideDown(120); return; }
+    $.getJSON("ajax_request.php", { req: "OrgDetail", orgid: $li.data("pid") }, function(data) {
+      if (data.alert === "NOSESSION") { alert("<?=_("Your login has timed out - please refresh the page.")?>"); return; }
+      $d.empty();
+      if (data.categories) $d.append(orgDetailLine("<?=_("Categories")?>", data.categories));
+      if (data.address)    $d.append(orgDetailLine("<?=_("Address")?>", data.address));
+      if (!data.categories && !data.address) $d.append($("<div>").text("<?=_("(no categories or address on file)")?>"));
+      $li.data("loaded", true);
+      $d.slideDown(120);
+    });
+  });
+
+  // keep clicks on the new-tab link and inside the detail box from also selecting the row
+  $orgResults.on("click", ".org-open, .org-detail", function(e) { e.stopPropagation(); });
+
+  // clicking outside the picker closes the dropdown
+  $(document).on("click", function(e) {
+    if (!$(e.target).closest(".org-picker").length) hideOrgResults();
   });
 
   $("#atype").change(function(){  //insert template text in Action description when applicable ActionType is selected
