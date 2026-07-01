@@ -276,6 +276,22 @@ case 'Action':
   }
   break;
 
+case 'ActionDup':
+  // Duplicate check for individual.php: does this person already have an identical action
+  // (same type + date + description)? `exclude` skips the row being edited. \r is stripped on
+  // both sides so a stored CRLF description still matches a LF one from the browser.
+  $pid   = intval($_REQUEST['pid'] ?? 0);
+  $atype = intval($_REQUEST['atype'] ?? 0);
+  $date  = h2d($_REQUEST['date'] ?? '');
+  $desc  = h2d(str_replace("\r", "", $_REQUEST['desc'] ?? ''));
+  $exclude = intval($_REQUEST['exclude'] ?? 0);
+  $sql = "SELECT ActionID FROM action WHERE PersonID=$pid AND ActionTypeID=$atype".
+         " AND ActionDate='$date' AND REPLACE(Description, CHAR(13), '')='$desc'";
+  if ($exclude) $sql .= " AND ActionID<>$exclude";
+  $result = sqlquery_checked($sql);
+  die(json_encode(array('dup' => mysqli_num_rows($result) > 0)));
+  break;
+
 case 'Donation':
   if (isset($_REQUEST['id']) && $_REQUEST['id']!="") {
     $donid = intval($_REQUEST['id']);

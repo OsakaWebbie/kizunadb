@@ -38,7 +38,6 @@ if ($preselected_pids) {
         $preselected_js = json_encode($preselected_arr);
     }
 }
-load_scripts(['jquery', 'jqueryui']);
 ?>
 
 <h1 id="title"><?=_("Batch Processing")?></h1>
@@ -122,6 +121,11 @@ while ($row = mysqli_fetch_object($result)) {
 </div>
 <div id="ResultFrame"></div>
 
+<?php
+$scripts = ['jquery', 'jqueryui', 'readmore'];
+if ($_SESSION['lang']=="ja_JP") $scripts[] = 'datepicker-ja';
+load_scripts($scripts);
+?>
 <script>
 $(document).ready(function(){
 

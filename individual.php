@@ -874,9 +874,11 @@ while ($row = mysqli_fetch_object($result)) {
 <textarea id="actiondesc" name="desc" class="expanding">
 <?php if (!empty($_GET['editaction'])) echo preg_replace("=<br */?>=i", "", $_GET['desc']); ?></textarea>
 <?php if (!empty($_GET['editaction'])) {
-  echo "<input type=\"submit\" value=\""._("Save Changes")."\" name=\"editactionsave\">";
+  echo "  <input type=\"hidden\" name=\"editactionsave\" value=\"1\">\n";
+  echo "<input type=\"submit\" value=\""._("Save Changes")."\">";
 } else {
-  echo "<input type=\"submit\" value=\""._("Save Action Entry")."\" name=\"newaction\">";
+  echo "  <input type=\"hidden\" name=\"newaction\" value=\"1\">\n";
+  echo "<input type=\"submit\" value=\""._("Save Action Entry")."\">";
 } ?>
 </form>
 
@@ -1667,7 +1669,7 @@ if($_SESSION['lang']=="ja_JP") {
       text: '<?=_("Save")?>',
       click: function() {
         if (validateActionEdit()) {
-          saveAction();
+          checkActionDupThenSave();
         }
       }
     }, {
@@ -1733,6 +1735,27 @@ if($_SESSION['lang']=="ja_JP") {
       return false;
     }
     return true;
+  }
+
+  // Block an edit that would make this action an exact duplicate of another (excluding itself)
+  function checkActionDupThenSave() {
+    $.getJSON('ajax_request.php', {
+      req: 'ActionDup',
+      pid: <?=$_GET['pid']?>,
+      atype: $('#action-edit-ActionTypeID').val(),
+      date: $('#action-edit-ActionDate').val(),
+      desc: $('#action-edit-Description').val(),
+      exclude: $('#action-edit-id').val()
+    }).done(function(data){
+      if (data && data.alert) { alert(data.alert); return; }
+      if (data && data.dup) {
+        alert('<?=_("This person already has an identical action (same date, type, and description).")?>');
+      } else {
+        saveAction();
+      }
+    }).fail(function(){
+      saveAction();   // AJAX failed — proceed with the save
+    });
   }
 
   // Save function
@@ -2320,7 +2343,25 @@ function ValidateAction(){
   alert('<?=_("You must select a Action Type.")?>');
     return false;
   }
-  return true;
+  // Block an exact duplicate (same date, type, and description). The check is async, so the
+  // native submit happens from the callback; the server also guards against a real duplicate insert.
+  $.getJSON('ajax_request.php', {
+    req: 'ActionDup',
+    pid: <?=$_GET['pid']?>,
+    atype: document.actionform.atype.value,
+    date: $('#actiondate').val(),
+    desc: $('#actiondesc').val()
+  }).done(function(data){
+    if (data && data.alert) { alert(data.alert); return; }
+    if (data && data.dup) {
+      alert('<?=_("This person already has an identical action (same date, type, and description).")?>');
+    } else {
+      document.actionform.submit();
+    }
+  }).fail(function(){
+    document.actionform.submit();   // AJAX failed — let the server-side guard decide
+  });
+  return false;
 }
 
 function ValidateDonation() {
