@@ -54,6 +54,33 @@ case 'OrgDetail':
   }
   die(json_encode(array('categories' => '', 'address' => '')));
   break;
+case 'Households':
+  // Household picker: a search term narrows by label name or address; an empty term returns all households.
+  $q = trim($_REQUEST['q'] ?? '');
+  $like = h2d(str_replace(array('%', '_'), array('\%', '\_'), $q));
+  $sql = "SELECT household.HouseholdID,household.NonJapan,household.PostalCode,household.Address,".
+    "household.RomajiAddress,household.Phone,household.FAX,household.LabelName,".
+    addr_comp_sql()." AS AddressDisplay".
+    " FROM household LEFT JOIN postalcode ON household.PostalCode=postalcode.PostalCode".
+    ($q!=='' ? " WHERE household.LabelName LIKE '%".$like."%' OR ".addr_comp_sql()." LIKE '%".$like."%' OR household.Phone LIKE '%".$like."%'" : "").
+    " ORDER BY household.LabelName";
+  $result = sqlquery_checked($sql);
+  $rows = array();
+  while ($row = mysqli_fetch_object($result)) {
+    $rows[] = array(
+      'hhid'          => (int)$row->HouseholdID,
+      'nonjapan'      => (int)$row->NonJapan,
+      'postalcode'    => $row->PostalCode,
+      'address'       => $row->Address,
+      'romajiaddress' => $row->RomajiAddress,
+      'phone'         => $row->Phone,
+      'fax'           => $row->FAX,
+      'labelname'     => $row->LabelName,
+      'display'       => $row->AddressDisplay
+    );
+  }
+  die(json_encode(array('hits' => count($rows), 'rows' => $rows)));
+  break;
 case 'PersonName':
   // readable name for any person/org by id (used by merge_duplicates.php id-entry preview)
   if (isset($_REQUEST['pid']) && $_REQUEST['pid']!="") {
@@ -195,8 +222,8 @@ case 'User':
         if ($arr === null) {
           // Get user data from first row
           $arr = array('userid' => $row->UserID, 'new_userid' => $row->UserID, 'old_userid' => $row->UserID,
-              'username' => $row->UserName, 'language' => $row->Language, 'new_pw1' => '', 'new_pw2' => '',
-              'dashboard' => $row->Dashboard);
+              'username' => $row->UserName, 'email' => $row->Email, 'language' => $row->Language,
+              'new_pw1' => '', 'new_pw2' => '', 'dashboard' => $row->Dashboard);
           $arr['admin'] = $row->Admin;
           $arr['hidedonations'] = $row->HideDonations;
           $lastLogin = $row->loginlast;
@@ -246,11 +273,12 @@ case 'Quicksearch':
   $qs = str_replace(array('%', '_'), array('\%', '\_'), $_GET['qs']);
   $qs = h2d($qs);
   $sql = "SELECT count(DISTINCT person.PersonID) hits from person LEFT JOIN household ON person.HouseholdID=household.HouseholdID".
+      " LEFT JOIN postalcode ON household.PostalCode=postalcode.PostalCode".
       " WHERE person.FullName LIKE '%".$qs."%' OR person.Furigana LIKE '%".$qs."%'".
       " OR person.Email LIKE '%".$qs."%' OR person.CellPhone LIKE '%".$qs."%'".
       " OR person.Country LIKE '%".$qs."%' OR person.URL LIKE '%".$qs."%'".
       " OR person.Remarks LIKE '%".$qs."%' OR person.Birthdate LIKE '%".$qs."%'".
-      " OR household.AddressComp LIKE '%".$qs."%' OR household.RomajiAddressComp LIKE '%".$qs."%'".
+      " OR ".addr_comp_sql()." LIKE '%".$qs."%' OR ".romaji_addr_comp_sql()." LIKE '%".$qs."%'".
       " OR household.Phone LIKE '%".$qs."%' OR household.LabelName LIKE '%".$qs."%'";
     $result = sqlquery_checked($sql);
     $row = mysqli_fetch_object($result);

@@ -194,16 +194,6 @@ foreach ($data as $record) {
 }
 if (!empty($_GET['dryrun'])) {
   echo "</table>\n";
-} else {
-  if ($householdid > 0) {
-    $sql = "UPDATE household h LEFT JOIN postalcode pc ON h.PostalCode=pc.PostalCode SET h.AddressComp=CONCAT(h.PostalCode,pc.
-Prefecture,pc.ShiKuCho,h.Address)";
-    sqlquery_checked($sql);
-    if ($_SESSION['romajiaddresses']=='yes') {
-      $sql = "UPDATE household h LEFT JOIN postalcode pc ON h.PostalCode=pc.PostalCode SET h.RomajiAddressComp=CONCAT(h.Address,' ',pc.Romaji,' ',pc.PostalCode)";
-      sqlquery_checked($sql);
-    }
-  }
 }
 
 echo "<h2>In theory, all was completed.</h2>";

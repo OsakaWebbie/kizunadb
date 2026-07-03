@@ -35,11 +35,9 @@ if (!empty($_POST['updatehh'])) {
   if (!empty($_POST['householdid'])) {
     $householdid = $_POST['householdid'];
     $sql = "UPDATE household SET NonJapan=".$_POST['nonjapan'].",PostalCode='".$_POST['postalcode']."',".
-    "Address='".h2d($_POST['address'])."',".
-    "AddressComp='".$_POST['postalcode'].$_POST['prefecture'].$_POST['shikucho'].h2d($_POST['address'])."',";
+    "Address='".h2d($_POST['address'])."',";
     if ($_SESSION['romajiaddresses']=="yes") {
-      $sql .= "RomajiAddress='".h2d($_POST['romajiaddress'])."',RomajiAddressComp='".
-      ($_POST['nonjapan'] ? "" : trim(h2d($_POST['romajiaddress']." ".$_POST['pcromtext'])." ".$_POST['postalcode']))."',";
+      $sql .= "RomajiAddress='".h2d($_POST['romajiaddress'])."',";
     }
     $sql .= "Phone='".$_POST['phone']."',FAX='".$_POST['fax']."',LabelName='".h2d($_POST['labelname'])."'".($_SESSION['userid']=='dev'?'':', UpdDate=CURDATE()').
     " WHERE HouseholdID=".$_POST['householdid']." LIMIT 1";
@@ -49,15 +47,12 @@ if (!empty($_POST['updatehh'])) {
     }
   } else {  //new household record
     if ($_SESSION['romajiaddresses']=="yes") {
-      $sql = "INSERT INTO household (NonJapan,PostalCode,Address,AddressComp,RomajiAddress,RomajiAddressComp,".
+      $sql = "INSERT INTO household (NonJapan,PostalCode,Address,RomajiAddress,".
       "Phone,FAX,LabelName,UpdDate) VALUES (".$_POST['nonjapan'].",'".$_POST['postalcode']."','".h2d($_POST['address'])."',".
-      "'".$_POST['postalcode'].$_POST['prefecture'].$_POST['shikucho'].h2d($_POST['address'])."',".
-      "'".h2d($_POST['romajiaddress'])."','".($_POST['nonjapan'] ? "" : trim(h2d($_POST['romajiaddress']." ".
-      $_POST['pcromtext'])." ".$_POST['postalcode']))."','".$_POST['phone']."','".$_POST['fax']."','".h2d($_POST['labelname'])."',CURDATE())";
+      "'".h2d($_POST['romajiaddress'])."','".$_POST['phone']."','".$_POST['fax']."','".h2d($_POST['labelname'])."',CURDATE())";
     } else {
-      $sql = "INSERT INTO household (NonJapan,PostalCode,Address,AddressComp,Phone,FAX,LabelName,UpdDate) ".
+      $sql = "INSERT INTO household (NonJapan,PostalCode,Address,Phone,FAX,LabelName,UpdDate) ".
       "VALUES (".$_POST['nonjapan'].",'".$_POST['postalcode']."','".h2d($_POST['address'])."',".
-      "'".$_POST['postalcode'].$_POST['prefecture'].$_POST['shikucho'].h2d($_POST['address'])."',".
       "'".$_POST['phone']."','".$_POST['fax']."','".h2d($_POST['labelname'])."',CURDATE())";
     }
     $result = sqlquery_checked($sql);

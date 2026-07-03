@@ -110,9 +110,23 @@ case 'UserSave':
   $dashboard_esc  = h2d($_REQUEST['dashboard'] ?? '');
   $new_userid_esc = h2d($new_userid);
   $new_pw1        = $_REQUEST['new_pw1'] ?? '';
+  $email          = trim($_REQUEST['email'] ?? '');
+  $email_esc      = h2d($email);
+
+  if ($new_pw1 !== '' && password_grade($new_pw1) < 1) {
+    die(json_encode(array('success' => false, 'error' => _('Please choose a stronger password (at least "Fair").'))));
+  }
+
+  $send_link = !empty($_REQUEST['send_setup_link']);
+  if ($send_link) {
+    if ($email === '') {
+      die(json_encode(array('success' => false, 'error' => _('An email address is required to send a setup link.'))));
+    }
+    require_once __DIR__.'/mailer.php';
+  }
 
   if (($_REQUEST['userid'] ?? '') == 'new') {
-    if ($new_pw1 === '') {
+    if (!$send_link && $new_pw1 === '') {
       die(json_encode(array('success' => false, 'error' => _('You must enter a password for a new user.'))));
     }
     $result = sqlquery_checked("SELECT UserName FROM user WHERE UserID='$new_userid_esc'");
@@ -122,11 +136,18 @@ case 'UserSave':
         _("UserID '%s' is already in use by %s. Please choose a different UserID."),
         $new_userid, $row->UserName))));
     }
-    sqlquery_checked("INSERT INTO user (UserID,UserName,Password,Admin,Language,HideDonations,Dashboard) VALUES ".
-                     "('$new_userid_esc','".h2d($username)."',PASSWORD('".h2d($new_pw1)."'),$admin,'".h2d($language)."',$hidedona,'$dashboard_esc')");
+    $pw_sql = $send_link ? "''" : "PASSWORD('".h2d($new_pw1)."')";
+    sqlquery_checked("INSERT INTO user (UserID,UserName,Email,Password,Admin,Language,HideDonations,Dashboard) VALUES ".
+                     "('$new_userid_esc','".h2d($username)."','$email_esc',$pw_sql,$admin,'".h2d($language)."',$hidedona,'$dashboard_esc')");
+    if ($send_link) {
+      $message = send_password_link($new_userid, $email, $language, 'setup')
+        ? _('New user added; a setup link was emailed to them.')
+        : _('New user added, but the setup email failed to send. Check the mail settings or set a password manually.');
+    } else {
+      $message = _('New user successfully added.');
+    }
     die(json_encode(array('success' => true, 'userid' => $new_userid, 'username' => $username,
-                          'sessionUpdated' => false,
-                          'message' => _('New user successfully added.'))));
+                          'sessionUpdated' => false, 'message' => $message)));
   } else {
     $old_userid     = $_REQUEST['old_userid'] ?? '';
     $old_userid_esc = h2d($old_userid);
@@ -141,8 +162,8 @@ case 'UserSave':
     }
     $sql = 'UPDATE user SET ';
     if ($new_userid !== $old_userid) $sql .= "UserID='$new_userid_esc',";
-    $sql .= "UserName='".h2d($username)."',";
-    if ($new_pw1 !== '') $sql .= "Password=PASSWORD('".h2d($new_pw1)."'),";
+    $sql .= "UserName='".h2d($username)."',Email='$email_esc',";
+    if (!$send_link && $new_pw1 !== '') $sql .= "Password=PASSWORD('".h2d($new_pw1)."'),";
     $sql .= "Admin=$admin,Language='".h2d($language)."',HideDonations=$hidedona,Dashboard='$dashboard_esc' WHERE UserID='$old_userid_esc'";
     sqlquery_checked($sql);
     if ($new_userid !== $old_userid) {
@@ -159,9 +180,12 @@ case 'UserSave':
       $_SESSION['hasdashboard'] = (($_REQUEST['dashboard'] ?? '') !== '') ? 1 : 0;
       $sessionUpdated           = true;
     }
+    $link_ok = $send_link ? send_password_link($new_userid, $email, $language, 'setup') : true;
     $resp = array('success' => true, 'userid' => $new_userid, 'username' => $username,
                   'sessionUpdated' => $sessionUpdated,
-                  'message' => _('User information successfully updated.'));
+                  'message' => !$send_link ? _('User information successfully updated.')
+                             : ($link_ok ? _('User updated; a setup link was emailed to them.')
+                                         : _('User updated, but the setup email failed to send. Check the mail settings.')));
     if ($newLang !== null) $resp['newLang'] = $newLang;
     die(json_encode($resp));
   }

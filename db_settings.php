@@ -150,36 +150,43 @@ if ($_SESSION['admin'] == 1) {
   <p><?=_("Fill in the information to add a new user.  Or select an existing user to make changes or delete.".
   "NOTE: You cannot see the existing password, but you can enter a new one if the user forgot his/her password.")?></p>
   <select id="userid" name="userid" size="1">
-    <option value="new"><?=_("New User...")?></option>
+    <option value="new"><?=_('New User...')?></option>
 <?php
 $result = sqlquery_checked("SELECT UserID,UserName FROM user ORDER BY UserName");
 while ($row = mysqli_fetch_object($result))  echo "    <option value=\"".$row->UserID."\">".$row->UserName."</option>\n";
 ?>
   </select>
   <input type="hidden" id="old_userid" name="old_userid" value="">
-  <label class="label-n-input"><?=_("Name")?>: <input type="text"
-  id="username" name="username" style="width:10em" maxlength="30"></label>
-  <label class="label-n-input"><?=_("UserID (to log in)")?>: <input type="text"
-  id="new_userid" name="new_userid" style="width:5em" maxlength="16">
-  <span class="comment"><?=_("(max. 16 English characters, no spaces or punctuation)")?></span></label>
-  <label class="label-n-input"><?=_("Language for Interface")?>: <select id="language" name="language" size="1">
-    <option value="en_US"<?php if($_SESSION['lang']=="en_US") echo " selected"; ?>><?= _("English")?></option>
-    <option value="ja_JP"<?php if($_SESSION['lang']=="ja_JP") echo " selected"; ?>><?=_("Japanese")?></option>
+  <label class="label-n-input"><?=_('Name')?>: <input type="text"
+  id="username" name="username" style="width:10em" maxlength="30" autocomplete="off"></label>
+  <label class="label-n-input"><?=_('UserID (to log in)')?>: <input type="text"
+  id="new_userid" name="new_userid" style="width:5em" maxlength="16" autocomplete="off">
+  <span class="comment"><?=_('(max. 16 English characters, no spaces or punctuation)')?></span></label>
+  <label class="label-n-input"><?=_('Email')?>: <input type="email"
+  id="email" name="email" style="width:14em" maxlength="70">
+  <span class="comment"><?=_('(used for "forgot password" capability)')?></span></label>
+  <label class="label-n-input"><?=_('Language for Interface')?>: <select id="language" name="language" size="1">
+    <option value="en_US"<?php if($_SESSION['lang']=='en_US') echo ' selected'; ?>><?= _('English')?></option>
+    <option value="ja_JP"<?php if($_SESSION['lang']=='ja_JP') echo ' selected'; ?>><?=_('Japanese')?></option>
   </select></label>
-  <label class="label-n-input"><input type="checkbox" id="admin" name="admin"><?=_("Admin Privileges")?></label>
-<?php if ($_SESSION['donations'] == "yes") { ?>
+  <label class="label-n-input"><input type="checkbox" id="admin" name="admin"><?=_('Admin Privileges')?></label>
+<?php if ($_SESSION['donations'] == 'yes') { ?>
   <label class="label-n-input"><input type="checkbox" id="hidedonations" name="hidedonations"
 <?php if ($_SESSION['hidedonations_default'] == "yes") echo " checked"; ?>><?=_("Hide Donation Info")?></label>
 <?php } //if donations is on ?>
-  <label class="label-n-input"><?=_("New Password")?>: <input type="password"
-  id="new_pw1" name="new_pw1" style="width:10em">
-  <span class="comment"><?=_("(leave blank if not changing password)")?></span></label>
-  <label class="label-n-input"><?=_("New Password again")?>: <input type="password"
-  id="new_pw2" name="new_pw2" style="width:10em"></label><br />
-  <label class="label-n-input"><?=_("Dashboard Files")?>: <textarea id="dashboard" name="dashboard" style="height:2em;width:80%"></textarea></label>
+  <label class="label-n-input"><input type="checkbox" id="send_setup_link" name="send_setup_link"><?=_('Email a setup link (instead of entering a password here; requires Email)')?></label>
+  <div id="pwfields">
+  <label class="label-n-input"><?=_('New Password')?>: <input type="password"
+  id="new_pw1" name="new_pw1" style="width:10em" autocomplete="new-password">
+  <span class="comment"><?=_('(leave blank if not changing password)')?></span></label>
+  <label class="label-n-input"><?=_('New Password again')?>: <input type="password"
+  id="new_pw2" name="new_pw2" style="width:10em" autocomplete="new-password"></label><br />
+  <?php include('passwordentry.php'); ?>
+  </div>
+  <label class="label-n-input"><?=_('Dashboard Files')?>: <textarea id="dashboard" name="dashboard" style="height:2em;width:80%"></textarea></label>
   <div id="loginstats" class="comment"></div>
-  <br /><button type="button" id="user_add_upd"><?=_("Add or Update")?></button>
-  <button type="button" id="user_del" disabled><?=_("Delete")?></button>
+  <br /><button type="button" id="user_add_upd"><?=_('Add or Update')?></button>
+  <button type="button" id="user_del" disabled><?=_('Delete')?></button>
 </fieldset></form>
 <?php
 } //end of if admin=1
@@ -421,8 +428,10 @@ $(document).ready(function(){
 
 // AJAX call for Users
   $("#userid").change(function(){
+    $("#send_setup_link").prop("checked", false);
+    $("#pwfields").show();
     if ($("#userid").val() == "new") {
-      $("#username, #new_userid, #old_userid, #new_pw1, #new_pw2, #dashboard").val("");
+      $("#username, #new_userid, #old_userid, #email, #new_pw1, #new_pw2, #dashboard").val("");
       $("#language").val("<?=$_SESSION['lang']?>");
       $("#admin").prop("checked", false);
       $("#hidedonations").prop("checked", <?=($_SESSION['hidedonations_default']=="yes" ? "true" : "false")?>);
@@ -439,6 +448,7 @@ $(document).ready(function(){
           $('#username').val(data.username);
           $('#new_userid').val(data.userid);
           $('#old_userid').val(data.userid);
+          $('#email').val(data.email);
           $('#language').val(data.language);
           if (data.admin == 1) $('#admin').prop('checked', true);
           if (data.hidedonations == 1) $('#hidedonations').prop('checked', true);
@@ -450,6 +460,11 @@ $(document).ready(function(){
         }
       });
     }
+  });
+
+  $("#send_setup_link").change(function(){
+    if ($(this).is(":checked")) { $("#new_pw1, #new_pw2").val(""); $("#pwfields").hide(); }
+    else { $("#pwfields").show(); }
   });
 
   $('#cat_add_upd').click(function() {
@@ -832,12 +847,14 @@ $(document).ready(function(){
       old_userid:    $('#old_userid').val(),
       new_userid:    $('#new_userid').val(),
       username:      $username.val(),
+      email:         $('#email').val(),
       language:      $('#language').val(),
       admin:         $('#admin').is(':checked') ? 1 : 0,
       hidedonations: $('#hidedonations').length ? ($('#hidedonations').is(':checked') ? 1 : 0) : 0,
       dashboard:     $('#dashboard').val(),
       new_pw1:       $('#new_pw1').val(),
-      new_pw2:       $('#new_pw2').val()
+      new_pw2:       $('#new_pw2').val(),
+      send_setup_link: $('#send_setup_link').is(':checked') ? 1 : 0
     }, function(data) {
       $username.removeClass('is-loading');
       if (data.alert === 'NOSESSION') {
@@ -933,16 +950,23 @@ function validate(form) {
     if (document.userform.username.value == "") {
       alert("<?=_("User Name cannot be blank.")?>");
       return false;
-    } else if (document.userform.new_userid.value == "") {
+    }
+    if (document.userform.new_userid.value == "") {
       alert("<?=_("UserID cannot be blank.")?>");
       return false;
-    } else if (document.userform.userid.selectedIndex == 0 && document.userform.new_pw1.value == "") {
+    }
+    if (document.getElementById('send_setup_link').checked) {
+      if (document.userform.email.value.trim() == "") {
+        alert("<?=_('An email address is required to send a setup link.')?>");
+        return false;
+      }
+      break;
+    }
+    if (document.userform.userid.selectedIndex == 0 && document.userform.new_pw1.value == "") {
       alert("<?=_("You must enter a password for a new user.")?>");
       return false;
-    } else if (document.userform.new_pw1.value != "" && document.userform.new_pw1.value != document.userform.new_pw2.value) {
-      alert("<?=_("The two password entries don't match.")?>");
-      return false;
     }
+    if (!pwEntryOK()) return false;
     break;
   }
 }

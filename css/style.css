@@ -483,7 +483,6 @@ ul#criteria {
   nav#nav-mobile { display: block; }
   #scrollnav { display: none; }
   ul.nav li.menu-user a { white-space:wrap; }
-  h1#title { margin:0; }
 }
 @media screen and (orientation:landscape) {
   #nav-trigger span, nav#nav-mobile a { font-size: 100%; }

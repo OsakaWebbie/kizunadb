@@ -119,6 +119,7 @@ if (!isset($_SESSION['userid'])) {      // NOT YET LOGGED IN
         <label>Password: <input type="password" name="pwd"></label>
         <input id="submit" type="submit" name="login_submit" value="Log in">
       </form>
+      <p><a href="passwordreset.php">Forgot your password?</a></p>
 <?php
     footer();
 

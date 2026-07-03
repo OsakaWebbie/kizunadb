@@ -512,6 +512,27 @@ function escape_quotes($text) {
   return $text;
 }
 
+// Password strength: 0=Weak, 1=Fair, 2=Good, 3=Strong. Must stay in sync with the JS scorer in passwordentry.php.
+function password_grade($pw) {
+  $len = mb_strlen($pw);
+  $points = ($len >= 8) + ($len >= 12) + ($len >= 16);
+  $types = preg_match('/[a-z]/', $pw) + preg_match('/[A-Z]/', $pw)
+         + preg_match('/[0-9]/', $pw) + preg_match('/[^a-zA-Z0-9]/', $pw);
+  if ($types > 0) $points += $types - 1;
+  if ($points <= 1) return 0;
+  if ($points == 2) return 1;
+  return $points <= 4 ? 2 : 3;
+}
+
+// SQL for a household's full Japanese address (postal code + prefecture + city + street).
+// Callers must LEFT JOIN postalcode ON household.PostalCode=postalcode.PostalCode.
+function addr_comp_sql() {
+  return "CONCAT(IFNULL(household.PostalCode,''),IFNULL(postalcode.Prefecture,''),IFNULL(postalcode.ShiKuCho,''),IFNULL(household.Address,''))";
+}
+function romaji_addr_comp_sql() {
+  return "CONCAT(IFNULL(household.RomajiAddress,''),' ',IFNULL(postalcode.Romaji,''),' ',IFNULL(household.PostalCode,''))";
+}
+
 // Function readable_name: returns name and optionally ID, adding "furigana" if the first character is not Roman alphabet and breaking if desired
 function readable_name($name,$furigana,$pid=0,$org=0,$break="",$reverse=0) {
   if ($pid && ($_SESSION['showid']=="yes" || $org)) {

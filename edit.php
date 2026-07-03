@@ -38,35 +38,59 @@ if (!empty($_GET['pid'])) {
 pageheader($pid ? sprintf(_("Edit %s"),$rec->FullName) : _("New Entry"), 1);
 ?>
 <style>
-/* page-specific rules (moved from style.php) */
-body.edit #editform input { margin-bottom:5px;}
-body.edit div#name_section,body.edit div#furigana_section,body.edit div#title_section { float:left; vertical-align:top; margin:0 15px 10px 0; }
-body.edit div#household_section { clear:both; border: 1px solid var(--section-border); padding: 5px; margin: 10px 0 5px 0; }
-body.edit div#household_setup { text-align:center; }
-body.edit div#household_setup button { margin:0 5px; }
-body.edit label#addresslabel,body.edit label#labelnamelabel,body.edit label#romajiaddresslabel { display:block; }
-body.edit div#address_display { float:left; margin:10px;}
-body.edit div#address_input { float:left; margin:10px;}
-body.edit div#jp_address_display,body.edit div#rom_address_display { width: 400px; margin: 10px 2px; padding: 10px; vertical-align: top; }
-body.edit div#jp_address_display { border: 1px dashed Gray; font-weight:bold; }
-body.edit div#rom_address_display { font-style:italic; }
-body.edit span#labelname_display { font-size:1.5em; }
-body.edit span#romajiaddress_section { white-space:nowrap; line-height:1.0em; padding-top:0.3em; }
-body.edit div#householdfinal_section { clear:both; }
-body.edit div#photo_section { border: 2px solid Gray; background-color: White; text-align: center; float: right; }
-body.edit #submit_button,body.edit #remarks_label { display:inline-block; vertical-align:top; margin-top:5px; }
-body.edit #remarks { width:420px; height:6em; vertical-align:top; margin-bottom:5px; }
-body.edit #submit_button { margin:20px; padding:5px 15px; font-size: 1.3em; font-weight:bold; }
-body.edit #duplicates { text-align:left; }
-body.edit #duplicates .dup { border:2px solid LightGray; padding:5px;margin:3px 0; }
-body.edit #duplicates .name { font-size:1.2em; font-weight:bold; }
-body.edit #duplicates .button_section { white-space:nowrap; }
-body.edit #duplicates .button_section form { display:inline; }
+#editform input { margin-bottom:5px;}
+div#name_section,div#furigana_section,div#title_section { float:left; vertical-align:top; margin:0 15px 10px 0; }
+div#household_section { clear:both; border: 1px solid var(--section-border); padding: 5px; margin: 10px 0 5px 0; }
+div#household_setup { text-align:center; }
+div#household_setup button { margin:0 5px; }
+label#addresslabel,label#labelnamelabel,label#romajiaddresslabel { display:block; }
+div#address_display { float:left; margin:10px;}
+div#address_input { float:left; margin:10px;}
+div#jp_address_display,div#rom_address_display { width: 400px; margin: 10px 2px; padding: 10px; vertical-align: top; }
+div#jp_address_display { border: 1px dashed Gray; font-weight:bold; }
+div#rom_address_display { font-style:italic; }
+span#labelname_display { font-size:1.5em; }
+span#romajiaddress_section { white-space:nowrap; line-height:1.0em; padding-top:0.3em; }
+div#householdfinal_section { clear:both; }
+div#photo_section { border: 2px solid Gray; background-color: White; text-align: center; float: right; }
+#submit_button,#remarks_label { display:inline-block; vertical-align:top; margin-top:5px; }
+#remarks { width:420px; height:6em; vertical-align:top; margin-bottom:5px; }
+#submit_button { margin:20px; padding:5px 15px; font-size: 1.3em; font-weight:bold; }
+#duplicates { text-align:left; }
+#duplicates .dup { border:2px solid LightGray; padding:5px;margin:3px 0; }
+#duplicates .name { font-size:1.2em; font-weight:bold; }
+#duplicates .button_section { white-space:nowrap; }
+#duplicates .button_section form { display:inline; }
+#selecthh_dialog .hh-searchbar { margin-bottom:8px; }
+#selecthh_dialog #hhsearch { width:14em; }
+#hh-results { width:100%; }
+#hh-results td { padding:3px 6px; vertical-align:top; white-space:pre-line; }
+#hh-results td.hh-phone { white-space:nowrap; }
+#hh-results td.hh-noresults { text-align:center; font-style:italic; padding:10px; }
+#hh-results th.hh-selcell, #hh-results td.hh-selcell { width:1px; white-space:nowrap; }
+#hh-results .hh-select { white-space:nowrap; }
+#hh-results a.hh-nolabel { color:#888; font-style:italic; }
 </style>
 <?php
 echo "<h1 id=\"title\">".($pid ? sprintf(_("Edit %s"),$rec->FullName) : _("New Entry"))."</h1>\n";
 ?>
 <div id="duplicates" style="display:none"></div>
+<div id="selecthh_dialog" style="display:none">
+  <div class="hh-searchbar">
+    <label><?=_("Search")?>: <input type="text" id="hhsearch" /></label>
+    <button type="button" id="hh-showall"><?=_("Show all households")?></button>
+    <span class="hh-hits-wrap"><?=_("Matches")?>: <span id="hh-hits">-</span></span>
+  </div>
+  <table id="hh-results" class="tablesorter">
+    <thead><tr>
+      <th class="hh-selcell no-arrows">&nbsp;</th>
+      <th><?=_("Label Name")?></th>
+      <th><?=_("Address")?></th>
+      <th><?=_("Phone")?></th>
+    </tr></thead>
+    <tbody></tbody>
+  </table>
+</div>
 <form name="editform" id="editform" enctype="multipart/form-data" method="post" action="do_edit.php" onsubmit="return validate();">
 <input type="hidden" name="pid" id="pid" value="<?=$pid?>" />
 <input type="hidden" name="MAX_FILE_SIZE" value="5000000" />
@@ -105,10 +129,7 @@ echo "<h1 id=\"title\">".($pid ? sprintf(_("Edit %s"),$rec->FullName) : _("New E
   <input type="hidden" name="householdid" value="<?=!empty($rec->HouseholdID)?$rec->HouseholdID:''?>">
   <input type="hidden" name="orig_hhid" value="<?=!empty($rec->HouseholdID)?$rec->HouseholdID:''?>">
   <div id="household_setup">
-    <button id="existing_hh" type="button"
-    onclick="window.open('selecthh.php?fullname='+document.editform.fullname.value+
-    '&furigana='+document.editform.furigana.value,'selecthh','scrollbars=yes,width=750,height=600');">
-    <?=_("Select An Existing Household")?></button>
+    <button id="existing_hh" type="button" onclick="openHHPicker();"><?=_("Select An Existing Household")?></button>
     <?php
     if (!empty($rec->HouseholdID)) {
       echo "<button id=\"new_hh\" type=\"button\" onclick=\"newhh();\" tabindex=\"0\">".
@@ -231,7 +252,7 @@ onchange="editform.updateper.value=1;" /></label>
 onchange="editform.updateper.value=1;"><?=$pid?$rec->Remarks:''?></textarea></label>
 </form>
 
-<?php load_scripts(['jquery', 'jqueryui', 'functions']); ?>
+<?php load_scripts(['jquery', 'jqueryui', 'tablesorter', 'functions']); ?>
 
 <script type="text/javascript">
 
@@ -382,6 +403,28 @@ onchange="editform.updateper.value=1;"><?=$pid?$rec->Remarks:''?></textarea></la
       $('#preview-wrap').hide();
       <?php if ($pid && $rec->PPhoto): ?>$('#current-label').css('visibility', 'hidden');<?php endif; ?>
     });
+
+    // ----- "Select An Existing Household" picker -----
+    $("#selecthh_dialog").dialog({
+      autoOpen: false,
+      modal: true,
+      width: Math.min(900, $(window).width() - 30),
+      maxHeight: $(window).height() - 40,
+      title: "<?=_('Select An Existing Household')?>"
+    });
+    $("#hh-results").tablesorter({ sortList: [[1,0]], headers: { 0: { sorter: false }, 2: { sorter: 'text' }, 3: { sorter: 'text' } } });
+    $("#hh-showall").button().click(function() { $("#hhsearch").val(''); runHHSearch(''); });
+    var hhTimer = null;
+    $("#hhsearch").on("keyup", function() {
+      if (hhTimer) clearTimeout(hhTimer);
+      var q = $.trim($("#hhsearch").val());
+      if (q.length < 2) { clearHHResults(); return; }   // 2-char minimum, like the org picker on individual.php
+      hhTimer = setTimeout(function(){ runHHSearch(q); }, 300);   // only fire after the user pauses typing
+    });
+    $("#hh-results").on("click", ".hh-select", function() {
+      fillHousehold($(this).closest("tr").data("hh"));
+    });
+
     cleanhhview();
     document.editform.fullname.focus();
   });
@@ -421,6 +464,90 @@ onchange="editform.updateper.value=1;"><?=$pid?$rec->Remarks:''?></textarea></la
     $('#address').keyup();
     $('#romajiaddress').keyup();
     $('#labelname').keyup();
+  }
+
+  function openHHPicker() {
+    var term = hhSurname();   // seed with a likely surname; user can edit or "Show all"
+    $("#hhsearch").val(term);
+    $("#selecthh_dialog").dialog("open");
+    if (term.length >= 2) runHHSearch(term); else clearHHResults();
+  }
+
+  function hhSurname() {   // best-guess search term (surname) from the name being entered
+    var fullname = $.trim($("#fullname").val());
+    if (!fullname) return '';
+    if (!/[　-鿿＀-￯]/.test(fullname)) {   // no Japanese chars: use furigana "Last, First" / "Last First"
+      var name = $.trim($("#furigana").val()) || fullname;
+      var sep = name.indexOf(',') >= 0 ? ',' : ' ';
+      return $.trim(name.split(sep)[0]);
+    }
+    var parts = fullname.split(/[ 　]/);   // Japanese: split on ASCII or ideographic space
+    if (parts.length >= 2 && parts[1] !== '') return parts[0];
+    return fullname.substring(0, 4);
+  }
+
+  function runHHSearch(q) {
+    $.getJSON("ajax_request.php", { req: "Households", q: q }, function(data) {
+      if (data.alert === "NOSESSION") { alert("<?=_('Your session has timed out - please refresh the page.')?>"); return; }
+      $("#hh-hits").text(data.hits);
+      renderHH(data.rows);
+    });
+  }
+
+  function clearHHResults() {
+    $("#hh-results tbody").empty();
+    $("#hh-hits").text("-");
+    $("#hh-results").trigger("update");
+  }
+
+  function resortHH() {   // re-cache rows and re-apply the current sort after the table is rebuilt
+    var t = $("#hh-results")[0];
+    if (!t || !t.config) return;
+    var sort = (t.config.sortList && t.config.sortList.length) ? t.config.sortList : [[1,0]];
+    $(t).trigger("update").trigger("sorton", [sort]);
+  }
+
+  function renderHH(rows) {
+    var $tb = $("#hh-results tbody").empty();
+    if (!rows || !rows.length) {
+      $tb.append($("<tr>").append($("<td>", { colspan: 4, "class": "hh-noresults" }).text("<?=_('No matching households')?>")));
+      return;
+    }
+    $.each(rows, function(i, r) {
+      var $tr = $("<tr>", { "class": "hh-result" }).data("hh", r);
+      $tr.append($("<td>", { "class": "hh-selcell" }).append(
+        $("<button>", { type: "button", "class": "hh-select" }).text("<?=_('This One')?>")));
+      var $link = $("<a>", { href: "household.php?hhid=" + r.hhid, target: "_blank" });
+      if (r.labelname) $link.text(r.labelname);
+      else $link.addClass("hh-nolabel").text("<?=_('(no label name)')?>");
+      $tr.append($("<td>").append($link));
+      $tr.append($("<td>").text(r.display));
+      $tr.append($("<td>", { "class": "hh-phone" }).text(r.phone));
+      $tb.append($tr);
+    });
+    resortHH();
+  }
+
+  function fillHousehold(r) {   // populate the edit form from the chosen household
+    var f = document.editform;
+    f.householdid.value = r.hhid;
+    f.updateper.value = "1";   // relink this person; leave updatehh 0 so selecting doesn't overwrite the household
+    f.address.value = r.address;
+    if (r.nonjapan == 1) {
+      f.nonjapan.checked = true;
+    } else {
+      f.nonjapan.checked = false;
+      f.postalcode.value = r.postalcode;
+<?php if ($_SESSION['romajiaddresses'] == "yes") { ?>
+      f.romajiaddress.value = r.romajiaddress;
+<?php } ?>
+    }
+    f.labelname.value = r.labelname;
+    f.phone.value = r.phone;
+    f.fax.value = r.fax;
+    cleanhhview();   // refreshes displays and re-runs the PostalCode AJAX (prefecture/shikucho/pcromtext)
+    $('#relation').css({ 'border-color': '#FF0000', 'border-width': '5px' });
+    $("#selecthh_dialog").dialog("close");
   }
 
   var dupChecked = '';  //field values whose duplicate-check has been done/acknowledged

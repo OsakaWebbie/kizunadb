@@ -147,9 +147,7 @@ CREATE TABLE `household` (
   `NonJapan` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Address is foreign, so no reference to postal code table',
   `PostalCode` varchar(8) NOT NULL DEFAULT '',
   `Address` varchar(200) NOT NULL DEFAULT '' COMMENT 'Only the part after postal-code-related text',
-  `AddressComp` varchar(400) NOT NULL DEFAULT '' COMMENT 'Copy of CONCAT(PostalCode,Prefecture,ShiKuCho,Address)',
   `RomajiAddress` varchar(200) NOT NULL DEFAULT '' COMMENT 'Only the part after postal-code-related text',
-  `RomajiAddressComp` varchar(400) NOT NULL DEFAULT '' COMMENT 'Copy of CONCAT(RomajiAddress,space,Romaji,space,PostalCode)',
   `Phone` varchar(20) NOT NULL DEFAULT '' COMMENT 'Landline',
   `FAX` varchar(20) NOT NULL DEFAULT '',
   `LabelName` varchar(100) NOT NULL DEFAULT '' COMMENT 'Used on envelopes/labels',
@@ -336,6 +334,9 @@ CREATE TABLE `user` (
   `Language` varchar(6) CHARACTER SET ascii COLLATE ascii_bin NOT NULL DEFAULT 'ja_JP',
   `HideDonations` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'User-level control for when config table contains "donations=yes"',
   `Dashboard` varchar(1024) NOT NULL DEFAULT '' COMMENT 'Comma-delimited list of filename roots of dashboard modules',
+  `Email` varchar(70) NOT NULL DEFAULT '' COMMENT 'For password reset; blank = reset unavailable',
+  `ResetTokenHash` char(64) CHARACTER SET ascii COLLATE ascii_bin DEFAULT NULL COMMENT 'sha256 hex of the reset/setup token',
+  `ResetExpires` datetime DEFAULT NULL COMMENT 'Expiry of the current reset/setup token',
   PRIMARY KEY (`UserID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

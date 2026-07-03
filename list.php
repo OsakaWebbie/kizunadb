@@ -5,6 +5,7 @@ include("accesscontrol.php");
 $criterialist = "<ul id=\"criteria\">";
 $sql = "SELECT person.PersonID ";
 $sql .= "FROM person LEFT JOIN household ON person.HouseholdID=household.HouseholdID ";
+$sql .= "LEFT JOIN postalcode ON household.PostalCode=postalcode.PostalCode ";
 $join = $where = "";
 $ptable = $grouptable = "person";
 $closing = '';
@@ -34,7 +35,7 @@ if (!empty($_REQUEST['qs'])) {
       " OR person.Email LIKE '%".$qs."%' OR person.CellPhone LIKE '%".$qs."%'".
       " OR person.Country LIKE '%".$qs."%' OR person.URL LIKE '%".$qs."%'".
       " OR person.Remarks LIKE '%".$qs."%' OR person.Birthdate LIKE '%".$qs."%'".
-      " OR household.AddressComp LIKE '%".$qs."%' OR household.RomajiAddressComp LIKE '%".$qs."%'".
+      " OR ".addr_comp_sql()." LIKE '%".$qs."%' OR ".romaji_addr_comp_sql()." LIKE '%".$qs."%'".
       " OR household.Phone LIKE '%".$qs."%' OR household.LabelName LIKE '%".$qs."%'";
   $criterialist .= '<li>'.sprintf(_('Quick search: "%s" in any of multiple fields'), $_REQUEST['qs'])."</li>\n";
 }
@@ -45,21 +46,23 @@ if ($_REQUEST['filter'] == "Organizations") {
   $where .= " WHERE Organization=0";
   $criterialist .= "<li>"._("People only (no organizations)");
 } elseif ($_REQUEST['filter'] == "OrgsOfPeople") {
-    $sql = "SELECT DISTINCT p1.*, h1.AddressComp, h1.Phone, GROUP_CONCAT(Category ORDER BY Category SEPARATOR '\\n') AS categories ".
+    $sql = "SELECT DISTINCT p1.*, h1.Phone, GROUP_CONCAT(Category ORDER BY Category SEPARATOR '\\n') AS categories ".
     "FROM person p1 LEFT JOIN household h1 ON p1.HouseholdID=h1.HouseholdID ".
     "LEFT JOIN percat ON p1.PersonID=percat.PersonID ".
     "LEFT JOIN category ON percat.CategoryID=category.CategoryID WHERE p1.PersonID IN (SELECT OrgID FROM perorg po ".
-    "INNER JOIN person p2 ON po.PersonID=p2.PersonID LEFT JOIN household ON p2.HouseholdID=household.HouseholdID";
+    "INNER JOIN person p2 ON po.PersonID=p2.PersonID LEFT JOIN household ON p2.HouseholdID=household.HouseholdID ".
+    "LEFT JOIN postalcode ON household.PostalCode=postalcode.PostalCode";
   $criterialist .= "<li>"._("Organizations with members who have the following criteria...");
   $ptable = "p2";
   $grouptable = "p1";
   $closing = ")";
 } elseif ($_REQUEST['filter'] == "PeopleOfOrgs") {
-    $sql = "SELECT DISTINCT p1.*, h1.AddressComp, h1.Phone, GROUP_CONCAT(Category ORDER BY Category SEPARATOR '\\n') AS categories ".
+    $sql = "SELECT DISTINCT p1.*, h1.Phone, GROUP_CONCAT(Category ORDER BY Category SEPARATOR '\\n') AS categories ".
     "FROM person p1 LEFT JOIN household h1 ON p1.HouseholdID=h1.HouseholdID ".
     "LEFT JOIN percat ON p1.PersonID=percat.PersonID ".
     "LEFT JOIN category ON percat.CategoryID=category.CategoryID WHERE p1.PersonID IN (SELECT po.PersonID FROM perorg po ".
-    "INNER JOIN person o ON po.OrgID=o.PersonID LEFT JOIN household ON o.HouseholdID=household.HouseholdID";
+    "INNER JOIN person o ON po.OrgID=o.PersonID LEFT JOIN household ON o.HouseholdID=household.HouseholdID ".
+    "LEFT JOIN postalcode ON household.PostalCode=postalcode.PostalCode";
   $criterialist .= "<li>"._("People whose related organizations have the following criteria...");
   $ptable = "o";
   $grouptable = "p1";
@@ -82,8 +85,8 @@ for ($i=1; isset($_REQUEST["textinput".$i]); $i++) {
       }
       break;
     case "Address":
-      $where .= "$not (household.AddressComp LIKE '%".$search."%' "
-      .($_SESSION['romajiaddresses']=="yes" ? "OR household.RomajiAddressComp LIKE '%".$search."%')" : ")");
+      $where .= "$not (".addr_comp_sql()." LIKE '%".$search."%'"
+      .($_SESSION['romajiaddresses']=="yes" ? " OR ".romaji_addr_comp_sql()." LIKE '%".$search."%'" : "").")";
       $criterialist .= "<li>".sprintf(_("\"%s\" $in Address"), $search)."</li>\n";
       break;
     case "Phone":
@@ -373,7 +376,7 @@ $tableopt->cols[] = (object)[
 // Address - computed from postalcode + household data
 $tableopt->cols[] = (object)[
   'key' => 'address',
-  'sel' => "CONCAT(IFNULL(household.PostalCode,''), IFNULL(postalcode.Prefecture,''), IFNULL(postalcode.ShiKuCho,''), IFNULL(household.Address,''))",
+  'sel' => addr_comp_sql(),
   'label' => _('Address'),
   'show' => (stripos($showcols, ',address,') !== FALSE),
   'render' => 'multiline',
