@@ -140,6 +140,14 @@ while ($row = mysqli_fetch_object($result))  echo "    <option class=\"".$row->A
   <button type="button" id="event_del" disabled><?=_("Delete")?></button></div>
 </fieldset></form>
 
+<!-- PRINT LAYOUTS -->
+
+<fieldset><legend><?=_("Print Layouts")?></legend>
+  <p><?=_("Design the layouts used by \"Print Envelopes/Postcards\" and \"Print Labels\" in Batch Processing, with a live visual preview.")?></p>
+  <p style="margin:0.3em 0"><a href="addrprint_edit.php"><?=_("Edit Envelope / Postcard Layouts")?></a>
+  &nbsp; &nbsp; <a href="labelprint_edit.php"><?=_("Edit Label Layouts")?></a></p>
+</fieldset>
+
 <?php
 if ($_SESSION['admin'] == 1) {
 ?>

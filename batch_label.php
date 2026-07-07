@@ -43,14 +43,14 @@ $num_households = $row->num;
         <label class="label-n-input"><input type="radio" name="name_type" value="label" checked><?=_("Households")." (".$num_households.")"?></label>
       </div>
       <div style="display:inline-block;vertical-align:middle">
-        <label class="label-n-input"><?=_("Label Type")?>: <select name="label_type" size="1">
+        <label class="label-n-input"><?=_("Label Type")?>: <select id="label-select" name="label_type" size="1">
 <?php
 $result = sqlquery_checked("SELECT LabelType FROM labelprint ORDER BY LabelType");
 while ($row = mysqli_fetch_object($result)) {
   echo  "                  <option value=\"".$row->LabelType."\">".$row->LabelType."</option>\n";
 }
 ?>
-        </select></label><br>
+        </select></label> <a id="edit-labelprint" href="labelprint_edit.php" target="_blank"><?=_("Edit / preview this layout…")?></a><br>
         <label class="label-n-input"><input type="checkbox" value="yes" name="wrap_pc" checked><?=_("Japan postal code on its own line")?></label><br>
         <label class="label-n-input"><input type="checkbox" value="yes" name="nj_separate" checked><?=_("Sort by Japan/foreign")?></label>
       </div>
@@ -59,6 +59,11 @@ while ($row = mysqli_fetch_object($result)) {
 
 <?php if (!$ajax) load_scripts(['jquery', 'jqueryui']); ?>
 <script>
-$(function(){ $("input[type=submit]").button(); });
+$(function(){
+  $("input[type=submit]").button();
+  $('#label-select').on('change', function(){
+    $('#edit-labelprint').attr('href', 'labelprint_edit.php?type=' + encodeURIComponent(this.value));
+  }).trigger('change');
+});
 </script>
 <?php if (!$ajax) footer(); ?>

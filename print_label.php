@@ -71,8 +71,8 @@ while ($row = mysqli_fetch_object($result)) {
     $count = 0;
     echo "\\end{picture}\\clearpage\n";
   }
-  $posx = ($count%$print->NumCols)*$print->LabelWidth + $print->AddrMarginLeft;
-  $posy = floor($count/$print->NumCols)*$print->LabelHeight + $print->LabelHeight/2;
+  $posx = ($count%$print->NumCols)*$offsetx + $print->AddrMarginLeft;
+  $posy = floor($count/$print->NumCols)*$offsety + $print->LabelHeight/2;
 ?>
 \begin{textblock}{<?=$addrwidth?>}[0,0.5](<?=$posx?>,<?=$posy?>)
 <?php
@@ -88,7 +88,7 @@ while ($row = mysqli_fetch_object($result)) {
 %% JAPAN ADDRESS %%
 \fontsize{<?=$print->AddrPointSize?>}{<?=$print->AddrPointSize*1.2?>}\selectfont
 \hangindent=<?=$hanging?>mm
-<?="〒".$row->PostalCode.($_POST['wrap_pc']?"\n\n\\hangindent=".$hanging."mm\n":" ").$row->Prefecture.$row->ShiKuCho.preg_replace("\r\n|\r|\n","\n\n\\hangindent=".$hanging."mm\n",$row->Address)."\n"?>
+<?="〒".$row->PostalCode.(!empty($_POST['wrap_pc'])?"\n\n\\hangindent=".$hanging."mm\n":" ").$row->Prefecture.$row->ShiKuCho.preg_replace("\r\n|\r|\n","\n\n\\hangindent=".$hanging."mm\n",$row->Address)."\n"?>
 
 \vspace{1ex}
 \fontsize{<?=$print->NamePointSize?>}{<?=$print->NamePointSize*1.2?>}\selectfont

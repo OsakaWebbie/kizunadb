@@ -62,7 +62,7 @@ $replace_array = array("\\&","!`","\\pounds","\\textcopyright","\\textregistered
 ob_start();
 echo "\xEF\xBB\xBF";  //UTF-8 Byte Order Mark
 ?>
-\documentclass{ujarticle}
+\documentclass[dvipdfmx]{ujarticle}
 \usepackage{plext}
 \usepackage[uplatex]{otf}
 \usepackage[T1]{fontenc}
@@ -72,6 +72,7 @@ echo "\xEF\xBB\xBF";  //UTF-8 Byte Order Mark
 \usepackage{lscape}
 \usepackage{textpos}
 \usepackage[dvipdfmx]{graphicx}
+\usepackage{bmpsize}
 \pagestyle{empty}
 \graphicspath {{<?=getcwd()?>/graphics/}}
 \begin{document}
