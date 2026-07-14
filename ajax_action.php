@@ -31,6 +31,21 @@ case "SwitchLang":
   $_SESSION['lang'] = $_GET['lang'];
   setlocale(LC_ALL, $_SESSION['lang'].".utf8");
   break;
+case "QuicksearchFieldsSave":
+  if (!$_SESSION['admin']) {
+    die(json_encode(array('error' => _('Access denied.'))));
+  }
+  $valid     = array_keys(quicksearch_field_defs());
+  $requested = array_filter(array_map('trim', explode(',', $_REQUEST['fields'] ?? '')));
+  $fields    = array_values(array_intersect($valid, $requested));  // known keys only, canonical order
+  if (!$fields) {
+    die(json_encode(array('error' => _('Please choose at least one field for quick search.'))));
+  }
+  $value = implode(',', $fields);
+  sqlquery_checked("REPLACE INTO config (Parameter, Value) VALUES ('quicksearch_fields', '".h2d($value)."')");
+  $_SESSION['quicksearch_fields'] = $value;
+  die(json_encode(array('message' => _('Quick Search fields updated.'))));
+  break;
 
 // Actions
 case "ActionSave":

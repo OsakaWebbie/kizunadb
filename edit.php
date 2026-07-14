@@ -78,8 +78,8 @@ echo "<h1 id=\"title\">".($pid ? sprintf(_("Edit %s"),$rec->FullName) : _("New E
 <div id="selecthh_dialog" style="display:none">
   <div class="hh-searchbar">
     <label><?=_("Search")?>: <input type="text" id="hhsearch" /></label>
+    <span class="hh-hits-wrap" style="margin-right:2em"><?=_("Matches")?>: <span id="hh-hits">-</span></span>
     <button type="button" id="hh-showall"><?=_("Show all households")?></button>
-    <span class="hh-hits-wrap"><?=_("Matches")?>: <span id="hh-hits">-</span></span>
   </div>
   <table id="hh-results" class="tablesorter">
     <thead><tr>

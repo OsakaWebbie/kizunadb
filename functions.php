@@ -533,6 +533,40 @@ function romaji_addr_comp_sql() {
   return "CONCAT(IFNULL(household.RomajiAddress,''),' ',IFNULL(postalcode.Romaji,''),' ',IFNULL(household.PostalCode,''))";
 }
 
+// Canonical list of fields the quick search can look in: key => array(label, SQL expression).
+// Single source of truth for the search (list.php, ajax_request.php) and the settings UI
+// (db_settings.php). Which of these are active per client comes from $_SESSION['quicksearch_fields']
+// (config, defaulted in kizuna_common.config). SQL callers must LEFT JOIN household and postalcode.
+function quicksearch_field_defs() {
+  return array(
+    'FullName'  => array(_('Name'),           'person.FullName'),
+    'Furigana'  => array(($_SESSION['furiganaisromaji']=='yes' ? _('Romaji') : _('Furigana')), 'person.Furigana'),
+    'Email'     => array(_('Email'),          'person.Email'),
+    'CellPhone' => array(_('Cell Phone'),     'person.CellPhone'),
+    'Country'   => array(_('Country'),        'person.Country'),
+    'URL'       => array(_('URL'),            'person.URL'),
+    'Birthdate' => array(_('Birthdate'),      'person.Birthdate'),
+    'Address'   => array(_('Address'),        addr_comp_sql()),
+    'Romaji'    => array(_('Romaji Address'), romaji_addr_comp_sql()),
+    'Phone'     => array(_('Landline Phone'), 'household.Phone'),
+    'LabelName' => array(_('Label Name'),     'household.LabelName'),
+    'Remarks'   => array(_('Remarks'),        'person.Remarks'),
+  );
+}
+
+// Builds the quick search WHERE expression: the enabled fields joined into one CONCAT_WS matched
+// with a single LIKE. $qs must already be escaped (LIKE wildcards made literal, then SQL-escaped).
+// Returns '0' (matches nothing) if no valid fields are configured.
+function quicksearch_where($qs) {
+  $enabled = array_map('trim', explode(',', $_SESSION['quicksearch_fields'] ?? ''));
+  $cols = array();
+  foreach (quicksearch_field_defs() as $key => $def) {
+    if (in_array($key, $enabled, true)) $cols[] = $def[1];
+  }
+  if (!$cols) return '0';
+  return "CONCAT_WS('\\n',".implode(',', $cols).") LIKE '%".$qs."%'";
+}
+
 // Function readable_name: returns name and optionally ID, adding "furigana" if the first character is not Roman alphabet and breaking if desired
 function readable_name($name,$furigana,$pid=0,$org=0,$break="",$reverse=0) {
   if ($pid && ($_SESSION['showid']=="yes" || $org)) {
