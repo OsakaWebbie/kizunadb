@@ -165,50 +165,6 @@ window.LayoutPreview = (function () {
   var KNUM = { '0':'〇','1':'一','2':'二','3':'三','4':'四','5':'五','6':'六','7':'七','8':'八','9':'九','-':'の' };
   function toKanjiNum(s) { return String(s == null ? '' : s).replace(/[0-9-]/g, function (c) { return KNUM[c] || c; }); }
 
-  // Crudely render raw-LaTeX return-address content as plain text for the mock.
-  function stripLatex(s) {
-    s = String(s == null ? '' : s)
-      .replace(/\\\\/g, '\n')                                        // \\ line breaks
-      .replace(/%[^\n]*/g, '')                                       // comments
-      .replace(/\\begin\{[^}]*\}(<[a-z]>)?(\[[^\]]*\])?(\{[^}]*\})?/gi, '')  // \begin{minipage}<t>[t]{50mm}
-      .replace(/\\end\{[^}]*\}/gi, '')                               // \end{...}
-      .replace(/\\put\s*\([^)]*\)\s*\{([^}]*)\}/g, '$1')             // \put(x,y){d} -> d
-      .replace(/<[a-z]>/gi, '')                                      // stray minipage<t>
-      .replace(/\\[a-zA-Z@]+\*?/g, ' ')                              // other control words
-      .replace(/\([-\d.,\s]*\)/g, '')                               // (w,h) / (x,y) groups
-      .replace(/\[[a-z]{1,3}\]/gi, '')                               // [rt] etc.
-      .replace(/[{}]/g, '')                                          // braces
-      .replace(/[ \t]+/g, ' ');
-    // drop leftover coordinate/number-only lines
-    return s.split(/\n/).map(function (l) { return l.trim(); })
-      .filter(function (l) { return l && !/^[\d.\s]+$/.test(l); }).join('\n');
-  }
-
-  // extract a \includegraphics{path} (+ width/height in mm, rotation angle) from return-address LaTeX
-  function parseGraphic(s) {
-    var m = /\\includegraphics\s*(\[[^\]]*\])?\s*\{([^}]*)\}/.exec(String(s == null ? '' : s));
-    if (!m) return null;
-    var o = m[1] || '';
-    var wm = /width\s*=\s*([\d.]+)\s*mm/i.exec(o), hm = /height\s*=\s*([\d.]+)\s*mm/i.exec(o);
-    var am = /angle\s*=\s*(-?[\d.]+)/i.exec(o);
-    // graphicx applies keys left-to-right: angle BEFORE a size key => the size is the final
-    // (post-rotation) dimension; a size key BEFORE angle => it scales the un-rotated image, then rotates.
-    var sIdx = o.search(/\b(?:width|height)\s*=/i), aIdx = o.search(/\bangle\s*=/i);
-    return { path: m[2].trim(), width: wm ? parseFloat(wm[1]) : 0, height: hm ? parseFloat(hm[1]) : 0,
-             angle: am ? parseFloat(am[1]) : 0, rotateFirst: aIdx >= 0 && sIdx >= 0 && aIdx < sIdx };
-  }
-
-  // first \fontsize{N}{..} in return-address LaTeX -> point size, or 0 if none
-  function parseFontSize(s) {
-    var m = /\\fontsize\s*\{\s*([\d.]+)\s*\}/.exec(String(s == null ? '' : s));
-    return m ? parseFloat(m[1]) : 0;
-  }
-
-  // first \makebox(w,h) in return-address LaTeX -> {w,h} in mm, or null
-  function parseMakebox(s) {
-    var m = /\\makebox\s*\(\s*([\d.]+)\s*,\s*([\d.]+)\s*\)/.exec(String(s == null ? '' : s));
-    return m ? { w: parseFloat(m[1]), h: parseFloat(m[2]) } : null;
-  }
 
   // Read a PNG's pixel size + DPI (IHDR/pHYs) so an un-sized \includegraphics matches dvipdfmx,
   // which honors the file's pHYs (defaulting to 72dpi when absent). cb({w,h,dpi}) or cb(null).
@@ -229,12 +185,12 @@ window.LayoutPreview = (function () {
     }).catch(function () { cb(null); });
   }
 
-  // post-office indicia images (print_addr.php): file, y-drop below PCTopMargin, aspect (h/w from bb)
+  // post-office indicia images (print_addr.php): file + aspect (h/w from the bounding box)
   var STAMPS = {
-    betsunou:         { file: 'po_betsunou.png',         dy: 18, ar: 452 / 520 },
-    yuumail_betsunou: { file: 'po_yuumail_betsunou.png', dy: 22, ar: 600 / 520 },
-    kounou:           { file: 'po_kounou.png',           dy: 18, ar: 452 / 520 },
-    yuumail_kounou:   { file: 'po_yuumail_kounou.png',   dy: 22, ar: 600 / 520 }
+    betsunou:         { file: 'po_betsunou.png',         ar: 452 / 520 },
+    yuumail_betsunou: { file: 'po_yuumail_betsunou.png', ar: 600 / 520 },
+    kounou:           { file: 'po_kounou.png',           ar: 452 / 520 },
+    yuumail_kounou:   { file: 'po_yuumail_kounou.png',   ar: 600 / 520 }
   };
 
   var IMG_INFO = {};                                 // cache of return-address image natural sizes (mm)
@@ -258,15 +214,19 @@ window.LayoutPreview = (function () {
   function renderEnvelope(p, sample, container, opts) {
     clear(container);
     opts = opts || {};
-    var pw = num(p.PaperWidth, 120), ph = num(p.PaperHeight, 235);
-    if (pw <= 0) pw = 120; if (ph <= 0) ph = 235;
+    var japan = sample.japan !== false;
+    var tate = num(p.Tategaki, 1) == 1;
+    var pwP = num(p.PaperWidth, 120), phP = num(p.PaperHeight, 235);
+    if (pwP <= 0) pwP = 120; if (phP <= 0) phP = 235;
+    // Non-Japan is authored/viewed in landscape (long edge horizontal), so swap the paper dims.
+    var pw = japan ? pwP : phP, ph = japan ? phP : pwP;
     var s = fitScale({ w: pw, h: ph }, opts);
-    // Mirrors print_addr.php's \begin{picture}(W,H)(3,3): every \put is shifted 3mm toward the
-    // bottom-left corner. Tracks print_addr — set to 0 if/when that (3,3) is removed.
-    var OFF = 3;
+    // Positions are true mm from the edge each element hugs; print_addr.php's picture origin is the
+    // paper's bottom-left corner (no offset).
     var pt = function (v) { return num(v) * PT_TO_MM * s; };
-    var scrX = function (x) { return (num(x) - OFF) * s; };
-    var scrYb = function (y) { return (ph - (num(y) - OFF)) * s; };   // screen-y of a from-bottom point
+    var physX = function (x) { return num(x) * s; };                 // mm from left edge
+    var physYt = function (y) { return num(y) * s; };                // mm from top edge
+    var physYb = function (y) { return (ph - num(y)) * s; };         // mm from bottom edge
 
     var svg = document.createElementNS(SVG, 'svg');
     svg.setAttribute('class', 'lp-svg');
@@ -278,116 +238,84 @@ window.LayoutPreview = (function () {
     // a dashed guide box + text layer for a positioned block; returns the inner div.
     // rectClass adds a class to the guide box so the address/name/foreign boxes can be coloured.
     function block(xL, yBottom, w, h, rectClass) {
-      var top = scrYb(yBottom) - h * s;
-      var rect = svgRect(scrX(xL), top, w * s, h * s, { 'class': 'lp-block' + (rectClass ? ' ' + rectClass : '') });
+      var top = physYb(yBottom) - h * s;
+      var rect = svgRect(physX(xL), top, w * s, h * s, { 'class': 'lp-block' + (rectClass ? ' ' + rectClass : '') });
       svg.appendChild(rect);
-      var fo = foDiv(scrX(xL), top, w * s, h * s);
+      var fo = foDiv(physX(xL), top, w * s, h * s);
       svg.appendChild(fo.node);
       over.push({ cell: rect, div: fo.div });
       return fo.div;
     }
-    // return address, placed at print_addr.php's \put(xL,yBottom) (the block's lower-left):
-    //  - a \includegraphics image: anchored lower-left, sized from width= or natural px (~72dpi),
-    //    rotated by \includegraphics angle (its rotated bounding box's lower-left stays at the anchor)
-    //  - else the raw LaTeX shown as stripped text, [rt]-justified, honoring \fontsize{N}
-    function retBlock(xL, yBottom, latex, sideways) {
-      var ax = scrX(xL), ay = scrYb(yBottom);              // \put anchor = block lower-left
-      var g = opts.imgBase ? parseGraphic(latex) : null;
-      if (g) {
-        var href = opts.imgBase + encodeURIComponent(g.path);
-        var rect = svgRect(ax, ay, 0, 0, { 'class': 'lp-block lp-ret' });  // sized once we know dims
+    // block positioned by its top edge measured from the paper's top (top-anchored elements)
+    function blockT(xL, yTop, w, h, rectClass) { return block(xL, ph - yTop - h, w, h, rectClass); }
+    // structured return address: a client graphic (if named) else plain text. Anchored at (ax, ay);
+    // `down` = grow down from a top-left anchor (NJ, landscape), else grow up from a bottom-left
+    // anchor (JP). Graphic scales to imgWmm (proportional; 0 = natural); text wraps at textWmm.
+    function retStructured(ax, ay, graphic, text, ptSize, imgWmm, textWmm, down) {
+      if (opts.imgBase && graphic) {
+        var href = opts.imgBase + encodeURIComponent(graphic);
+        var rect = svgRect(ax, ay, 0, 0, { 'class': 'lp-block lp-ret' });
         svg.appendChild(rect);
         var im = document.createElementNS(SVG, 'image');
         im.setAttribute('href', href);
         im.setAttributeNS('http://www.w3.org/1999/xlink', 'href', href);
         im.setAttribute('preserveAspectRatio', 'none');
-        im.setAttribute('width', 0); im.setAttribute('height', 0);   // hidden until sized (no flash)
+        im.setAttribute('width', 0); im.setAttribute('height', 0);
         svg.appendChild(im);
-        // Place the un-rotated image with its lower-left at the \put point, then rotate about that
-        // point — graphicx rotates a graphic about its reference (lower-left) corner. So the anchor
-        // is the graphic's reference, and the rotated content falls where print_addr.php puts it.
-        var place = function (wmm, hmm) {
-          im.setAttribute('x', ax); im.setAttribute('y', ay - hmm * s);
-          im.setAttribute('width', wmm * s); im.setAttribute('height', hmm * s);
-          if (g.angle) im.setAttribute('transform', 'rotate(' + (-g.angle) + ' ' + ax + ' ' + ay + ')');
-          // guide box = bounding box of the rotated corners (relative to the anchor)
-          var rad = -num(g.angle) * Math.PI / 180, co = Math.cos(rad), si = Math.sin(rad), xs = [], ys = [];
-          [[0, 0], [wmm * s, 0], [0, -hmm * s], [wmm * s, -hmm * s]].forEach(function (c) {
-            xs.push(c[0] * co - c[1] * si); ys.push(c[0] * si + c[1] * co);
-          });
-          var minX = Math.min.apply(null, xs), minY = Math.min.apply(null, ys);
-          rect.setAttribute('x', ax + minX); rect.setAttribute('y', ay + minY);
-          rect.setAttribute('width', Math.max.apply(null, xs) - minX);
-          rect.setAttribute('height', Math.max.apply(null, ys) - minY);
+        var place = function (natW, natH) {
+          var w = (imgWmm > 0 ? imgWmm : natW) * s, h = (imgWmm > 0 ? natH * imgWmm / natW : natH) * s;
+          var y = down ? ay : ay - h;
+          im.setAttribute('x', ax); im.setAttribute('y', y);
+          im.setAttribute('width', w); im.setAttribute('height', h);
+          rect.setAttribute('x', ax); rect.setAttribute('y', y);
+          rect.setAttribute('width', w); rect.setAttribute('height', h);
         };
-        // width=/height= scale against the natural ROTATED bounding box when angle came first
-        // (post-rotation size), else against the un-rotated image (graphicx applies keys in order).
-        var apply = function (nw, nh) {
-          var rad = num(g.angle) * Math.PI / 180, c = Math.abs(Math.cos(rad)), sn = Math.abs(Math.sin(rad));
-          var refW = g.rotateFirst ? nw * c + nh * sn : nw;   // what width= scales
-          var refH = g.rotateFirst ? nw * sn + nh * c : nh;   // what height= scales
-          var scale = (g.width && g.height) ? Math.min(g.width / refW, g.height / refH)
-                    : g.width ? g.width / refW : g.height ? g.height / refH : 1;
-          place(nw * scale, nh * scale);
-        };
-        if (IMG_INFO[href]) {                              // cached natural size -> synchronous
-          apply(IMG_INFO[href].w, IMG_INFO[href].h);
-        } else if (/\.png(\?|$)/i.test(g.path)) {          // PNG: honor pHYs DPI like dvipdfmx
-          pngInfo(href, function (info) {
-            if (!info || !info.w) return;
-            IMG_INFO[href] = { w: info.w / info.dpi * 25.4, h: info.h / info.dpi * 25.4 };
-            apply(IMG_INFO[href].w, IMG_INFO[href].h);
-          });
-        } else {                                           // other formats: assume 72dpi
-          var probe = new Image();
-          probe.onload = function () {
-            IMG_INFO[href] = { w: probe.naturalWidth * 25.4 / 72, h: probe.naturalHeight * 25.4 / 72 };
-            apply(IMG_INFO[href].w, IMG_INFO[href].h);
-          };
-          probe.src = href;
-        }
+        if (IMG_INFO[href]) place(IMG_INFO[href].w, IMG_INFO[href].h);
+        else if (/\.png(\?|$)/i.test(graphic)) pngInfo(href, function (info) {
+          if (!info || !info.w) return;
+          IMG_INFO[href] = { w: info.w / info.dpi * 25.4, h: info.h / info.dpi * 25.4 };
+          place(IMG_INFO[href].w, IMG_INFO[href].h);
+        });
+        else { var probe = new Image(); probe.onload = function () {
+          IMG_INFO[href] = { w: probe.naturalWidth * 25.4 / 72, h: probe.naturalHeight * 25.4 / 72 };
+          place(IMG_INFO[href].w, IMG_INFO[href].h); }; probe.src = href; }
       } else {
-        var mb = parseMakebox(latex);
-        var bw = mb ? mb.w : (sideways ? 40 : 60), bh = mb ? mb.h : (sideways ? 80 : 30);
-        var top = ay - bh * s;
-        svg.appendChild(svgRect(ax, top, bw * s, bh * s, { 'class': 'lp-block lp-ret' }));
-        var fo = foDiv(ax, top, bw * s, bh * s);
-        fo.div.className = 'lp-rettext' + (sideways ? ' lp-sideways' : '');
-        if (!sideways) fo.div.style.textAlign = 'right';   // [rt] justify horizontal text
-        var fpt = parseFontSize(latex);
-        if (fpt) fo.div.style.fontSize = (fpt * PT_TO_MM * s) + 'px';   // honor \fontsize{N}
-        fo.div.textContent = stripLatex(latex) || '(return address)';
+        var lines = splitLines(text).length || 1;
+        var bh = Math.max(4, lines * ptSize * 1.25 * PT_TO_MM);
+        var top = down ? ay : ay - bh * s;
+        svg.appendChild(svgRect(ax, top, textWmm * s, bh * s, { 'class': 'lp-block lp-ret' }));
+        var fo = foDiv(ax, top, textWmm * s, bh * s);
+        fo.div.className = 'lp-rettext';
+        fo.div.style.fontSize = (ptSize * PT_TO_MM * s) + 'px';
+        fo.div.innerHTML = lineDivs(text);
         svg.appendChild(fo.node);
       }
     }
 
-    var japan = sample.japan !== false;
-    var tate = num(p.Tategaki, 1) == 1;
-
     if (japan) {
-      // postal-code digits: SVG <text> so the baseline sits exactly on PCTopMargin (black,
+      // postal-code digits: SVG <text> so the baseline sits exactly on PCY (black,
       // default variable-width sans-serif — matches print_addr.php, which spaces the digits by
       // position rather than a monospace font).
       var digits = String(sample.postalcode || '').replace(/[^0-9]/g, '').slice(0, 7).split('');
       var pcFont = pt(p.PCPointSize);
-      var sp = num(p.PCSpacing), ex = num(p.PCExtraSpace), lm = num(p.PCLeftMargin), tm = num(p.PCTopMargin);
+      var sp = num(p.PCSpacing), ex = num(p.PCExtraSpace), lm = num(p.PCX), tm = num(p.PCY);
       for (var i = 0; i < 7; i++) {
         if (!digits[i]) continue;
         var dx = lm + i * sp + (i >= 3 ? ex : 0);
         var t = document.createElementNS(SVG, 'text');
-        t.setAttribute('x', scrX(dx)); t.setAttribute('y', scrYb(tm));   // y = baseline
+        t.setAttribute('x', physX(dx)); t.setAttribute('y', physYt(tm));   // y = baseline from top
         t.setAttribute('class', 'lp-pcdigit'); t.setAttribute('font-size', pcFont);
         t.textContent = digits[i];
         svg.appendChild(t);
       }
 
-      // post-office indicia stamp (print_addr.php: \put(PaperLeftMargin, PCTopMargin-dy), 30mm wide)
+      // post-office indicia stamp (print_addr.php: top-left at StampX/StampY, 30mm wide)
       var st = STAMPS[p.DefaultStamp];
       if (st && opts.stampBase) {
         var stW = 30, stH = 30 * st.ar;
         var si = document.createElementNS(SVG, 'image');
-        si.setAttribute('x', scrX(p.PaperLeftMargin));
-        si.setAttribute('y', scrYb(num(p.PCTopMargin) - st.dy) - stH * s);
+        si.setAttribute('x', physX(p.StampX));
+        si.setAttribute('y', physYt(p.StampY));
         si.setAttribute('width', stW * s); si.setAttribute('height', stH * s);
         si.setAttribute('href', opts.stampBase + st.file);
         si.setAttributeNS('http://www.w3.org/1999/xlink', 'href', opts.stampBase + st.file);
@@ -403,31 +331,36 @@ window.LayoutPreview = (function () {
       var aLines = addr ? addr.split(/\r\n|\r|\n/) : [];
       var addrText = geo + (aLines.shift() || '') + (aLines.length ? '\n' + aLines.join('\n') : '');
 
+      // Recipient block: address + name flow inside one box (RecipX/Y/Width/Height). The name follows
+      // the address (can't overlap), offset by NameGap along the flow and NameIndent across it.
+      var box = blockT(num(p.RecipX), num(p.RecipY), num(p.RecipWidth), num(p.RecipHeight), 'lp-addr');
+      box.className = 'lp-text';
+      var addrHTML = '<div style="font-size:' + pt(p.AddrPointSize) + 'px">' + lineDivs(addrText) + '</div>';
       if (tate) {
-        var aDiv = block(num(p.PaperLeftMargin), num(p.AddrPositionY) - num(p.AddrLineLength),
-                         num(p.AddrPositionX) - num(p.PaperLeftMargin), num(p.AddrLineLength), 'lp-addr');
-        aDiv.className = 'lp-text lp-vwrap'; aDiv.style.fontSize = pt(p.AddrPointSize) + 'px';
-        aDiv.innerHTML = lineDivs(addrText);
-        var nDiv = block(num(p.NamePositionX) - num(p.NameWidth) / 2, num(p.NamePositionY) - num(p.NameLineLength),
-                         num(p.NameWidth), num(p.NameLineLength), 'lp-name');
-        nDiv.className = 'lp-text lp-vname'; nDiv.style.fontSize = pt(p.NamePointSize) + 'px';
-        nDiv.innerHTML = '<div class="lp-vwrap">' + lineDivs(sample.name) + '</div>';
-      } else {                                       // yokogaki (print_addr.php 178-201)
-        var addrH = num(p.AddrPositionY) - num(p.NamePositionX);
-        var ah = block(num(p.AddrPositionX), num(p.AddrPositionY) - addrH, num(p.AddrLineLength), addrH, 'lp-addr');
-        ah.className = 'lp-text'; ah.style.fontSize = pt(p.AddrPointSize) + 'px'; ah.innerHTML = lineDivs(addrText);
-        var nh = block(num(p.NamePositionX), num(p.NamePositionY) - ph / 2, num(p.NameLineLength), ph / 2, 'lp-name');
-        nh.className = 'lp-text'; nh.style.fontSize = pt(p.NamePointSize) + 'px'; nh.innerHTML = lineDivs(sample.name);
+        box.style.writingMode = 'vertical-rl'; box.style.textOrientation = 'mixed';
+        box.style.display = 'flex'; box.style.flexDirection = 'column'; box.style.gap = num(p.NameGap) * s + 'px';
+        box.innerHTML = addrHTML +
+          '<div style="font-size:' + pt(p.NamePointSize) + 'px;margin-top:' + num(p.NameIndent) * s + 'px">'
+          + lineDivs(sample.name) + '</div>';
+      } else {                                       // yokogaki
+        box.innerHTML = addrHTML +
+          '<div style="font-size:' + pt(p.NamePointSize) + 'px;margin-top:' + num(p.NameGap) * s
+          + 'px;margin-left:' + num(p.NameIndent) * s + 'px">' + lineDivs(sample.name) + '</div>';
       }
-      retBlock(num(p.PaperLeftMargin), num(p.PaperBottomMargin), p.RetAddrContent, false);
+      var retRaw = num(p.RetAddrWidth);
+      var retTextW = retRaw > 0 ? retRaw : (pw - num(p.RetAddrX));   // text wraps to the right edge if 0
+      retStructured(physX(p.RetAddrX), physYb(p.RetAddrY), p.RetAddrGraphic, p.RetAddrText,
+                    num(p.RetAddrPointSize) || 10, retRaw, retTextW);
     } else {
-      // Non-Japan: the envelope is addressed in landscape, so the recipient + return blocks are
-      // rotated (writing-mode:vertical-rl; text-orientation:sideways).
-      var njDiv = block(num(p.PaperLeftMargin), num(p.NJAddrPositionY) - num(p.NJAddrHeight),
-                        num(p.NJAddrPositionX) - num(p.PaperLeftMargin), num(p.NJAddrHeight), 'lp-nj');
-      njDiv.className = 'lp-text lp-sideways'; njDiv.style.fontSize = pt(p.NJAddrPointSize) + 'px';
-      njDiv.innerHTML = lineDivs((sample.name || '') + '\n' + (sample.address || ''));
-      retBlock(num(p.NJRetAddrLeftMargin), num(p.NJRetAddrTopMargin), p.NJRetAddrContent, true);
+      // Non-Japan: authored/shown in landscape (paper dims swapped above); normal horizontal text.
+      // Recipient = name then address, one font size; return address is top-left (Western style).
+      var njBox = blockT(num(p.NJRecipX), num(p.NJRecipY), num(p.NJRecipWidth), num(p.NJRecipHeight), 'lp-nj');
+      njBox.className = 'lp-text'; njBox.style.fontSize = pt(p.NJAddrPointSize) + 'px';
+      njBox.innerHTML = lineDivs(sample.name) + lineDivs(sample.address);   // one block, uniform spacing
+      var njRaw = num(p.NJRetAddrWidth);
+      var njRetW = njRaw > 0 ? njRaw : (pw - num(p.NJRetAddrX));   // to the right edge if 0
+      retStructured(physX(p.NJRetAddrX), physYt(p.NJRetAddrY), p.NJRetAddrGraphic, p.NJRetAddrText,
+                    num(p.NJRetAddrPointSize) || 10, njRaw, njRetW, true);
     }
 
     container.appendChild(svg);

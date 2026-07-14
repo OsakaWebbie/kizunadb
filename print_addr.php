@@ -12,6 +12,7 @@ if (empty($_POST['addr_print_name'])) {
 $sql = "SELECT * FROM addrprint WHERE AddrPrintName='".urldecode($_POST['addr_print_name'])."'";
 $result = sqlquery_checked($sql);
 $print = mysqli_fetch_object($result);
+$ph = $print->PaperHeight;   // positions are mm from the edge each element hugs; picture origin is bottom-left
 
 // check for custom code - each file must have a function with the same name to be called inside the loop
 if (!empty($print->Custom)) {
@@ -66,7 +67,7 @@ echo "\xEF\xBB\xBF";  //UTF-8 Byte Order Mark
 \usepackage{plext}
 \usepackage[uplatex]{otf}
 \usepackage[T1]{fontenc}
-\usepackage{lmodern}
+\usepackage{sourcesanspro}
 \usepackage[paperwidth=<?=$print->PaperWidth?>mm,paperheight=<?=$print->PaperHeight?>mm,margin=0mm]{geometry}
 \usepackage{verbatim}
 \usepackage{lscape}
@@ -74,7 +75,7 @@ echo "\xEF\xBB\xBF";  //UTF-8 Byte Order Mark
 \usepackage[dvipdfmx]{graphicx}
 \usepackage{bmpsize}
 \pagestyle{empty}
-\graphicspath {{<?=getcwd()?>/graphics/}}
+\graphicspath {{<?=getcwd()?>/graphics/}{<?=CLIENT_PATH?>/graphics/}}
 \begin{document}
 \setlength{\unitlength}{1mm}
 \noindent
@@ -94,21 +95,33 @@ while ($row = mysqli_fetch_object($result)) {
     }
   }
 ?>
-\begin{picture}(<?=$print->PaperWidth?>,<?=$print->PaperHeight?>)(3,3)
+\begin{picture}(<?=$print->PaperWidth?>,<?=$print->PaperHeight?>)
 <?php
   if ($row->NonJapan == 1) {
+    // Non-Japan is authored in landscape; content is rotated 90deg onto the portrait sheet, so a
+    // landscape point (x from left, y from top) is placed with \put(y, x). Rotate the printed sheet
+    // clockwise to read it.
+    $njrecipient = implode("\\\\\n", array_merge(
+      preg_split("/\r\n|\r|\n/", str_replace($search_array,$replace_array,$row->Name)),
+      preg_split("/\r\n|\r|\n/", str_replace($search_array,$replace_array,$row->Address))));
+    if ($print->NJRetAddrGraphic != '') {
+      $njretw = $print->NJRetAddrWidth>0 ? $print->NJRetAddrWidth : 60;
+      $njret = "\\includegraphics".($print->NJRetAddrWidth>0 ? "[width=".$print->NJRetAddrWidth."mm]" : "")."{".$print->NJRetAddrGraphic."}";
+    } else {
+      $njretw = $print->NJRetAddrWidth>0 ? $print->NJRetAddrWidth : $print->PaperHeight-$print->NJRetAddrX;
+      $njrettext = implode("\\\\\n", preg_split("/\r\n|\r|\n/", str_replace($search_array,$replace_array,$print->NJRetAddrText)));
+      $njret = "\\fontsize{".$print->NJRetAddrPointSize."}{".round($print->NJRetAddrPointSize*1.2,1)."}\\selectfont\\raggedright ".$njrettext;
+    }
 ?>
-%% NON-JAPAN PAGE %%
+%% NON-JAPAN PAGE (authored landscape; rotated 90 onto the portrait sheet) %%
 %% Return Address %%
-\put(<?=$print->NJRetAddrLeftMargin?>,<?=$print->NJRetAddrTopMargin?>){%
-<?=$print->NJRetAddrContent?>}
-%% Address %%
-\put(<?=$print->PaperLeftMargin?>,<?=$print->NJAddrPositionY-$print->NJAddrHeight?>)%
-{\makebox(<?=$print->NJAddrPositionX-$print->PaperLeftMargin?>,<?=$print->NJAddrHeight?>)[rt]{
-\begin{minipage}<t>[t]{<?=$print->NJAddrHeight?>mm}%
-\fontsize{<?=$print->NJAddrPointSize?>}{<?=$print->NJAddrPointSize*1.1?>}\selectfont
-<?=preg_replace("/\r\n|\r|\n/","\n\n\\hangindent=10mm\n",str_replace($search_array,$replace_array,$row->Name))."\n\n"?>
-<?=preg_replace("/\r\n|\r|\n/","\n\n\\hangindent=10mm\n",str_replace($search_array,$replace_array,$row->Address))."\n"?>
+\put(<?=$print->NJRetAddrY?>,<?=$print->NJRetAddrX?>){\rotatebox{90}{%
+\begin{minipage}[t]{<?=$njretw?>mm}<?=$njret?>\end{minipage}}}
+%% Recipient %%
+\put(<?=$print->NJRecipY?>,<?=$print->NJRecipX?>){\rotatebox{90}{%
+\begin{minipage}[t]{<?=$print->NJRecipWidth?>mm}
+\fontsize{<?=$print->NJAddrPointSize?>}{<?=round($print->NJAddrPointSize*1.2,1)?>}\selectfont\raggedright
+<?=$njrecipient?>
 \end{minipage}}}
 <?php
   } else {  //Japanese address
@@ -116,25 +129,19 @@ while ($row = mysqli_fetch_object($result)) {
 %% JAPAN PAGE %%
 <?php
     if (!empty($_POST['po_stamp']) && $_POST['po_stamp']!='none') {  //Post Office stamp requested
-      if ($_POST['po_stamp']=='betsunou') {
+      $stampfiles = [
+        'betsunou'         => ['po_betsunou.png',         520, 452],
+        'yuumail_betsunou' => ['po_yuumail_betsunou.png', 520, 600],
+        'kounou'           => ['po_kounou.png',           520, 452],
+        'yuumail_kounou'   => ['po_yuumail_kounou.png',   520, 600],
+      ];
+      if (isset($stampfiles[$_POST['po_stamp']])) {
+        [$stampfile, $bbw, $bbh] = $stampfiles[$_POST['po_stamp']];
+        $stampw = 30;
+        $stamph = $stampw * $bbh / $bbw;
 ?>
-\put(<?=$print->PaperLeftMargin?>,<?=$print->PCTopMargin-18?>){%
-\includegraphics[bb=0 0 520 452,width=30mm]{po_betsunou.png}}
-<?php
-      } elseif ($_POST['po_stamp']=='yuumail_betsunou') {
-?>
-\put(<?=$print->PaperLeftMargin?>,<?=$print->PCTopMargin-22?>){%
-\includegraphics[bb=0 0 520 600,width=30mm]{po_yuumail_betsunou.png}}
-<?php
-      } elseif ($_POST['po_stamp']=='kounou') {
-?>
-\put(<?=$print->PaperLeftMargin?>,<?=$print->PCTopMargin-18?>){%
-\includegraphics[bb=0 0 520 452,width=30mm]{po_kounou.png}}
-<?php
-      } elseif ($_POST['po_stamp']=='yuumail_kounou') {
-?>
-\put(<?=$print->PaperLeftMargin?>,<?=$print->PCTopMargin-22?>){%
-\includegraphics[bb=0 0 520 600,width=30mm]{po_yuumail_kounou.png}}
+\put(<?=$print->StampX?>,<?=$ph-$print->StampY-$stamph?>){%
+\includegraphics[bb=0 0 <?=$bbw?> <?=$bbh?>,width=<?=$stampw?>mm]{<?=$stampfile?>}}
 <?php
       }
     }  //end if Post Office stamp requested
@@ -143,69 +150,55 @@ while ($row = mysqli_fetch_object($result)) {
     if (strlen($row->PostalCode)>7) {  //PostalCode is complete
 ?>
 \fontsize{<?=$print->PCPointSize?>}{<?=$print->PCPointSize*1.2?>}\selectfont
-\put(<?=$print->PCLeftMargin?>,<?=$print->PCTopMargin?>){<?=$row->PostalCode[0]?>}
-\put(<?=$print->PCLeftMargin+$print->PCSpacing?>,<?=$print->PCTopMargin?>){<?=$row->PostalCode[1]?>}
-\put(<?=$print->PCLeftMargin+$print->PCSpacing*2?>,<?=$print->PCTopMargin?>){<?=$row->PostalCode[2]?>}
-\put(<?=$print->PCLeftMargin+$print->PCExtraSpace+$print->PCSpacing*3?>,<?=$print->PCTopMargin?>){<?=$row->PostalCode[4]?>}
-\put(<?=$print->PCLeftMargin+$print->PCExtraSpace+$print->PCSpacing*4?>,<?=$print->PCTopMargin?>){<?=$row->PostalCode[5]?>}
-\put(<?=$print->PCLeftMargin+$print->PCExtraSpace+$print->PCSpacing*5?>,<?=$print->PCTopMargin?>){<?=$row->PostalCode[6]?>}
-\put(<?=$print->PCLeftMargin+$print->PCExtraSpace+$print->PCSpacing*6?>,<?=$print->PCTopMargin?>){<?=$row->PostalCode[7]?>}
+\put(<?=$print->PCX?>,<?=$ph-$print->PCY?>){<?=$row->PostalCode[0]?>}
+\put(<?=$print->PCX+$print->PCSpacing?>,<?=$ph-$print->PCY?>){<?=$row->PostalCode[1]?>}
+\put(<?=$print->PCX+$print->PCSpacing*2?>,<?=$ph-$print->PCY?>){<?=$row->PostalCode[2]?>}
+\put(<?=$print->PCX+$print->PCExtraSpace+$print->PCSpacing*3?>,<?=$ph-$print->PCY?>){<?=$row->PostalCode[4]?>}
+\put(<?=$print->PCX+$print->PCExtraSpace+$print->PCSpacing*4?>,<?=$ph-$print->PCY?>){<?=$row->PostalCode[5]?>}
+\put(<?=$print->PCX+$print->PCExtraSpace+$print->PCSpacing*5?>,<?=$ph-$print->PCY?>){<?=$row->PostalCode[6]?>}
+\put(<?=$print->PCX+$print->PCExtraSpace+$print->PCSpacing*6?>,<?=$ph-$print->PCY?>){<?=$row->PostalCode[7]?>}
 <?php
     }  //end if PostalCode is complete
     
     if ($print->Tategaki==1) {
+      $dir = 't'; $align = 'rt';
+      $wrap = $print->RecipHeight;                     // column length (vertical text)
+      $hang = round($wrap * 0.4, 1);
+    } else {
+      $dir = 'y'; $align = 'lt';
+      $wrap = $print->RecipWidth;                      // line width (horizontal text)
+      $hang = round($wrap * 0.2, 1);
+    }
+    $addr = !empty($_POST['kanji_numbers']) ? str_replace($number_array,$kanji_array,$row->Address) : $row->Address;
+    $addr = preg_replace("/\r\n|\r|\n/","}\n\n\\hangindent=".$hang."mm\n\\mbox{",$addr);
+    $name = preg_replace("/\r\n|\r|\n/","\n\n\\hspace*{".$print->NameIndent."mm}",str_replace($search_array,$replace_array,$row->Name));
 ?>
-%% Address %%
-\put(<?=$print->PaperLeftMargin?>,<?=$print->AddrPositionY-$print->AddrLineLength?>){%
-\makebox(<?=$print->AddrPositionX-$print->PaperLeftMargin?>,<?=$print->AddrLineLength?>)[rt]{%
-\begin{minipage}<t>[t]{<?=$print->AddrLineLength?>mm}
+%% Recipient (address + name in one flowing block) %%
+\put(<?=$print->RecipX?>,<?=$ph-$print->RecipY-$print->RecipHeight?>){%
+\makebox(<?=$print->RecipWidth?>,<?=$print->RecipHeight?>)[<?=$align?>]{%
+\begin{minipage}<<?=$dir?>>[t]{<?=$wrap?>mm}
 \fontsize{<?=$print->AddrPointSize?>}{<?=$print->AddrPointSize*1.2?>}\selectfont
-\hangindent=<?=($print->AddrLineLength*0.4)?>mm
+\hangindent=<?=$hang?>mm
 \mbox{<?=$row->Prefecture.$row->ShiKuCho?>}
-\mbox{<?=preg_replace("/\r\n|\r|\n/","}\n\n\\hangindent=".($print->AddrLineLength*0.4)."mm\n\\mbox{",
-(!empty($_POST['kanji_numbers']) ? str_replace($number_array,$kanji_array,$row->Address) : $row->Address))?>}
-\end{minipage}}}
+\mbox{<?=$addr?>}
 
-%% Name %%
-\put(<?=$print->NamePositionX-($print->NameWidth/2)?>,<?=$print->NamePositionY-$print->NameLineLength?>){%
-\makebox(<?=$print->NameWidth?>,<?=$print->NameLineLength?>)[ct]{%
-\begin{minipage}<t>[t]{<?=$print->NameLineLength?>mm}
-\fontsize{<?=$print->NamePointSize?>}{<?=$print->NamePointSize*1.2?>}\selectfont
-\hangindent=<?=($print->NameLineLength*0.1)?>mm
-<?=preg_replace("/\r\n|\r|\n/","\n\n\\hangindent=".($print->NameLineLength*0.1)."mm\n",
-str_replace($search_array,$replace_array,$row->Name))?>
+\vspace{<?=$print->NameGap?>mm}
+{\fontsize{<?=$print->NamePointSize?>}{<?=$print->NamePointSize*1.2?>}\selectfont
+\hspace*{<?=$print->NameIndent?>mm}<?=$name?>}
 \end{minipage}}}
 <?php
-    } else { //yokogaki
-      $addrheight = $print->AddrPositionY-$print->NamePositionX;
-      $nameheight = $print->PaperHeight/2; //arbitrary, just because I need a number
-?>
-%% Address %%
-\put(<?=$print->AddrPositionX?>,<?=$print->AddrPositionY-$addrheight?>){%
-\makebox(<?=$print->AddrLineLength?>,<?=$addrheight?>)[rt]{%
-\begin{minipage}<y>[t]{<?=$print->AddrLineLength?>mm}
-\fontsize{<?=$print->AddrPointSize?>}{<?=$print->AddrPointSize*1.2?>}\selectfont
-\hangindent=<?=($print->AddrLineLength*0.2)?>mm
-\mbox{<?=$row->Prefecture.$row->ShiKuCho?>}
-\mbox{<?=preg_replace("/\r\n|\r|\n/","}\n\n\\hangindent=".($print->AddrLineLength*0.2)."mm\n\\mbox{",
-(!empty($_POST['kanji_numbers']) ? str_replace($number_array,$kanji_array,$row->Address) : $row->Address))?>}
-\end{minipage}}}
-
-%% Name %%
-\put(<?=$print->NamePositionX?>,<?=$print->NamePositionY-$nameheight?>){%
-\makebox(<?=$print->NameLineLength?>,<?=$nameheight?>)[rt]{%
-\begin{minipage}<y>[t]{<?=$print->NameLineLength?>mm}
-\fontsize{<?=$print->NamePointSize?>}{<?=$print->NamePointSize*1.2?>}\selectfont
-\hangindent=<?=($print->NameLineLength*0.1)?>mm
-<?=preg_replace("/\r\n|\r|\n/","\n\n\\hangindent=".($print->NameLineLength*0.1)."mm\n",
-str_replace($search_array,$replace_array,$row->Name))?>
-\end{minipage}}}
-<?php
+    // Return address: a client graphic (if named) else plain text, anchored bottom-left at
+    // (RetAddrX from left, RetAddrY from bottom). Width sizes the image / wraps the text; 0 = auto.
+    if ($print->RetAddrGraphic != '') {
+      $retcontent = "\\includegraphics".($print->RetAddrWidth>0 ? "[width=".$print->RetAddrWidth."mm]" : "")."{".$print->RetAddrGraphic."}";
+    } else {
+      $retw = $print->RetAddrWidth>0 ? $print->RetAddrWidth : $print->PaperWidth-$print->RetAddrX;
+      $rettext = implode("\\\\\n", preg_split("/\r\n|\r|\n/", str_replace($search_array,$replace_array,$print->RetAddrText)));
+      $retcontent = "\\begin{minipage}<y>[b]{".$retw."mm}\\fontsize{".$print->RetAddrPointSize."}{".round($print->RetAddrPointSize*1.2,1)."}\\selectfont\\raggedright\n".$rettext."\n\\end{minipage}";
     }
 ?>
 %% Return Address %%
-\put(<?=$print->PaperLeftMargin?>,<?=$print->PaperBottomMargin?>){%
-<?=$print->RetAddrContent?>}
+\put(<?=$print->RetAddrX?>,<?=$print->RetAddrY?>){<?=$retcontent?>}
 <?php
   }  //end Japanese address
 

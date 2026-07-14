@@ -51,7 +51,7 @@ echo "\xEF\xBB\xBF";  //UTF-8 Byte Order Mark
 ?>
 \documentclass[<?=$print->PaperSize?$print->PaperSize:'a4'?>paper]{ujarticle}
 \usepackage[T1]{fontenc}
-\usepackage{lmodern}
+\usepackage{sourcesanspro}
 \usepackage[absolute]{textpos}
 
 \textblockorigin{<?=$print->PageMarginLeft?>mm}{<?=$print->PageMarginTop?>mm}
