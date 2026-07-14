@@ -274,12 +274,7 @@ case 'Quicksearch':
   $qs = h2d($qs);
   $sql = "SELECT count(DISTINCT person.PersonID) hits from person LEFT JOIN household ON person.HouseholdID=household.HouseholdID".
       " LEFT JOIN postalcode ON household.PostalCode=postalcode.PostalCode".
-      " WHERE person.FullName LIKE '%".$qs."%' OR person.Furigana LIKE '%".$qs."%'".
-      " OR person.Email LIKE '%".$qs."%' OR person.CellPhone LIKE '%".$qs."%'".
-      " OR person.Country LIKE '%".$qs."%' OR person.URL LIKE '%".$qs."%'".
-      " OR person.Remarks LIKE '%".$qs."%' OR person.Birthdate LIKE '%".$qs."%'".
-      " OR ".addr_comp_sql()." LIKE '%".$qs."%' OR ".romaji_addr_comp_sql()." LIKE '%".$qs."%'".
-      " OR household.Phone LIKE '%".$qs."%' OR household.LabelName LIKE '%".$qs."%'";
+      " WHERE ".quicksearch_where($qs);
     $result = sqlquery_checked($sql);
     $row = mysqli_fetch_object($result);
     die(json_encode(array('hits' => $row->hits)));

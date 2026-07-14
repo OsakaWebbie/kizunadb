@@ -31,12 +31,7 @@ if (!empty($_REQUEST['qs'])) {
   // Escape LIKE wildcards so they're treated as literal characters, then properly escape for SQL
   $qs = str_replace(array('%', '_'), array('\%', '\_'), $_REQUEST['qs']);
   $qs = h2d($qs);
-  $where .= " WHERE person.FullName LIKE '%".$qs."%' OR person.Furigana LIKE '%".$qs."%'".
-      " OR person.Email LIKE '%".$qs."%' OR person.CellPhone LIKE '%".$qs."%'".
-      " OR person.Country LIKE '%".$qs."%' OR person.URL LIKE '%".$qs."%'".
-      " OR person.Remarks LIKE '%".$qs."%' OR person.Birthdate LIKE '%".$qs."%'".
-      " OR ".addr_comp_sql()." LIKE '%".$qs."%' OR ".romaji_addr_comp_sql()." LIKE '%".$qs."%'".
-      " OR household.Phone LIKE '%".$qs."%' OR household.LabelName LIKE '%".$qs."%'";
+  $where .= " WHERE ".quicksearch_where($qs);
   $criterialist .= '<li>'.sprintf(_('Quick search: "%s" in any of multiple fields'), $_REQUEST['qs'])."</li>\n";
 }
 if ($_REQUEST['filter'] == "Organizations") {

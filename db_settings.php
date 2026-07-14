@@ -151,6 +151,23 @@ while ($row = mysqli_fetch_object($result))  echo "    <option class=\"".$row->A
 <?php
 if ($_SESSION['admin'] == 1) {
 ?>
+<!-- QUICK SEARCH FIELDS -->
+
+<form name="qsform" id="qsform">
+  <fieldset><legend><?=_("Quick Search Fields")?></legend>
+  <p><?=_("Choose which fields the Quick Search box looks in. Searching fewer fields (especially Remarks) makes Quick Search faster.")?></p>
+  <div id="qsfields">
+<?php
+$qs_enabled = array_map('trim', explode(',', $_SESSION['quicksearch_fields'] ?? ''));
+foreach (quicksearch_field_defs() as $qs_key => $qs_def) {
+  echo '    <label class="label-n-input"><input type="checkbox" name="qsfield" value="'.$qs_key.'"'.
+    (in_array($qs_key, $qs_enabled, true) ? ' checked' : '').'>'.$qs_def[0]."</label>\n";
+}
+?>
+  </div>
+  <div class="submits"><button type="button" id="qs_save"><?=_("Save Changes")?></button></div>
+</fieldset></form>
+
 <!-- USERS -->
 
 <form name="userform" id="userform" autocomplete="off">
@@ -904,6 +921,26 @@ $(document).ready(function(){
       showStatus(data.message);
     }, 'json').fail(function(jqxhr, textStatus, error) {
       $username.removeClass('is-loading');
+    });
+  });
+
+  $('#qs_save').click(function() {
+    var fields = $('#qsfields input:checked').map(function() { return this.value; }).get();
+    if (fields.length === 0) { alert('<?=_("Please choose at least one field for quick search.")?>'); return; }
+    var $btn = $('#qs_save').prop('disabled', true);
+    $.post('ajax_action.php', {
+      action: 'QuicksearchFieldsSave',
+      fields: fields.join(',')
+    }, function(data) {
+      $btn.prop('disabled', false);
+      if (data.alert === 'NOSESSION') {
+        alert('<?=_("Your login has timed out - please refresh the page.")?>');
+        return;
+      }
+      if (data.alert || data.error) { alert(data.alert || data.error); return; }
+      showStatus(data.message);
+    }, 'json').fail(function(jqxhr, textStatus, error) {
+      $btn.prop('disabled', false);
     });
   });
 });
