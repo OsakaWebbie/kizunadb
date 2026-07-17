@@ -35,7 +35,7 @@ if (isset($_GET['img'])) {
 function ap_fields() {
   $stamps = ['none', 'betsunou', 'yuumail_betsunou', 'kounou', 'yuumail_kounou'];
   $stamp = in_array($_POST['DefaultStamp'] ?? 'none', $stamps, true) ? $_POST['DefaultStamp'] : 'none';
-  $ints = ['PaperHeight', 'PaperWidth', 'PaperBottomMargin', 'PaperLeftMargin', 'PCPointSize',
+  $ints = ['PaperHeight', 'PaperWidth', 'PCPointSize',
     'Tategaki', 'AddrPointSize', 'NamePointSize', 'RecipX', 'RecipY', 'RecipWidth', 'RecipHeight',
     'NameIndent', 'NameGap', 'RetAddrPointSize', 'StampX', 'StampY',
     'NJAddrPointSize', 'NJRecipX', 'NJRecipY', 'NJRecipWidth', 'NJRecipHeight',
@@ -135,9 +135,9 @@ $graphicsFiles = [];
 foreach (glob(CLIENT_PATH . '/graphics/*.[pP][nN][gG]') ?: [] as $g) $graphicsFiles[] = basename($g);
 sort($graphicsFiles);
 
-// Return-address blocks are client-specific and shared across layouts: default a New preset's
-// return address from an existing row so the user isn't retyping LaTeX.
-$retFields = ['RetAddrGraphic', 'RetAddrText', 'RetAddrX', 'RetAddrY', 'RetAddrPointSize', 'RetAddrWidth'];
+// Return-address text/graphic is client-specific and shared across layouts, so a New preset
+// carries it over from an existing row (position/size come from the starter instead).
+$retFields = ['RetAddrGraphic', 'RetAddrText'];
 $njRetFields = ['NJRetAddrGraphic', 'NJRetAddrText', 'NJRetAddrX', 'NJRetAddrY', 'NJRetAddrPointSize', 'NJRetAddrWidth'];
 $templateRet = null; $templateNJRet = null;
 foreach ($presets as $v) {
@@ -152,8 +152,7 @@ foreach ($presets as $v) {
 }
 // Generic placeholders when the client has no existing layout to copy from.
 if ($templateRet === null)
-  $templateRet = ['RetAddrGraphic' => '', 'RetAddrText' => "〒000-0000 何何県何何市\n何何区何何町 0-0-00\nYour Name",
-    'RetAddrX' => 10, 'RetAddrY' => 10, 'RetAddrPointSize' => 10, 'RetAddrWidth' => 0];
+  $templateRet = ['RetAddrGraphic' => '', 'RetAddrText' => "〒000-0000 何何県何何市\n何何区何何町 0-0-00\nYour Name"];
 if ($templateNJRet === null)
   $templateNJRet = ['NJRetAddrGraphic' => '', 'NJRetAddrText' => "Your Name\n0-0-00 Something-machi\nSomething-ku, Somewhere 000-0000\nJAPAN",
     'NJRetAddrX' => 10, 'NJRetAddrY' => 10, 'NJRetAddrPointSize' => 10, 'NJRetAddrWidth' => 0];
@@ -257,8 +256,8 @@ function graphic_picker($id) {
   background:#2e7d32; color:#fff; border-radius:4px; box-shadow:0 2px 8px rgba(0,0,0,.2); z-index:10000; display:none; }
 </style>
 
-<h1 id="title"><?=_("Envelope Layout Editor")?></h1>
-<p class="lp-hint"><?=_("Pick a saved layout to edit, or choose \"New…\". The preview updates as you type. Dashed boxes show where each block is positioned; a red box means the text overflows it.")?></p>
+<h1 id="title"><?=_('Envelope/Postcard Layout Editor')?></h1>
+<p class="lp-hint"><?=_('Pick a saved layout to edit, or choose "New…". The preview updates automatically. Dashed boxes show where each block is positioned; a solid red box means the text overflows it.')?></p>
 
 <div class="lp-top">
   <div class="lp-row" style="flex-wrap:wrap">
@@ -272,22 +271,22 @@ foreach ($presets as $k => $v) {
 ?>
       <option value="__new__"<?=($initial === '__new__' ? ' selected' : '')?>><?=_("New…")?></option>
     </select>
-    <span class="lp-order-info"><?=_("Menu order")?>: <span id="lp-order-num">—</span></span>
-    <button type="button" id="btn_reorder"><?=_("Re-order…")?></button>
+    <span class="lp-order-info"><?=_('Menu order')?>: <span id="lp-order-num">—</span></span>
+    <button type="button" id="btn_reorder"><?=_('Re-order…')?></button>
   </div>
   <div class="lp-row" id="starterrow" style="display:none">
     <span><?=_("Start from")?>:</span>
     <select id="f_starter">
       <option value=""><?=_("Select a common size…")?></option>
-      <option value="naga3_tate"><?=_("長形3号 縦書き (235×120)")?></option>
-      <option value="naga3_yoko"><?=_("長形3号 横書き (235×120)")?></option>
-      <option value="kaku6_yoko"><?=_("角形6号 横書き (229×162)")?></option>
-      <option value="hagaki"><?=_("はがき (148×100)")?></option>
-      <option value="nenga"><?=_("年賀状 (148×100)")?></option>
+      <option value="naga3_tate"><?=_('Env #3 Long, tategaki (235×120)')?></option>
+      <option value="naga3_yoko"><?=_('Env #3 Long, yokogaki (235×120)')?></option>
+      <option value="kaku6_yoko"><?=_('Env #6, yokogaki (229×162)')?></option>
+      <option value="hagaki"><?=_('Postcard (148×100)')?></option>
+      <option value="nenga"><?=_('New Years Postcard (148×100)')?></option>
     </select>
   </div>
 
-  <label class="lp-row"><span><?=_("Layout name")?>:</span>
+  <label class="lp-row"><span><?=_('Layout name')?>:</span>
     <input type="text" id="f_AddrPrintName" name="AddrPrintName" maxlength="40" style="flex:0 1 340px"></label>
 </div>
 
@@ -299,91 +298,88 @@ foreach ($presets as $k => $v) {
 <?php
 ap_num('PaperWidth', _('Paper width'));
 ap_num('PaperHeight', _('Paper height'));
-ap_num('PaperLeftMargin', _('Left margin'));
-ap_num('PaperBottomMargin', _('Bottom margin'));
 ?>
       </div>
-      <label class="lp-row"><input type="checkbox" id="f_Tategaki"> <?=_("Japanese address & name run vertically (tategaki)")?></label>
+      <label class="lp-row"><input type="checkbox" id="f_Tategaki"> <?=_('Tategaki (Recipient address & name written vertically)')?></label>
     </fieldset>
 
     <fieldset>
-      <legend><?=_("Postal code")?></legend>
+      <legend><?=_('Postal Code')?></legend>
       <div class="lp-grid">
 <?php
-ap_num('PCPointSize', _('Font size (pt)'));
-ap_num('PCX', _('Left margin'), '0.1');
-ap_num('PCY', _('Top margin (baseline)'), '0.1');
+ap_num('PCPointSize', _('Text size (pt)'));
+ap_num('PCX', _('Position from left'), '0.1');
+ap_num('PCY', _('Position from top (base of digits)'), '0.1');
 ap_num('PCSpacing', _('Digit spacing'), '0.1');
 ap_num('PCExtraSpace', _('Extra gap at hyphen'), '0.1');
-ap_num('StampX', _('Stamp X (from left)'));
-ap_num('StampY', _('Stamp Y (from top)'));
 ?>
       </div>
     </fieldset>
 
     <fieldset>
-      <legend><?=_("Recipient block")?></legend>
+      <legend><?=_("Recipient")?></legend>
       <div class="lp-grid">
 <?php
-ap_num('RecipX', _('Position X (from left)'));
-ap_num('RecipY', _('Position Y (from top)'));
+ap_num('RecipX', _('Position from left'));
+ap_num('RecipY', _('Position from top'));
 ap_num('RecipWidth', _('Box width'));
 ap_num('RecipHeight', _('Box height'));
-ap_num('AddrPointSize', _('Address font (pt)'));
-ap_num('NamePointSize', _('Name font (pt)'));
+ap_num('AddrPointSize', _('Address text size (pt)'));
+ap_num('NamePointSize', _('Name text size (pt)'));
 ap_num('NameIndent', _('Name indent'));
 ap_num('NameGap', _('Gap before name'));
 ?>
       </div>
-      <p class="lp-hint"><?=_("Address then name flow inside one box; the name follows the address (they can't overlap). Indent shifts the name across the writing direction; gap is the space before it.")?></p>
+      <p class="lp-hint"><?=_("Indent shifts the name across the writing direction; gap is the space before it.")?></p>
     </fieldset>
 
     <fieldset>
       <legend><?=_("Return address")?></legend>
       <div class="lp-grid">
 <?php
-ap_num('RetAddrX', _('Position X (from left)'), '0.1');
-ap_num('RetAddrY', _('Position Y (from bottom)'), '0.1');
+ap_num('RetAddrX', _('Position from left'), '0.1');
+ap_num('RetAddrY', _('Position from bottom'), '0.1');
 ap_num('RetAddrWidth', _('Width (0 = auto)'), '0.1');
-ap_num('RetAddrPointSize', _('Text font (pt)'));
+ap_num('RetAddrPointSize', _('Text size (pt)'));
 ?>
       </div>
 <?php graphic_picker('RetAddrGraphic'); ?>
       <label class="lp-row lp-row-ta"><span><?=_("Or text")?>:</span><textarea id="f_RetAddrText" class="lp-field" rows="3"></textarea></label>
-      <p class="lp-hint"><?=_("Anchored bottom-left. Pick or upload a graphic (it wins if set), or type plain text. Width sizes the image or wraps the text; 0 = natural image size / text to the right edge.")?></p>
+      <p class="lp-hint"><?=_('Anchored bottom-left. Pick or upload a graphic (used if set), or type plain text. Width sizes the image or wraps the text; 0 = natural image size or unwrapped text.')?></p>
     </fieldset>
 
     <fieldset>
-      <legend><?=_("Non-Japan recipient — landscape")?></legend>
-      <p class="lp-hint"><?=_("Non-Japan is authored in landscape (the envelope turned on its side): X from the left, Y from the top, width along the long edge. Recipient is name over address at one size.")?></p>
+      <legend><?=_("Non-Japan recipient")?></legend>
+      <p class="lp-hint"><?=_('Non-Japan is authored in landscape (Western addressing style) and then rotated in the PDF.')?></p>
       <div class="lp-grid">
 <?php
-ap_num('NJRecipX', _('Position X (from left)'));
-ap_num('NJRecipY', _('Position Y (from top)'));
+ap_num('NJRecipX', _('Position from left'));
+ap_num('NJRecipY', _('Position from top'));
 ap_num('NJRecipWidth', _('Box width'));
 ap_num('NJRecipHeight', _('Box height'));
-ap_num('NJAddrPointSize', _('Font size (pt)'));
+ap_num('NJAddrPointSize', _('Text size (pt)'));
 ?>
       </div>
     </fieldset>
 
     <fieldset>
-      <legend><?=_("Non-Japan return address")?></legend>
+      <legend><?=_('Non-Japan return address')?></legend>
       <div class="lp-grid">
 <?php
-ap_num('NJRetAddrX', _('Position X (from left)'));
-ap_num('NJRetAddrY', _('Position Y (from top)'));
+ap_num('NJRetAddrX', _('Position from left'));
+ap_num('NJRetAddrY', _('Position from top'));
 ap_num('NJRetAddrWidth', _('Width (0 = auto)'));
-ap_num('NJRetAddrPointSize', _('Text font (pt)'));
+ap_num('NJRetAddrPointSize', _('Text size (pt)'));
 ?>
       </div>
 <?php graphic_picker('NJRetAddrGraphic'); ?>
-      <label class="lp-row lp-row-ta"><span><?=_("Or text")?>:</span><textarea id="f_NJRetAddrText" class="lp-field" rows="4"></textarea></label>
+      <label class="lp-row lp-row-ta"><span><?=_('Or text')?>:</span><textarea id="f_NJRetAddrText" class="lp-field" rows="4"></textarea></label>
     </fieldset>
 
     <fieldset>
       <legend><?=_("Advanced")?></legend>
-      <label class="lp-row"><span><?=_("Default stamp")?>:</span>
+      <div class="lp-grid">
+      <label class="lp-row"><span><?=_('Default stamp')?>:</span>
         <select id="f_DefaultStamp" class="lp-field" name="DefaultStamp">
           <option value="none"><?=_("None")?></option>
           <option value="betsunou"><?=_("Standard mail")?></option>
@@ -391,35 +387,40 @@ ap_num('NJRetAddrPointSize', _('Text font (pt)'));
           <option value="kounou"><?=_("Standard mail w/ contract")?></option>
           <option value="yuumail_kounou"><?=_("'Yuu-mail' w/ contract")?></option>
         </select></label>
-      <label class="lp-row"><span><?=_("Custom code")?>:</span><input type="text" id="f_Custom" name="Custom" maxlength="255"></label>
+<?php
+ap_num('StampX', _('Position from left'));
+ap_num('StampY', _('Position from top'));
+?>
+      </div>
+      <label class="lp-row"><span><?=_('Custom code file')?>:</span><input type="text" id="f_Custom" name="Custom" maxlength="255"></label>
     </fieldset>
 
     <fieldset>
-      <legend><?=_("Preview sample")?></legend>
+      <legend><?=_('Preview sample')?></legend>
       <div class="lp-row" style="flex-wrap:wrap;row-gap:0.2em">
-        <label><input type="radio" name="samplelang" value="japan" class="lp-sample" checked> <?=_("Japan (sample)")?></label>
-        <label><input type="radio" name="samplelang" value="foreign" class="lp-sample"> <?=_("Foreign (sample)")?></label>
-        <label<?=($basketCount ? '' : ' style="color:#999"')?>><input type="radio" name="samplelang" value="basket" class="lp-sample"<?=($basketCount ? '' : ' disabled')?>> <?=sprintf(_("From Basket (%d)"), $basketCount)?></label>
+        <label><input type="radio" name="samplelang" value="japan" class="lp-sample" checked> <?=_('Japan (sample)')?></label>
+        <label><input type="radio" name="samplelang" value="foreign" class="lp-sample"> <?=_('Foreign (sample)')?></label>
+        <label<?=($basketCount ? '' : ' style="color:#999"')?>><input type="radio" name="samplelang" value="basket" class="lp-sample"<?=($basketCount ? '' : ' disabled')?>> <?=sprintf(_('From Basket (%d)'), $basketCount)?></label>
       </div>
-      <div class="lp-row"><label><input type="checkbox" id="s_kanji" class="lp-sample" checked> <?=_("Use kanji for numbers (vertical)")?></label></div>
+      <div class="lp-row"><label><input type="checkbox" id="s_kanji" class="lp-sample" checked> <?=_("Use kanji for numbers")?></label></div>
       <div id="sample_jp">
         <div class="lp-samplerow">
-          <label class="lp-row"><span><?=_("Postal Code")?>:</span><input type="text" id="s_pc" class="lp-sample" value="859-3616"></label>
-          <label class="lp-row lp-row-ta lp-addr"><span><?=_("Address")?>:</span><textarea id="s_addr" class="lp-sample" rows="3"></textarea></label>
+          <label class="lp-row"><span><?=_('Postal Code')?>:</span><input type="text" id="s_pc" class="lp-sample" value="859-3616"></label>
+          <label class="lp-row lp-row-ta lp-addr"><span><?=_('Address')?>:</span><textarea id="s_addr" class="lp-sample" rows="3"></textarea></label>
         </div>
-        <label class="lp-row lp-row-ta"><span><?=_("Label Name")?>:</span><textarea id="s_name" class="lp-sample" rows="3"></textarea></label>
+        <label class="lp-row lp-row-ta"><span><?=_('Label Name')?>:</span><textarea id="s_name" class="lp-sample" rows="3"></textarea></label>
       </div>
       <div id="sample_fg" style="display:none">
-        <label class="lp-row lp-row-ta"><span><?=_("Label Name")?>:</span><textarea id="s_fname" class="lp-sample" rows="2"></textarea></label>
-        <label class="lp-row lp-row-ta"><span><?=_("Address")?>:</span><textarea id="s_faddr" class="lp-sample" rows="3"></textarea></label>
+        <label class="lp-row lp-row-ta"><span><?=_('Label Name')?>:</span><textarea id="s_fname" class="lp-sample" rows="2"></textarea></label>
+        <label class="lp-row lp-row-ta"><span><?=_('Address')?>:</span><textarea id="s_faddr" class="lp-sample" rows="3"></textarea></label>
       </div>
-      <p class="lp-hint" id="basket_hint" style="display:none"><?=_("Paging through your Basket records — one envelope each.")?></p>
+      <p class="lp-hint" id="basket_hint" style="display:none"><?=_('Paging through your Basket records.')?></p>
     </fieldset>
 
     <div class="lp-buttons">
-      <button type="button" id="btn_save"><?=_("Save")?></button>
-      <button type="button" id="btn_saveasnew" disabled><?=_("Save as New")?></button>
-      <button type="button" id="btn_delete"><?=_("Delete")?></button>
+      <button type="button" id="btn_save"><?=_('Save')?></button>
+      <button type="button" id="btn_saveasnew" disabled><?=_('Save as New')?></button>
+      <button type="button" id="btn_delete"><?=_('Delete')?></button>
     </div>
   </div>
 
@@ -434,9 +435,9 @@ ap_num('NJRetAddrPointSize', _('Text font (pt)'));
   </div>
 </div>
 
-<div id="del_dialog" title="<?=_("Delete Layout")?>" style="display:none"><p></p></div>
-<div id="order_dialog" title="<?=_("Layout menu order")?>" style="display:none">
-  <p class="lp-hint"><?=_("Drag to arrange. The new order takes effect when you Save the layout.")?></p>
+<div id="del_dialog" title="<?=_('Delete Layout')?>" style="display:none"><p></p></div>
+<div id="order_dialog" title="<?=_('Menu order')?>" style="display:none">
+  <p class="lp-hint"><?=_('Drag to arrange. The new order takes effect when you save the layout.')?></p>
   <ol id="lp-order" class="lp-sortable"></ol>
 </div>
 <div id="status-msg"></div>
@@ -463,41 +464,42 @@ $(function () {
     s_faddr: '123 Main Street, Apt. 4\nSpringfield, IL 62704\nU.S.A.'
   };
 
-  // Starter catalog: common Japanese envelope/postcard sizes (geometry only; the return address
-  // comes from the New-preset carry-over). Values captured from real presets; postal-code numbers
-  // are tuned to the red boxes pre-printed on those products, so edit with care.
+  // Starter catalog: common Japanese envelope/postcard sizes (geometry + return-address
+  // position/size; the return-address text/graphic still comes from the New-preset carry-over).
+  // Values captured from real presets; postal-code numbers are tuned to the red boxes pre-printed
+  // on those products, so edit with care.
   var STARTERS = {
-    naga3_tate: {Tategaki:1,PaperHeight:235,PaperWidth:120,PaperBottomMargin:10,PaperLeftMargin:10,
+    naga3_tate: {Tategaki:1,PaperHeight:235,PaperWidth:120,
       PCPointSize:20,PCX:66,PCY:19,PCSpacing:6.8,PCExtraSpace:1.0,StampX:7,StampY:10,
-      AddrPointSize:18,NamePointSize:30,RecipX:10,RecipY:35,RecipWidth:100,RecipHeight:165,NameIndent:15,NameGap:12,
-      NJAddrPointSize:14,NJRecipX:100,NJRecipY:42,NJRecipWidth:110,NJRecipHeight:50,NJRetAddrX:12,NJRetAddrY:10,NJRetAddrWidth:70,NJRetAddrPointSize:10,DefaultStamp:'none'},
-    naga3_yoko: {Tategaki:0,PaperHeight:235,PaperWidth:120,PaperBottomMargin:10,PaperLeftMargin:10,
+      AddrPointSize:18,NamePointSize:30,RecipX:10,RecipY:35,RecipWidth:95,RecipHeight:175,NameIndent:15,NameGap:12,RetAddrX:10,RetAddrY:10,RetAddrWidth:65,RetAddrPointSize:10,
+      NJAddrPointSize:18,NJRecipX:80,NJRecipY:45,NJRecipWidth:140,NJRecipHeight:60,NJRetAddrX:12,NJRetAddrY:10,NJRetAddrWidth:70,NJRetAddrPointSize:10,DefaultStamp:'none'},
+    naga3_yoko: {Tategaki:0,PaperHeight:235,PaperWidth:120,
       PCPointSize:20,PCX:66,PCY:19,PCSpacing:6.8,PCExtraSpace:1.0,StampX:7,StampY:10,
-      AddrPointSize:16,NamePointSize:22,RecipX:15,RecipY:80,RecipWidth:95,RecipHeight:120,NameIndent:10,NameGap:12,
-      NJAddrPointSize:14,NJRecipX:100,NJRecipY:42,NJRecipWidth:110,NJRecipHeight:50,NJRetAddrX:12,NJRetAddrY:10,NJRetAddrWidth:70,NJRetAddrPointSize:10,DefaultStamp:'none'},
-    kaku6_yoko:    {Tategaki:0,PaperHeight:229,PaperWidth:162,PaperBottomMargin:10,PaperLeftMargin:10,
+      AddrPointSize:14,NamePointSize:20,RecipX:10,RecipY:45,RecipWidth:100,RecipHeight:160,NameIndent:10,NameGap:15,RetAddrX:10,RetAddrY:10,RetAddrWidth:65,RetAddrPointSize:10,
+      NJAddrPointSize:18,NJRecipX:80,NJRecipY:45,NJRecipWidth:140,NJRecipHeight:60,NJRetAddrX:12,NJRetAddrY:10,NJRetAddrWidth:70,NJRetAddrPointSize:10,DefaultStamp:'none'},
+    kaku6_yoko:    {Tategaki:0,PaperHeight:229,PaperWidth:162,
       PCPointSize:28,PCX:77,PCY:32,PCSpacing:8.0,PCExtraSpace:4.0,StampX:7,StampY:10,
-      AddrPointSize:18,NamePointSize:26,RecipX:20,RecipY:80,RecipWidth:130,RecipHeight:110,NameIndent:10,NameGap:14,
-      NJAddrPointSize:16,NJRecipX:95,NJRecipY:65,NJRecipWidth:115,NJRecipHeight:60,NJRetAddrX:15,NJRetAddrY:12,NJRetAddrWidth:80,NJRetAddrPointSize:11,DefaultStamp:'none'},
-    hagaki:     {Tategaki:1,PaperHeight:148,PaperWidth:100,PaperBottomMargin:8,PaperLeftMargin:8,
+      AddrPointSize:18,NamePointSize:26,RecipX:15,RecipY:60,RecipWidth:135,RecipHeight:140,NameIndent:10,NameGap:15,RetAddrX:12,RetAddrY:12,RetAddrWidth:80,RetAddrPointSize:11,
+      NJAddrPointSize:18,NJRecipX:70,NJRecipY:65,NJRecipWidth:140,NJRecipHeight:80,NJRetAddrX:15,NJRetAddrY:12,NJRetAddrWidth:80,NJRetAddrPointSize:11,DefaultStamp:'none'},
+    hagaki:     {Tategaki:1,PaperHeight:148,PaperWidth:100,
       PCPointSize:20,PCX:44,PCY:19,PCSpacing:6.8,PCExtraSpace:0.9,StampX:5,StampY:10,
-      AddrPointSize:14,NamePointSize:20,RecipX:10,RecipY:25,RecipWidth:78,RecipHeight:105,NameIndent:12,NameGap:10,
-      NJAddrPointSize:12,NJRecipX:62,NJRecipY:38,NJRecipWidth:78,NJRecipHeight:45,NJRetAddrX:8,NJRetAddrY:8,NJRetAddrWidth:55,NJRetAddrPointSize:9,DefaultStamp:'none'},
-    nenga:      {Tategaki:1,PaperHeight:148,PaperWidth:100,PaperBottomMargin:8,PaperLeftMargin:8,
+      AddrPointSize:12,NamePointSize:20,RecipX:10,RecipY:28,RecipWidth:78,RecipHeight:105,NameIndent:12,NameGap:10,RetAddrX:6,RetAddrY:8,RetAddrWidth:55,RetAddrPointSize:8,
+      NJAddrPointSize:15,NJRecipX:40,NJRecipY:38,NJRecipWidth:95,NJRecipHeight:50,NJRetAddrX:8,NJRetAddrY:8,NJRetAddrWidth:55,NJRetAddrPointSize:9,DefaultStamp:'none'},
+    nenga:      {Tategaki:1,PaperHeight:148,PaperWidth:100,
       PCPointSize:20,PCX:44,PCY:19,PCSpacing:6.8,PCExtraSpace:0.9,StampX:5,StampY:10,
-      AddrPointSize:14,NamePointSize:20,RecipX:10,RecipY:25,RecipWidth:78,RecipHeight:105,NameIndent:14,NameGap:10,
-      NJAddrPointSize:12,NJRecipX:62,NJRecipY:38,NJRecipWidth:78,NJRecipHeight:45,NJRetAddrX:8,NJRetAddrY:8,NJRetAddrWidth:55,NJRetAddrPointSize:9,DefaultStamp:'none'}
+      AddrPointSize:12,NamePointSize:19,RecipX:10,RecipY:28,RecipWidth:78,RecipHeight:105,NameIndent:12,NameGap:10,RetAddrX:6,RetAddrY:18,RetAddrWidth:55,RetAddrPointSize:8,
+      NJAddrPointSize:15,NJRecipX:40,NJRecipY:38,NJRecipWidth:95,NJRecipHeight:50,NJRetAddrX:8,NJRetAddrY:8,NJRetAddrWidth:55,NJRetAddrPointSize:9,DefaultStamp:'none'}
   };
   function loadStarter(o) {
     Object.keys(o).forEach(function (k) {
       if (k === 'Tategaki') document.getElementById('f_Tategaki').checked = (o.Tategaki == 1);
-      else sv('f_' + k, o[k]);                                  // geometry only — return address untouched
+      else sv('f_' + k, o[k]);                                  // return-address text/graphic left to carry-over
     });
     document.getElementById('s_kanji').checked = document.getElementById('f_Tategaki').checked;
   }
 
   // All addrprint fields except the key (AddrPrintName) and Tategaki (checkbox, handled apart).
-  var FIELDS = ['DefaultStamp','PaperHeight','PaperWidth','PaperBottomMargin','PaperLeftMargin',
+  var FIELDS = ['DefaultStamp','PaperHeight','PaperWidth',
     'PCPointSize','PCX','PCY','PCSpacing','PCExtraSpace','StampX','StampY','AddrPointSize','NamePointSize',
     'RecipX','RecipY','RecipWidth','RecipHeight','NameIndent','NameGap',
     'RetAddrGraphic','RetAddrText','RetAddrX','RetAddrY','RetAddrPointSize','RetAddrWidth',
@@ -517,7 +519,7 @@ $(function () {
   function rebuildGraphicOptions() {
     $('.lp-graphic').each(function () {
       var cur = this.value, $s = $(this).empty();
-      $s.append($('<option>').val('').text(<?=json_encode(_("(text — no graphic)"))?>));
+      $s.append($('<option>').val('').text(<?=json_encode(_('(no graphic, just text)'))?>));
       graphicsFiles.forEach(function (f) { $s.append($('<option>').val(f).text(f)); });
       if (cur && graphicsFiles.indexOf(cur) === -1) $s.append($('<option>').val(cur).text(cur + MISSING));
       $s.val(cur);
@@ -576,7 +578,7 @@ $(function () {
     keys.sort(function (a, b) { return (presets[a].ListOrder - presets[b].ListOrder) || a.localeCompare(b); });
     var $sel = $('#f_preset').empty();
     keys.forEach(function (k) { $sel.append($('<option>').val(k).text(k)); });
-    $sel.append($('<option>').val('__new__').text(<?=json_encode(_("New…"))?>));
+    $sel.append($('<option>').val('__new__').text(<?=json_encode(_('New…'))?>));
     $sel.val(selectKey);
   }
 
@@ -586,7 +588,7 @@ $(function () {
   }
 
   // --- pulldown order (drag to arrange) ---
-  var NEWLABEL = <?=json_encode(_("(new layout)"))?>;
+  var NEWLABEL = <?=json_encode(_('(new layout)'))?>;
   function orderedNames() {
     var keys = Object.keys(presets);
     keys.sort(function (a, b) { return (presets[a].ListOrder - presets[b].ListOrder) || a.localeCompare(b); });
@@ -713,21 +715,21 @@ $(function () {
   $('#pg_next').on('click', function () { var n = readSamples().length; pageIdx = (pageIdx + 1) % n; redraw(); });
 
   $('#btn_save').button().on('click', function () {
-    if ($.trim(gv('f_AddrPrintName')) === '') { alert(<?=json_encode(_("Please enter a layout name."))?>); return; }
+    if ($.trim(gv('f_AddrPrintName')) === '') { alert(<?=json_encode(_('Please enter a layout name.'))?>); return; }
     save('save');
   });
   $('#btn_saveasnew').button().on('click', function () {
-    if ($.trim(gv('f_AddrPrintName')) === '') { alert(<?=json_encode(_("Please enter a layout name."))?>); return; }
+    if ($.trim(gv('f_AddrPrintName')) === '') { alert(<?=json_encode(_('Please enter a layout name.'))?>); return; }
     save('saveasnew');
   });
   $('#btn_delete').button().on('click', function () {
     if (origName === '') return;
-    $('#del_dialog p').text(<?=json_encode(_("Delete the layout \"%s\"? This cannot be undone."))?>.replace('%s', origName));
+    $('#del_dialog p').text(<?=json_encode(_('Delete the layout "%s"?'))?>.replace('%s', origName));
     $('#del_dialog').dialog({
       modal: true, resizable: false, width: 360,
       buttons: [
-        { text: <?=json_encode(_("Delete"))?>, click: function () { $(this).dialog('close'); save('delete'); } },
-        { text: <?=json_encode(_("Cancel"))?>, click: function () { $(this).dialog('close'); } }
+        { text: <?=json_encode(_('Delete'))?>, click: function () { $(this).dialog('close'); save('delete'); } },
+        { text: <?=json_encode(_('Cancel'))?>, click: function () { $(this).dialog('close'); } }
       ]
     });
   });
@@ -738,8 +740,8 @@ $(function () {
     $('#order_dialog').dialog({
       modal: true, width: 380,
       buttons: [
-        { text: <?=json_encode(_("Done"))?>, click: function () { updateOrderNum(); $(this).dialog('close'); } },
-        { text: <?=json_encode(_("Cancel"))?>, click: function () { rebuildOrderList(); updateOrderNum(); $(this).dialog('close'); } }
+        { text: <?=json_encode(_('Done'))?>, click: function () { updateOrderNum(); $(this).dialog('close'); } },
+        { text: <?=json_encode(_('Cancel'))?>, click: function () { rebuildOrderList(); updateOrderNum(); $(this).dialog('close'); } }
       ]
     });
   });
@@ -753,8 +755,8 @@ $(function () {
   });
   $('.lp-delete-btn').button().on('click', function () {
     var sel = document.getElementById(this.dataset.target), file = sel.value;
-    if (!file) { alert(<?=json_encode(_("Select a file to delete first."))?>); return; }
-    if (!confirm(<?=json_encode(_("Delete the file \"%s\" from the server?"))?>.replace('%s', file))) return;
+    if (!file) { alert(<?=json_encode(_('Select a file to delete first.'))?>); return; }
+    if (!confirm(<?=json_encode(_('Delete the file "%s" from the server?'))?>.replace('%s', file))) return;
     $.post('addrprint_edit.php', { op: 'deletegraphic', graphic: file }, function (resp) {
       if (resp.charAt(0) !== '*') { alert(resp); return; }   // e.g. still used by a layout
       var i = graphicsFiles.indexOf(file); if (i >= 0) graphicsFiles.splice(i, 1);
@@ -768,7 +770,7 @@ $(function () {
     $.ajax({ url: 'addrprint_edit.php', method: 'POST', data: fd, processData: false, contentType: false })
       .done(function (resp) {
         if (resp === 'EXISTS') {
-          if (confirm(<?=json_encode(_("Replace existing file \"%s\"?"))?>.replace('%s', file.name))) doUpload(file, target, true);
+          if (confirm(<?=json_encode(_('Replace existing file "%s"?'))?>.replace('%s', file.name))) doUpload(file, target, true);
           return;
         }
         if (resp.charAt(0) !== '*') { alert(resp); return; }
@@ -776,7 +778,7 @@ $(function () {
         if (graphicsFiles.indexOf(nm) === -1) { graphicsFiles.push(nm); graphicsFiles.sort(); }
         rebuildGraphicOptions();
         document.getElementById(target).value = nm;
-        redraw(); toast(<?=json_encode(_("Uploaded."))?>);
+        redraw(); toast(<?=json_encode(_('Uploaded.'))?>);
       });
   }
 

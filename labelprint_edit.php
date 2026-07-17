@@ -41,11 +41,11 @@ if (!empty($_POST['op'])) {
     exit;
   }
 
-  if ($name === '') { echo _('Please enter a label type name.'); exit; }
+  if ($name === '') { echo _('Please enter a layout name.'); exit; }
   $set = lp_fields();
 
   if ($op === 'saveasnew' || $orig === '') {                 // insert a brand-new preset
-    if (lp_exists($name)) { echo sprintf(_('A label type named "%s" already exists.'), $name); exit; }
+    if (lp_exists($name)) { echo sprintf(_('A layout named "%s" already exists.'), $name); exit; }
     sqlquery_checked("INSERT INTO labelprint SET LabelType='" . h2d($name) . "', $set");
     echo '*' . _('Saved.');
     exit;
@@ -53,7 +53,7 @@ if (!empty($_POST['op'])) {
 
   // op === 'save' — update the loaded row (a changed name is a rename of its primary key)
   if ($name !== $orig && lp_exists($name)) {
-    echo sprintf(_('A label type named "%s" already exists.'), $name);
+    echo sprintf(_('A layout named "%s" already exists.'), $name);
     exit;
   }
   sqlquery_checked("UPDATE labelprint SET LabelType='" . h2d($name) . "', $set WHERE LabelType='" . h2d($orig) . "' LIMIT 1");
@@ -131,7 +131,7 @@ function lp_num($id, $label, $step = '0.1') {
 </style>
 
 <h1 id="title"><?=_("Label Layout Editor")?></h1>
-<p class="lp-hint"><?=_("Pick a saved layout to edit, or choose \"New…\" and start from a common product. The preview updates as you type.")?></p>
+<p class="lp-hint"><?=_("Pick a saved layout to edit, or choose \"New…\" and start from a common product. The preview updates automatically.")?></p>
 
 <div class="lp-layout">
   <div class="lp-form">
@@ -190,14 +190,14 @@ lp_num('PageMarginLeft', _('Page margin left'));
     </fieldset>
 
     <fieldset>
-      <legend><?=_("Text &amp; fonts")?></legend>
+      <legend><?=_("Label text")?></legend>
       <div class="lp-grid">
 <?php
 lp_num('AddrMarginLeft', _('Text inset left'));
 lp_num('AddrMarginRight', _('Text inset right'));
-lp_num('AddrPointSize', _('Address size (Japan)'), '1');
-lp_num('NamePointSize', _('Name size (Japan)'), '1');
-lp_num('NJAddrPointSize', _('Address size (foreign)'), '1');
+lp_num('AddrPointSize', _('Address text size (Japan)'), '1');
+lp_num('NamePointSize', _('Name text size (Japan)'), '1');
+lp_num('NJAddrPointSize', _('Address text size (foreign)'), '1');
 ?>
       </div>
     </fieldset>
@@ -234,7 +234,7 @@ lp_num('NJAddrPointSize', _('Address size (foreign)'), '1');
   <div class="lp-preview-pane">
     <h3><?=_("Preview")?></h3>
     <div id="lp-preview"></div>
-    <p class="lp-hint"><?=_("A red outline means the text overflows that label at the chosen font size.")?></p>
+    <p class="lp-hint"><?=_("A red outline means the text overflows that label at the chosen text size.")?></p>
   </div>
 </div>
 
@@ -374,16 +374,16 @@ $(function () {
   });
 
   $('#btn_save').button().on('click', function () {
-    if ($.trim(gv('f_LabelType')) === '') { alert(<?=json_encode(_("Please enter a label type name."))?>); return; }
+    if ($.trim(gv('f_LabelType')) === '') { alert(<?=json_encode(_('Please enter a layout name.'))?>); return; }
     save('save');
   });
   $('#btn_saveasnew').button().on('click', function () {
-    if ($.trim(gv('f_LabelType')) === '') { alert(<?=json_encode(_("Please enter a label type name."))?>); return; }
+    if ($.trim(gv('f_LabelType')) === '') { alert(<?=json_encode(_('Please enter a layout name.'))?>); return; }
     save('saveasnew');
   });
   $('#btn_delete').button().on('click', function () {
     if (origName === '') return;
-    $('#del_dialog p').text(<?=json_encode(_("Delete the layout \"%s\"? This cannot be undone."))?>.replace('%s', origName));
+    $('#del_dialog p').text(<?=json_encode(_('Delete the layout "%s"?'))?>.replace('%s', origName));
     $('#del_dialog').dialog({
       modal: true, resizable: false, width: 360,
       buttons: [

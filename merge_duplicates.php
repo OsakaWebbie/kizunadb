@@ -355,7 +355,7 @@ if ($a && $b && $a != $b) {
 pageheader(_("Merge Duplicate Records"), 1);
 ?>
 <style>
-  .merge-intro { margin:1em; }
+  .merge-intro { margin:1em 0; }
   .merge-warning { color:#b00; font-weight:bold; margin:0.5em 0; }
   .merge-cols { display:flex; flex-wrap:wrap; gap:1.5em; align-items:stretch; margin-bottom:1.5em; }
   .merge-col { flex:1 1 320px; border:1px solid #ccc; border-radius:6px; padding:0.8em 1em; }

@@ -142,10 +142,10 @@ while ($row = mysqli_fetch_object($result))  echo "    <option class=\"".$row->A
 
 <!-- PRINT LAYOUTS -->
 
-<fieldset><legend><?=_("Print Layouts")?></legend>
-  <p><?=_("Design the layouts used by \"Print Envelopes/Postcards\" and \"Print Labels\" in Batch Processing, with a live visual preview.")?></p>
-  <p style="margin:0.3em 0"><a href="addrprint_edit.php"><?=_("Edit Envelope / Postcard Layouts")?></a>
-  &nbsp; &nbsp; <a href="labelprint_edit.php"><?=_("Edit Label Layouts")?></a></p>
+<fieldset><legend><?=_('Print Layouts')?></legend>
+  <p><?=_('Edit the layouts used by "Print Envelopes/Postcards" and "Print Labels" in Batch Processing, with a live visual preview.')?></p>
+  <p style="margin:0.3em 0"><a href="addrprint_edit.php"><?=_('Edit Envelope/Postcard Layouts')?></a>
+  &nbsp; &nbsp; <a href="labelprint_edit.php"><?=_('Edit Label Layouts')?></a></p>
 </fieldset>
 
 <?php
