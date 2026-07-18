@@ -108,7 +108,9 @@ if (!empty($_POST['op'])) {
 
   if ($op === 'saveasnew' || $orig === '') {
     if (ap_exists($name)) { echo sprintf(_('A layout named "%s" already exists.'), $name); exit; }
-    sqlquery_checked("INSERT INTO addrprint SET AddrPrintName='" . h2d($name) . "', $set");
+    // ListOrder=0 is a placeholder to satisfy the NOT NULL column; ap_apply_order() below resets it
+    // (and every row) to its drag-sorted position.
+    sqlquery_checked("INSERT INTO addrprint SET AddrPrintName='" . h2d($name) . "', ListOrder=0, $set");
     ap_apply_order();
     echo '*' . _('Saved.');
     exit;
@@ -219,7 +221,7 @@ function graphic_picker($id) {
 .lp-row { display:flex; align-items:center; gap:0.5em; margin:0.35em 0; }
 .lp-row > span { flex:0 0 auto; }
 .lp-row input[type=text], .lp-row textarea { flex:1 1 auto; width:auto; min-width:0; }
-.lp-row textarea { resize:vertical; font-family:monospace; font-size:0.85em; }
+.lp-row textarea { resize:vertical; font-family:inherit; font-size:0.9em; }
 .lp-row textarea:disabled { background:#eee; color:#999; cursor:not-allowed; }
 .lp-row input[type=number] { flex:0 0 4em; width:4em; }
 .lp-row select { flex:0 1 auto; min-width:0; max-width:100%; }
@@ -419,7 +421,7 @@ ap_num('StampY', _('Position from top'));
 
     <div class="lp-buttons">
       <button type="button" id="btn_save"><?=_('Save')?></button>
-      <button type="button" id="btn_saveasnew" disabled><?=_('Save as New')?></button>
+      <button type="button" id="btn_saveasnew"><?=_('Save as New')?></button>
       <button type="button" id="btn_delete"><?=_('Delete')?></button>
     </div>
   </div>
@@ -582,9 +584,14 @@ $(function () {
     $sel.val(selectKey);
   }
 
-  function updateSaveAsNew() {
-    var changed = origName !== '' && $.trim(gv('f_AddrPrintName')) !== origName;
-    $('#btn_saveasnew').prop('disabled', !changed);
+  // Save writes back to the loaded row, so it needs one; Save as New creates a row, so it needs a
+  // name that isn't taken by the loaded one (any name at all when starting from New).
+  function updateButtons() {
+    var isNew = origName === '';
+    var renamed = !isNew && $.trim(gv('f_AddrPrintName')) !== origName;
+    $('#btn_save').button('option', 'disabled', isNew);
+    $('#btn_saveasnew').button('option', 'disabled', !isNew && !renamed);
+    $('#btn_delete').button('option', 'disabled', isNew);
   }
 
   // --- pulldown order (drag to arrange) ---
@@ -645,14 +652,12 @@ $(function () {
       ensureGraphic('f_NJRetAddrGraphic', templateNJRet.NJRetAddrGraphic);
       document.getElementById('s_kanji').checked = true;
       $('#starterrow').show(); $('#f_starter').val('');
-      $('#btn_delete').prop('disabled', true);
     } else {
       origName = key; sv('f_AddrPrintName', key); loadValues(presets[key]);
       document.getElementById('s_kanji').checked = tategaki();    // kanji default follows Tategaki
       $('#starterrow').hide();
-      $('#btn_delete').prop('disabled', false);
     }
-    updateSaveAsNew();
+    updateButtons();
     rebuildOrderList();
     updateOrderNum();
     redraw();
@@ -686,15 +691,14 @@ $(function () {
         rebuildPresetOptions(name);
         rebuildOrderList();
         updateOrderNum();
-        $('#btn_delete').prop('disabled', false);
-        updateSaveAsNew();
+        updateButtons();
       }
     });
   }
 
   // --- events ---
   $('#f_preset').on('change', function () { selectPreset(this.value); });
-  $('#f_AddrPrintName').on('input', function () { updateSaveAsNew(); updateCurrentOrderLabel(); });
+  $('#f_AddrPrintName').on('input', function () { updateButtons(); updateCurrentOrderLabel(); });
   $('#f_Tategaki').on('change', function () {
     document.getElementById('s_kanji').checked = this.checked;   // kanji default follows Tategaki
     redraw();

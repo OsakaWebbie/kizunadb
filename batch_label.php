@@ -81,7 +81,7 @@ if (!empty($_SESSION['self_pid'])) {
         <label class="label-n-input"><?=_("Label Type")?>: <select id="label-select" name="label_type" size="1">
 <?php
 $persheet_map = [];
-$result = sqlquery_checked("SELECT LabelType, NumRows, NumCols FROM labelprint ORDER BY LabelType");
+$result = sqlquery_checked("SELECT LabelType, NumRows, NumCols FROM labelprint ORDER BY ListOrder, LabelType");
 while ($row = mysqli_fetch_object($result)) {
   $persheet_map[$row->LabelType] = (int)$row->NumRows * (int)$row->NumCols;
   echo  "                  <option value=\"".$row->LabelType."\">".$row->LabelType."</option>\n";

@@ -1,4 +1,4 @@
--- Adminer 5.4.1 MariaDB 10.11.14-MariaDB-0+deb12u2 dump
+-- Adminer 5.4.1 MariaDB 10.11.18-MariaDB-0+deb12u1 dump
 
 SET NAMES utf8;
 SET time_zone = '+00:00';
@@ -35,32 +35,40 @@ CREATE TABLE `addrprint` (
   `DefaultStamp` varchar(20) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL DEFAULT 'none' COMMENT 'Default post office stamp setting',
   `PaperHeight` smallint(5) unsigned NOT NULL DEFAULT 0 COMMENT 'Long size (height in portrait)',
   `PaperWidth` smallint(5) unsigned NOT NULL DEFAULT 0 COMMENT 'Short size (width in portrait)',
-  `PaperBottomMargin` smallint(5) unsigned NOT NULL DEFAULT 0 COMMENT 'Space below return address block',
-  `PaperLeftMargin` tinyint(3) unsigned NOT NULL DEFAULT 0 COMMENT 'Space to left of return address block',
   `PCPointSize` tinyint(4) unsigned NOT NULL DEFAULT 0,
-  `PCTopMargin` decimal(4,1) unsigned NOT NULL DEFAULT 0.0 COMMENT 'From paper bottom edge to PC baseline',
-  `PCLeftMargin` decimal(4,1) unsigned NOT NULL DEFAULT 0.0 COMMENT 'From paper left edge to PC left side',
   `PCSpacing` decimal(4,1) unsigned NOT NULL DEFAULT 0.0 COMMENT 'Offset for each digit',
   `PCExtraSpace` decimal(4,1) unsigned NOT NULL DEFAULT 0.0 COMMENT 'Extra offset at hyphen',
   `Tategaki` tinyint(1) NOT NULL DEFAULT 1 COMMENT 'Affects the address and name for Japan addresses',
   `AddrPointSize` tinyint(4) unsigned NOT NULL DEFAULT 0,
-  `AddrLineLength` smallint(6) unsigned NOT NULL DEFAULT 0 COMMENT 'Will wrap text lines at this size',
-  `AddrPositionX` smallint(6) unsigned NOT NULL DEFAULT 0 COMMENT 'From paper left edge to start of address',
-  `AddrPositionY` smallint(6) unsigned NOT NULL DEFAULT 0 COMMENT 'From paper bottom edge to top of address block',
   `NamePointSize` tinyint(4) unsigned NOT NULL DEFAULT 0,
-  `NameLineLength` smallint(6) unsigned NOT NULL DEFAULT 0 COMMENT 'Will wrap the name at this size',
-  `NameWidth` smallint(6) unsigned NOT NULL DEFAULT 0 COMMENT 'Width of the name box',
-  `NamePositionX` smallint(6) unsigned NOT NULL DEFAULT 0 COMMENT 'To the center of the name box',
-  `NamePositionY` smallint(6) unsigned NOT NULL DEFAULT 0 COMMENT 'To the top of the name box',
-  `RetAddrContent` text NOT NULL DEFAULT '' COMMENT 'Any legal LaTeX commands',
   `NJAddrPointSize` tinyint(4) unsigned NOT NULL DEFAULT 0,
-  `NJAddrHeight` smallint(6) unsigned NOT NULL DEFAULT 0 COMMENT 'Long dimension of area for Non-Japan address',
-  `NJAddrPositionX` smallint(6) unsigned NOT NULL DEFAULT 0 COMMENT 'From paper left edge to start of address',
-  `NJAddrPositionY` smallint(6) unsigned NOT NULL DEFAULT 0 COMMENT 'From paper bottom edge to top of address block',
-  `NJRetAddrLeftMargin` tinyint(4) unsigned NOT NULL DEFAULT 0,
-  `NJRetAddrTopMargin` tinyint(4) unsigned NOT NULL DEFAULT 0,
-  `NJRetAddrContent` text NOT NULL DEFAULT '',
   `Custom` varchar(255) NOT NULL,
+  `PCX` decimal(4,1) unsigned NOT NULL DEFAULT 0.0 COMMENT 'First postal digit X, from left edge',
+  `PCY` decimal(4,1) unsigned NOT NULL DEFAULT 0.0 COMMENT 'Postal digit baseline, from top edge',
+  `StampX` tinyint(3) unsigned NOT NULL DEFAULT 0 COMMENT 'PO indicia left, from left edge',
+  `StampY` tinyint(3) unsigned NOT NULL DEFAULT 0 COMMENT 'PO indicia top, from top edge',
+  `RecipX` tinyint(3) unsigned NOT NULL DEFAULT 0 COMMENT 'Recipient block left, from left edge',
+  `RecipY` tinyint(3) unsigned NOT NULL DEFAULT 0 COMMENT 'Recipient block top, from top edge',
+  `RecipWidth` tinyint(3) unsigned NOT NULL DEFAULT 0 COMMENT 'Recipient block width (across page)',
+  `RecipHeight` smallint(5) unsigned NOT NULL DEFAULT 0 COMMENT 'Recipient block height (down page)',
+  `NameIndent` tinyint(3) unsigned NOT NULL DEFAULT 0 COMMENT 'Name inset across the writing direction',
+  `NameGap` tinyint(3) unsigned NOT NULL DEFAULT 0 COMMENT 'Gap between address and name',
+  `RetAddrX` decimal(4,1) unsigned NOT NULL DEFAULT 0.0 COMMENT 'Return address left, from left edge',
+  `RetAddrY` decimal(4,1) unsigned NOT NULL DEFAULT 0.0 COMMENT 'Return address bottom, from bottom edge',
+  `RetAddrGraphic` varchar(100) NOT NULL DEFAULT '' COMMENT 'Graphic filename in client graphics/; used if set',
+  `RetAddrText` varchar(255) NOT NULL DEFAULT '' COMMENT 'Return address text; used when no graphic',
+  `RetAddrPointSize` tinyint(3) unsigned NOT NULL DEFAULT 0 COMMENT 'Return address text font pt',
+  `RetAddrWidth` decimal(4,1) unsigned NOT NULL DEFAULT 0.0 COMMENT 'Image width, or text box width; 0=auto',
+  `NJRecipX` tinyint(3) unsigned NOT NULL DEFAULT 0 COMMENT 'NJ recipient left (landscape), from left',
+  `NJRecipY` tinyint(3) unsigned NOT NULL DEFAULT 0 COMMENT 'NJ recipient top (landscape), from top',
+  `NJRecipWidth` smallint(5) unsigned NOT NULL DEFAULT 0 COMMENT 'NJ recipient width (long dimension)',
+  `NJRecipHeight` tinyint(3) unsigned NOT NULL DEFAULT 0 COMMENT 'NJ recipient height (short dimension)',
+  `NJRetAddrX` tinyint(3) unsigned NOT NULL DEFAULT 0 COMMENT 'NJ return address left (landscape), from left',
+  `NJRetAddrY` tinyint(3) unsigned NOT NULL DEFAULT 0 COMMENT 'NJ return address top (landscape), from top',
+  `NJRetAddrGraphic` varchar(100) NOT NULL DEFAULT '' COMMENT 'NJ graphic filename; used if set',
+  `NJRetAddrText` varchar(255) NOT NULL DEFAULT '' COMMENT 'NJ return address text; used when no graphic',
+  `NJRetAddrPointSize` tinyint(3) unsigned NOT NULL DEFAULT 0 COMMENT 'NJ return address text font pt',
+  `NJRetAddrWidth` tinyint(3) unsigned NOT NULL DEFAULT 0 COMMENT 'NJ image width, or text wrap width; 0=auto',
   PRIMARY KEY (`AddrPrintName`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -147,7 +155,9 @@ CREATE TABLE `household` (
   `NonJapan` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Address is foreign, so no reference to postal code table',
   `PostalCode` varchar(8) NOT NULL DEFAULT '',
   `Address` varchar(200) NOT NULL DEFAULT '' COMMENT 'Only the part after postal-code-related text',
+  `AddressComp` varchar(400) NOT NULL DEFAULT '' COMMENT 'Copy of CONCAT(PostalCode,Prefecture,ShiKuCho,Address)',
   `RomajiAddress` varchar(200) NOT NULL DEFAULT '' COMMENT 'Only the part after postal-code-related text',
+  `RomajiAddressComp` varchar(400) NOT NULL DEFAULT '' COMMENT 'Copy of CONCAT(RomajiAddress,space,Romaji,space,PostalCode)',
   `Phone` varchar(20) NOT NULL DEFAULT '' COMMENT 'Landline',
   `FAX` varchar(20) NOT NULL DEFAULT '',
   `LabelName` varchar(100) NOT NULL DEFAULT '' COMMENT 'Used on envelopes/labels',
@@ -159,6 +169,7 @@ CREATE TABLE `household` (
 
 
 CREATE TABLE `labelprint` (
+  `ListOrder` tinyint(4) unsigned NOT NULL DEFAULT 0,
   `LabelType` varchar(100) NOT NULL DEFAULT '',
   `PaperSize` varchar(10) NOT NULL DEFAULT 'a4' COMMENT 'used in documentclass - values typically "a4" or "letter"',
   `NumRows` tinyint(4) unsigned NOT NULL DEFAULT 0 COMMENT 'Number of labels down the page',
@@ -250,7 +261,8 @@ CREATE TABLE `person` (
   KEY `Furigana` (`Furigana`),
   KEY `FullName` (`FullName`),
   KEY `Email` (`Email`),
-  KEY `Organization` (`Organization`,`Furigana`)
+  KEY `Organization` (`Organization`,`Furigana`),
+  KEY `HouseholdID` (`HouseholdID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -341,4 +353,4 @@ CREATE TABLE `user` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
--- 2026-06-05 08:36:17 UTC
+-- 2026-07-18 12:01:27 UTC
