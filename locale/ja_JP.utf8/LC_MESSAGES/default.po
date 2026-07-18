@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: KizunaDB\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-14 11:53+0900\n"
-"PO-Revision-Date: 2026-07-14 12:51+0900\n"
+"POT-Creation-Date: 2026-07-17 18:37+0900\n"
+"PO-Revision-Date: 2026-07-17 18:39+0900\n"
 "Last-Translator: Karen Ellrick <osakawebbie@gmail.com>\n"
 "Language-Team: Karen Ellrick\n"
 "Language: ja\n"
@@ -68,7 +68,7 @@ msgid "new tab"
 msgstr "新しいタブ"
 
 #: action.php:52 attendance.php:65 batch_action.php:86 batch_attendance.php:65
-#: batch_custom.php:15 birthday.php:375 db_settings.php:57 db_settings.php:243
+#: batch_custom.php:15 birthday.php:375 db_settings.php:57 db_settings.php:251
 #: donation.php:108 individual.php:865 individual.php:1163 individual.php:1287
 #: individual.php:1340 search.php:230
 msgid "Select..."
@@ -158,7 +158,7 @@ msgstr "ID"
 #: action_list.php:162 action_list.php:369 attend_aggregate.php:87
 #: attend_detail.php:164 batch_action.php:130 batch_person_text.php:34
 #: batch_person_xml.php:121 batch_person_xml.php:225 batch_person_xml.php:255
-#: batch_person_xml.php:285 birthday.php:106 db_settings.php:177
+#: batch_person_xml.php:285 birthday.php:106 db_settings.php:185
 #: donation_list.php:215 donation_list.php:424 donation_list.php:427
 #: donation_summary.php:126 donation_summary.php:129 functions.php:542
 #: household.php:156 individual.php:513 individual.php:697 list.php:321
@@ -233,7 +233,7 @@ msgid "Phones"
 msgstr "電話番号"
 
 #: action_list.php:237 action_list.php:416 attend_aggregate.php:127
-#: birthday.php:166 db_settings.php:182 donation_list.php:250 edit.php:216
+#: birthday.php:166 db_settings.php:190 donation_list.php:250 edit.php:216
 #: functions.php:544 get_duplicates.php:24 household.php:240 individual.php:342
 #: individual.php:554 individual.php:738 list.php:367 merge_duplicates.php:467
 #: merge_duplicates.php:723 overview.php:71 pledge_list.php:166
@@ -241,13 +241,14 @@ msgstr "電話番号"
 msgid "Email"
 msgstr "メールアドレス"
 
-#: action_list.php:245 action_list.php:425 attend_aggregate.php:135
-#: batch_organization.php:128 batch_person_text.php:37 batch_person_xml.php:126
-#: batch_person_xml.php:230 batch_person_xml.php:260 birthday.php:175
-#: donation_list.php:258 edit.php:88 edit.php:175 functions.php:549
-#: household.php:76 household.php:78 individual.php:363 individual.php:562
-#: individual.php:746 individual.php:1593 list.php:375 pledge_list.php:167
-#: search.php:59 search.php:183
+#: action_list.php:245 action_list.php:425 addrprint_edit.php:409
+#: addrprint_edit.php:415 attend_aggregate.php:135 batch_organization.php:128
+#: batch_person_text.php:37 batch_person_xml.php:126 batch_person_xml.php:230
+#: batch_person_xml.php:260 birthday.php:175 donation_list.php:258 edit.php:88
+#: edit.php:175 functions.php:549 household.php:76 household.php:78
+#: individual.php:363 individual.php:562 individual.php:746 individual.php:1593
+#: labelprint_edit.php:222 list.php:375 pledge_list.php:167 search.php:59
+#: search.php:183
 msgid "Address"
 msgstr "住所"
 
@@ -318,6 +319,398 @@ msgstr "備考"
 msgid "%d actions"
 msgstr "%dのアクション"
 
+#: addrprint_edit.php:76
+msgid "Upload failed."
+msgstr "アップロードに失敗しました。"
+
+#: addrprint_edit.php:78
+msgid "Only PNG files are allowed."
+msgstr "PNG形式のファイルのみ使用できます。"
+
+#: addrprint_edit.php:83
+msgid "Could not save the file."
+msgstr "ファイルを保存できませんでした。"
+
+#: addrprint_edit.php:90
+msgid "No file specified."
+msgstr "ファイルが指定されていません。"
+
+#: addrprint_edit.php:92
+#, php-format
+msgid "Cannot delete: \"%1$s\" is still used by layout \"%2$s\"."
+msgstr "削除できません：「%1$s」はレイアウト「%2$s」で使用されています。"
+
+#: addrprint_edit.php:95
+msgid "File deleted."
+msgstr "ファイルを削除しました。"
+
+#: addrprint_edit.php:100 labelprint_edit.php:38
+msgid "Nothing to delete."
+msgstr "削除するものがありません。"
+
+#: addrprint_edit.php:102 ajax_action.php:64 ajax_action.php:84
+#: ajax_action.php:106 labelprint_edit.php:40
+msgid "Deleted."
+msgstr "削除しました。"
+
+#: addrprint_edit.php:106 addrprint_edit.php:718 addrprint_edit.php:722
+#: labelprint_edit.php:44 labelprint_edit.php:377 labelprint_edit.php:381
+msgid "Please enter a layout name."
+msgstr "レイアウト名を入力してください。"
+
+#: addrprint_edit.php:110 addrprint_edit.php:118 labelprint_edit.php:48
+#: labelprint_edit.php:56
+#, php-format
+msgid "A layout named \"%s\" already exists."
+msgstr "「%s」という名前のレイアウトは既に存在します。"
+
+#: addrprint_edit.php:113 addrprint_edit.php:123 labelprint_edit.php:50
+#: labelprint_edit.php:60
+msgid "Saved."
+msgstr "保存しました。"
+
+#: addrprint_edit.php:186
+msgid "Envelope Layout Editor"
+msgstr "封筒レイアウトエディター"
+
+#: addrprint_edit.php:195
+msgid "Graphic file"
+msgstr "画像ファイル"
+
+#: addrprint_edit.php:198
+msgid "Upload PNG…"
+msgstr "PNGをアップロード…"
+
+#: addrprint_edit.php:199
+msgid "Delete file"
+msgstr "ファイルを削除"
+
+#: addrprint_edit.php:259
+msgid "Envelope/Postcard Layout Editor"
+msgstr "封筒・はがきのレイアウトエディター"
+
+#: addrprint_edit.php:260
+msgid ""
+"Pick a saved layout to edit, or choose \"New…\". The preview updates "
+"automatically. Dashed boxes show where each block is positioned; a solid red "
+"box means the text overflows it."
+msgstr ""
+"編集するレイアウトを選ぶか、「新規…」を選んでください。プレビューが自動的に更"
+"新されます。破線の枠は各ブロックの位置を示し、赤い枠はテキストがその枠からは"
+"み出していることを表します。"
+
+#: addrprint_edit.php:264 batch_custom.php:14 batch_person_format.php:16
+#: batch_photos.php:22 labelprint_edit.php:139
+msgid "Layout"
+msgstr "レイアウト"
+
+#: addrprint_edit.php:272 addrprint_edit.php:581 labelprint_edit.php:147
+#: labelprint_edit.php:305
+msgid "New…"
+msgstr "新規…"
+
+#: addrprint_edit.php:274 addrprint_edit.php:439
+msgid "Menu order"
+msgstr "メニューの順番"
+
+#: addrprint_edit.php:275
+msgid "Re-order…"
+msgstr "並べ替え…"
+
+#: addrprint_edit.php:278 labelprint_edit.php:151
+msgid "Start from"
+msgstr "ひな形から"
+
+#: addrprint_edit.php:280
+msgid "Select a common size…"
+msgstr "よく使うサイズを選択…"
+
+#: addrprint_edit.php:281
+msgid "Env #3 Long, tategaki (235×120)"
+msgstr "長形3号 縦書き (235×120)"
+
+#: addrprint_edit.php:282
+msgid "Env #3 Long, yokogaki (235×120)"
+msgstr "長形3号 横書き (235×120)"
+
+#: addrprint_edit.php:283
+msgid "Env #6, yokogaki (229×162)"
+msgstr "角形6号 横書き (229×162)"
+
+#: addrprint_edit.php:284
+msgid "Postcard (148×100)"
+msgstr "はがき (148×100)"
+
+#: addrprint_edit.php:285
+msgid "New Years Postcard (148×100)"
+msgstr "年賀はがき (148×100)"
+
+#: addrprint_edit.php:289 labelprint_edit.php:167
+msgid "Layout name"
+msgstr "レイアウト名"
+
+#: addrprint_edit.php:296
+msgid "Paper"
+msgstr "用紙"
+
+#: addrprint_edit.php:299
+msgid "Paper width"
+msgstr "用紙の幅"
+
+#: addrprint_edit.php:300
+msgid "Paper height"
+msgstr "用紙の高さ"
+
+#: addrprint_edit.php:303
+msgid "Tategaki (Recipient address & name written vertically)"
+msgstr "縦書き（宛先の住所・氏名を縦書きにする）"
+
+#: addrprint_edit.php:307 addrprint_edit.php:408 batch_person_format.php:25
+#: batch_person_xml.php:286 db_settings.php:23 edit.php:168 edit.php:171
+msgid "Postal Code"
+msgstr "郵便番号"
+
+#: addrprint_edit.php:310 addrprint_edit.php:343 addrprint_edit.php:360
+#: addrprint_edit.php:372
+msgid "Text size (pt)"
+msgstr "文字サイズ (pt)"
+
+#: addrprint_edit.php:311 addrprint_edit.php:323 addrprint_edit.php:340
+#: addrprint_edit.php:356 addrprint_edit.php:369 addrprint_edit.php:391
+msgid "Position from left"
+msgstr "左からの位置"
+
+#: addrprint_edit.php:312
+msgid "Position from top (base of digits)"
+msgstr "上からの位置（数字の下端）"
+
+#: addrprint_edit.php:313
+msgid "Digit spacing"
+msgstr "数字の間隔"
+
+#: addrprint_edit.php:314
+msgid "Extra gap at hyphen"
+msgstr "ハイフン部分の追加間隔"
+
+#: addrprint_edit.php:320
+msgid "Recipient"
+msgstr "宛先"
+
+#: addrprint_edit.php:324 addrprint_edit.php:357 addrprint_edit.php:370
+#: addrprint_edit.php:392
+msgid "Position from top"
+msgstr "上からの位置"
+
+#: addrprint_edit.php:325 addrprint_edit.php:358
+msgid "Box width"
+msgstr "枠の幅"
+
+#: addrprint_edit.php:326 addrprint_edit.php:359
+msgid "Box height"
+msgstr "枠の高さ"
+
+#: addrprint_edit.php:327
+msgid "Address text size (pt)"
+msgstr "住所の文字サイズ（日本）"
+
+#: addrprint_edit.php:328
+msgid "Name text size (pt)"
+msgstr "氏名の文字サイズ（日本）"
+
+#: addrprint_edit.php:329
+msgid "Name indent"
+msgstr "氏名の字下げ"
+
+#: addrprint_edit.php:330
+msgid "Gap before name"
+msgstr "氏名の前の間隔"
+
+#: addrprint_edit.php:333
+msgid ""
+"Indent shifts the name across the writing direction; gap is the space before "
+"it."
+msgstr "字下げは書字方向に対して氏名をずらし、間隔は氏名の前の空きです。"
+
+#: addrprint_edit.php:337
+msgid "Return address"
+msgstr "差出人住所"
+
+#: addrprint_edit.php:341
+msgid "Position from bottom"
+msgstr "下からの位置"
+
+#: addrprint_edit.php:342 addrprint_edit.php:371
+msgid "Width (0 = auto)"
+msgstr "幅（0 = 自動）"
+
+#: addrprint_edit.php:347 addrprint_edit.php:376
+msgid "Or text"
+msgstr "またはテキスト"
+
+#: addrprint_edit.php:348
+msgid ""
+"Anchored bottom-left. Pick or upload a graphic (used if set), or type plain "
+"text. Width sizes the image or wraps the text; 0 = natural image size or "
+"unwrapped text."
+msgstr ""
+"左下を基点にします。画像を選択またはアップロードするか（設定した場合は画像が"
+"優先）、またはテキストを入力します。幅は画像のサイズ、またはテキストの折り返"
+"し幅になります。0 = 画像は元のサイズ／テキストは右端まで。"
+
+#: addrprint_edit.php:352
+msgid "Non-Japan recipient"
+msgstr "外国の宛先"
+
+#: addrprint_edit.php:353
+msgid ""
+"Non-Japan is authored in landscape (Western addressing style) and then "
+"rotated in the PDF."
+msgstr "外国用は横向き（封筒を横にした状態）で作成します。"
+
+#: addrprint_edit.php:366
+msgid "Non-Japan return address"
+msgstr "外国の差出人住所"
+
+#: addrprint_edit.php:380
+msgid "Advanced"
+msgstr "詳細設定"
+
+#: addrprint_edit.php:382
+msgid "Default stamp"
+msgstr "初期の郵便局スタンプ"
+
+#: addrprint_edit.php:384 batch_printaddr.php:61
+msgid "None"
+msgstr "なし"
+
+#: addrprint_edit.php:385 batch_printaddr.php:62
+msgid "Standard mail"
+msgstr "普通郵便"
+
+#: addrprint_edit.php:386 batch_printaddr.php:63
+msgid "'Yuu-mail'"
+msgstr "ゆうメール"
+
+#: addrprint_edit.php:387 batch_printaddr.php:64
+msgid "Standard mail w/ contract"
+msgstr "契約付き普通郵便"
+
+#: addrprint_edit.php:388 batch_printaddr.php:65
+msgid "'Yuu-mail' w/ contract"
+msgstr "契約付きゆうメール"
+
+#: addrprint_edit.php:395
+msgid "Custom code file"
+msgstr "カスタムコードのファイル"
+
+#: addrprint_edit.php:399 labelprint_edit.php:206
+msgid "Preview sample"
+msgstr "プレビュー用サンプル"
+
+#: addrprint_edit.php:401 labelprint_edit.php:208
+msgid "Japan (sample)"
+msgstr "日本（サンプル）"
+
+#: addrprint_edit.php:402 labelprint_edit.php:209
+msgid "Foreign (sample)"
+msgstr "外国（サンプル）"
+
+#: addrprint_edit.php:403 labelprint_edit.php:210
+#, php-format
+msgid "From Basket (%d)"
+msgstr "かごから (%d)"
+
+#: addrprint_edit.php:405 batch_printaddr.php:57
+msgid "Use kanji for numbers"
+msgstr "漢字の数字を使用"
+
+#: addrprint_edit.php:411 addrprint_edit.php:414 batch_person_xml.php:131
+#: batch_person_xml.php:235 batch_person_xml.php:265 edit.php:87 edit.php:179
+#: functions.php:552 labelprint_edit.php:218 labelprint_edit.php:221
+#: search.php:58 search.php:184
+msgid "Label Name"
+msgstr "ラベル用名前"
+
+#: addrprint_edit.php:417
+msgid "Paging through your Basket records."
+msgstr "かごの中身を1項目ずつ表示しています。"
+
+#: addrprint_edit.php:421 individual.php:1669 individual.php:1814
+#: labelprint_edit.php:228
+msgid "Save"
+msgstr "保存"
+
+#: addrprint_edit.php:422 labelprint_edit.php:229
+msgid "Save as New"
+msgstr "新規として保存"
+
+#: addrprint_edit.php:423 addrprint_edit.php:731 db_settings.php:64
+#: db_settings.php:86 db_settings.php:110 db_settings.php:140
+#: db_settings.php:214 labelprint_edit.php:230 labelprint_edit.php:390
+#: merge_duplicates.php:103 merge_duplicates.php:108 merge_duplicates.php:122
+#: merge_duplicates.php:125
+msgid "Delete"
+msgstr "削除"
+
+#: addrprint_edit.php:428 household.php:106 labelprint_edit.php:235
+msgid "Preview"
+msgstr "プレビュー"
+
+#: addrprint_edit.php:438 labelprint_edit.php:241
+msgid "Delete Layout"
+msgstr "レイアウトを削除"
+
+#: addrprint_edit.php:440
+msgid "Drag to arrange. The new order takes effect when you save the layout."
+msgstr ""
+"ドラッグして並べ替えます。新しい順番はレイアウトを保存すると反映されます。"
+
+#: addrprint_edit.php:458
+msgid "(missing)"
+msgstr "（見つかりません）"
+
+#: addrprint_edit.php:522
+msgid "(no graphic, just text)"
+msgstr "（画像なし、テキストのみ）"
+
+#: addrprint_edit.php:591
+msgid "(new layout)"
+msgstr "（新規レイアウト）"
+
+#: addrprint_edit.php:727 labelprint_edit.php:386
+#, php-format
+msgid "Delete the layout \"%s\"?"
+msgstr "レイアウト「%s」を削除しますか。"
+
+#: addrprint_edit.php:732 addrprint_edit.php:744 batch_action.php:122
+#: db_settings.php:581 db_settings.php:681 db_settings.php:796
+#: individual.php:1676 individual.php:1821 individual.php:2020
+#: labelprint_edit.php:391 merge_duplicates.php:794
+msgid "Cancel"
+msgstr "キャンセル"
+
+#: addrprint_edit.php:743
+msgid "Done"
+msgstr "完了"
+
+#: addrprint_edit.php:758
+msgid "Select a file to delete first."
+msgstr "先に削除するファイルを選択してください。"
+
+#: addrprint_edit.php:759
+#, php-format
+msgid "Delete the file \"%s\" from the server?"
+msgstr "ファイル「%s」をサーバーから削除しますか？"
+
+#: addrprint_edit.php:773
+#, php-format
+msgid "Replace existing file \"%s\"?"
+msgstr "既存のファイル「%s」を置き換えますか？"
+
+#: addrprint_edit.php:781
+msgid "Uploaded."
+msgstr "アップロードしました。"
+
 #: ajax_action.php:10
 msgid "Update successful."
 msgstr "変更ができました。"
@@ -334,7 +727,7 @@ msgstr "削除しようですが、項目は見つかりませんでした。"
 msgid "Access denied."
 msgstr "アクセスが拒否されました。"
 
-#: ajax_action.php:42 db_settings.php:921
+#: ajax_action.php:42 db_settings.php:929
 msgid "Please choose at least one field for quick search."
 msgstr "クイック検索の対象欄を少なくとも1つ選択してください。"
 
@@ -351,18 +744,14 @@ msgid "Failed to save."
 msgstr "保存に失敗しました。"
 
 #: ajax_action.php:64 ajax_action.php:84 ajax_action.php:106
-msgid "Deleted."
-msgstr "削除しました。"
-
-#: ajax_action.php:64 ajax_action.php:84 ajax_action.php:106
 msgid "Not found."
 msgstr "見つかりませんでした。"
 
-#: ajax_action.php:116 db_settings.php:988
+#: ajax_action.php:116 db_settings.php:996
 msgid "User Name cannot be blank."
 msgstr "ユーザー名を入力してください。"
 
-#: ajax_action.php:119 db_settings.php:992
+#: ajax_action.php:119 db_settings.php:1000
 msgid "UserID cannot be blank."
 msgstr "ユーザーIDを入力してください。"
 
@@ -371,11 +760,11 @@ msgstr "ユーザーIDを入力してください。"
 msgid "Please choose a stronger password (at least \"Fair\")."
 msgstr "もっと強いパスワードを選んでください（最低でも「普通」）。"
 
-#: ajax_action.php:138 db_settings.php:997
+#: ajax_action.php:138 db_settings.php:1005
 msgid "An email address is required to send a setup link."
 msgstr "セットアップリンクを送信するには、メールアドレスが必要です。"
 
-#: ajax_action.php:145 db_settings.php:1003
+#: ajax_action.php:145 db_settings.php:1011
 msgid "You must enter a password for a new user."
 msgstr "新規ユーザーのために、パスワードの入力は必要です。"
 
@@ -429,11 +818,11 @@ msgstr "ユーザーを削除しました。"
 msgid "User not found."
 msgstr "ユーザーが見つかりませんでした。"
 
-#: ajax_action.php:236 db_settings.php:944
+#: ajax_action.php:236 db_settings.php:952
 msgid "Category name cannot be blank."
 msgstr "カテゴリ名を入力してください。"
 
-#: ajax_action.php:239 db_settings.php:948
+#: ajax_action.php:239 db_settings.php:956
 msgid "Please choose an application."
 msgstr "適用を指定してください。"
 
@@ -457,7 +846,7 @@ msgstr "カテゴリを削除しました。"
 msgid "Category not found."
 msgstr "カテゴリが見つかりませんでした。"
 
-#: ajax_action.php:281 db_settings.php:954
+#: ajax_action.php:281 db_settings.php:962
 msgid "Event name cannot be blank."
 msgstr "イベント名を入力してください。"
 
@@ -473,7 +862,7 @@ msgstr "イベント情報を変更しました。"
 msgid "Invalid event ID"
 msgstr "無効なイベントID"
 
-#: ajax_action.php:315 db_settings.php:780
+#: ajax_action.php:315 db_settings.php:788
 msgid "Please select an event to reassign to."
 msgstr "再割り当て先のイベントを選んでください。"
 
@@ -485,7 +874,7 @@ msgstr "イベントを削除しました。"
 msgid "Event not found."
 msgstr "イベントが見つかりませんでした。"
 
-#: ajax_action.php:338 db_settings.php:982
+#: ajax_action.php:338 db_settings.php:990
 msgid "Donation Type name cannot be blank."
 msgstr "献金タイプの名前を入力してください。"
 
@@ -509,7 +898,7 @@ msgstr "献金タイプを削除しました。"
 msgid "Donation Type not found."
 msgstr "献金タイプが見つかりませんでした。"
 
-#: ajax_action.php:395 db_settings.php:976
+#: ajax_action.php:395 db_settings.php:984
 msgid "Action Type name cannot be blank."
 msgstr "アクションタイプの名前を入力してください。"
 
@@ -533,7 +922,7 @@ msgstr "アクションタイプを削除しました。"
 msgid "Action Type not found."
 msgstr "アクションタイプが見つかりませんでした。"
 
-#: ajax_action.php:450 db_settings.php:970
+#: ajax_action.php:450 db_settings.php:978
 msgid "All fields must be filled in."
 msgstr "すべての欄を入力してください。"
 
@@ -760,12 +1149,12 @@ msgid "Please select at least one event."
 msgstr "イベントをひとつ以上選択する必要があります。"
 
 #: basket.php:10 batch_organization.php:91 batch_organization.php:125
-#: db_settings.php:293 db_settings.php:333 db_settings.php:354
-#: db_settings.php:402 db_settings.php:426 db_settings.php:462
-#: db_settings.php:499 db_settings.php:524 db_settings.php:548
-#: db_settings.php:590 db_settings.php:648 db_settings.php:689
-#: db_settings.php:759 db_settings.php:807 db_settings.php:878
-#: db_settings.php:907 db_settings.php:929 functions.php:316
+#: db_settings.php:301 db_settings.php:341 db_settings.php:362
+#: db_settings.php:410 db_settings.php:434 db_settings.php:470
+#: db_settings.php:507 db_settings.php:532 db_settings.php:556
+#: db_settings.php:598 db_settings.php:656 db_settings.php:697
+#: db_settings.php:767 db_settings.php:815 db_settings.php:886
+#: db_settings.php:915 db_settings.php:937 functions.php:316
 #: individual.php:1555 individual.php:1590
 msgid "Your login has timed out - please refresh the page."
 msgstr ""
@@ -971,12 +1360,6 @@ msgstr ""
 "下記のとおり、%1$d 件すべてが %3$s にタイプ「%2$s」のアクションを1つ以上持っ"
 "ていますが、内容だけが異なります。どうしますか？"
 
-#: batch_action.php:122 db_settings.php:573 db_settings.php:673
-#: db_settings.php:788 individual.php:1676 individual.php:1821
-#: individual.php:2020 merge_duplicates.php:794
-msgid "Cancel"
-msgstr "キャンセル"
-
 #: batch_action.php:124
 #, php-format
 msgid "Add only unique (%d)"
@@ -1145,10 +1528,6 @@ msgstr "このカテゴリに保存"
 msgid "Select desired report and click the button..."
 msgstr "表示するレポートを選んで、ボタンをクリック…"
 
-#: batch_custom.php:14 batch_person_format.php:16 batch_photos.php:22
-msgid "Layout"
-msgstr "レイアウト"
-
 #: batch_custom.php:22
 msgid "Make Report"
 msgstr "レポートを作成"
@@ -1211,33 +1590,88 @@ msgid ""
 "before continuing.)"
 msgstr "（それぞれをクリックして住所を入れない場合、印刷されません。）"
 
-#: batch_label.php:38
+#: batch_label.php:73
 msgid "Select options for label printing and click the button."
 msgstr "ラベル印刷のオプションをを選んで、ボタンをクリック…"
 
-#: batch_label.php:42 batch_printaddr.php:42
+#: batch_label.php:77 batch_printaddr.php:42
 msgid "Individuals"
 msgstr "個人"
 
-#: batch_label.php:43 batch_printaddr.php:43
+#: batch_label.php:78 batch_printaddr.php:43
 msgid "Households"
 msgstr "世帯"
 
-#: batch_label.php:46
+#: batch_label.php:81
 msgid "Label Type"
 msgstr "ラベルのタイプ"
 
-#: batch_label.php:54
+#: batch_label.php:90 batch_printaddr.php:54
+msgid "Edit / preview this layout…"
+msgstr "このレイアウトを編集／プレビュー…"
+
+#: batch_label.php:91 labelprint_edit.php:212
 msgid "Japan postal code on its own line"
 msgstr "最初の行は郵便番号だけに"
 
-#: batch_label.php:55 batch_printaddr.php:56
+#: batch_label.php:92 batch_printaddr.php:56
 msgid "Sort by Japan/foreign"
 msgstr "日本と外国を分ける"
 
-#: batch_label.php:57 batch_printaddr.php:68
+#: batch_label.php:95
+msgid "Fill leftover labels on the last sheet (optional):"
+msgstr "最後のシートの余ったラベルを埋める（任意）："
+
+#: batch_label.php:99
+msgid "Self"
+msgstr "自分"
+
+#: batch_label.php:100
+msgid "copies"
+msgstr "枚数"
+
+#: batch_label.php:103 batch_person_xml.php:279 search.php:70 search.php:88
+#: search.php:113 search.php:126 search.php:149 search.php:172 search.php:198
+msgid "Add another..."
+msgstr "同じような条件を追加…"
+
+#: batch_label.php:105 batch_printaddr.php:68
 msgid "Make PDF"
 msgstr "PDFを作成"
+
+#: batch_label.php:116
+msgid "(none)"
+msgstr "（なし）"
+
+#: batch_label.php:118
+#, php-format
+msgid "%1$d labels per sheet"
+msgstr "1シートあたりラベル%1$d枚"
+
+#: batch_label.php:119
+#, php-format
+msgid "%1$d extra"
+msgstr "追加%1$d枚"
+
+#: batch_label.php:120
+#, php-format
+msgid "%1$d extras"
+msgstr "追加%1$d枚"
+
+#: batch_label.php:121
+#, php-format
+msgid "%1$d blank on last sheet"
+msgstr "最後のシートに空き%1$d枚"
+
+#: batch_label.php:122
+#, php-format
+msgid "(+%1$d sheet)"
+msgstr "（＋%1$dシート）"
+
+#: batch_label.php:123
+#, php-format
+msgid "(+%1$d sheets)"
+msgstr "（＋%1$dシート）"
 
 #: batch_organization.php:18
 #, php-format
@@ -1351,11 +1785,6 @@ msgstr "名前（ふりがな/ローマ字順）"
 msgid "Birthday"
 msgstr "誕生日"
 
-#: batch_person_format.php:25 batch_person_xml.php:286 db_settings.php:23
-#: edit.php:168 edit.php:171
-msgid "Postal Code"
-msgstr "郵便番号"
-
 #: batch_person_text.php:11
 msgid "Select a Category..."
 msgstr "カテゴリを選択…"
@@ -1393,7 +1822,7 @@ msgid "Landline Phone and/or Cell Phone"
 msgstr "固定/携帯の電話番号"
 
 #: batch_person_text.php:43 batch_person_xml.php:133 batch_person_xml.php:237
-#: batch_person_xml.php:267 edit.php:195 individual.php:360
+#: batch_person_xml.php:267 edit.php:195 functions.php:551 individual.php:360
 #: merge_duplicates.php:45 search.php:185
 msgid "Landline Phone"
 msgstr "固定電話"
@@ -1499,11 +1928,6 @@ msgstr "正しくないXMLタッグ名（スペースや全角字は禁止）"
 msgid "Data"
 msgstr "データ"
 
-#: batch_person_xml.php:131 batch_person_xml.php:235 batch_person_xml.php:265
-#: edit.php:87 edit.php:179 functions.php:552 search.php:58 search.php:184
-msgid "Label Name"
-msgstr "ラベル用名前"
-
 #: batch_person_xml.php:132 batch_person_xml.php:236 batch_person_xml.php:266
 msgid "Landline and/or Cell Phone"
 msgstr "固定/携帯の電話番号"
@@ -1575,11 +1999,6 @@ msgstr "メンバーの欄"
 msgid "Org Fields"
 msgstr "団体の欄"
 
-#: batch_person_xml.php:279 search.php:70 search.php:88 search.php:113
-#: search.php:126 search.php:149 search.php:172 search.php:198
-msgid "Add another..."
-msgstr "同じような条件を追加…"
-
 #: batch_person_xml.php:281
 msgid "Order By"
 msgstr "順番"
@@ -1621,33 +2040,9 @@ msgstr "住所印刷のオプションをを選んで、ボタンをクリック
 msgid "Envelope/Postcard Format"
 msgstr "封筒/はがきのフォーマット"
 
-#: batch_printaddr.php:57
-msgid "Use kanji for numbers"
-msgstr "漢字の数字を使用"
-
 #: batch_printaddr.php:60
 msgid "Post office stamp:"
 msgstr "郵便局のスタンプ："
-
-#: batch_printaddr.php:61
-msgid "None"
-msgstr "なし"
-
-#: batch_printaddr.php:62
-msgid "Standard mail"
-msgstr "普通郵便"
-
-#: batch_printaddr.php:63
-msgid "'Yuu-mail'"
-msgstr "ゆうメール"
-
-#: batch_printaddr.php:64
-msgid "Standard mail w/ contract"
-msgstr "契約付き普通郵便"
-
-#: batch_printaddr.php:65
-msgid "'Yuu-mail' w/ contract"
-msgstr "契約付きゆうメール"
 
 #: birthday.php:31 birthday.php:43
 #, php-format
@@ -1743,11 +2138,11 @@ msgstr ""
 "（元の情報は郵便局のデータベースから取りましたので、変更する前に、十分確認し"
 "て、確認して、もう一回確認してください。）"
 
-#: db_settings.php:27
+#: db_settings.php:27 labelprint_edit.php:215
 msgid "Prefecture"
 msgstr "都道府県"
 
-#: db_settings.php:28
+#: db_settings.php:28 labelprint_edit.php:216
 msgid "City, etc."
 msgstr "市区町"
 
@@ -1800,12 +2195,6 @@ msgstr "全項目"
 msgid "Add or Rename"
 msgstr "作成や名前を変更"
 
-#: db_settings.php:64 db_settings.php:86 db_settings.php:110
-#: db_settings.php:140 db_settings.php:206 merge_duplicates.php:103
-#: merge_duplicates.php:108 merge_duplicates.php:122 merge_duplicates.php:125
-msgid "Delete"
-msgstr "削除"
-
 #: db_settings.php:71
 msgid ""
 "Fill in the information to add a new Action Type (the color is optional). Or "
@@ -1835,7 +2224,7 @@ msgid "Template"
 msgstr "テンプレート"
 
 #: db_settings.php:85 db_settings.php:109 db_settings.php:139
-#: db_settings.php:205
+#: db_settings.php:213
 msgid "Add or Update"
 msgstr "作成や変更"
 
@@ -1890,11 +2279,31 @@ msgstr "終了日付"
 msgid "Use Times"
 msgstr "時間を使う"
 
-#: db_settings.php:149
+#: db_settings.php:145
+msgid "Print Layouts"
+msgstr "印刷レイアウト"
+
+#: db_settings.php:146
+msgid ""
+"Edit the layouts used by \"Print Envelopes/Postcards\" and \"Print Labels\" "
+"in Batch Processing, with a live visual preview."
+msgstr ""
+"一括処理の「封筒/はがきに印刷」と「ラベルに印刷」で使うレイアウトを、視覚的な"
+"プレビューを見ながら編集します。"
+
+#: db_settings.php:147
+msgid "Edit Envelope/Postcard Layouts"
+msgstr "封筒・はがきのレイアウトを編集"
+
+#: db_settings.php:148
+msgid "Edit Label Layouts"
+msgstr "ラベルのレイアウトを編集"
+
+#: db_settings.php:157
 msgid "Quick Search Fields"
 msgstr "クイック検索の対象"
 
-#: db_settings.php:150
+#: db_settings.php:158
 msgid ""
 "Choose which fields the Quick Search box looks in. Searching fewer fields "
 "(especially Remarks) makes Quick Search faster."
@@ -1902,16 +2311,16 @@ msgstr ""
 "クイック検索ボックスで検索する欄を選択してください。検索する欄を減らすと（特"
 "に「備考」）、クイック検索が高速になります。"
 
-#: db_settings.php:160 edit.php:250 edit_pledge.php:113 individual.php:878
+#: db_settings.php:168 edit.php:250 edit_pledge.php:113 individual.php:878
 #: individual.php:1025 individual.php:2013 user_settings.php:58
 msgid "Save Changes"
 msgstr "変更を保存"
 
-#: db_settings.php:166
+#: db_settings.php:174
 msgid "User Management"
 msgstr "ユーザー（ログイン）管理"
 
-#: db_settings.php:167
+#: db_settings.php:175
 msgid ""
 "Fill in the information to add a new user.  Or select an existing user to "
 "make changes or delete.NOTE: You cannot see the existing password, but you "
@@ -1921,93 +2330,93 @@ msgstr ""
 "できます。注意：現在のパスワードを表示できないですが、パスワードを忘れたユー"
 "ザーのために新しいパスワードを上書きできます。"
 
-#: db_settings.php:170
+#: db_settings.php:178
 msgid "New User..."
 msgstr "新しいユーザー…"
 
-#: db_settings.php:179
+#: db_settings.php:187
 msgid "UserID (to log in)"
 msgstr "UserID （ログインする時に使う）"
 
-#: db_settings.php:181
+#: db_settings.php:189
 msgid "(max. 16 English characters, no spaces or punctuation)"
 msgstr "（16文字以下、半角英字だけ、スペースや句読点はダメ）"
 
-#: db_settings.php:184 user_settings.php:57
+#: db_settings.php:192 user_settings.php:57
 msgid "(used for \"forgot password\" capability)"
 msgstr "（「パスワードをお忘れの方」機能で使用します）"
 
-#: db_settings.php:185
+#: db_settings.php:193
 msgid "Language for Interface"
 msgstr "インタフェースの言語"
 
-#: db_settings.php:186 user_settings.php:53
+#: db_settings.php:194 user_settings.php:53
 msgid "English"
 msgstr "英語"
 
-#: db_settings.php:187 user_settings.php:54
+#: db_settings.php:195 user_settings.php:54
 msgid "Japanese"
 msgstr "日本語"
 
-#: db_settings.php:189
+#: db_settings.php:197
 msgid "Admin Privileges"
 msgstr "管理者許可"
 
-#: db_settings.php:192
+#: db_settings.php:200
 msgid "Hide Donation Info"
 msgstr "献金情報を隠す"
 
-#: db_settings.php:194
+#: db_settings.php:202
 msgid ""
 "Email a setup link (instead of entering a password here; requires Email)"
 msgstr ""
 "セットアップリンクをメールで送る（ここでパスワードを入力する代わり。メールア"
 "ドレスが必要）"
 
-#: db_settings.php:196 passwordreset.php:100
+#: db_settings.php:204 passwordreset.php:100
 msgid "New Password"
 msgstr "新しいパスワード"
 
-#: db_settings.php:198
+#: db_settings.php:206
 msgid "(leave blank if not changing password)"
 msgstr "（パスワード変更しない場合、空けておいてください。）"
 
-#: db_settings.php:199 passwordreset.php:101
+#: db_settings.php:207 passwordreset.php:101
 msgid "New Password again"
 msgstr "新しいパスワード（確認用）"
 
-#: db_settings.php:203
+#: db_settings.php:211
 msgid "Dashboard Files"
 msgstr "ダッシュボードファイル"
 
-#: db_settings.php:512
+#: db_settings.php:520
 #, php-format
 msgid "Delete category \"%s\"?"
 msgstr "カテゴリ「%s」を削除しますか。"
 
-#: db_settings.php:513
+#: db_settings.php:521
 #, php-format
 msgid "%d people are currently in this category and will lose it."
 msgstr "現在%d人がこのカテゴリに入っており、外れます。"
 
-#: db_settings.php:565 db_settings.php:665
+#: db_settings.php:573 db_settings.php:673
 msgid "Reassign and Delete"
 msgstr "再割り当てして削除"
 
-#: db_settings.php:567 db_settings.php:667
+#: db_settings.php:575 db_settings.php:675
 msgid "Please select a type to reassign to."
 msgstr "再割り当て先のタイプを選んでください。"
 
-#: db_settings.php:606
+#: db_settings.php:614
 #, php-format
 msgid "Are you sure you want to delete action type \"%s\"?"
 msgstr "アクションタイプ「%s」を削除してよろしいですか。"
 
-#: db_settings.php:611
+#: db_settings.php:619
 msgid "click here to view actions in a new tab"
 msgstr "ここをクリックすると、新しいタブでアクション一覧が開きます"
 
-#: db_settings.php:612
+#: db_settings.php:620
 #, php-format
 msgid ""
 "This type has been used on %1$d action records (%2$s). They are important "
@@ -2017,33 +2426,33 @@ msgstr ""
 "このタイプは%1$dのアクション記録（%2$s）に使われています。これらは履歴データ"
 "なので、タイプを削除する前に、別のタイプに再割り当てする必要があります："
 
-#: db_settings.php:620 db_settings.php:732
+#: db_settings.php:628 db_settings.php:740
 msgid "Reassign to:"
 msgstr "再割り当て先："
 
-#: db_settings.php:627
+#: db_settings.php:635
 msgid "Prepend this text to action descriptions:"
 msgstr "アクションの「内容」の頭にこのテキストを入れる："
 
-#: db_settings.php:632
+#: db_settings.php:640
 #, php-format
 msgid "Delete action type \"%s\"?"
 msgstr "アクションタイプ「%s」を削除しますか。"
 
-#: db_settings.php:705
+#: db_settings.php:713
 #, php-format
 msgid "Are you sure you want to delete donation type \"%s\"?"
 msgstr "献金タイプ「%s」を削除してよろしいですか。"
 
-#: db_settings.php:710
+#: db_settings.php:718
 msgid "click here to view donations in a new tab"
 msgstr "ここをクリックすると、新しいタブで献金一覧が開きます"
 
-#: db_settings.php:712
+#: db_settings.php:720
 msgid "click here to view pledges in a new tab"
 msgstr "ここをクリックすると、新しいタブで約束一覧が開きます"
 
-#: db_settings.php:715
+#: db_settings.php:723
 #, php-format
 msgid ""
 "This type has been used on %1$d donations (%2$s) and %3$d pledges (%4$s). "
@@ -2054,7 +2463,7 @@ msgstr ""
 "らは履歴データなので、タイプを削除する前に、別のタイプに再割り当てする必要が"
 "あります："
 
-#: db_settings.php:719
+#: db_settings.php:727
 #, php-format
 msgid ""
 "This type has been used on %1$d donations (%2$s). They are important "
@@ -2064,7 +2473,7 @@ msgstr ""
 "このタイプは%1$d件の献金（%2$s）に使われています。これらは履歴データなので、"
 "タイプを削除する前に、別のタイプに再割り当てする必要があります："
 
-#: db_settings.php:723
+#: db_settings.php:731
 #, php-format
 msgid ""
 "This type has been used on %1$d pledges (%2$s). They are important history, "
@@ -2074,29 +2483,29 @@ msgstr ""
 "このタイプは%1$d件の献金の約束（%2$s）に使われています。これらは履歴データな"
 "ので、タイプを削除する前に、別のタイプに再割り当てする必要があります："
 
-#: db_settings.php:739
+#: db_settings.php:747
 msgid "Prepend this text to donation descriptions:"
 msgstr "献金の「内容」の頭にこのテキストを入れる："
 
-#: db_settings.php:744
+#: db_settings.php:752
 #, php-format
 msgid "Delete donation type \"%s\"?"
 msgstr "献金タイプ「%s」を削除しますか。"
 
-#: db_settings.php:776
+#: db_settings.php:784
 msgid "Confirm"
 msgstr "確認"
 
-#: db_settings.php:823
+#: db_settings.php:831
 #, php-format
 msgid "Are you sure you want to delete event \"%s\"?"
 msgstr "イベント「%s」を削除してよろしいですか。"
 
-#: db_settings.php:830
+#: db_settings.php:838
 msgid "click here to view attendance in a new tab"
 msgstr "ここをクリックすると、新しいタブで参加記録一覧が開きます"
 
-#: db_settings.php:831
+#: db_settings.php:839
 #, php-format
 msgid ""
 "This event has been used for %1$d attendance records, %2$s (%3$s). You can "
@@ -2108,30 +2517,30 @@ msgstr ""
 "ベントに再割り当てして統合することも、完全に削除することもできます。これらは"
 "履歴データなので削除しないことをお勧めしますが、以下の選択肢があります："
 
-#: db_settings.php:840
+#: db_settings.php:848
 msgid "Reassign these records to another event:"
 msgstr "これらの記録を別のイベントに再割り当て："
 
-#: db_settings.php:849
+#: db_settings.php:857
 #, php-format
 msgid "Delete all %d attendance records along with the event."
 msgstr "イベントとともに%d件の参加記録を削除する。"
 
-#: db_settings.php:853
+#: db_settings.php:861
 #, php-format
 msgid "Delete event \"%s\"?"
 msgstr "イベント「%s」を削除しますか。"
 
-#: db_settings.php:898
+#: db_settings.php:906
 #, php-format
 msgid "Are you sure you want to delete user \"%1$s\" (UserID: %2$s)?"
 msgstr "ユーザー「%1$s」（ユーザーID：%2$s）を削除してよろしいですか。"
 
-#: db_settings.php:958
+#: db_settings.php:966
 msgid "Start date cannot be blank."
 msgstr "イベントの始まりの日付を指定してください。"
 
-#: db_settings.php:963
+#: db_settings.php:971
 msgid "End date cannot be blank."
 msgstr "イベントの終わりの日付を指定してください。"
 
@@ -2264,8 +2673,8 @@ msgstr "未処理"
 msgid "Amount %s %s"
 msgstr "金額 %s %s"
 
-#: donation_list.php:240 edit.php:89 functions.php:551 get_duplicates.php:22
-#: household.php:87 overview.php:85 search.php:60
+#: donation_list.php:240 edit.php:89 get_duplicates.php:22 household.php:87
+#: overview.php:85 search.php:60
 msgid "Phone"
 msgstr "電話番号"
 
@@ -2325,12 +2734,12 @@ msgid "New Entry"
 msgstr "新規項目"
 
 #: edit.php:81
-msgid "Show all households"
-msgstr "全ての世帯を表示"
-
-#: edit.php:82
 msgid "Matches"
 msgstr "該当"
+
+#: edit.php:82
+msgid "Show all households"
+msgstr "全ての世帯を表示"
 
 #: edit.php:107
 msgid "Organization (church, company, etc.)"
@@ -2376,7 +2785,7 @@ msgstr "外国の住所"
 msgid "Lookup"
 msgstr "検索"
 
-#: edit.php:174
+#: edit.php:174 labelprint_edit.php:217
 msgid "Rest of Address"
 msgstr "住所の残り"
 
@@ -2809,10 +3218,6 @@ msgstr "世帯の写真"
 msgid "No photo"
 msgstr "写真はない"
 
-#: household.php:106
-msgid "Preview"
-msgstr "プレビュー"
-
 #: household.php:107
 msgid "Caption"
 msgstr "世帯写真のキャプション"
@@ -3086,10 +3491,6 @@ msgstr "[リーダー]"
 msgid "Edit Action"
 msgstr "アクションを編集"
 
-#: individual.php:1669 individual.php:1814
-msgid "Save"
-msgstr "保存"
-
 #: individual.php:1710 individual.php:1900 individual.php:2072
 #: individual.php:2269
 msgid "Are you sure you want to delete this record?"
@@ -3161,6 +3562,116 @@ msgstr "ファイルを選択してください。"
 #: individual.php:2491
 msgid "File size cannot exceed 8MB. Yours is: "
 msgstr "８MBを超えるファイルは受け入れません。このファイルは："
+
+#: labelprint_edit.php:96 labelprint_edit.php:133
+msgid "Label Layout Editor"
+msgstr "ラベルのレイアウトエディター"
+
+#: labelprint_edit.php:134
+msgid ""
+"Pick a saved layout to edit, or choose \"New…\" and start from a common "
+"product. The preview updates automatically."
+msgstr ""
+"編集するレイアウトを選ぶか、「新規…」を選んでよく使う製品から始めます。プレ"
+"ビューが自動的に更新されます。"
+
+#: labelprint_edit.php:153
+msgid "Select a common product…"
+msgstr "よく使う製品を選択…"
+
+#: labelprint_edit.php:154
+msgid "Japan (A4)"
+msgstr "日本 (A4)"
+
+#: labelprint_edit.php:160 labelprint_edit.php:175
+msgid "US Letter"
+msgstr "USレター"
+
+#: labelprint_edit.php:171
+msgid "Sheet"
+msgstr "シート"
+
+#: labelprint_edit.php:172
+msgid "Paper size"
+msgstr "用紙サイズ"
+
+#: labelprint_edit.php:179
+msgid "Rows"
+msgstr "行数"
+
+#: labelprint_edit.php:180
+msgid "Columns"
+msgstr "列数"
+
+#: labelprint_edit.php:181
+msgid "Label width"
+msgstr "ラベルの幅"
+
+#: labelprint_edit.php:182
+msgid "Label height"
+msgstr "ラベルの高さ"
+
+#: labelprint_edit.php:183
+msgid "Gutter across"
+msgstr "横の間隔"
+
+#: labelprint_edit.php:184
+msgid "Gutter down"
+msgstr "縦の間隔"
+
+#: labelprint_edit.php:185
+msgid "Page margin top"
+msgstr "ページ上余白"
+
+#: labelprint_edit.php:186
+msgid "Page margin left"
+msgstr "ページ左余白"
+
+#: labelprint_edit.php:189
+msgid ""
+"\"Label width/height\" is the size of one label; the gutter is the gap to "
+"the next one."
+msgstr ""
+"「ラベルの幅／高さ」は1枚のラベルのサイズで、間隔は隣のラベルまでの空きです。"
+
+#: labelprint_edit.php:193
+msgid "Label text"
+msgstr "ラベルのテキスト"
+
+#: labelprint_edit.php:196
+msgid "Text inset left"
+msgstr "テキストの左余白"
+
+#: labelprint_edit.php:197
+msgid "Text inset right"
+msgstr "テキストの右余白"
+
+#: labelprint_edit.php:198
+msgid "Address text size (Japan)"
+msgstr "住所の文字サイズ（日本）"
+
+#: labelprint_edit.php:199
+msgid "Name text size (Japan)"
+msgstr "氏名の文字サイズ（日本）"
+
+#: labelprint_edit.php:200
+msgid "Address text size (foreign)"
+msgstr "住所の文字サイズ（外国）"
+
+#: labelprint_edit.php:214
+msgid "Postal code"
+msgstr "郵便番号"
+
+#: labelprint_edit.php:224
+msgid "Showing your Basket records, repeating to fill the sheet."
+msgstr "かごにある項目を表示し、シートを埋めるように繰り返しています。"
+
+#: labelprint_edit.php:237
+msgid ""
+"A red outline means the text overflows that label at the chosen text size."
+msgstr ""
+"赤い枠線は、選んだ文字サイズではテキストがそのラベルからはみ出すことを表しま"
+"す。"
 
 #: list.php:35
 #, php-format
@@ -3710,7 +4221,7 @@ msgstr "PersonIDは渡されませんでした。"
 msgid "There was no layout type passed."
 msgstr "フォーマットは指定されていないようです。"
 
-#: print_addr.php:37
+#: print_addr.php:38
 msgid "No addresses to print. Just close this tab and check your selection."
 msgstr ""
 "印刷できる住所はありません。このタブを閉めて、選択された項目を確認してくださ"
@@ -3899,569 +4410,3 @@ msgstr "確証のため、現在のパスワードを入力してください。
 #: user_settings.php:82
 msgid "You must enter a new password in both fields."
 msgstr "新しいパスワードを両方の欄に入力してください。"
-
-#~ msgid "Select a Household: All"
-#~ msgstr "世帯を選択：すべて"
-
-#~ msgid "Select a Household: Possible Matches"
-#~ msgstr "世帯の選択：似ている？"
-
-#~ msgid "Get All Households"
-#~ msgstr "全ての世帯を表示する"
-
-#, fuzzy
-#~| msgid "Please select an event."
-#~ msgid "Please select..."
-#~ msgstr "イベントを選んでください。"
-
-#, php-format
-#~ msgid "%s new records successfully added."
-#~ msgstr "%s の項目を追加しました。"
-
-#, php-format
-#~ msgid ""
-#~ "However, the following %s people already had a action of type \"%s\" on "
-#~ "%s."
-#~ msgstr ""
-#~ "しかし、下記の %s人は、「%s」と言うアクションタイプで %sにアクション項目が"
-#~ "既にありました。"
-
-#~ msgid "Do you still want the additional records added?"
-#~ msgstr "本当にさらの項目を追加したいですか。"
-
-#~ msgid "Yes, add them anyway!"
-#~ msgstr "はい、追加します！"
-
-#~ msgid ""
-#~ "(You can click on a name to view their individual info - it will open in "
-#~ "a new window/tab.)"
-#~ msgstr "（名前をクリックすると、別のウインドー/タブで詳細を見れる）"
-
-#~ msgid "Browse"
-#~ msgstr "参照"
-
-#~ msgid "Select Organization"
-#~ msgstr "団体を選択"
-
-#~ msgid "Relation to Household"
-#~ msgstr "世帯との関係"
-
-#, fuzzy
-#~ msgid "Relation"
-#~ msgstr "世帯との関係"
-
-#, fuzzy, php-format
-#~ msgid "Household %d"
-#~ msgstr "世帯 %d"
-
-#, fuzzy, php-format
-#~ msgid "%d record(s)"
-#~ msgstr "%d 件"
-
-#, fuzzy
-#~ msgid "Records"
-#~ msgstr "件数"
-
-#, fuzzy
-#~| msgid "Uploaded Files"
-#~ msgid "Uploaded files"
-#~ msgstr "アップロードされているファイル"
-
-#~ msgid "(reverse order from Japanese, carriage return after first item)"
-#~ msgstr "（日本語の逆順番、最初の部分から次の行に入る）"
-
-#~ msgid "Show Active"
-#~ msgstr "現在のを表示"
-
-#~ msgid "Hide Active"
-#~ msgstr "現在のを隠す"
-
-#~ msgid "Show Old"
-#~ msgstr "過去のを表示"
-
-#~ msgid "Hide Old"
-#~ msgstr "過去のを隠す"
-
-#, php-format
-#~ msgid "%d people will be removed from this category."
-#~ msgstr "このカテゴリから%d人が除外されます。"
-
-#~ msgid "Please Confirm Category Delete"
-#~ msgstr "カテゴリ削除の確認"
-
-#, php-format
-#~ msgid "The following %s entries are members of the %s category."
-#~ msgstr "下記の %s の項目は、カテゴリ「%s」に入っています。"
-
-#~ msgid ""
-#~ " If you are sure you want to delete these category associations, click "
-#~ "the button. (If not, just press your browser's Back button.)"
-#~ msgstr ""
-#~ "このカテゴリとのつながりを削除したい場合は、ボタンをクリックしてください。"
-#~ "（キャンセルしたい場合は、ブラウザの「戻る」ボタンをクリックしてくださ"
-#~ "い。）"
-
-#~ msgid "Yes, delete the category"
-#~ msgstr "はい、カテゴリを削除したい"
-
-#~ msgid "Category Members"
-#~ msgstr "カテゴリに入っている項目"
-
-#~ msgid "New action type successfully added."
-#~ msgstr "アクションタイプを作成しました。"
-
-#~ msgid "Action Type information successfully updated."
-#~ msgstr "アクションタイプのデータを変更しました。"
-
-#, php-format
-#~ msgid "%s related action records updated."
-#~ msgstr "関係ある %s のアクション記録を変更しました。"
-
-#~ msgid "Please Confirm Action Type Delete"
-#~ msgstr "アクションタイプ削除の確認"
-
-#, php-format
-#~ msgid ""
-#~ "There are %s action entries of this action type.  If you delete this "
-#~ "action type, I must assign a different action type to those action "
-#~ "entries."
-#~ msgstr ""
-#~ "このタイプには、%s のアクション記録あります。このアクションタイプを削除す"
-#~ "れば、そのアクション記録を別のタイプに変更しなければなりません。"
-
-#~ msgid ""
-#~ " If you don't want to do this, just press your browser's Back button.  To "
-#~ "reassign the action entries, choose from the list below:"
-#~ msgstr ""
-#~ "キャンセルしたい場合は、ブラウザの「戻る」ボタンをクリックしてください。別"
-#~ "の種類に変更したい場合は、下記のリストから変更先の種類を選んでください。"
-
-#~ msgid "Yes, reassign the action entries"
-#~ msgstr "はい、アクション記録を変更したい"
-
-#~ msgid "New donation type successfully added."
-#~ msgstr "献金タイプを作成しました。"
-
-#~ msgid "Donation Type information successfully updated."
-#~ msgstr "献金タイプを変更しました。"
-
-#, php-format
-#~ msgid "%s related donation records updated."
-#~ msgstr "関係ある %s の献金記録を変更しました。"
-
-#~ msgid "Please Confirm Donation Type Delete"
-#~ msgstr "献金タイプ削除の確認"
-
-#, php-format
-#~ msgid ""
-#~ "There are %s donation entries of donation type '%s' (%sclick for list%s). "
-#~ "If you delete this donation type, I must assign a different donation type "
-#~ "to these donation entries."
-#~ msgstr ""
-#~ "タイプ「%2$s」には、%1$s の献金記録あります（%3$sリストを表示%4$s）。この"
-#~ "献金タイプを削除すれば、属する献金記録を別のタイプに変更しなければなりませ"
-#~ "ん。"
-
-#~ msgid ""
-#~ " If you don't want to do this, just press your browser's Back button. To "
-#~ "reassign the donation entries, choose from the list below:"
-#~ msgstr ""
-#~ "キャンセルしたい場合は、ブラウザの「戻る」ボタンをクリックしてください。別"
-#~ "のタイプに変更したい場合は、下記のリストから変更先のタイプを選んでくださ"
-#~ "い。"
-
-#~ msgid "Yes, reassign the donation entries"
-#~ msgstr "はい、献金記録を変更したい"
-
-#, php-format
-#~ msgid "%s related attendance records deleted."
-#~ msgstr "関係ある %s の参加記録を削除しました。"
-
-#~ msgid "Please Confirm Event Delete"
-#~ msgstr "イベント削除の確認"
-
-#, php-format
-#~ msgid ""
-#~ "There are %s attendance records for this event, during the time period %s "
-#~ "thru %s."
-#~ msgstr "このイベントには、%2$sから%3$sまでの間、%1$s の参加記録があります。"
-
-#~ msgid ""
-#~ " In deleting the event, you will also delete all attendance data "
-#~ "associated with it.  Are you sure you want to do this?  (If not, just "
-#~ "press your browser's Back button.)"
-#~ msgstr ""
-#~ "このイベントを削除したら、関係ある参加記録も削除します。よろしいですか。"
-#~ "（キャンセルしたい場合は、ブラウザの「戻る」ボタンをクリックしてくださ"
-#~ "い。）"
-
-#~ msgid "Yes, delete the event and attendance records"
-#~ msgstr "はい、イベントも参加記録も削除したい"
-
-#~ msgid ""
-#~ "Sorry, but the two entries for the new password did not match. Password "
-#~ "not changed."
-#~ msgstr "入力された二つのパスワードは異なります。"
-
-#~ msgid "(photo already exists, but you can replace it if you want)"
-#~ msgstr "（写真はすでにありますが、必要なら上書きできます。）"
-
-#, fuzzy, php-format
-#~ msgid "(%s in this list were not in the category to start with.)"
-#~ msgstr "（このリストの%s件は最初からそのカテゴリにいませんでした。）"
-
-#, fuzzy
-#~| msgid "Edit Action"
-#~ msgid "Add Action"
-#~ msgstr "アクションを編集"
-
-#, fuzzy
-#~| msgid "Add All to a Category"
-#~ msgid "Add to Category"
-#~ msgstr "カテゴリに全てを加える"
-
-#, fuzzy
-#~| msgid "Connect All to an Organization"
-#~ msgid "Connect to Organization"
-#~ msgstr "団体に全てを属する"
-
-#~ msgid "All Categories"
-#~ msgstr "すべてのカテゴリ"
-
-#~ msgid ""
-#~ "Highlight and press > or\n"
-#~ "                select all with >>"
-#~ msgstr ""
-#~ "ハイライトして ＞ をクリック、\n"
-#~ "または ＞＞ ですべてを選ぶ"
-
-#, php-format
-#~ msgid "%s Entries Selected"
-#~ msgstr "%s の項目が選択された"
-
-#~ msgid "Go to Multi-Select"
-#~ msgstr "複数選択/作業へ移動"
-
-#, fuzzy
-#~| msgid "Multi-Select"
-#~ msgid "To Multi-Select"
-#~ msgstr "複数選択/作業へ"
-
-#~ msgid "Multi-Select"
-#~ msgstr "複数選択/作業"
-
-#, fuzzy
-#~ msgid ""
-#~ "The Organization ID you entered is not valid. Please use Search/Browse to "
-#~ "find the correct ID."
-#~ msgstr ""
-#~ "入力された団体IDは正しくありません。「検索/参照」を使って正しいIDを見つけ"
-#~ "てください。"
-
-#~ msgid "Multiple Selection/Action"
-#~ msgstr "複数選択/作業"
-
-#, php-format
-#~ msgid "All birthdays from %s to %s:"
-#~ msgstr "%sから%sまでの誕生日："
-
-#, fuzzy, php-format
-#~ msgid "Birthdays from %1$s to %2$s in categories %3$s:"
-#~ msgstr "カテゴリ %3$s の %1$sから%2$sまでの誕生日："
-
-#, php-format
-#~ msgid "Show in: %sframe below&nbsp; %snew window"
-#~ msgstr "%s下記の枠&nbsp; %s新規ウインドーに表示する"
-
-#, php-format
-#~ msgid "%d matching actions (by %d different people/orgs)"
-#~ msgstr "条件には%dのアクションがある（%dの人/団体による）"
-
-#~ msgid "This postal code has not yet been used in an address."
-#~ msgstr "この郵便番号はまだ住所に使われていません。"
-
-#~ msgid "PHP for Dashboard"
-#~ msgstr "ダッシュボードのPHP"
-
-#~ msgid "Save Changes to \"Processed\" Checkboxes"
-#~ msgstr "「処理済」の変更を保存"
-
-#~ msgid ""
-#~ "(Community/town name on first line, then ward, city, etc. in reverse "
-#~ "order)"
-#~ msgstr "（一行目に町ぐらいだけで、二行目に区、市や県）"
-
-#~ msgid "https://yubin.senmon.net/en/index.html"
-#~ msgstr "https://www.post.japanpost.jp/zipcode/index.html"
-
-#~ msgid "(Freeform SQL)"
-#~ msgstr "（自由ＳＱＬ）"
-
-#~ msgid "Hide Older Records"
-#~ msgstr "最近の項目のみを表示"
-
-#~ msgid "Create New Pledge"
-#~ msgstr "新規約束を作成"
-
-#~ msgid "Edit/Del"
-#~ msgstr "変更/削除"
-
-#~ msgid "(Show results)"
-#~ msgstr "（結果を表示）"
-
-#~ msgid "Pre-Filtering Search Pages"
-#~ msgstr "フィルター"
-
-#~ msgid "Pre-Filter Main Search"
-#~ msgstr "人/団体の検索ページにフィルターをつける"
-
-#~ msgid "Pre-Filter Donation/Pledge Reports"
-#~ msgstr "献金/約束の表にフィルターをつける"
-
-#~ msgid "years"
-#~ msgstr "年"
-
-#~ msgid "quarters"
-#~ msgstr "四半期"
-
-#~ msgid "months"
-#~ msgstr "ヶ月"
-
-#, php-format
-#~ msgid "All Pledges as of %s"
-#~ msgstr "%s現在、全ての献金約束"
-
-#~ msgid "PHP for Dashboard Body"
-#~ msgstr "ダッシュボードの「body」のPHP"
-
-#~ msgid "All"
-#~ msgstr "全て"
-
-#~ msgid "Open"
-#~ msgstr "終わっていない"
-
-#~ msgid "Account Settings"
-#~ msgstr "アカウント設定"
-
-#~ msgid "No donations meeting this criteria."
-#~ msgstr "この条件に合う献金記録はありません。"
-
-#~ msgid "Database Maintenance"
-#~ msgstr "データベース管理"
-
-#~ msgid "You must check at least one 'Use For' checkbox."
-#~ msgstr "少なくともひとつの「…に使う」のボックスにチェックを付けてください。"
-
-#~ msgid "Use for Organizations"
-#~ msgstr "団体に使う"
-
-#~ msgid "Use for Individuals"
-#~ msgstr "個人に使う"
-
-#~ msgid "DB Maintenance"
-#~ msgstr "ＤＢ管理"
-
-#~ msgid "Use Household Label Names"
-#~ msgstr "世帯のラベル用名前を使う"
-
-#~ msgid ""
-#~ "(To select multiple possible categories (\"this one OR that one\"), hold "
-#~ "Ctrl key while clicking.)"
-#~ msgstr ""
-#~ "（「Ctrl」キーを押しながら選択すれば、複数のカテゴリを選択できる。）"
-
-#~ msgid ""
-#~ "(To select multiple possible types (\"this one OR that one\"), hold Ctrl "
-#~ "key while clicking.)"
-#~ msgstr ""
-#~ "（「Ctrl」キーを押しながら選択すれば、複数のアクションタイプを選択でき"
-#~ "る。）"
-
-#~ msgid ""
-#~ "(To select multiple possible events (\"this one OR that one\"), hold Ctrl "
-#~ "key while clicking.)"
-#~ msgstr ""
-#~ "（「Ctrl」キーを押しながら選択すれば、複数のイベントを選択できる。）"
-
-#~ msgid " (People/Orgs Pre-selected)"
-#~ msgstr "（人/団体のフィルター有効）"
-
-#~ msgid ""
-#~ "There are no attendance records for this event and these people/"
-#~ "organizations."
-#~ msgstr "このイベントとこの人/団体には、参加記録はありません。"
-
-#~ msgid "from %s"
-#~ msgstr "%sから"
-
-#~ msgid "on %s"
-#~ msgstr "%sに"
-
-#~ msgid "Top (Search)"
-#~ msgstr "ホーム（検索）"
-
-#~ msgid "New Person"
-#~ msgstr "新規項目"
-
-#~ msgid "Action Chart"
-#~ msgstr "アクション表"
-
-#~ msgid "Pledges/Donations"
-#~ msgstr "約束/献金"
-
-#~ msgid "Attendance Chart"
-#~ msgstr "イベント参加表"
-
-#~ msgid "Top Page"
-#~ msgstr "ホーム"
-
-#~ msgid "Welcome,"
-#~ msgstr "ようこそ、"
-
-#~ msgid "Get records..."
-#~ msgstr "項目を見る…"
-
-#~ msgid "...by Search Text"
-#~ msgstr "テキスト検索で"
-
-#~ msgid "Field to search in:"
-#~ msgstr "検索先："
-
-#~ msgid "Church"
-#~ msgstr "教会"
-
-#~ msgid "...by Category"
-#~ msgstr "カテゴリで…"
-
-#~ msgid "List All in Category:"
-#~ msgstr "このカテゴリの項目を見る："
-
-#~ msgid "\"SELECT people/orgs who. . .\" (start with WHERE)"
-#~ msgstr "「SELECT people/orgs who. . .」 (「WHERE」で始まる)"
-
-#~ msgid "%s with \"%s\" in Name, Furigana, or Label"
-#~ msgstr "「%2$s」が名前、フリガナ、またはラベル名前にある%1$s"
-
-#~ msgid "%s with \"%s\" in Address"
-#~ msgstr "「%2$s」が住所にある%1$s"
-
-#~ msgid "%s with \"%s\" in Phone or FAX"
-#~ msgstr "「%2$s」が電話、携帯、またはFAXにある%1$s"
-
-#~ msgid "%s with \"%s\" in %s"
-#~ msgstr "「%2$s」が%3$sにある%1$s"
-
-#~ msgid "All People"
-#~ msgstr "すべての個人"
-
-#~ msgid "Go to Multi-Select with This List Preselected"
-#~ msgstr "この表にある項目を選択される状態で、「複数作業」のページに移動"
-
-#~ msgid "Currently Ongoing"
-#~ msgstr "現在続けている"
-
-#~ msgid "Home Phone and/or Cell Phone"
-#~ msgstr "固定/携帯の電話番号"
-
-#~ msgid "Organization Name"
-#~ msgstr "団体の名前"
-
-#~ msgid "Update \"Processed\" Indicator"
-#~ msgstr "「修理済」をアップデート"
-
-#~ msgid "KFGF Co-Labor Input"
-#~ msgstr "KFGF Co-Labor 入力"
-
-#~ msgid "Please select a special designation code."
-#~ msgstr "特別の指名コードを指定してください。"
-
-#~ msgid "Please select Male or Female."
-#~ msgstr "男性か女性かを指定してください。"
-
-#~ msgid ""
-#~ "The Church ID does not point to a valid church record. Please confirm and "
-#~ "try again."
-#~ msgstr "教会IDは教会の項目を指していません。確認の上、やり直してください。"
-
-#~ msgid ""
-#~ "'<a href=\"individual.php?pid=%s\">%s</a>' successfully added - Inquirer "
-#~ "ID is <span class=\"highlight\">%s</span><h4>"
-#~ msgstr ""
-#~ "「<a href=\"individual.php?pid=%s\">%s</a>」はデータベースに追加されまし"
-#~ "た。応答者IDは <span class=\"highlight\">%s</span> です。<h4>"
-
-#~ msgid "(please write the ID on the left side of the Followup Card)"
-#~ msgstr "（IDをフォロアップカードの左側に書いてください。）"
-
-#~ msgid "Accepted Christ"
-#~ msgstr "キリストを受け入れる"
-
-#~ msgid "Assurance of Salvation"
-#~ msgstr "救いの確信"
-
-#~ msgid "Inquiry"
-#~ msgstr "求道中"
-
-#~ msgid "Other:"
-#~ msgstr "その他："
-
-#~ msgid "Church ID"
-#~ msgstr "教会ID"
-
-#~ msgid "School Name (if student)"
-#~ msgstr "学校名（学生の場合）"
-
-#~ msgid "Category successfully renamed."
-#~ msgstr "カテゴリ名を変更しました。"
-
-#~ msgid "Event Attendance (People/Orgs Pre-selected)"
-#~ msgstr "イベントの参加 （人/団体のフィルター有効）"
-
-#~ msgid "%s...did%s...did not%s attend one of these events:%s"
-#~ msgstr "%4$sのイベントいずれか、参加したことが%1$sある%2$sない%3$s"
-
-#~ msgid "Date is not in a valid format: yyyy-mm-dd."
-#~ msgstr "日付は、yyyy-mm-ddの形にしてください。"
-
-#~ msgid "Not a valid date."
-#~ msgstr "日付は正しくありません。"
-
-#~ msgid "End Date is not in a valid format: yyyy-mm-dd."
-#~ msgstr "最終日付は、yyyy-mm-ddの形にしてください。"
-
-#~ msgid "End Date must be after Start Date."
-#~ msgstr "最終日付は、最初日付の後にならないといけません。"
-
-#~ msgid "Counselor Name"
-#~ msgstr "カウンセラー名"
-
-#~ msgid ""
-#~ "Please fill in furigana/romaji field.  For non-Japanese names,\n"
-#~ "just repeat the name with last name first."
-#~ msgstr ""
-#~ "フリガナ/ローマ字のところに何かを入力してください。外国名の場合、名字と"
-#~ "「,」から繰り返してください。"
-
-#~ msgid "Copy from \"Rest of Address\" field"
-#~ msgstr "「住所の残り」からコピー"
-
-#~ msgid "Search Results of:"
-#~ msgstr "下記の条件の検索結果："
-
-#, fuzzy
-#~ msgid "\"%s\" %s Name, Furigana, or Label"
-#~ msgstr "「%s」が名前、ふりがな、またはラベル名前にある"
-
-#, fuzzy
-#~ msgid "\"%s\" in Address"
-#~ msgstr "「%2$s」が住所にある%1$s"
-
-#, fuzzy
-#~ msgid "\"%s\" in Phone or FAX"
-#~ msgstr "「%2$s」が電話、携帯、またはFAXにある%1$s"
-
-#~ msgid "...by Freeform SQL"
-#~ msgstr "自由ＳＱＬで…"
-
-#~ msgid "en-gb"
-#~ msgstr "ja-jp"

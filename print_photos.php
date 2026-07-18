@@ -130,7 +130,7 @@ echo "\xEF\xBB\xBF";  //UTF-8 Byte Order Mark
 \usepackage{plext}
 \usepackage[uplatex]{otf}
 \usepackage[T1]{fontenc}
-\usepackage{lmodern}
+\usepackage{sourcesanspro}
 \usepackage{array}
 \usepackage[paperwidth=<?=$print->PaperWidth?>mm,paperheight=<?=$print->PaperHeight?>mm,top=<?=$print->PaperTopMargin?>mm,bottom=<?=$print->PaperBottomMargin?>mm,left=<?=$print->PaperLeftMargin?>mm,right=<?=$print->PaperRightMargin?>mm]{geometry}
 \usepackage[dvipdfmx]{graphicx}

@@ -30,6 +30,36 @@ $sql = "SELECT ".($_POST['name_type']=="label" ? "DISTINCT LabelName" :
 "FIND_IN_SET(PersonID,'".$_POST['pid_list']."')";
 $result = sqlquery_checked($sql);
 
+/* MATERIALIZE BASE ROWS, THEN APPEND ANY FILLER (MULTIPLES) COPIES */
+$all = [];
+while ($row = mysqli_fetch_object($result)) $all[] = $row;
+$filler_pids = array_map('intval', $_POST['filler_pid'] ?? []);
+$filler_copies = array_map('intval', $_POST['filler_copies'] ?? []);
+$wanted = [];
+$ids = [];
+foreach ($filler_pids as $i => $fpid) {
+  $copies = $filler_copies[$i] ?? 0;
+  if ($fpid > 0 && $copies > 0) {
+    $wanted[] = [$fpid, min($copies, 999)];
+    $ids[$fpid] = true;
+  }
+}
+if ($ids) {
+  $sql = "SELECT p.PersonID, ".($_POST['name_type']=="label" ? "LabelName" :
+      "IF(NonJapan, CONCAT(Title,' ',FullName), CONCAT(FullName,Title))")." AS Name, NonJapan, postalcode.*, Address ".
+      "FROM person p LEFT JOIN household h ON p.HouseholdID=h.HouseholdID ".
+      "LEFT JOIN postalcode ON h.PostalCode=postalcode.PostalCode WHERE p.PersonID IN (".implode(',', array_keys($ids)).") ".
+      "AND p.HouseholdID>0 AND h.Address!='' AND (h.NonJapan=1 OR h.PostalCode!='')";
+  $result = sqlquery_checked($sql);
+  $lookup = [];
+  while ($row = mysqli_fetch_object($result)) $lookup[$row->PersonID] = $row;
+  foreach ($wanted as $w) {
+    if (isset($lookup[$w[0]])) {
+      for ($k = 0; $k < $w[1]; $k++) $all[] = $lookup[$w[0]];
+    }
+  }
+}
+
 $tmppath = '/var/www/tmp/';
 $fileroot = CLIENT.'-'.$_SESSION['userid'].'-label-'.date('His');
 
@@ -51,7 +81,7 @@ echo "\xEF\xBB\xBF";  //UTF-8 Byte Order Mark
 ?>
 \documentclass[<?=$print->PaperSize?$print->PaperSize:'a4'?>paper]{ujarticle}
 \usepackage[T1]{fontenc}
-\usepackage{lmodern}
+\usepackage{sourcesanspro}
 \usepackage[absolute]{textpos}
 
 \textblockorigin{<?=$print->PageMarginLeft?>mm}{<?=$print->PageMarginTop?>mm}
@@ -66,13 +96,13 @@ echo "\xEF\xBB\xBF";  //UTF-8 Byte Order Mark
 \gtfamily
 <?php
 $count = 0;
-while ($row = mysqli_fetch_object($result)) {
+foreach ($all as $row) {
   if ($count == $print->NumRows*$print->NumCols) {
     $count = 0;
     echo "\\end{picture}\\clearpage\n";
   }
-  $posx = ($count%$print->NumCols)*$print->LabelWidth + $print->AddrMarginLeft;
-  $posy = floor($count/$print->NumCols)*$print->LabelHeight + $print->LabelHeight/2;
+  $posx = ($count%$print->NumCols)*$offsetx + $print->AddrMarginLeft;
+  $posy = floor($count/$print->NumCols)*$offsety + $print->LabelHeight/2;
 ?>
 \begin{textblock}{<?=$addrwidth?>}[0,0.5](<?=$posx?>,<?=$posy?>)
 <?php
@@ -88,7 +118,7 @@ while ($row = mysqli_fetch_object($result)) {
 %% JAPAN ADDRESS %%
 \fontsize{<?=$print->AddrPointSize?>}{<?=$print->AddrPointSize*1.2?>}\selectfont
 \hangindent=<?=$hanging?>mm
-<?="〒".$row->PostalCode.($_POST['wrap_pc']?"\n\n\\hangindent=".$hanging."mm\n":" ").$row->Prefecture.$row->ShiKuCho.preg_replace("\r\n|\r|\n","\n\n\\hangindent=".$hanging."mm\n",$row->Address)."\n"?>
+<?="〒".$row->PostalCode.(!empty($_POST['wrap_pc'])?"\n\n\\hangindent=".$hanging."mm\n":" ").$row->Prefecture.$row->ShiKuCho.preg_replace("\r\n|\r|\n","\n\n\\hangindent=".$hanging."mm\n",$row->Address)."\n"?>
 
 \vspace{1ex}
 \fontsize{<?=$print->NamePointSize?>}{<?=$print->NamePointSize*1.2?>}\selectfont

@@ -51,7 +51,7 @@ while ($row = mysqli_fetch_object($result)) {
         " data-stamp=\"".$row->DefaultStamp."\">".$row->AddrPrintName."</option>\n";
 }
 ?>
-    </select></label><br>
+    </select></label> <a id="edit-addrprint" href="addrprint_edit.php" target="_blank"><?=_("Edit / preview this layout…")?></a><br>
     <div style="display:inline-block;vertical-align:middle;margin:0 2em">
       <label class="label-n-input"><input type="checkbox" value="yes" name="nj_separate" checked><?=_("Sort by Japan/foreign")?></label><br />
       <label class="label-n-input"><input type="checkbox" value="yes" name="kanji_numbers" id="kanji_numbers" checked><?=_("Use kanji for numbers")?></label>
@@ -77,6 +77,7 @@ $(document).ready(function(){
   $('#addrprint-select').change(function() {
     $('#kanji_numbers').prop('checked',$('#addrprint-select option:selected').data("kanjinumbers")==1);
     $('input[type="radio"][name=po_stamp]').filter('[value='+$('#addrprint-select option:selected').data("stamp")+']').prop('checked', true);
+    $('#edit-addrprint').attr('href', 'addrprint_edit.php?name=' + encodeURIComponent(this.value));
   });
   $('#addrprint-select').trigger('change');
 });
