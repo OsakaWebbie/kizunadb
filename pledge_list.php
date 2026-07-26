@@ -156,9 +156,9 @@ $tableopt = (object) [
 $tableopt->cols[] = (object) [ 'key' => 'personid', 'sel' => 'person.PersonID', 'label' => _('ID'), 'show' => (stripos($showcols, ',personid,') !== FALSE) ];
 
 // Name-related columns (all hideable for flexibility)
-$tableopt->cols[] = (object) [ 'key' => 'name', 'sel' => 'person.Name', 'label' => _('Name'), 'show'=>(stripos($showcols, ',name,') !== FALSE) ];
+$tableopt->cols[] = (object) [ 'key' => 'name', 'sel' => 'person.Name', 'label' => _('Name (display)'), 'show'=>(stripos($showcols, ',name,') !== FALSE) ];
 $tableopt->cols[] = (object) [ 'key' => 'fullname', 'sel' => 'person.FullName', 'label' => _('Full Name'), 'show'=>(stripos($showcols, ',fullname,') !== FALSE) ];
-$tableopt->cols[] = (object) [ 'key' => 'furigana', 'sel' => 'person.Furigana', 'label' => ($_SESSION['furiganaisromaji']=='yes' ? _('Romaji') : _('Furigana')), 'show'=>(stripos($showcols, ',furigana,') !== FALSE), 'sort' => 1 ];
+$tableopt->cols[] = (object) [ 'key' => 'furigana', 'sel' => 'person.Furigana', 'label' => ($_SESSION['furiganaisromaji']=='yes' ? _('Romaji Name') : _('Furigana Name')), 'show'=>(stripos($showcols, ',furigana,') !== FALSE), 'sort' => 1 ];
 $tableopt->cols[] = (object) [ 'key' => 'photo', 'sel' => 'person.Photo', 'label' => _('Photo'), 'show'=>(stripos($showcols, ',photo,') !== FALSE), 'sortable' => false, 'class' => 'align-center' ];
 
 // Contact info
@@ -324,7 +324,7 @@ while ($row = mysqli_fetch_object($result)) {
   }
   echo "<tr><td valign=middle nowrap style=\"padding:2px 4px 2px 4px;\">\n";
   echo "<a href=\"individual.php?pid=".$row->PersonID."\" target=\"_blank\">";
-  echo readable_name($row->FullName, $row->Furigana,0,0,"<br />")."</a></td>\n";
+  echo ruby_name($row->FullName, $row->Furigana)."</a></td>\n";
   echo "<td valign=middle nowrap style=\"padding:2px 4px 2px 4px;\">{$row->DonationType}</td>\n";
   echo "<td valign=middle align=right nowrap style=\"padding:2px 4px 2px 4px;\">".$_SESSION['currency_mark']." ".
   number_format($row->Amount,$_SESSION['currency_decimals'])."/".

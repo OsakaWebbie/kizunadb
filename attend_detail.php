@@ -204,7 +204,7 @@ for ($r=0; $r<$num_people; $r++) {
     // repeat names
     if (($name_repeat > 0) && (($c-$rangefirst) % $name_repeat == 0)) {
       echo "<td class=\"namecell\"><a href=\"individual.php?pid=".$parray[$r]->PersonID."\" target=\"_blank\">";
-      echo readable_name($parray[$r]->FullName, $parray[$r]->Furigana,0,0,"<br />")."</a></td>\n";
+      echo ruby_name($parray[$r]->FullName, $parray[$r]->Furigana)."</a></td>\n";
     }
     if (($done == 0) && ($row->AttendDate == $darray[$c])) {  //matches date
       echo '<td id="'.$parray[$r]->PersonID."_".$darray[$c].'" class="';

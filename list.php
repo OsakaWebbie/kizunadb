@@ -318,17 +318,16 @@ $tableopt->cols[] = (object)[
 $tableopt->cols[] = (object)[
   'key' => 'name',
   'sel' => 'person.Name',
-  'label' => _('Name'),
+  'label' => _('Name (display)'),
   'show' => (stripos($showcols, ',name,') !== FALSE),
-  'sort' => 1,
-  'classes' => 'name-for-display'  // Used by CSV export to hide before export
+  'sort' => 1
 ];
 
 // Furigana (clean, usable for both display and CSV)
 $tableopt->cols[] = (object)[
   'key' => 'furigana',
   'sel' => 'person.Furigana',
-  'label' => ($_SESSION['furiganaisromaji']=='yes' ? _('Romaji') : _('Furigana')),
+  'label' => ($_SESSION['furiganaisromaji']=='yes' ? _('Romaji Name') : _('Furigana Name')),
   'show' => (stripos($showcols, ',furigana,') !== FALSE),
   'colsel' => TRUE
 ];

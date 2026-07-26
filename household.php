@@ -153,7 +153,7 @@ if (mysqli_num_rows($result) == 0) {
   $tableopt->cols[] = (object) [
     'key' => 'name',
     'sel' => 'person.Name',
-    'label' => _('Name'),
+    'label' => _('Name (display)'),
     'show' => (stripos($showcols, ',name,') !== FALSE)
   ];
 
@@ -167,7 +167,7 @@ if (mysqli_num_rows($result) == 0) {
   $tableopt->cols[] = (object) [
     'key' => 'furigana',
     'sel' => 'person.Furigana',
-    'label' => ($_SESSION['furiganaisromaji']=='yes' ? _('Romaji') : _('Furigana')),
+    'label' => ($_SESSION['furiganaisromaji']=='yes' ? _('Romaji Name') : _('Furigana Name')),
     'show' => (stripos($showcols, ',furigana,') !== FALSE)
   ];
 

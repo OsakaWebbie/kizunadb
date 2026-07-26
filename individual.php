@@ -315,8 +315,7 @@ pageheader("$per->FullName", 1);
 </style>
 
 <?php
-echo "<h1 id=\"title\">".readable_name($per->FullName,$per->Furigana,$per->PersonID,$per->Organization,
-    ($per->Organization?'<br /><span class="smaller">':'')).($per->Organization?'</span>':'')."</h1>";
+echo "<h1 id=\"title\">".ruby_name($per->FullName,$per->Furigana,$per->PersonID,$per->Organization)."</h1>";
 if ($per->Photo) echo "<div id=\"photo\"><img src=\"photo.php?f=p".$_GET['pid']."\" width=\"150\" /></div>\n";
 echo "<div id=\"info-block\">";
 
@@ -510,7 +509,7 @@ if (count($org_pids) == 0) {
   $tableopt->cols[] = (object)[
     'key' => 'name',
     'sel' => 'person.Name',
-    'label' => _('Name'),
+    'label' => _('Name (display)'),
     'show' => (stripos($showcols, ',name,') !== FALSE)
   ];
 
@@ -524,7 +523,7 @@ if (count($org_pids) == 0) {
   $tableopt->cols[] = (object)[
     'key' => 'furigana',
     'sel' => 'person.Furigana',
-    'label' => ($_SESSION['furiganaisromaji']=="yes" ? _("Romaji") : _("Furigana")),
+    'label' => ($_SESSION['furiganaisromaji']=="yes" ? _("Romaji Name") : _("Furigana Name")),
     'show' => (stripos($showcols, ',furigana,') !== FALSE),
     'sort' => 1
   ];
@@ -694,7 +693,7 @@ if ($per->Organization) {
     $tableopt->cols[] = (object)[
       'key' => 'name',
       'sel' => 'person.Name',
-      'label' => _('Name'),
+      'label' => _('Name (display)'),
       'show' => (stripos($showcols, ',name,') !== FALSE)
     ];
 
@@ -708,7 +707,7 @@ if ($per->Organization) {
     $tableopt->cols[] = (object)[
       'key' => 'furigana',
       'sel' => 'person.Furigana',
-      'label' => ($_SESSION['furiganaisromaji']=="yes" ? _("Romaji") : _("Furigana")),
+      'label' => ($_SESSION['furiganaisromaji']=="yes" ? _("Romaji Name") : _("Furigana Name")),
       'show' => (stripos($showcols, ',furigana,') !== FALSE),
       'sort' => 1
     ];

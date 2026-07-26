@@ -188,6 +188,7 @@ function pageheader($title, $nav=0) {
         <a href="#"><?=_('User')?><span class="username">: <?=$_SESSION['username']?></span> &#x25BC;</a>
         <ul class="nav-sub">
           <li><a href="user_settings.php" target="_top"><?=_('User Settings')?></a></li>
+<?=(!empty($_SESSION['admin']) ? '          <li><a href="admin_settings.php" target="_top">'._('Admin Settings').'</a></li>'."\n" : '')?>
           <li><a href="index.php?logout=1" target="_top"><?=_('Log Out')?></a></li>
         </ul>
       </li>
@@ -539,8 +540,8 @@ function romaji_addr_comp_sql() {
 // (config, defaulted in kizuna_common.config). SQL callers must LEFT JOIN household and postalcode.
 function quicksearch_field_defs() {
   return array(
-    'FullName'  => array(_('Name'),           'person.FullName'),
-    'Furigana'  => array(($_SESSION['furiganaisromaji']=='yes' ? _('Romaji') : _('Furigana')), 'person.Furigana'),
+    'FullName'  => array(_('Full Name'),           'person.FullName'),
+    'Furigana'  => array(($_SESSION['furiganaisromaji']=='yes' ? _('Romaji Name') : _('Furigana Name')), 'person.Furigana'),
     'Email'     => array(_('Email'),          'person.Email'),
     'CellPhone' => array(_('Cell Phone'),     'person.CellPhone'),
     'Country'   => array(_('Country'),        'person.Country'),
@@ -567,18 +568,24 @@ function quicksearch_where($qs) {
   return "CONCAT_WS('\\n',".implode(',', $cols).") LIKE '%".$qs."%'";
 }
 
-// Function readable_name: returns name and optionally ID, adding "furigana" if the first character is not Roman alphabet and breaking if desired
-function readable_name($name,$furigana,$pid=0,$org=0,$break="",$reverse=0) {
-  if ($pid && ($_SESSION['showid']=="yes" || $org)) {
-    $text = ($reverse?$furigana:$name)." ["._("ID").": ".$pid."]";
-  } else {
-    $text = ($reverse?$furigana:$name);
-  }
-  if (mb_strlen($name) != strlen($name)) {  //name has multi-byte characters in it
-    $text .= $break." (".($reverse?$name:$furigana).")";
-    if (strpos($break,"<span>")) $text .= "</span>";
-    if (strpos($break,"<div>")) $text .= "</div>";
-  }
+// readable_name: plain "Name (reading)", appending the reading only when the name has multibyte
+// characters (so long Western names aren't doubled), plus " [ID: n]" when IDs are shown. Use for any
+// non-HTML output (text/XML/PDF/titles/<option>). For furigana-first output, swap the first two args.
+function readable_name($name,$furigana,$pid=0,$org=0) {
+  $text = $name;
+  if (mb_strlen($name) != strlen($name)) $text .= ' ('.$furigana.')';
+  if ($pid && ($_SESSION['showid']=="yes" || $org)) $text .= " ["._("ID").": ".$pid."]";
+  return $text;
+}
+
+// ruby_name: the HTML display name with its reading stacked above via ruby (<rt>) — compact and
+// visibly distinct from the raw FullName/Furigana columns; italicised (rt.romaji) when the reading is
+// romaji. A blank/duplicate reading becomes a space so every row keeps the same height.
+function ruby_name($name,$furigana,$pid=0,$org=0) {
+  $rt  = ($furigana === '' || $furigana === $name) ? '&nbsp;' : $furigana;
+  $cls = (($_SESSION['furiganaisromaji'] ?? '') == 'yes') ? ' class="romaji"' : '';
+  $text = '<ruby>'.$name.'<rt'.$cls.'>'.$rt.'</rt></ruby>';
+  if ($pid && ($_SESSION['showid']=="yes" || $org)) $text .= " ["._("ID").": ".$pid."]";
   return $text;
 }
 

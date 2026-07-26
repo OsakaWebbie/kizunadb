@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: KizunaDB\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-17 18:37+0900\n"
-"PO-Revision-Date: 2026-07-17 18:39+0900\n"
+"POT-Creation-Date: 2026-07-23 23:14+0900\n"
+"PO-Revision-Date: 2026-07-23 23:16+0900\n"
 "Last-Translator: Karen Ellrick <osakawebbie@gmail.com>\n"
 "Language-Team: Karen Ellrick\n"
 "Language: ja\n"
@@ -18,6 +18,7 @@ msgstr ""
 "X-Poedit-SearchPathExcluded-0: *.js\n"
 
 #: action.php:5 action.php:13 action_list.php:9 action_list.php:12
+#: admin_settings.php:23
 msgid "Action List"
 msgstr "アクション表"
 
@@ -33,8 +34,8 @@ msgstr "アクションタイプでまとめる"
 msgid "Group by Person"
 msgstr "人/団体でまとめる"
 
-#: action.php:22 action_list.php:199 action_list.php:503 batch_action.php:85
-#: individual.php:914 merge_duplicates.php:612
+#: action.php:22 action_list.php:199 action_list.php:503 admin_settings.php:91
+#: batch_action.php:85 individual.php:914 merge_duplicates.php:612
 msgid "Action Type"
 msgstr "アクションタイプ"
 
@@ -68,7 +69,7 @@ msgid "new tab"
 msgstr "新しいタブ"
 
 #: action.php:52 attendance.php:65 batch_action.php:86 batch_attendance.php:65
-#: batch_custom.php:15 birthday.php:375 db_settings.php:57 db_settings.php:251
+#: batch_custom.php:15 birthday.php:375 db_settings.php:57 db_settings.php:158
 #: donation.php:108 individual.php:865 individual.php:1163 individual.php:1287
 #: individual.php:1340 search.php:230
 msgid "Select..."
@@ -147,68 +148,72 @@ msgstr "この条件の結果（%d項目）："
 msgid "%d results (all records)"
 msgstr "%d件の結果（全項目）"
 
-#: action_list.php:153 action_list.php:360 attend_aggregate.php:80
-#: batch_organization.php:100 batch_person_xml.php:125 batch_person_xml.php:229
-#: batch_person_xml.php:259 batch_person_xml.php:284 birthday.php:98
-#: donation_list.php:206 functions.php:573 household.php:148 individual.php:505
-#: individual.php:689 individual.php:1567 list.php:312 pledge_list.php:156
+#: action_list.php:153 action_list.php:360 admin_settings.php:47
+#: attend_aggregate.php:80 batch_organization.php:100 batch_person_xml.php:125
+#: batch_person_xml.php:229 batch_person_xml.php:259 batch_person_xml.php:284
+#: birthday.php:98 donation_list.php:206 functions.php:574 household.php:148
+#: individual.php:505 individual.php:689 individual.php:1567 list.php:312
+#: pledge_list.php:156
 msgid "ID"
 msgstr "ID"
 
-#: action_list.php:162 action_list.php:369 attend_aggregate.php:87
-#: attend_detail.php:164 batch_action.php:130 batch_person_text.php:34
-#: batch_person_xml.php:121 batch_person_xml.php:225 batch_person_xml.php:255
-#: batch_person_xml.php:285 birthday.php:106 db_settings.php:185
-#: donation_list.php:215 donation_list.php:424 donation_list.php:427
-#: donation_summary.php:126 donation_summary.php:129 functions.php:542
+#: action_list.php:162 action_list.php:369 admin_settings.php:161
+#: admin_settings.php:366 attend_aggregate.php:87 attend_detail.php:164
+#: batch_action.php:130 batch_person_text.php:34 batch_person_xml.php:121
+#: batch_person_xml.php:225 batch_person_xml.php:255 batch_person_xml.php:285
+#: birthday.php:106 donation_list.php:215 donation_list.php:424
+#: donation_list.php:427 donation_summary.php:126 donation_summary.php:129
 #: household.php:156 individual.php:513 individual.php:697 list.php:321
 #: overview.php:121 pledge_list.php:159 pledge_list.php:305 search.php:58
 msgid "Name"
 msgstr "名前"
 
-#: action_list.php:170 action_list.php:378 attend_aggregate.php:95
-#: birthday.php:113 donation_list.php:223 edit.php:102 household.php:163
+#: action_list.php:170 action_list.php:378 admin_settings.php:49
+#: admin_settings.php:74 attend_aggregate.php:95 birthday.php:113
+#: donation_list.php:223 edit.php:102 functions.php:543 household.php:163
 #: individual.php:520 individual.php:704 list.php:340 list.php:464
 #: merge_duplicates.php:461 pledge_list.php:160
 msgid "Full Name"
 msgstr "名前"
 
-#: action_list.php:178 action_list.php:387 attend_aggregate.php:102
-#: batch_person_text.php:35 batch_person_text.php:36 batch_person_xml.php:122
-#: batch_person_xml.php:123 batch_person_xml.php:124 batch_person_xml.php:226
-#: batch_person_xml.php:227 batch_person_xml.php:228 batch_person_xml.php:256
-#: batch_person_xml.php:257 batch_person_xml.php:258 batch_person_xml.php:283
-#: birthday.php:120 donation_list.php:231 donation_list.php:426
-#: donation_list.php:428 donation_summary.php:128 donation_summary.php:130
-#: edit.php:111 edit.php:571 functions.php:543 household.php:170
+#: action_list.php:178 action_list.php:387 admin_settings.php:45
+#: attend_aggregate.php:102 batch_person_text.php:35 batch_person_text.php:36
+#: batch_person_xml.php:122 batch_person_xml.php:123 batch_person_xml.php:124
+#: batch_person_xml.php:226 batch_person_xml.php:227 batch_person_xml.php:228
+#: batch_person_xml.php:256 batch_person_xml.php:257 batch_person_xml.php:258
+#: batch_person_xml.php:283 birthday.php:120 donation_list.php:231
+#: donation_list.php:426 donation_list.php:428 donation_summary.php:128
+#: donation_summary.php:130 edit.php:111 edit.php:571 household.php:170
 #: individual.php:527 individual.php:711 list.php:331 list.php:478
 #: pledge_list.php:161 search.php:58
 msgid "Romaji"
 msgstr "ローマ字"
 
-#: action_list.php:178 action_list.php:387 attend_aggregate.php:102
-#: batch_person_text.php:35 batch_person_text.php:36 batch_person_xml.php:122
-#: batch_person_xml.php:123 batch_person_xml.php:124 batch_person_xml.php:226
-#: batch_person_xml.php:227 batch_person_xml.php:228 batch_person_xml.php:256
-#: batch_person_xml.php:257 batch_person_xml.php:258 batch_person_xml.php:283
-#: birthday.php:120 donation_list.php:231 donation_list.php:426
-#: donation_list.php:428 donation_summary.php:128 donation_summary.php:130
-#: edit.php:111 edit.php:571 functions.php:543 household.php:170
+#: action_list.php:178 action_list.php:387 admin_settings.php:45
+#: attend_aggregate.php:102 batch_person_text.php:35 batch_person_text.php:36
+#: batch_person_xml.php:122 batch_person_xml.php:123 batch_person_xml.php:124
+#: batch_person_xml.php:226 batch_person_xml.php:227 batch_person_xml.php:228
+#: batch_person_xml.php:256 batch_person_xml.php:257 batch_person_xml.php:258
+#: batch_person_xml.php:283 birthday.php:120 donation_list.php:231
+#: donation_list.php:426 donation_list.php:428 donation_summary.php:128
+#: donation_summary.php:130 edit.php:111 edit.php:571 household.php:170
 #: individual.php:527 individual.php:711 list.php:331 list.php:478
 #: merge_duplicates.php:462 pledge_list.php:161 search.php:58
 msgid "Furigana"
 msgstr "フリガナ"
 
-#: action_list.php:189 action_list.php:493 batch_action.php:94
-#: batch_attendance.php:78 donation_list.php:305 individual.php:863
-#: individual.php:907 individual.php:957 individual.php:994 individual.php:1052
+#: action_list.php:189 action_list.php:493 admin_settings.php:91
+#: admin_settings.php:99 batch_action.php:94 batch_attendance.php:78
+#: donation_list.php:305 individual.php:863 individual.php:907
+#: individual.php:957 individual.php:994 individual.php:1052
 #: individual.php:1114 individual.php:1348 merge_duplicates.php:612
 #: merge_duplicates.php:628 merge_duplicates.php:678 overview.php:159
 #: overview.php:186 overview.php:213
 msgid "Date"
 msgstr "日付"
 
-#: action_list.php:208 action_list.php:512 batch_action.php:95
+#: action_list.php:208 action_list.php:512 admin_settings.php:91
+#: admin_settings.php:99 admin_settings.php:103 batch_action.php:95
 #: batch_action.php:130 db_settings.php:138 donation_list.php:343
 #: edit_pledge.php:90 individual.php:922 individual.php:971 individual.php:1020
 #: individual.php:1074 individual.php:1136 individual.php:1170
@@ -219,98 +224,102 @@ msgstr "日付"
 msgid "Description"
 msgstr "内容"
 
-#: action_list.php:218 action_list.php:396 attend_aggregate.php:109
-#: attend_detail.php:161 batch_person_text.php:54 birthday.php:148
-#: household.php:178 individual.php:536 individual.php:720 list.php:348
-#: merge_duplicates.php:498 overview.php:122 pledge_list.php:162
+#: action_list.php:218 action_list.php:396 admin_settings.php:51
+#: attend_aggregate.php:109 attend_detail.php:161 batch_person_text.php:54
+#: birthday.php:148 household.php:178 individual.php:536 individual.php:720
+#: list.php:348 merge_duplicates.php:498 overview.php:122 pledge_list.php:162
 msgid "Photo"
 msgstr "写真"
 
-#: action_list.php:228 action_list.php:406 attend_aggregate.php:117
-#: birthday.php:157 individual.php:545 individual.php:729 list.php:357
-#: pledge_list.php:165
+#: action_list.php:228 action_list.php:406 admin_settings.php:53
+#: attend_aggregate.php:117 birthday.php:157 individual.php:545
+#: individual.php:729 list.php:357 pledge_list.php:165
 msgid "Phones"
 msgstr "電話番号"
 
-#: action_list.php:237 action_list.php:416 attend_aggregate.php:127
-#: birthday.php:166 db_settings.php:190 donation_list.php:250 edit.php:216
-#: functions.php:544 get_duplicates.php:24 household.php:240 individual.php:342
-#: individual.php:554 individual.php:738 list.php:367 merge_duplicates.php:467
-#: merge_duplicates.php:723 overview.php:71 pledge_list.php:166
-#: user_settings.php:56
+#: action_list.php:237 action_list.php:416 admin_settings.php:55
+#: admin_settings.php:371 attend_aggregate.php:127 birthday.php:166
+#: donation_list.php:250 edit.php:216 functions.php:545 get_duplicates.php:24
+#: household.php:240 individual.php:342 individual.php:554 individual.php:738
+#: list.php:367 merge_duplicates.php:467 merge_duplicates.php:723
+#: overview.php:71 pledge_list.php:166 user_settings.php:56
 msgid "Email"
 msgstr "メールアドレス"
 
-#: action_list.php:245 action_list.php:425 addrprint_edit.php:409
-#: addrprint_edit.php:415 attend_aggregate.php:135 batch_organization.php:128
-#: batch_person_text.php:37 batch_person_xml.php:126 batch_person_xml.php:230
-#: batch_person_xml.php:260 birthday.php:175 donation_list.php:258 edit.php:88
-#: edit.php:175 functions.php:549 household.php:76 household.php:78
-#: individual.php:363 individual.php:562 individual.php:746 individual.php:1593
-#: labelprint_edit.php:222 list.php:375 pledge_list.php:167 search.php:59
+#: action_list.php:245 action_list.php:425 addrprint_edit.php:411
+#: addrprint_edit.php:417 admin_settings.php:56 attend_aggregate.php:135
+#: batch_organization.php:128 batch_person_text.php:37 batch_person_xml.php:126
+#: batch_person_xml.php:230 batch_person_xml.php:260 birthday.php:175
+#: donation_list.php:258 edit.php:88 edit.php:175 functions.php:550
+#: household.php:76 household.php:78 individual.php:363 individual.php:562
+#: individual.php:746 individual.php:1593 labelprint_edit.php:260
+#: labelprint_edit.php:266 list.php:375 pledge_list.php:167 search.php:59
 #: search.php:183
 msgid "Address"
 msgstr "住所"
 
-#: action_list.php:256 action_list.php:436 attend_aggregate.php:154
-#: batch_person_text.php:50 batch_person_xml.php:140 batch_person_xml.php:244
-#: birthday.php:185 household.php:204 individual.php:338 individual.php:581
-#: individual.php:765 list.php:396 overview.php:61 overview.php:125
-#: overview.php:139 pledge_list.php:171
+#: action_list.php:256 action_list.php:436 admin_settings.php:58
+#: attend_aggregate.php:154 batch_person_text.php:50 batch_person_xml.php:140
+#: batch_person_xml.php:244 birthday.php:185 household.php:204
+#: individual.php:338 individual.php:581 individual.php:765 list.php:396
+#: overview.php:61 overview.php:125 overview.php:139 pledge_list.php:171
 msgid "Age"
 msgstr "年齢"
 
-#: action_list.php:265 action_list.php:446 batch_person_text.php:49
-#: batch_person_xml.php:138 batch_person_xml.php:242 batch_person_xml.php:289
-#: birthday.php:195 edit.php:225 functions.php:548 household.php:214
-#: merge_duplicates.php:468 pledge_list.php:172 search.php:190
+#: action_list.php:265 action_list.php:446 admin_settings.php:57
+#: batch_person_text.php:49 batch_person_xml.php:138 batch_person_xml.php:242
+#: batch_person_xml.php:289 birthday.php:195 edit.php:225 functions.php:549
+#: household.php:214 merge_duplicates.php:468 pledge_list.php:172
+#: search.php:190
 msgid "Birthdate"
 msgstr "生年月日"
 
-#: action_list.php:274 action_list.php:456 attend_aggregate.php:163
-#: batch_person_text.php:46 batch_person_xml.php:137 batch_person_xml.php:241
-#: batch_person_xml.php:288 birthday.php:205 edit.php:220 household.php:196
-#: individual.php:590 individual.php:774 list.php:406 merge_duplicates.php:463
-#: overview.php:124 pledge_list.php:170 search.php:189
+#: action_list.php:274 action_list.php:456 admin_settings.php:59
+#: attend_aggregate.php:163 batch_person_text.php:46 batch_person_xml.php:137
+#: batch_person_xml.php:241 batch_person_xml.php:288 birthday.php:205
+#: edit.php:220 household.php:196 individual.php:590 individual.php:774
+#: list.php:406 merge_duplicates.php:463 overview.php:124 pledge_list.php:170
+#: search.php:189
 msgid "Sex"
 msgstr "性別"
 
-#: action_list.php:282 action_list.php:465 attend_aggregate.php:171
-#: birthday.php:213 functions.php:546 household.php:254 individual.php:597
-#: individual.php:781 list.php:414 pledge_list.php:173 search.php:63
-#: search.php:192
+#: action_list.php:282 action_list.php:465 admin_settings.php:60
+#: attend_aggregate.php:171 birthday.php:213 functions.php:547
+#: household.php:254 individual.php:597 individual.php:781 list.php:414
+#: pledge_list.php:173 search.php:63 search.php:192
 msgid "Country"
 msgstr "母国"
 
-#: action_list.php:290 action_list.php:474 attend_aggregate.php:179
-#: batch_person_xml.php:141 batch_person_xml.php:245 batch_person_xml.php:290
-#: birthday.php:221 edit.php:231 functions.php:547 household.php:247
-#: individual.php:345 individual.php:604 individual.php:788 list.php:422
-#: merge_duplicates.php:470 overview.php:65 pledge_list.php:174 search.php:62
-#: search.php:191
+#: action_list.php:290 action_list.php:474 admin_settings.php:61
+#: attend_aggregate.php:179 batch_person_xml.php:141 batch_person_xml.php:245
+#: batch_person_xml.php:290 birthday.php:221 edit.php:231 functions.php:548
+#: household.php:247 individual.php:345 individual.php:604 individual.php:788
+#: list.php:422 merge_duplicates.php:470 overview.php:65 pledge_list.php:174
+#: search.php:62 search.php:191
 msgid "URL"
 msgstr "URL"
 
-#: action_list.php:299 batch_organization.php:127 batch_overview.php:14
-#: batch_person_xml.php:144 batch_person_xml.php:153 birthday.php:229
-#: birthday.php:302 donation_list.php:286 household.php:224 individual.php:423
-#: individual.php:619 individual.php:803 individual.php:1592 list.php:442
-#: merge_duplicates.php:558 overview.php:99 search.php:73
+#: action_list.php:299 admin_settings.php:63 batch_organization.php:127
+#: batch_overview.php:14 batch_person_xml.php:144 batch_person_xml.php:153
+#: birthday.php:229 birthday.php:302 donation_list.php:286 household.php:224
+#: individual.php:423 individual.php:619 individual.php:803 individual.php:1592
+#: list.php:442 merge_duplicates.php:558 overview.php:99 search.php:73
 msgid "Categories"
 msgstr "カテゴリ"
 
-#: action_list.php:309 attend_aggregate.php:29 attend_datesums.php:37
-#: batch_person_xml.php:205 birthday.php:240 donation_list.php:295
-#: individual.php:629 individual.php:813 list.php:452
+#: action_list.php:309 admin_settings.php:64 attend_aggregate.php:29
+#: attend_datesums.php:37 batch_person_xml.php:205 birthday.php:240
+#: donation_list.php:295 individual.php:629 individual.php:813 list.php:452
 msgid "Events"
 msgstr "イベント"
 
-#: action_list.php:319 action_list.php:483 attend_aggregate.php:187
-#: batch_person_text.php:55 batch_person_xml.php:143 batch_person_xml.php:247
-#: batch_person_xml.php:272 birthday.php:253 donation_list.php:277 edit.php:251
-#: functions.php:553 household.php:262 individual.php:402 individual.php:611
-#: individual.php:795 list.php:431 merge_duplicates.php:519 overview.php:90
-#: pledge_list.php:175 search.php:64 search.php:193
+#: action_list.php:319 action_list.php:483 admin_settings.php:62
+#: attend_aggregate.php:187 batch_person_text.php:55 batch_person_xml.php:143
+#: batch_person_xml.php:247 batch_person_xml.php:272 birthday.php:253
+#: donation_list.php:277 edit.php:251 functions.php:554 household.php:262
+#: individual.php:402 individual.php:611 individual.php:795 list.php:431
+#: merge_duplicates.php:519 overview.php:90 pledge_list.php:175 search.php:64
+#: search.php:193
 msgid "Remarks"
 msgstr "備考"
 
@@ -344,52 +353,52 @@ msgstr "削除できません：「%1$s」はレイアウト「%2$s」で使用�
 msgid "File deleted."
 msgstr "ファイルを削除しました。"
 
-#: addrprint_edit.php:100 labelprint_edit.php:38
+#: addrprint_edit.php:100 labelprint_edit.php:50
 msgid "Nothing to delete."
 msgstr "削除するものがありません。"
 
-#: addrprint_edit.php:102 ajax_action.php:64 ajax_action.php:84
-#: ajax_action.php:106 labelprint_edit.php:40
+#: addrprint_edit.php:102 ajax_action.php:48 ajax_action.php:68
+#: ajax_action.php:90 labelprint_edit.php:52
 msgid "Deleted."
 msgstr "削除しました。"
 
-#: addrprint_edit.php:106 addrprint_edit.php:718 addrprint_edit.php:722
-#: labelprint_edit.php:44 labelprint_edit.php:377 labelprint_edit.php:381
+#: addrprint_edit.php:106 addrprint_edit.php:722 addrprint_edit.php:726
+#: labelprint_edit.php:56 labelprint_edit.php:510 labelprint_edit.php:514
 msgid "Please enter a layout name."
 msgstr "レイアウト名を入力してください。"
 
-#: addrprint_edit.php:110 addrprint_edit.php:118 labelprint_edit.php:48
-#: labelprint_edit.php:56
+#: addrprint_edit.php:110 addrprint_edit.php:120 labelprint_edit.php:60
+#: labelprint_edit.php:71
 #, php-format
 msgid "A layout named \"%s\" already exists."
 msgstr "「%s」という名前のレイアウトは既に存在します。"
 
-#: addrprint_edit.php:113 addrprint_edit.php:123 labelprint_edit.php:50
-#: labelprint_edit.php:60
+#: addrprint_edit.php:115 addrprint_edit.php:125 labelprint_edit.php:65
+#: labelprint_edit.php:76
 msgid "Saved."
 msgstr "保存しました。"
 
-#: addrprint_edit.php:186
+#: addrprint_edit.php:188
 msgid "Envelope Layout Editor"
 msgstr "封筒レイアウトエディター"
 
-#: addrprint_edit.php:195
+#: addrprint_edit.php:197
 msgid "Graphic file"
 msgstr "画像ファイル"
 
-#: addrprint_edit.php:198
+#: addrprint_edit.php:200
 msgid "Upload PNG…"
 msgstr "PNGをアップロード…"
 
-#: addrprint_edit.php:199
+#: addrprint_edit.php:201
 msgid "Delete file"
 msgstr "ファイルを削除"
 
-#: addrprint_edit.php:259
+#: addrprint_edit.php:261
 msgid "Envelope/Postcard Layout Editor"
 msgstr "封筒・はがきのレイアウトエディター"
 
-#: addrprint_edit.php:260
+#: addrprint_edit.php:262
 msgid ""
 "Pick a saved layout to edit, or choose \"New…\". The preview updates "
 "automatically. Dashed boxes show where each block is positioned; a solid red "
@@ -399,155 +408,156 @@ msgstr ""
 "新されます。破線の枠は各ブロックの位置を示し、赤い枠はテキストがその枠からは"
 "み出していることを表します。"
 
-#: addrprint_edit.php:264 batch_custom.php:14 batch_person_format.php:16
-#: batch_photos.php:22 labelprint_edit.php:139
+#: addrprint_edit.php:266 batch_custom.php:14 batch_person_format.php:16
+#: batch_photos.php:22 labelprint_edit.php:178
 msgid "Layout"
 msgstr "レイアウト"
 
-#: addrprint_edit.php:272 addrprint_edit.php:581 labelprint_edit.php:147
-#: labelprint_edit.php:305
+#: addrprint_edit.php:274 addrprint_edit.php:583 labelprint_edit.php:186
+#: labelprint_edit.php:382
 msgid "New…"
 msgstr "新規…"
 
-#: addrprint_edit.php:274 addrprint_edit.php:439
+#: addrprint_edit.php:276 addrprint_edit.php:441 labelprint_edit.php:188
+#: labelprint_edit.php:290
 msgid "Menu order"
 msgstr "メニューの順番"
 
-#: addrprint_edit.php:275
+#: addrprint_edit.php:277 labelprint_edit.php:189
 msgid "Re-order…"
 msgstr "並べ替え…"
 
-#: addrprint_edit.php:278 labelprint_edit.php:151
+#: addrprint_edit.php:280 labelprint_edit.php:192
 msgid "Start from"
 msgstr "ひな形から"
 
-#: addrprint_edit.php:280
+#: addrprint_edit.php:282
 msgid "Select a common size…"
 msgstr "よく使うサイズを選択…"
 
-#: addrprint_edit.php:281
+#: addrprint_edit.php:283
 msgid "Env #3 Long, tategaki (235×120)"
 msgstr "長形3号 縦書き (235×120)"
 
-#: addrprint_edit.php:282
+#: addrprint_edit.php:284
 msgid "Env #3 Long, yokogaki (235×120)"
 msgstr "長形3号 横書き (235×120)"
 
-#: addrprint_edit.php:283
+#: addrprint_edit.php:285
 msgid "Env #6, yokogaki (229×162)"
 msgstr "角形6号 横書き (229×162)"
 
-#: addrprint_edit.php:284
+#: addrprint_edit.php:286
 msgid "Postcard (148×100)"
 msgstr "はがき (148×100)"
 
-#: addrprint_edit.php:285
+#: addrprint_edit.php:287
 msgid "New Years Postcard (148×100)"
 msgstr "年賀はがき (148×100)"
 
-#: addrprint_edit.php:289 labelprint_edit.php:167
+#: addrprint_edit.php:291 labelprint_edit.php:208
 msgid "Layout name"
 msgstr "レイアウト名"
 
-#: addrprint_edit.php:296
+#: addrprint_edit.php:298
 msgid "Paper"
 msgstr "用紙"
 
-#: addrprint_edit.php:299
+#: addrprint_edit.php:301
 msgid "Paper width"
 msgstr "用紙の幅"
 
-#: addrprint_edit.php:300
+#: addrprint_edit.php:302
 msgid "Paper height"
 msgstr "用紙の高さ"
 
-#: addrprint_edit.php:303
+#: addrprint_edit.php:305
 msgid "Tategaki (Recipient address & name written vertically)"
 msgstr "縦書き（宛先の住所・氏名を縦書きにする）"
 
-#: addrprint_edit.php:307 addrprint_edit.php:408 batch_person_format.php:25
+#: addrprint_edit.php:309 addrprint_edit.php:410 batch_person_format.php:25
 #: batch_person_xml.php:286 db_settings.php:23 edit.php:168 edit.php:171
 msgid "Postal Code"
 msgstr "郵便番号"
 
-#: addrprint_edit.php:310 addrprint_edit.php:343 addrprint_edit.php:360
-#: addrprint_edit.php:372
+#: addrprint_edit.php:312 addrprint_edit.php:345 addrprint_edit.php:362
+#: addrprint_edit.php:374
 msgid "Text size (pt)"
 msgstr "文字サイズ (pt)"
 
-#: addrprint_edit.php:311 addrprint_edit.php:323 addrprint_edit.php:340
-#: addrprint_edit.php:356 addrprint_edit.php:369 addrprint_edit.php:391
+#: addrprint_edit.php:313 addrprint_edit.php:325 addrprint_edit.php:342
+#: addrprint_edit.php:358 addrprint_edit.php:371 addrprint_edit.php:393
 msgid "Position from left"
 msgstr "左からの位置"
 
-#: addrprint_edit.php:312
+#: addrprint_edit.php:314
 msgid "Position from top (base of digits)"
 msgstr "上からの位置（数字の下端）"
 
-#: addrprint_edit.php:313
+#: addrprint_edit.php:315
 msgid "Digit spacing"
 msgstr "数字の間隔"
 
-#: addrprint_edit.php:314
+#: addrprint_edit.php:316
 msgid "Extra gap at hyphen"
 msgstr "ハイフン部分の追加間隔"
 
-#: addrprint_edit.php:320
+#: addrprint_edit.php:322
 msgid "Recipient"
 msgstr "宛先"
 
-#: addrprint_edit.php:324 addrprint_edit.php:357 addrprint_edit.php:370
-#: addrprint_edit.php:392
+#: addrprint_edit.php:326 addrprint_edit.php:359 addrprint_edit.php:372
+#: addrprint_edit.php:394
 msgid "Position from top"
 msgstr "上からの位置"
 
-#: addrprint_edit.php:325 addrprint_edit.php:358
+#: addrprint_edit.php:327 addrprint_edit.php:360
 msgid "Box width"
 msgstr "枠の幅"
 
-#: addrprint_edit.php:326 addrprint_edit.php:359
+#: addrprint_edit.php:328 addrprint_edit.php:361
 msgid "Box height"
 msgstr "枠の高さ"
 
-#: addrprint_edit.php:327
+#: addrprint_edit.php:329
 msgid "Address text size (pt)"
 msgstr "住所の文字サイズ（日本）"
 
-#: addrprint_edit.php:328
+#: addrprint_edit.php:330
 msgid "Name text size (pt)"
 msgstr "氏名の文字サイズ（日本）"
 
-#: addrprint_edit.php:329
+#: addrprint_edit.php:331
 msgid "Name indent"
 msgstr "氏名の字下げ"
 
-#: addrprint_edit.php:330
+#: addrprint_edit.php:332
 msgid "Gap before name"
 msgstr "氏名の前の間隔"
 
-#: addrprint_edit.php:333
+#: addrprint_edit.php:335
 msgid ""
 "Indent shifts the name across the writing direction; gap is the space before "
 "it."
 msgstr "字下げは書字方向に対して氏名をずらし、間隔は氏名の前の空きです。"
 
-#: addrprint_edit.php:337
+#: addrprint_edit.php:339
 msgid "Return address"
 msgstr "差出人住所"
 
-#: addrprint_edit.php:341
+#: addrprint_edit.php:343
 msgid "Position from bottom"
 msgstr "下からの位置"
 
-#: addrprint_edit.php:342 addrprint_edit.php:371
+#: addrprint_edit.php:344 addrprint_edit.php:373
 msgid "Width (0 = auto)"
 msgstr "幅（0 = 自動）"
 
-#: addrprint_edit.php:347 addrprint_edit.php:376
+#: addrprint_edit.php:349 addrprint_edit.php:378
 msgid "Or text"
 msgstr "またはテキスト"
 
-#: addrprint_edit.php:348
+#: addrprint_edit.php:350
 msgid ""
 "Anchored bottom-left. Pick or upload a graphic (used if set), or type plain "
 "text. Width sizes the image or wraps the text; 0 = natural image size or "
@@ -557,159 +567,665 @@ msgstr ""
 "優先）、またはテキストを入力します。幅は画像のサイズ、またはテキストの折り返"
 "し幅になります。0 = 画像は元のサイズ／テキストは右端まで。"
 
-#: addrprint_edit.php:352
+#: addrprint_edit.php:354
 msgid "Non-Japan recipient"
 msgstr "外国の宛先"
 
-#: addrprint_edit.php:353
+#: addrprint_edit.php:355
 msgid ""
 "Non-Japan is authored in landscape (Western addressing style) and then "
 "rotated in the PDF."
 msgstr "外国用は横向き（封筒を横にした状態）で作成します。"
 
-#: addrprint_edit.php:366
+#: addrprint_edit.php:368
 msgid "Non-Japan return address"
 msgstr "外国の差出人住所"
 
-#: addrprint_edit.php:380
+#: addrprint_edit.php:382
 msgid "Advanced"
 msgstr "詳細設定"
 
-#: addrprint_edit.php:382
+#: addrprint_edit.php:384
 msgid "Default stamp"
 msgstr "初期の郵便局スタンプ"
 
-#: addrprint_edit.php:384 batch_printaddr.php:61
+#: addrprint_edit.php:386 batch_printaddr.php:61
 msgid "None"
 msgstr "なし"
 
-#: addrprint_edit.php:385 batch_printaddr.php:62
+#: addrprint_edit.php:387 batch_printaddr.php:62
 msgid "Standard mail"
 msgstr "普通郵便"
 
-#: addrprint_edit.php:386 batch_printaddr.php:63
+#: addrprint_edit.php:388 batch_printaddr.php:63
 msgid "'Yuu-mail'"
 msgstr "ゆうメール"
 
-#: addrprint_edit.php:387 batch_printaddr.php:64
+#: addrprint_edit.php:389 batch_printaddr.php:64
 msgid "Standard mail w/ contract"
 msgstr "契約付き普通郵便"
 
-#: addrprint_edit.php:388 batch_printaddr.php:65
+#: addrprint_edit.php:390 batch_printaddr.php:65
 msgid "'Yuu-mail' w/ contract"
 msgstr "契約付きゆうメール"
 
-#: addrprint_edit.php:395
+#: addrprint_edit.php:397
 msgid "Custom code file"
 msgstr "カスタムコードのファイル"
 
-#: addrprint_edit.php:399 labelprint_edit.php:206
+#: addrprint_edit.php:401 labelprint_edit.php:250
 msgid "Preview sample"
 msgstr "プレビュー用サンプル"
 
-#: addrprint_edit.php:401 labelprint_edit.php:208
+#: addrprint_edit.php:403 labelprint_edit.php:252
 msgid "Japan (sample)"
 msgstr "日本（サンプル）"
 
-#: addrprint_edit.php:402 labelprint_edit.php:209
+#: addrprint_edit.php:404 labelprint_edit.php:253
 msgid "Foreign (sample)"
 msgstr "外国（サンプル）"
 
-#: addrprint_edit.php:403 labelprint_edit.php:210
+#: addrprint_edit.php:405 labelprint_edit.php:254
 #, php-format
 msgid "From Basket (%d)"
 msgstr "かごから (%d)"
 
-#: addrprint_edit.php:405 batch_printaddr.php:57
+#: addrprint_edit.php:407 batch_printaddr.php:57
 msgid "Use kanji for numbers"
 msgstr "漢字の数字を使用"
 
-#: addrprint_edit.php:411 addrprint_edit.php:414 batch_person_xml.php:131
+#: addrprint_edit.php:413 addrprint_edit.php:416 batch_person_xml.php:131
 #: batch_person_xml.php:235 batch_person_xml.php:265 edit.php:87 edit.php:179
-#: functions.php:552 labelprint_edit.php:218 labelprint_edit.php:221
+#: functions.php:553 labelprint_edit.php:262 labelprint_edit.php:265
 #: search.php:58 search.php:184
 msgid "Label Name"
 msgstr "ラベル用名前"
 
-#: addrprint_edit.php:417
+#: addrprint_edit.php:419 labelprint_edit.php:268
 msgid "Paging through your Basket records."
 msgstr "かごの中身を1項目ずつ表示しています。"
 
-#: addrprint_edit.php:421 individual.php:1669 individual.php:1814
-#: labelprint_edit.php:228
+#: addrprint_edit.php:423 individual.php:1669 individual.php:1814
+#: labelprint_edit.php:272
 msgid "Save"
 msgstr "保存"
 
-#: addrprint_edit.php:422 labelprint_edit.php:229
+#: addrprint_edit.php:424 labelprint_edit.php:273
 msgid "Save as New"
 msgstr "新規として保存"
 
-#: addrprint_edit.php:423 addrprint_edit.php:731 db_settings.php:64
-#: db_settings.php:86 db_settings.php:110 db_settings.php:140
-#: db_settings.php:214 labelprint_edit.php:230 labelprint_edit.php:390
+#: addrprint_edit.php:425 addrprint_edit.php:735 admin_settings.php:395
+#: db_settings.php:64 db_settings.php:86 db_settings.php:110
+#: db_settings.php:140 labelprint_edit.php:274 labelprint_edit.php:523
 #: merge_duplicates.php:103 merge_duplicates.php:108 merge_duplicates.php:122
 #: merge_duplicates.php:125
 msgid "Delete"
 msgstr "削除"
 
-#: addrprint_edit.php:428 household.php:106 labelprint_edit.php:235
+#: addrprint_edit.php:430 household.php:106 labelprint_edit.php:279
 msgid "Preview"
 msgstr "プレビュー"
 
-#: addrprint_edit.php:438 labelprint_edit.php:241
+#: addrprint_edit.php:440 labelprint_edit.php:289
 msgid "Delete Layout"
 msgstr "レイアウトを削除"
 
-#: addrprint_edit.php:440
+#: addrprint_edit.php:442 labelprint_edit.php:291
 msgid "Drag to arrange. The new order takes effect when you save the layout."
 msgstr ""
 "ドラッグして並べ替えます。新しい順番はレイアウトを保存すると反映されます。"
 
-#: addrprint_edit.php:458
+#: addrprint_edit.php:460
 msgid "(missing)"
 msgstr "（見つかりません）"
 
-#: addrprint_edit.php:522
+#: addrprint_edit.php:524
 msgid "(no graphic, just text)"
 msgstr "（画像なし、テキストのみ）"
 
-#: addrprint_edit.php:591
+#: addrprint_edit.php:598 labelprint_edit.php:397
 msgid "(new layout)"
 msgstr "（新規レイアウト）"
 
-#: addrprint_edit.php:727 labelprint_edit.php:386
+#: addrprint_edit.php:731 labelprint_edit.php:519
 #, php-format
 msgid "Delete the layout \"%s\"?"
 msgstr "レイアウト「%s」を削除しますか。"
 
-#: addrprint_edit.php:732 addrprint_edit.php:744 batch_action.php:122
-#: db_settings.php:581 db_settings.php:681 db_settings.php:796
+#: addrprint_edit.php:736 addrprint_edit.php:748 batch_action.php:122
+#: db_settings.php:447 db_settings.php:547 db_settings.php:662
 #: individual.php:1676 individual.php:1821 individual.php:2020
-#: labelprint_edit.php:391 merge_duplicates.php:794
+#: labelprint_edit.php:524 labelprint_edit.php:536 merge_duplicates.php:794
 msgid "Cancel"
 msgstr "キャンセル"
 
-#: addrprint_edit.php:743
+#: addrprint_edit.php:747 labelprint_edit.php:535
 msgid "Done"
 msgstr "完了"
 
-#: addrprint_edit.php:758
+#: addrprint_edit.php:762
 msgid "Select a file to delete first."
 msgstr "先に削除するファイルを選択してください。"
 
-#: addrprint_edit.php:759
+#: addrprint_edit.php:763
 #, php-format
 msgid "Delete the file \"%s\" from the server?"
 msgstr "ファイル「%s」をサーバーから削除しますか？"
 
-#: addrprint_edit.php:773
+#: addrprint_edit.php:777
 #, php-format
 msgid "Replace existing file \"%s\"?"
 msgstr "既存のファイル「%s」を置き換えますか？"
 
-#: addrprint_edit.php:781
+#: addrprint_edit.php:785
 msgid "Uploaded."
 msgstr "アップロードしました。"
+
+#: admin_settings.php:7
+msgid "Access denied."
+msgstr "アクセスが拒否されました。"
+
+#: admin_settings.php:20 list.php:278
+msgid "Search Results"
+msgstr "検索の結果"
+
+#: admin_settings.php:21
+msgid "Person/Org Detail Page"
+msgstr "個人・団体の詳細ページ"
+
+#: admin_settings.php:21 list.php:465 list.php:479
+msgid "Organizations"
+msgstr "団体"
+
+#: admin_settings.php:21
+msgid "Members"
+msgstr "メンバー"
+
+#: admin_settings.php:22 household.php:5 household.php:70 individual.php:358
+msgid "Household Information"
+msgstr "世帯情報"
+
+#: admin_settings.php:24 donation.php:64 donation.php:76 donation.php:77
+#: donation_list.php:10 donation_list.php:20
+msgid "Donation List"
+msgstr "献金の表"
+
+#: admin_settings.php:25 donation.php:93 donation.php:94 pledge_list.php:8
+#: pledge_list.php:11
+msgid "Pledge List"
+msgstr "約束の表"
+
+#: admin_settings.php:26 attend_datesums.php:8
+msgid "Attendance Summary"
+msgstr "イベント参加のまとめ"
+
+#: admin_settings.php:27
+msgid "Birthday List"
+msgstr "誕生日の表"
+
+#: admin_settings.php:48
+msgid "Name (display)"
+msgstr "名前（表示用）"
+
+#: admin_settings.php:50 functions.php:544
+msgid "Romaji Name"
+msgstr "名前（ローマ字）"
+
+#: admin_settings.php:50 functions.php:544
+msgid "Furigana Name"
+msgstr "名前（フリガナ）"
+
+#: admin_settings.php:52 household.php:187 merge_duplicates.php:464
+#: overview.php:123
+msgid "Relation in Household"
+msgstr "世帯との関係"
+
+#: admin_settings.php:54 donation_list.php:240 edit.php:89
+#: get_duplicates.php:22 household.php:87 overview.php:85 search.php:60
+msgid "Phone"
+msgstr "電話番号"
+
+#: admin_settings.php:74 list.php:464 list.php:478
+msgid "Orgs"
+msgstr "団体"
+
+#: admin_settings.php:87 batch_person_format.php:24 batch_person_text.php:48
+#: batch_person_xml.php:139 batch_person_xml.php:243 birthday.php:128
+#: individual.php:336 overview.php:59 overview.php:125
+msgid "Birthday"
+msgstr "誕生日"
+
+#: admin_settings.php:87 birthday.php:138
+msgid "Age after Birthday"
+msgstr "誕生日後の年齢"
+
+#: admin_settings.php:95 attend_aggregate.php:196 batch_attendance.php:63
+#: db_settings.php:130 individual.php:1338 individual.php:1382
+#: merge_duplicates.php:663 overview.php:185 overview.php:212
+msgid "Event"
+msgstr "イベント"
+
+#: admin_settings.php:95 attend_aggregate.php:204
+msgid "First"
+msgstr "最初"
+
+#: admin_settings.php:95 attend_aggregate.php:212
+msgid "Last"
+msgstr "最後"
+
+#: admin_settings.php:95 attend_aggregate.php:220
+msgid "# Times"
+msgstr "回数"
+
+#: admin_settings.php:95 attend_aggregate.php:229
+msgid "Total Hours"
+msgstr "合計時間"
+
+#: admin_settings.php:99 batch_person_text.php:53 batch_person_xml.php:142
+#: batch_person_xml.php:246 batch_person_xml.php:271 batch_person_xml.php:291
+#: donation_list.php:269 edit.php:235 individual.php:344
+#: merge_duplicates.php:469 overview.php:64
+msgid "Home Country"
+msgstr "母国"
+
+#: admin_settings.php:99 admin_settings.php:103 donation_list.php:314
+#: donation_list.php:430 donation_summary.php:132 edit_pledge.php:80
+#: individual.php:1010 individual.php:1122 individual.php:1161
+#: individual.php:1217 individual.php:1285 merge_duplicates.php:628
+#: merge_duplicates.php:639
+msgid "Donation Type"
+msgstr "献金タイプ"
+
+#: admin_settings.php:99 donation_list.php:324
+msgid "Pledge?"
+msgstr "約束？"
+
+#: admin_settings.php:99 admin_settings.php:103 donation_list.php:334
+#: donation_list.php:432 donation_list.php:433 donation_summary.php:134
+#: donation_summary.php:135 edit_pledge.php:96 individual.php:1018
+#: individual.php:1067 individual.php:1133 individual.php:1183
+#: individual.php:1233 individual.php:1310 merge_duplicates.php:628
+#: merge_duplicates.php:639 pledge_list.php:307
+msgid "Amount"
+msgstr "金額"
+
+#: admin_settings.php:99 donation_list.php:63 donation_summary.php:53
+#: individual.php:1023 individual.php:1140
+msgid "Processed"
+msgstr "処理済"
+
+#: admin_settings.php:103 individual.php:1240 individual.php:1382
+#: merge_duplicates.php:639 merge_duplicates.php:663 pledge_list.php:308
+msgid "Dates"
+msgstr "日付"
+
+#: admin_settings.php:103
+msgid "Interval"
+msgstr "周期"
+
+#: admin_settings.php:103 individual.php:1247 pledge_list.php:309
+msgid "Balance"
+msgstr "残高"
+
+#: admin_settings.php:103 pledge_list.php:310
+msgid "Months"
+msgstr "ヶ月"
+
+#: admin_settings.php:115
+msgid "The database title is too long (200 characters maximum)."
+msgstr "データベースのタイトルが長すぎます（最大200文字）。"
+
+#: admin_settings.php:119
+msgid "Person photo maximum width"
+msgstr "個人写真の最大幅"
+
+#: admin_settings.php:120
+msgid "Person photo resize width"
+msgstr "個人写真の縮小後の幅"
+
+#: admin_settings.php:121
+msgid "Household photo maximum width"
+msgstr "世帯写真の最大幅"
+
+#: admin_settings.php:122
+msgid "Household photo resize width"
+msgstr "世帯写真の縮小後の幅"
+
+#: admin_settings.php:126
+#, php-format
+msgid "%s must be a positive number."
+msgstr "%sには正の数を入力してください。"
+
+#: admin_settings.php:139 admin_settings.php:156 ajax_action.php:42
+#: ajax_action.php:62 ajax_action.php:83
+msgid "Changes saved."
+msgstr "変更を保存しました。"
+
+#: admin_settings.php:149
+#, php-format
+msgid "Please choose at least one column for \"%s\"."
+msgstr "「%s」に表示する欄を少なくとも1つ選択してください。"
+
+#: admin_settings.php:161 passwordreset.php:114
+msgid "UserID"
+msgstr "ユーザーID"
+
+#: admin_settings.php:162
+msgid "Admin"
+msgstr "管理者"
+
+#: admin_settings.php:162
+msgid "Last Login"
+msgstr "最終ログイン"
+
+#: admin_settings.php:163
+msgid "# Logins in prior:"
+msgstr "ログイン回数（過去）"
+
+#: admin_settings.php:164
+msgid "First Login"
+msgstr "初回ログイン"
+
+#: admin_settings.php:166
+msgid "30d"
+msgstr "30日"
+
+#: admin_settings.php:166
+msgid "365d"
+msgstr "365日"
+
+#: admin_settings.php:167
+msgid "All"
+msgstr "全"
+
+#: admin_settings.php:193 admin_settings.php:534
+msgid "Please choose at least one field for quick search."
+msgstr "クイック検索の対象欄を少なくとも1つ選択してください。"
+
+#: admin_settings.php:197
+msgid "Quick Search fields updated."
+msgstr "クイック検索の対象欄を更新しました。"
+
+#: admin_settings.php:200 admin_settings.php:316
+msgid "Invalid user ID"
+msgstr "無効なユーザーID"
+
+#: admin_settings.php:206 ajax_request.php:250 ajax_request.php:279
+#: ajax_request.php:292 ajax_request.php:328
+msgid "Record not found."
+msgstr "項目は見つかりませんでした。"
+
+#: admin_settings.php:222
+msgid "Never logged in"
+msgstr "ログインしたことがない"
+
+#: admin_settings.php:224
+#, php-format
+msgid "Last login: %s"
+msgstr "前回のログイン：%s"
+
+#: admin_settings.php:225
+#, php-format
+msgid "Total: %d"
+msgstr "合計：%d"
+
+#: admin_settings.php:234 admin_settings.php:656
+msgid "User Name cannot be blank."
+msgstr "ユーザー名を入力してください。"
+
+#: admin_settings.php:235 admin_settings.php:660
+msgid "UserID cannot be blank."
+msgstr "ユーザーIDを入力してください。"
+
+#: admin_settings.php:246 passwordentry.php:46 passwordreset.php:37
+#: user_settings.php:28
+msgid "Please choose a stronger password (at least \"Fair\")."
+msgstr "もっと強いパスワードを選んでください（最低でも「普通」）。"
+
+#: admin_settings.php:250 admin_settings.php:665
+msgid "An email address is required to send a setup link."
+msgstr "セットアップリンクを送信するには、メールアドレスが必要です。"
+
+#: admin_settings.php:254 admin_settings.php:671
+msgid "You must enter a password for a new user."
+msgstr "新規ユーザーのために、パスワードの入力は必要です。"
+
+#: admin_settings.php:259 admin_settings.php:281
+#, php-format
+msgid "UserID '%s' is already in use by %s. Please choose a different UserID."
+msgstr ""
+"ユーザーID「%s」は、現在ユーザー「%s」に使われています。他のユーザーIDを選ん"
+"でしてください。"
+
+#: admin_settings.php:266
+msgid "New user added; a setup link was emailed to them."
+msgstr "新規ユーザーを追加し、セットアップリンクをメールで送信しました。"
+
+#: admin_settings.php:267
+msgid ""
+"New user added, but the setup email failed to send. Check the mail settings "
+"or set a password manually."
+msgstr ""
+"新規ユーザーを追加しましたが、セットアップメールの送信に失敗しました。メール"
+"設定を確認するか、手動でパスワードを設定してください。"
+
+#: admin_settings.php:269
+msgid "New user successfully added."
+msgstr "ユーザーを作成しました。"
+
+#: admin_settings.php:307
+msgid "User information successfully updated."
+msgstr "ユーザー情報を変更しました。"
+
+#: admin_settings.php:308
+msgid "User updated; a setup link was emailed to them."
+msgstr "ユーザー情報を更新し、セットアップリンクをメールで送信しました。"
+
+#: admin_settings.php:309
+msgid ""
+"User updated, but the setup email failed to send. Check the mail settings."
+msgstr ""
+"ユーザー情報を更新しましたが、セットアップメールの送信に失敗しました。メール"
+"設定を確認してください。"
+
+#: admin_settings.php:323
+msgid "User successfully deleted."
+msgstr "ユーザーを削除しました。"
+
+#: admin_settings.php:325
+msgid "User not found."
+msgstr "ユーザーが見つかりませんでした。"
+
+#: admin_settings.php:330 admin_settings.php:350 functions.php:191
+msgid "Admin Settings"
+msgstr "管理者設定"
+
+#: admin_settings.php:355
+msgid "User Management"
+msgstr "ユーザー（ログイン）管理"
+
+#: admin_settings.php:356
+msgid ""
+"Fill in the information to add a new user.  Or select an existing user to "
+"make changes or delete.NOTE: You cannot see the existing password, but you "
+"can enter a new one if the user forgot his/her password."
+msgstr ""
+"ユーザーを作成するには、情報を入力する。現在のユーザーを変更や削除することも"
+"できます。注意：現在のパスワードを表示できないですが、パスワードを忘れたユー"
+"ザーのために新しいパスワードを上書きできます。"
+
+#: admin_settings.php:359
+msgid "New User..."
+msgstr "新しいユーザー…"
+
+#: admin_settings.php:368
+msgid "UserID (to log in)"
+msgstr "UserID （ログインする時に使う）"
+
+#: admin_settings.php:370
+msgid "(max. 16 English characters, no spaces or punctuation)"
+msgstr "（16文字以下、半角英字だけ、スペースや句読点はダメ）"
+
+#: admin_settings.php:373 user_settings.php:57
+msgid "(used for \"forgot password\" capability)"
+msgstr "（「パスワードをお忘れの方」機能で使用します）"
+
+#: admin_settings.php:374
+msgid "Language for Interface"
+msgstr "インタフェースの言語"
+
+#: admin_settings.php:375 user_settings.php:53
+msgid "English"
+msgstr "英語"
+
+#: admin_settings.php:376 user_settings.php:54
+msgid "Japanese"
+msgstr "日本語"
+
+#: admin_settings.php:378
+msgid "Admin Privileges"
+msgstr "管理者許可"
+
+#: admin_settings.php:381
+msgid "Hide Donation Info"
+msgstr "献金情報を隠す"
+
+#: admin_settings.php:383
+msgid ""
+"Email a setup link (instead of entering a password here; requires Email)"
+msgstr ""
+"セットアップリンクをメールで送る（ここでパスワードを入力する代わり。メールア"
+"ドレスが必要）"
+
+#: admin_settings.php:385 passwordreset.php:100
+msgid "New Password"
+msgstr "新しいパスワード"
+
+#: admin_settings.php:387
+msgid "(leave blank if not changing password)"
+msgstr "（パスワード変更しない場合、空けておいてください。）"
+
+#: admin_settings.php:388 passwordreset.php:101
+msgid "New Password again"
+msgstr "新しいパスワード（確認用）"
+
+#: admin_settings.php:392
+msgid "Dashboard Files"
+msgstr "ダッシュボードファイル"
+
+#: admin_settings.php:394 db_settings.php:85 db_settings.php:109
+#: db_settings.php:139
+msgid "Add or Update"
+msgstr "作成や変更"
+
+#: admin_settings.php:397 admin_settings.php:477
+msgid "Show user overview"
+msgstr "ユーザー概要を表示"
+
+#: admin_settings.php:404
+msgid "Default Columns"
+msgstr "初期表示の欄"
+
+#: admin_settings.php:405
+msgid ""
+"Choose which columns each kind of list shows by default. (Users can still "
+"add or remove columns on the fly with each list's column selector.)"
+msgstr ""
+"各リストで初期表示する欄を選択してください。（各リストの欄セレクターで、利用"
+"者がその場で欄を追加・削除できます。）"
+
+#: admin_settings.php:424 admin_settings.php:441 admin_settings.php:471
+#: edit.php:250 edit_pledge.php:113 individual.php:878 individual.php:1025
+#: individual.php:2013 user_settings.php:58
+msgid "Save Changes"
+msgstr "変更を保存"
+
+#: admin_settings.php:430
+msgid "Quick Search Fields"
+msgstr "クイック検索の対象"
+
+#: admin_settings.php:431
+msgid ""
+"Choose which fields the Quick Search box looks in. Searching fewer fields "
+"(especially Remarks) makes Quick Search faster."
+msgstr ""
+"クイック検索ボックスで検索する欄を選択してください。検索する欄を減らすと（特"
+"に「備考」）、クイック検索が高速になります。"
+
+#: admin_settings.php:447
+msgid "Miscellaneous Settings"
+msgstr "その他の設定"
+
+#: admin_settings.php:448
+msgid "Database title"
+msgstr "データベースのタイトル"
+
+#: admin_settings.php:450
+msgid "(shown in browser tab titles)"
+msgstr "（ブラウザーのタブに表示されます）"
+
+#: admin_settings.php:451
+msgid "Show ID on person detail page"
+msgstr "個人の詳細ページにIDを表示する"
+
+#: admin_settings.php:453
+msgid "New users hide donation info by default"
+msgstr "新規ユーザーは初期設定で献金情報を非表示にする"
+
+#: admin_settings.php:454
+msgid "Default pledge interval"
+msgstr "献金約束の初期周期"
+
+#: admin_settings.php:457 edit_pledge.php:108 individual.php:1187
+#: individual.php:1232 individual.php:1314 individual.php:2152
+msgid "month"
+msgstr "月"
+
+#: admin_settings.php:458 edit_pledge.php:109 individual.php:1188
+#: individual.php:1232 individual.php:1315 individual.php:2151
+msgid "quarter"
+msgstr "四半期"
+
+#: admin_settings.php:459 edit_pledge.php:110 individual.php:1189
+#: individual.php:1232 individual.php:1316 individual.php:2150
+msgid "year"
+msgstr "年"
+
+#: admin_settings.php:460 edit_pledge.php:111 individual.php:1190
+#: individual.php:1232 individual.php:1317 individual.php:2149
+msgid "(one time)"
+msgstr "(一回)"
+
+#: admin_settings.php:469
+#, php-format
+msgid "Person photos: If width is greater than %1$spx, resize to %2$spx"
+msgstr "個人写真：幅が %1$spx を超える場合、%2$spx に縮小する"
+
+#: admin_settings.php:470
+#, php-format
+msgid "Household photos: If width is greater than %1$spx, resize to %2$spx"
+msgstr "世帯写真：幅が %1$spx を超える場合、%2$spx に縮小する"
+
+#: admin_settings.php:476 basket.php:10 batch_organization.php:91
+#: batch_organization.php:125 db_settings.php:208 db_settings.php:248
+#: db_settings.php:269 db_settings.php:317 db_settings.php:341
+#: db_settings.php:373 db_settings.php:398 db_settings.php:422
+#: db_settings.php:464 db_settings.php:522 db_settings.php:563
+#: db_settings.php:633 db_settings.php:681 functions.php:317
+#: individual.php:1555 individual.php:1590
+msgid "Your login has timed out - please refresh the page."
+msgstr ""
+"あなたのログインはタイムアウトしました。このページを更新すれば、またログイン"
+"できます。"
+
+#: admin_settings.php:478
+msgid "Hide user overview"
+msgstr "ユーザー概要を非表示"
+
+#: admin_settings.php:627
+#, php-format
+msgid "Are you sure you want to delete user \"%1$s\" (UserID: %2$s)?"
+msgstr "ユーザー「%1$s」（ユーザーID：%2$s）を削除してよろしいですか。"
 
 #: ajax_action.php:10
 msgid "Update successful."
@@ -723,214 +1239,127 @@ msgstr "削除ができました。"
 msgid "Record to delete was not found."
 msgstr "削除しようですが、項目は見つかりませんでした。"
 
-#: ajax_action.php:36 ajax_action.php:111 ajax_action.php:211
-msgid "Access denied."
-msgstr "アクセスが拒否されました。"
-
-#: ajax_action.php:42 db_settings.php:929
-msgid "Please choose at least one field for quick search."
-msgstr "クイック検索の対象欄を少なくとも1つ選択してください。"
-
-#: ajax_action.php:47
-msgid "Quick Search fields updated."
-msgstr "クイック検索の対象欄を更新しました。"
-
-#: ajax_action.php:58 ajax_action.php:78 ajax_action.php:99
-msgid "Changes saved."
-msgstr "変更を保存しました。"
-
-#: ajax_action.php:58 ajax_action.php:78 ajax_action.php:99
+#: ajax_action.php:42 ajax_action.php:62 ajax_action.php:83
 msgid "Failed to save."
 msgstr "保存に失敗しました。"
 
-#: ajax_action.php:64 ajax_action.php:84 ajax_action.php:106
+#: ajax_action.php:48 ajax_action.php:68 ajax_action.php:90
 msgid "Not found."
 msgstr "見つかりませんでした。"
 
-#: ajax_action.php:116 db_settings.php:996
-msgid "User Name cannot be blank."
-msgstr "ユーザー名を入力してください。"
-
-#: ajax_action.php:119 db_settings.php:1000
-msgid "UserID cannot be blank."
-msgstr "ユーザーIDを入力してください。"
-
-#: ajax_action.php:132 passwordentry.php:46 passwordreset.php:37
-#: user_settings.php:28
-msgid "Please choose a stronger password (at least \"Fair\")."
-msgstr "もっと強いパスワードを選んでください（最低でも「普通」）。"
-
-#: ajax_action.php:138 db_settings.php:1005
-msgid "An email address is required to send a setup link."
-msgstr "セットアップリンクを送信するには、メールアドレスが必要です。"
-
-#: ajax_action.php:145 db_settings.php:1011
-msgid "You must enter a password for a new user."
-msgstr "新規ユーザーのために、パスワードの入力は必要です。"
-
-#: ajax_action.php:151 ajax_action.php:174
-#, php-format
-msgid "UserID '%s' is already in use by %s. Please choose a different UserID."
-msgstr ""
-"ユーザーID「%s」は、現在ユーザー「%s」に使われています。他のユーザーIDを選ん"
-"でしてください。"
-
-#: ajax_action.php:159
-msgid "New user added; a setup link was emailed to them."
-msgstr "新規ユーザーを追加し、セットアップリンクをメールで送信しました。"
-
-#: ajax_action.php:160
-msgid ""
-"New user added, but the setup email failed to send. Check the mail settings "
-"or set a password manually."
-msgstr ""
-"新規ユーザーを追加しましたが、セットアップメールの送信に失敗しました。メール"
-"設定を確認するか、手動でパスワードを設定してください。"
-
-#: ajax_action.php:162
-msgid "New user successfully added."
-msgstr "ユーザーを作成しました。"
-
-#: ajax_action.php:201
-msgid "User information successfully updated."
-msgstr "ユーザー情報を変更しました。"
-
-#: ajax_action.php:202
-msgid "User updated; a setup link was emailed to them."
-msgstr "ユーザー情報を更新し、セットアップリンクをメールで送信しました。"
-
-#: ajax_action.php:203
-msgid ""
-"User updated, but the setup email failed to send. Check the mail settings."
-msgstr ""
-"ユーザー情報を更新しましたが、セットアップメールの送信に失敗しました。メール"
-"設定を確認してください。"
-
-#: ajax_action.php:215
-msgid "Invalid user ID"
-msgstr "無効なユーザーID"
-
-#: ajax_action.php:224
-msgid "User successfully deleted."
-msgstr "ユーザーを削除しました。"
-
-#: ajax_action.php:226
-msgid "User not found."
-msgstr "ユーザーが見つかりませんでした。"
-
-#: ajax_action.php:236 db_settings.php:952
+#: ajax_action.php:100 db_settings.php:737
 msgid "Category name cannot be blank."
 msgstr "カテゴリ名を入力してください。"
 
-#: ajax_action.php:239 db_settings.php:956
+#: ajax_action.php:103 db_settings.php:741
 msgid "Please choose an application."
 msgstr "適用を指定してください。"
 
-#: ajax_action.php:247
+#: ajax_action.php:111
 msgid "Category successfully added."
 msgstr "カテゴリを作成しました。"
 
-#: ajax_action.php:252
+#: ajax_action.php:116
 msgid "Category successfully updated."
 msgstr "カテゴリを変更しました。"
 
-#: ajax_action.php:262
+#: ajax_action.php:126
 msgid "Invalid category ID"
 msgstr "無効なカテゴリID"
 
-#: ajax_action.php:270
+#: ajax_action.php:134
 msgid "Category successfully deleted."
 msgstr "カテゴリを削除しました。"
 
-#: ajax_action.php:272
+#: ajax_action.php:136
 msgid "Category not found."
 msgstr "カテゴリが見つかりませんでした。"
 
-#: ajax_action.php:281 db_settings.php:962
+#: ajax_action.php:145 db_settings.php:747
 msgid "Event name cannot be blank."
 msgstr "イベント名を入力してください。"
 
-#: ajax_action.php:293
+#: ajax_action.php:157
 msgid "Event successfully added."
 msgstr "イベントを作成しました。"
 
-#: ajax_action.php:298
+#: ajax_action.php:162
 msgid "Event information successfully updated."
 msgstr "イベント情報を変更しました。"
 
-#: ajax_action.php:308
+#: ajax_action.php:172
 msgid "Invalid event ID"
 msgstr "無効なイベントID"
 
-#: ajax_action.php:315 db_settings.php:788
+#: ajax_action.php:179 db_settings.php:654
 msgid "Please select an event to reassign to."
 msgstr "再割り当て先のイベントを選んでください。"
 
-#: ajax_action.php:327
+#: ajax_action.php:191
 msgid "Event successfully deleted."
 msgstr "イベントを削除しました。"
 
-#: ajax_action.php:329
+#: ajax_action.php:193
 msgid "Event not found."
 msgstr "イベントが見つかりませんでした。"
 
-#: ajax_action.php:338 db_settings.php:990
+#: ajax_action.php:202 db_settings.php:775
 msgid "Donation Type name cannot be blank."
 msgstr "献金タイプの名前を入力してください。"
 
-#: ajax_action.php:347
+#: ajax_action.php:211
 msgid "Donation Type successfully added."
 msgstr "献金タイプを作成しました。"
 
-#: ajax_action.php:352
+#: ajax_action.php:216
 msgid "Donation Type successfully updated."
 msgstr "献金タイプを更新しました。"
 
-#: ajax_action.php:362
+#: ajax_action.php:226
 msgid "Invalid Donation Type ID"
 msgstr "無効な献金タイプID"
 
-#: ajax_action.php:384
+#: ajax_action.php:248
 msgid "Donation Type successfully deleted."
 msgstr "献金タイプを削除しました。"
 
-#: ajax_action.php:386
+#: ajax_action.php:250
 msgid "Donation Type not found."
 msgstr "献金タイプが見つかりませんでした。"
 
-#: ajax_action.php:395 db_settings.php:984
+#: ajax_action.php:259 db_settings.php:769
 msgid "Action Type name cannot be blank."
 msgstr "アクションタイプの名前を入力してください。"
 
-#: ajax_action.php:405
+#: ajax_action.php:269
 msgid "Action Type successfully added."
 msgstr "アクションタイプを作成しました。"
 
-#: ajax_action.php:410
+#: ajax_action.php:274
 msgid "Action Type successfully updated."
 msgstr "アクションタイプを更新しました。"
 
-#: ajax_action.php:420
+#: ajax_action.php:284
 msgid "Invalid Action Type ID"
 msgstr "無効なアクションタイプID"
 
-#: ajax_action.php:437
+#: ajax_action.php:301
 msgid "Action Type successfully deleted."
 msgstr "アクションタイプを削除しました。"
 
-#: ajax_action.php:439
+#: ajax_action.php:303
 msgid "Action Type not found."
 msgstr "アクションタイプが見つかりませんでした。"
 
-#: ajax_action.php:450 db_settings.php:978
+#: ajax_action.php:314 db_settings.php:763
 msgid "All fields must be filled in."
 msgstr "すべての欄を入力してください。"
 
-#: ajax_action.php:460
+#: ajax_action.php:324
 msgid "Postal Code data successfully updated."
 msgstr "郵便番号関係のデータを変更しました。"
 
-#: ajax_action.php:462
+#: ajax_action.php:326
 msgid "No data was changed."
 msgstr "データは変更されませんでした。"
 
@@ -939,25 +1368,6 @@ msgid ""
 "Postal Code was not found - please double-check the number using the "
 "internet."
 msgstr "郵便番号は見つかりませんでした。ウエブで番号を確認してください。"
-
-#: ajax_request.php:239
-msgid "Never logged in"
-msgstr "ログインしたことがない"
-
-#: ajax_request.php:241
-#, php-format
-msgid "Last login: %s"
-msgstr "前回のログイン：%s"
-
-#: ajax_request.php:242
-#, php-format
-msgid "Total: %d"
-msgstr "合計：%d"
-
-#: ajax_request.php:297 ajax_request.php:326 ajax_request.php:339
-#: ajax_request.php:375
-msgid "Record not found."
-msgstr "項目は見つかりませんでした。"
 
 #: attend_aggregate.php:26 attend_aggregate.php:28
 msgid "Aggregate Attendance Data"
@@ -998,32 +1408,6 @@ msgstr "%d人/団体"
 #: attend_aggregate.php:145 individual.php:573 individual.php:757 list.php:386
 msgid "Born"
 msgstr "誕生日"
-
-#: attend_aggregate.php:196 batch_attendance.php:63 db_settings.php:130
-#: individual.php:1338 individual.php:1382 merge_duplicates.php:663
-#: overview.php:185 overview.php:212
-msgid "Event"
-msgstr "イベント"
-
-#: attend_aggregate.php:204
-msgid "First"
-msgstr "最初"
-
-#: attend_aggregate.php:212
-msgid "Last"
-msgstr "最後"
-
-#: attend_aggregate.php:220
-msgid "# Times"
-msgstr "回数"
-
-#: attend_aggregate.php:229
-msgid "Total Hours"
-msgstr "合計時間"
-
-#: attend_datesums.php:8
-msgid "Attendance Summary"
-msgstr "イベント参加のまとめ"
 
 #: attend_datesums.php:22
 msgid "Attendance Summary Chart"
@@ -1147,19 +1531,6 @@ msgstr "イベントを選んでください。"
 #: attendance.php:100 attendance.php:112
 msgid "Please select at least one event."
 msgstr "イベントをひとつ以上選択する必要があります。"
-
-#: basket.php:10 batch_organization.php:91 batch_organization.php:125
-#: db_settings.php:301 db_settings.php:341 db_settings.php:362
-#: db_settings.php:410 db_settings.php:434 db_settings.php:470
-#: db_settings.php:507 db_settings.php:532 db_settings.php:556
-#: db_settings.php:598 db_settings.php:656 db_settings.php:697
-#: db_settings.php:767 db_settings.php:815 db_settings.php:886
-#: db_settings.php:915 db_settings.php:937 functions.php:316
-#: individual.php:1555 individual.php:1590
-msgid "Your login has timed out - please refresh the page."
-msgstr ""
-"あなたのログインはタイムアウトしました。このページを更新すれば、またログイン"
-"できます。"
 
 #: batch.php:4 batch.php:43 functions.php:180
 msgid "Batch Processing"
@@ -1610,7 +1981,7 @@ msgstr "ラベルのタイプ"
 msgid "Edit / preview this layout…"
 msgstr "このレイアウトを編集／プレビュー…"
 
-#: batch_label.php:91 labelprint_edit.php:212
+#: batch_label.php:91 labelprint_edit.php:256
 msgid "Japan postal code on its own line"
 msgstr "最初の行は郵便番号だけに"
 
@@ -1779,12 +2150,6 @@ msgstr "並び替え"
 msgid "Name (by Furigana/Romaji)"
 msgstr "名前（ふりがな/ローマ字順）"
 
-#: batch_person_format.php:24 batch_person_text.php:48 batch_person_xml.php:139
-#: batch_person_xml.php:243 birthday.php:128 individual.php:336 overview.php:59
-#: overview.php:125
-msgid "Birthday"
-msgstr "誕生日"
-
 #: batch_person_text.php:11
 msgid "Select a Category..."
 msgstr "カテゴリを選択…"
@@ -1808,7 +2173,7 @@ msgid "%s (Name, if Japanese)"
 msgstr "%s（名前は漢字なら、それも）"
 
 #: batch_person_text.php:39 batch_person_xml.php:128 batch_person_xml.php:232
-#: batch_person_xml.php:262 functions.php:550 household.php:81
+#: batch_person_xml.php:262 functions.php:551 household.php:81
 msgid "Romaji Address"
 msgstr "住所のローマ字"
 
@@ -1822,13 +2187,13 @@ msgid "Landline Phone and/or Cell Phone"
 msgstr "固定/携帯の電話番号"
 
 #: batch_person_text.php:43 batch_person_xml.php:133 batch_person_xml.php:237
-#: batch_person_xml.php:267 edit.php:195 functions.php:551 individual.php:360
+#: batch_person_xml.php:267 edit.php:195 functions.php:552 individual.php:360
 #: merge_duplicates.php:45 search.php:185
 msgid "Landline Phone"
 msgstr "固定電話"
 
 #: batch_person_text.php:44 batch_person_xml.php:134 batch_person_xml.php:238
-#: batch_person_xml.php:268 edit.php:212 functions.php:545
+#: batch_person_xml.php:268 edit.php:212 functions.php:546
 #: get_duplicates.php:23 household.php:234 individual.php:343
 #: merge_duplicates.php:466 merge_duplicates.php:722 overview.php:70
 #: search.php:60 search.php:187
@@ -1844,12 +2209,6 @@ msgstr "メールアドレス"
 #: batch_person_text.php:51
 msgid "Birthdate (Age)"
 msgstr "生年月日（年齢）"
-
-#: batch_person_text.php:53 batch_person_xml.php:142 batch_person_xml.php:246
-#: batch_person_xml.php:271 batch_person_xml.php:291 donation_list.php:269
-#: edit.php:235 individual.php:344 merge_duplicates.php:469 overview.php:64
-msgid "Home Country"
-msgstr "母国"
 
 #: batch_person_text.php:56
 msgid "Mark if in Category"
@@ -2064,10 +2423,6 @@ msgstr "「誕生日後の年齢」は %s（今日から4ヶ月後）時点で�
 msgid "%d matching birthdays"
 msgstr "%d件の誕生日"
 
-#: birthday.php:138
-msgid "Age after Birthday"
-msgstr "誕生日後の年齢"
-
 #: birthday.php:262 birthday.php:291 functions.php:173
 msgid "Birthdays"
 msgstr "誕生日"
@@ -2138,11 +2493,11 @@ msgstr ""
 "（元の情報は郵便局のデータベースから取りましたので、変更する前に、十分確認し"
 "て、確認して、もう一回確認してください。）"
 
-#: db_settings.php:27 labelprint_edit.php:215
+#: db_settings.php:27
 msgid "Prefecture"
 msgstr "都道府県"
 
-#: db_settings.php:28 labelprint_edit.php:216
+#: db_settings.php:28
 msgid "City, etc."
 msgstr "市区町"
 
@@ -2223,11 +2578,6 @@ msgstr "色を選ぶにはクリック…"
 msgid "Template"
 msgstr "テンプレート"
 
-#: db_settings.php:85 db_settings.php:109 db_settings.php:139
-#: db_settings.php:213
-msgid "Add or Update"
-msgstr "作成や変更"
-
 #: db_settings.php:95 donation.php:33
 msgid "Donation Types"
 msgstr "献金タイプ"
@@ -2299,124 +2649,34 @@ msgstr "封筒・はがきのレイアウトを編集"
 msgid "Edit Label Layouts"
 msgstr "ラベルのレイアウトを編集"
 
-#: db_settings.php:157
-msgid "Quick Search Fields"
-msgstr "クイック検索の対象"
-
-#: db_settings.php:158
-msgid ""
-"Choose which fields the Quick Search box looks in. Searching fewer fields "
-"(especially Remarks) makes Quick Search faster."
-msgstr ""
-"クイック検索ボックスで検索する欄を選択してください。検索する欄を減らすと（特"
-"に「備考」）、クイック検索が高速になります。"
-
-#: db_settings.php:168 edit.php:250 edit_pledge.php:113 individual.php:878
-#: individual.php:1025 individual.php:2013 user_settings.php:58
-msgid "Save Changes"
-msgstr "変更を保存"
-
-#: db_settings.php:174
-msgid "User Management"
-msgstr "ユーザー（ログイン）管理"
-
-#: db_settings.php:175
-msgid ""
-"Fill in the information to add a new user.  Or select an existing user to "
-"make changes or delete.NOTE: You cannot see the existing password, but you "
-"can enter a new one if the user forgot his/her password."
-msgstr ""
-"ユーザーを作成するには、情報を入力する。現在のユーザーを変更や削除することも"
-"できます。注意：現在のパスワードを表示できないですが、パスワードを忘れたユー"
-"ザーのために新しいパスワードを上書きできます。"
-
-#: db_settings.php:178
-msgid "New User..."
-msgstr "新しいユーザー…"
-
-#: db_settings.php:187
-msgid "UserID (to log in)"
-msgstr "UserID （ログインする時に使う）"
-
-#: db_settings.php:189
-msgid "(max. 16 English characters, no spaces or punctuation)"
-msgstr "（16文字以下、半角英字だけ、スペースや句読点はダメ）"
-
-#: db_settings.php:192 user_settings.php:57
-msgid "(used for \"forgot password\" capability)"
-msgstr "（「パスワードをお忘れの方」機能で使用します）"
-
-#: db_settings.php:193
-msgid "Language for Interface"
-msgstr "インタフェースの言語"
-
-#: db_settings.php:194 user_settings.php:53
-msgid "English"
-msgstr "英語"
-
-#: db_settings.php:195 user_settings.php:54
-msgid "Japanese"
-msgstr "日本語"
-
-#: db_settings.php:197
-msgid "Admin Privileges"
-msgstr "管理者許可"
-
-#: db_settings.php:200
-msgid "Hide Donation Info"
-msgstr "献金情報を隠す"
-
-#: db_settings.php:202
-msgid ""
-"Email a setup link (instead of entering a password here; requires Email)"
-msgstr ""
-"セットアップリンクをメールで送る（ここでパスワードを入力する代わり。メールア"
-"ドレスが必要）"
-
-#: db_settings.php:204 passwordreset.php:100
-msgid "New Password"
-msgstr "新しいパスワード"
-
-#: db_settings.php:206
-msgid "(leave blank if not changing password)"
-msgstr "（パスワード変更しない場合、空けておいてください。）"
-
-#: db_settings.php:207 passwordreset.php:101
-msgid "New Password again"
-msgstr "新しいパスワード（確認用）"
-
-#: db_settings.php:211
-msgid "Dashboard Files"
-msgstr "ダッシュボードファイル"
-
-#: db_settings.php:520
+#: db_settings.php:386
 #, php-format
 msgid "Delete category \"%s\"?"
 msgstr "カテゴリ「%s」を削除しますか。"
 
-#: db_settings.php:521
+#: db_settings.php:387
 #, php-format
 msgid "%d people are currently in this category and will lose it."
 msgstr "現在%d人がこのカテゴリに入っており、外れます。"
 
-#: db_settings.php:573 db_settings.php:673
+#: db_settings.php:439 db_settings.php:539
 msgid "Reassign and Delete"
 msgstr "再割り当てして削除"
 
-#: db_settings.php:575 db_settings.php:675
+#: db_settings.php:441 db_settings.php:541
 msgid "Please select a type to reassign to."
 msgstr "再割り当て先のタイプを選んでください。"
 
-#: db_settings.php:614
+#: db_settings.php:480
 #, php-format
 msgid "Are you sure you want to delete action type \"%s\"?"
 msgstr "アクションタイプ「%s」を削除してよろしいですか。"
 
-#: db_settings.php:619
+#: db_settings.php:485
 msgid "click here to view actions in a new tab"
 msgstr "ここをクリックすると、新しいタブでアクション一覧が開きます"
 
-#: db_settings.php:620
+#: db_settings.php:486
 #, php-format
 msgid ""
 "This type has been used on %1$d action records (%2$s). They are important "
@@ -2426,33 +2686,33 @@ msgstr ""
 "このタイプは%1$dのアクション記録（%2$s）に使われています。これらは履歴データ"
 "なので、タイプを削除する前に、別のタイプに再割り当てする必要があります："
 
-#: db_settings.php:628 db_settings.php:740
+#: db_settings.php:494 db_settings.php:606
 msgid "Reassign to:"
 msgstr "再割り当て先："
 
-#: db_settings.php:635
+#: db_settings.php:501
 msgid "Prepend this text to action descriptions:"
 msgstr "アクションの「内容」の頭にこのテキストを入れる："
 
-#: db_settings.php:640
+#: db_settings.php:506
 #, php-format
 msgid "Delete action type \"%s\"?"
 msgstr "アクションタイプ「%s」を削除しますか。"
 
-#: db_settings.php:713
+#: db_settings.php:579
 #, php-format
 msgid "Are you sure you want to delete donation type \"%s\"?"
 msgstr "献金タイプ「%s」を削除してよろしいですか。"
 
-#: db_settings.php:718
+#: db_settings.php:584
 msgid "click here to view donations in a new tab"
 msgstr "ここをクリックすると、新しいタブで献金一覧が開きます"
 
-#: db_settings.php:720
+#: db_settings.php:586
 msgid "click here to view pledges in a new tab"
 msgstr "ここをクリックすると、新しいタブで約束一覧が開きます"
 
-#: db_settings.php:723
+#: db_settings.php:589
 #, php-format
 msgid ""
 "This type has been used on %1$d donations (%2$s) and %3$d pledges (%4$s). "
@@ -2463,7 +2723,7 @@ msgstr ""
 "らは履歴データなので、タイプを削除する前に、別のタイプに再割り当てする必要が"
 "あります："
 
-#: db_settings.php:727
+#: db_settings.php:593
 #, php-format
 msgid ""
 "This type has been used on %1$d donations (%2$s). They are important "
@@ -2473,7 +2733,7 @@ msgstr ""
 "このタイプは%1$d件の献金（%2$s）に使われています。これらは履歴データなので、"
 "タイプを削除する前に、別のタイプに再割り当てする必要があります："
 
-#: db_settings.php:731
+#: db_settings.php:597
 #, php-format
 msgid ""
 "This type has been used on %1$d pledges (%2$s). They are important history, "
@@ -2483,29 +2743,29 @@ msgstr ""
 "このタイプは%1$d件の献金の約束（%2$s）に使われています。これらは履歴データな"
 "ので、タイプを削除する前に、別のタイプに再割り当てする必要があります："
 
-#: db_settings.php:747
+#: db_settings.php:613
 msgid "Prepend this text to donation descriptions:"
 msgstr "献金の「内容」の頭にこのテキストを入れる："
 
-#: db_settings.php:752
+#: db_settings.php:618
 #, php-format
 msgid "Delete donation type \"%s\"?"
 msgstr "献金タイプ「%s」を削除しますか。"
 
-#: db_settings.php:784
+#: db_settings.php:650
 msgid "Confirm"
 msgstr "確認"
 
-#: db_settings.php:831
+#: db_settings.php:697
 #, php-format
 msgid "Are you sure you want to delete event \"%s\"?"
 msgstr "イベント「%s」を削除してよろしいですか。"
 
-#: db_settings.php:838
+#: db_settings.php:704
 msgid "click here to view attendance in a new tab"
 msgstr "ここをクリックすると、新しいタブで参加記録一覧が開きます"
 
-#: db_settings.php:839
+#: db_settings.php:705
 #, php-format
 msgid ""
 "This event has been used for %1$d attendance records, %2$s (%3$s). You can "
@@ -2517,30 +2777,25 @@ msgstr ""
 "ベントに再割り当てして統合することも、完全に削除することもできます。これらは"
 "履歴データなので削除しないことをお勧めしますが、以下の選択肢があります："
 
-#: db_settings.php:848
+#: db_settings.php:714
 msgid "Reassign these records to another event:"
 msgstr "これらの記録を別のイベントに再割り当て："
 
-#: db_settings.php:857
+#: db_settings.php:723
 #, php-format
 msgid "Delete all %d attendance records along with the event."
 msgstr "イベントとともに%d件の参加記録を削除する。"
 
-#: db_settings.php:861
+#: db_settings.php:727
 #, php-format
 msgid "Delete event \"%s\"?"
 msgstr "イベント「%s」を削除しますか。"
 
-#: db_settings.php:906
-#, php-format
-msgid "Are you sure you want to delete user \"%1$s\" (UserID: %2$s)?"
-msgstr "ユーザー「%1$s」（ユーザーID：%2$s）を削除してよろしいですか。"
-
-#: db_settings.php:966
+#: db_settings.php:751
 msgid "Start date cannot be blank."
 msgstr "イベントの始まりの日付を指定してください。"
 
-#: db_settings.php:971
+#: db_settings.php:756
 msgid "End date cannot be blank."
 msgstr "イベントの終わりの日付を指定してください。"
 
@@ -2589,11 +2844,6 @@ msgid ""
 msgstr ""
 "献金/合計の金額：%4$s<label>%1$s以上</label> <label>%2$s以下</label> "
 "<label>%3$sちょうど</label>"
-
-#: donation.php:64 donation.php:76 donation.php:77 donation_list.php:10
-#: donation_list.php:20
-msgid "Donation List"
-msgstr "献金の表"
 
 #: donation.php:66
 msgid "All donations"
@@ -2650,19 +2900,10 @@ msgstr "終わった約束も含む"
 msgid "Donation-Type Subtotals"
 msgstr "献金タイプの小計"
 
-#: donation.php:93 donation.php:94 pledge_list.php:8 pledge_list.php:11
-msgid "Pledge List"
-msgstr "約束の表"
-
 #: donation_list.php:43 donation_summary.php:29 pledge_list.php:58
 #, php-format
 msgid "In at least one of these donation types: %s"
 msgstr "この献金タイプいずれかに入っている：%s"
-
-#: donation_list.php:63 donation_summary.php:53 individual.php:1023
-#: individual.php:1140
-msgid "Processed"
-msgstr "処理済"
 
 #: donation_list.php:63 donation_summary.php:53
 msgid "Unprocessed"
@@ -2672,30 +2913,6 @@ msgstr "未処理"
 #, php-format
 msgid "Amount %s %s"
 msgstr "金額 %s %s"
-
-#: donation_list.php:240 edit.php:89 get_duplicates.php:22 household.php:87
-#: overview.php:85 search.php:60
-msgid "Phone"
-msgstr "電話番号"
-
-#: donation_list.php:314 donation_list.php:430 donation_summary.php:132
-#: edit_pledge.php:80 individual.php:1010 individual.php:1122
-#: individual.php:1161 individual.php:1217 individual.php:1285
-#: merge_duplicates.php:628 merge_duplicates.php:639
-msgid "Donation Type"
-msgstr "献金タイプ"
-
-#: donation_list.php:324
-msgid "Pledge?"
-msgstr "約束？"
-
-#: donation_list.php:334 donation_list.php:432 donation_list.php:433
-#: donation_summary.php:134 donation_summary.php:135 edit_pledge.php:96
-#: individual.php:1018 individual.php:1067 individual.php:1133
-#: individual.php:1183 individual.php:1233 individual.php:1310
-#: merge_duplicates.php:628 merge_duplicates.php:639 pledge_list.php:307
-msgid "Amount"
-msgstr "金額"
 
 #: donation_list.php:352 individual.php:1081
 msgid "Proc."
@@ -2785,7 +3002,7 @@ msgstr "外国の住所"
 msgid "Lookup"
 msgstr "検索"
 
-#: edit.php:174 labelprint_edit.php:217
+#: edit.php:174
 msgid "Rest of Address"
 msgstr "住所の残り"
 
@@ -2993,26 +3210,6 @@ msgstr "%sには新規約束を作成"
 msgid "(leave blank if no specified end to pledge)"
 msgstr "（指定される終了日付はない場合、空けておいてください。）"
 
-#: edit_pledge.php:108 individual.php:1187 individual.php:1232
-#: individual.php:1314 individual.php:2152
-msgid "month"
-msgstr "月"
-
-#: edit_pledge.php:109 individual.php:1188 individual.php:1232
-#: individual.php:1315 individual.php:2151
-msgid "quarter"
-msgstr "四半期"
-
-#: edit_pledge.php:110 individual.php:1189 individual.php:1232
-#: individual.php:1316 individual.php:2150
-msgid "year"
-msgstr "年"
-
-#: edit_pledge.php:111 individual.php:1190 individual.php:1232
-#: individual.php:1317 individual.php:2149
-msgid "(one time)"
-msgstr "(一回)"
-
 #: edit_pledge.php:121
 msgid ""
 "To finish the pledge, just add an end date. But if the whole pledge is a "
@@ -3146,15 +3343,15 @@ msgstr "ユーザー"
 msgid "User Settings"
 msgstr "私のユーザー設定"
 
-#: functions.php:191
+#: functions.php:192
 msgid "Log Out"
 msgstr "ログアウト"
 
-#: functions.php:215
+#: functions.php:216
 msgid "Recent Announcements"
 msgstr "最近のお知らせ"
 
-#: functions.php:232
+#: functions.php:233
 msgid ""
 "Something went wrong. Please try again, and let the developer know if it "
 "keeps happening."
@@ -3162,7 +3359,7 @@ msgstr ""
 "問題が発生しました。もう一度お試しください。繰り返し発生する場合は開発者まで"
 "お知らせください。"
 
-#: functions.php:357
+#: functions.php:358
 msgid "OK, I got it!"
 msgstr "「はい、わかりました！」"
 
@@ -3193,10 +3390,6 @@ msgstr "（別のタブに編集ページが開かれる）"
 #: get_duplicates.php:36
 msgid "No, it's none of these, so please submit the new entry"
 msgstr "いいえ、違います。入力した新規項目を保存したい"
-
-#: household.php:5 household.php:70 individual.php:358
-msgid "Household Information"
-msgstr "世帯情報"
 
 #: household.php:85 individual.php:389 merge_duplicates.php:36
 msgid "No address listed."
@@ -3233,10 +3426,6 @@ msgstr "世帯のメンバー"
 #: household.php:122
 msgid "This household has no members!"
 msgstr "この世帯にメンバーはありません。"
-
-#: household.php:187 merge_duplicates.php:464 overview.php:123
-msgid "Relation in Household"
-msgstr "世帯との関係"
 
 #: household.php:268
 msgid "Add a New Member to this Household"
@@ -3400,15 +3589,6 @@ msgstr "献金約束を保存"
 msgid "No pledges recorded."
 msgstr "献金約束の記録はありません。"
 
-#: individual.php:1240 individual.php:1382 merge_duplicates.php:639
-#: merge_duplicates.php:663 pledge_list.php:308
-msgid "Dates"
-msgstr "日付"
-
-#: individual.php:1247 pledge_list.php:309
-msgid "Balance"
-msgstr "残高"
-
 #: individual.php:1366
 #, php-format
 msgid ""
@@ -3563,11 +3743,11 @@ msgstr "ファイルを選択してください。"
 msgid "File size cannot exceed 8MB. Yours is: "
 msgstr "８MBを超えるファイルは受け入れません。このファイルは："
 
-#: labelprint_edit.php:96 labelprint_edit.php:133
+#: labelprint_edit.php:112 labelprint_edit.php:172
 msgid "Label Layout Editor"
 msgstr "ラベルのレイアウトエディター"
 
-#: labelprint_edit.php:134
+#: labelprint_edit.php:173
 msgid ""
 "Pick a saved layout to edit, or choose \"New…\" and start from a common "
 "product. The preview updates automatically."
@@ -3575,103 +3755,99 @@ msgstr ""
 "編集するレイアウトを選ぶか、「新規…」を選んでよく使う製品から始めます。プレ"
 "ビューが自動的に更新されます。"
 
-#: labelprint_edit.php:153
+#: labelprint_edit.php:174
+msgid ""
+"A red outline means the text overflows that label at the chosen text size."
+msgstr ""
+"赤い枠線は、選んだ文字サイズではテキストがそのラベルからはみ出すことを表しま"
+"す。"
+
+#: labelprint_edit.php:194
 msgid "Select a common product…"
 msgstr "よく使う製品を選択…"
 
-#: labelprint_edit.php:154
+#: labelprint_edit.php:195
 msgid "Japan (A4)"
 msgstr "日本 (A4)"
 
-#: labelprint_edit.php:160 labelprint_edit.php:175
+#: labelprint_edit.php:201 labelprint_edit.php:219
 msgid "US Letter"
 msgstr "USレター"
 
-#: labelprint_edit.php:171
+#: labelprint_edit.php:215
 msgid "Sheet"
 msgstr "シート"
 
-#: labelprint_edit.php:172
+#: labelprint_edit.php:216
 msgid "Paper size"
 msgstr "用紙サイズ"
 
-#: labelprint_edit.php:179
+#: labelprint_edit.php:223
 msgid "Rows"
 msgstr "行数"
 
-#: labelprint_edit.php:180
+#: labelprint_edit.php:224
 msgid "Columns"
 msgstr "列数"
 
-#: labelprint_edit.php:181
+#: labelprint_edit.php:225
 msgid "Label width"
 msgstr "ラベルの幅"
 
-#: labelprint_edit.php:182
+#: labelprint_edit.php:226
 msgid "Label height"
 msgstr "ラベルの高さ"
 
-#: labelprint_edit.php:183
+#: labelprint_edit.php:227
 msgid "Gutter across"
 msgstr "横の間隔"
 
-#: labelprint_edit.php:184
+#: labelprint_edit.php:228
 msgid "Gutter down"
 msgstr "縦の間隔"
 
-#: labelprint_edit.php:185
+#: labelprint_edit.php:229
 msgid "Page margin top"
 msgstr "ページ上余白"
 
-#: labelprint_edit.php:186
+#: labelprint_edit.php:230
 msgid "Page margin left"
 msgstr "ページ左余白"
 
-#: labelprint_edit.php:189
+#: labelprint_edit.php:233
 msgid ""
 "\"Label width/height\" is the size of one label; the gutter is the gap to "
 "the next one."
 msgstr ""
 "「ラベルの幅／高さ」は1枚のラベルのサイズで、間隔は隣のラベルまでの空きです。"
 
-#: labelprint_edit.php:193
+#: labelprint_edit.php:237
 msgid "Label text"
 msgstr "ラベルのテキスト"
 
-#: labelprint_edit.php:196
+#: labelprint_edit.php:240
 msgid "Text inset left"
 msgstr "テキストの左余白"
 
-#: labelprint_edit.php:197
+#: labelprint_edit.php:241
 msgid "Text inset right"
 msgstr "テキストの右余白"
 
-#: labelprint_edit.php:198
+#: labelprint_edit.php:242
 msgid "Address text size (Japan)"
 msgstr "住所の文字サイズ（日本）"
 
-#: labelprint_edit.php:199
+#: labelprint_edit.php:243
 msgid "Name text size (Japan)"
 msgstr "氏名の文字サイズ（日本）"
 
-#: labelprint_edit.php:200
+#: labelprint_edit.php:244
 msgid "Address text size (foreign)"
 msgstr "住所の文字サイズ（外国）"
 
-#: labelprint_edit.php:214
+#: labelprint_edit.php:259
 msgid "Postal code"
 msgstr "郵便番号"
-
-#: labelprint_edit.php:224
-msgid "Showing your Basket records, repeating to fill the sheet."
-msgstr "かごにある項目を表示し、シートを埋めるように繰り返しています。"
-
-#: labelprint_edit.php:237
-msgid ""
-"A red outline means the text overflows that label at the chosen text size."
-msgstr ""
-"赤い枠線は、選んだ文字サイズではテキストがそのラベルからはみ出すことを表しま"
-"す。"
 
 #: list.php:35
 #, php-format
@@ -3770,18 +3946,6 @@ msgstr "エラー"
 #: list.php:271
 msgid "Search resulted in no records."
 msgstr "一致する項目はありません。"
-
-#: list.php:278
-msgid "Search Results"
-msgstr "検索の結果"
-
-#: list.php:464 list.php:478
-msgid "Orgs"
-msgstr "団体"
-
-#: list.php:465 list.php:479
-msgid "Organizations"
-msgstr "団体"
 
 #: mailer.php:57
 msgid "KizunaDB: set up your account"
@@ -4153,10 +4317,6 @@ msgstr ""
 "ユーザーIDを入力してください。アカウントにメールアドレスが登録されている場"
 "合、パスワード再設定用のリンクをお送りします。"
 
-#: passwordreset.php:114
-msgid "UserID"
-msgstr "ユーザーID"
-
 #: passwordreset.php:115
 msgid "Send reset link"
 msgstr "再設定リンクを送信"
@@ -4196,10 +4356,6 @@ msgstr "%d件の約束"
 #: pledge_list.php:306
 msgid "Pledge Type"
 msgstr "献金約束タイプ"
-
-#: pledge_list.php:310
-msgid "Months"
-msgstr "ヶ月"
 
 #: pledge_list.php:318 pledge_list.php:357
 msgid "Subtotal"
@@ -4410,3 +4566,54 @@ msgstr "確証のため、現在のパスワードを入力してください。
 #: user_settings.php:82
 msgid "You must enter a new password in both fields."
 msgstr "新しいパスワードを両方の欄に入力してください。"
+
+#~ msgid "Last 30 Days"
+#~ msgstr "過去30日間"
+
+#~ msgid "All Time"
+#~ msgstr "全期間"
+
+#, fuzzy
+#~ msgid "Name (formatted)"
+#~ msgstr "名前（表示用）"
+
+#, fuzzy
+#~| msgid "Please choose an application."
+#~ msgid "Please choose a valid default pledge interval."
+#~ msgstr "有効な約束周期を選択してください。"
+
+#, fuzzy
+#~ msgid "(shown in page titles and headings)"
+#~ msgstr "（ブラウザーのタブに表示されます）"
+
+#, fuzzy
+#~| msgid "Changes saved."
+#~ msgid "Settings saved."
+#~ msgstr "設定を保存しました。"
+
+#, fuzzy
+#~ msgid "Default columns saved."
+#~ msgstr "初期表示の欄を保存しました。"
+
+#, fuzzy
+#~| msgid "User Management"
+#~ msgid "User Name"
+#~ msgstr "ユーザー名"
+
+#, fuzzy
+#~| msgid "Print Photos"
+#~ msgid "Person photos"
+#~ msgstr "写真を印刷"
+
+#, fuzzy
+#~| msgid "Text size (pt)"
+#~ msgid "resize to"
+#~ msgstr "文字サイズ (pt)"
+
+#, fuzzy
+#~| msgid "Household photo"
+#~ msgid "Household photos"
+#~ msgstr "世帯の写真"
+
+#~ msgid "Showing your Basket records, repeating to fill the sheet."
+#~ msgstr "かごにある項目を表示し、シートを埋めるように繰り返しています。"

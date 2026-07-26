@@ -438,11 +438,11 @@ if ($mode == 'error') {
   <div class="merge-cols">
     <div class="merge-col merge-a">
       <h2><span class="merge-tag"><?=_("KEEP")?></span> <?=sprintf(_('ID %d'), $perA->PersonID)?></h2>
-      <div class="merge-name"><?=readable_name($perA->FullName, $perA->Furigana)?> <a class="merge-view" href="individual.php?pid=<?=$perA->PersonID?>" target="_blank">(<?=_("view details in new tab")?>)</a></div>
+      <div class="merge-name"><?=ruby_name($perA->FullName, $perA->Furigana)?> <a class="merge-view" href="individual.php?pid=<?=$perA->PersonID?>" target="_blank">(<?=_("view details in new tab")?>)</a></div>
     </div>
     <div class="merge-col merge-b">
       <h2><span class="merge-tag"><?=_("REMOVE")?></span> <?=sprintf(_('ID %d'), $perB->PersonID)?></h2>
-      <div class="merge-name"><?=readable_name($perB->FullName, $perB->Furigana)?> <a class="merge-view" href="individual.php?pid=<?=$perB->PersonID?>" target="_blank">(<?=_("view details in new tab")?>)</a></div>
+      <div class="merge-name"><?=ruby_name($perB->FullName, $perB->Furigana)?> <a class="merge-view" href="individual.php?pid=<?=$perB->PersonID?>" target="_blank">(<?=_("view details in new tab")?>)</a></div>
     </div>
   </div>
 
@@ -581,7 +581,7 @@ if ($mode == 'error') {
     $rows = array();
     foreach ($raw as $r) {
       if (!empty($byPartner[$r->OrgID]['a']) && !empty($byPartner[$r->OrgID]['b'])) continue;  // shared = identical
-      $nm = readable_name($r->FullName, $r->Furigana, $r->OrgID).($r->Leader ? ' '._("[Leader]") : '');
+      $nm = ruby_name($r->FullName, $r->Furigana, $r->OrgID).($r->Leader ? ' '._("[Leader]") : '');
       $rows[] = array('side'=>$r->side, 'id'=>$r->OrgID, 'cells'=>array($nm));
     }
     $auxShown = mc_record_section(_("Organizations this record belongs to"), array(_("Organization")), $rows, 'pmem', true) || $auxShown;
@@ -595,7 +595,7 @@ if ($mode == 'error') {
     $rows = array();
     foreach ($raw as $r) {
       if (!empty($byPartner[$r->MemID]['a']) && !empty($byPartner[$r->MemID]['b'])) continue;  // shared = identical
-      $nm = readable_name($r->FullName, $r->Furigana, $r->MemID).($r->Leader ? ' '._("[Leader]") : '');
+      $nm = ruby_name($r->FullName, $r->Furigana, $r->MemID).($r->Leader ? ' '._("[Leader]") : '');
       $rows[] = array('side'=>$r->side, 'id'=>$r->MemID, 'cells'=>array($nm));
     }
     $auxShown = mc_record_section(_("Members of this organization"), array(_("Member")), $rows, 'pomem', true) || $auxShown;
@@ -690,7 +690,7 @@ if ($mode == 'error') {
   <div id="mc-confirm" style="display:none">
     <p><?=sprintf(_('The record with <span class="text-b" style="font-weight:bold">ID %1$d (%2$s)</span> will be permanently deleted, '.
         'and your choices will be applied to the record with <span class="text-a" style="font-weight:bold">ID %3$d (%4$s)</span>. Are you sure?'),
-        $perB->PersonID, readable_name($perB->FullName, $perB->Furigana), $perA->PersonID, readable_name($perA->FullName, $perA->Furigana))?></p>
+        $perB->PersonID, ruby_name($perB->FullName, $perB->Furigana), $perA->PersonID, ruby_name($perA->FullName, $perA->Furigana))?></p>
   </div>
   <?php
 
@@ -705,7 +705,7 @@ if ($mode == 'error') {
       $perX->CellPhone, $perX->Email, $perX->PersonID);
   ?>
   <p class="merge-intro"><?=sprintf(_('Looking for records that may be duplicates of %s (ID %d):'),
-      readable_name($perX->FullName, $perX->Furigana), $perX->PersonID)?></p>
+      ruby_name($perX->FullName, $perX->Furigana), $perX->PersonID)?></p>
   <?php
   $numCand = mysqli_num_rows($result);
   if ($numCand == 0) {
@@ -717,7 +717,7 @@ if ($mode == 'error') {
       ?>
       <?php $hs = mc_household_summary($row->HouseholdID); ?>
       <div class="dup">
-        <div class="name"><a href="individual.php?pid=<?=$row->PersonID?>" target="_blank"><?=readable_name($row->FullName, $row->Furigana, $row->PersonID)?></a></div>
+        <div class="name"><a href="individual.php?pid=<?=$row->PersonID?>" target="_blank"><?=ruby_name($row->FullName, $row->Furigana, $row->PersonID)?></a></div>
         <?php if ($hs !== ''): ?><div class="address"><?=$hs?></div><?php endif; ?>
         <?php if ($row->CellPhone): ?><div class="cellphone"><?=_("Cell Phone")?>: <?=$row->CellPhone?></div><?php endif; ?>
         <?php if ($row->Email): ?><div class="email"><?=_("Email")?>: <?=$row->Email?></div><?php endif; ?>

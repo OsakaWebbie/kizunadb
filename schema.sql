@@ -301,7 +301,7 @@ CREATE TABLE `pledge` (
 
 
 CREATE TABLE `postalcode` (
-  `PostalCode` varchar(8) CHARACTER SET ascii COLLATE ascii_bin NOT NULL DEFAULT '',
+  `PostalCode` varchar(8) NOT NULL DEFAULT '',
   `Prefecture` varchar(12) NOT NULL DEFAULT '',
   `ShiKuCho` varchar(100) NOT NULL DEFAULT '',
   `Romaji` varchar(255) NOT NULL DEFAULT '',

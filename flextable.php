@@ -282,7 +282,7 @@ if (!empty($_REQUEST['loadcol'])) {
         $cellContent = $phone . $cellphone;
       }
     } elseif ($coldef->sel == 'person.Name') {
-      $cellContent = readable_name($row->FullName ?? '', $row->Furigana ?? '', 0, 0, '<br>');
+      $cellContent = ruby_name($row->FullName ?? '', $row->Furigana ?? '');
     } elseif ($coldef->sel == 'person.Photo') {
       $cellContent = (($row->colvalue ?? 0) == 1) ? '<img src="photo.php?f=p' . $row->PersonID . '" width=50>' : '';
     } else {
@@ -782,7 +782,7 @@ function flextable($opt) {
             $cellContent = (($row->Photo ?? 0) == 1) ? '<img src="photo.php?f=p' . $row->PersonID . '" width=50>' : '';
           } elseif ($col->sel == 'person.Name') {
             // Compute Name composite from FullName + Furigana
-            $cellContent = readable_name($row->FullName ?? '', $row->Furigana ?? '', 0, 0, '<br>');
+            $cellContent = ruby_name($row->FullName ?? '', $row->Furigana ?? '');
           } elseif ($col->sel == 'person.FullName') {
             $cellContent = $row->FullName ?? '';
           } elseif ($col->sel == 'person.Furigana') {

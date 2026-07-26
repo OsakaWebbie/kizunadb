@@ -3,7 +3,6 @@ include("functions.php");
 include("accesscontrol.php");
 
 $ajax = !empty($_GET['ajax']);
-$summary = $_REQUEST['show_summary'] ?? 0;
 $type = $_REQUEST['listtype'] ?? 'Normal';
 
 if (!$ajax) {
@@ -28,11 +27,10 @@ $proc = isset($_REQUEST['proc']) ? $_REQUEST['proc'] : '';
 $search = isset($_REQUEST['search']) ? h2d($_REQUEST['search']) : '';
 $cutoff = isset($_REQUEST['cutoff']) ? $_REQUEST['cutoff'] : '';
 $cutofftype = isset($_REQUEST['cutofftype']) ? $_REQUEST['cutofftype'] : '>=';
-$limit = isset($_REQUEST['limit']) ? (int)$_REQUEST['limit'] : 0;
 
 //construct WHERE clause from criteria
 $wheredone = 0;
-$where = $having = $criteria = '';
+$where = $criteria = '';
 if (!empty($dtype)) {
   $where .= ($wheredone?" AND":" WHERE")." d.DonationTypeID IN (".implode(",",$dtype).")";
   $result = sqlquery_checked("SELECT DonationType FROM donationtype WHERE DonationTypeID IN (".implode(",",$dtype).")");
@@ -69,8 +67,7 @@ if ($search !== "") {
   $wheredone = 1;
 }
 if ($cutoff !== "") {
-  if ($summary) $having = " HAVING SUM(d.Amount)".$cutofftype.(int)$cutoff;
-  else $where .= ($wheredone?" AND":" WHERE")." d.Amount".$cutofftype.(int)$cutoff;
+  $where .= ($wheredone?" AND":" WHERE")." d.Amount".$cutofftype.(int)$cutoff;
   $criteria .= "<li>".sprintf(_("Amount %s %s"),$cutofftype,$cutoff)."</li>\n";
   $wheredone = 1;
 }
@@ -82,8 +79,8 @@ if (!empty($_REQUEST['basket']) && !empty($_SESSION['basket'])) {
 }
 if (!empty($criteria))  $criteria = "<ul id=\"criteria\">$criteria</ul>";
 
-// Main query for summary or prep query for grouped/list modes
-if ($type == "Normal" && !$summary) {
+// Prep query for list/grouped modes
+if ($type == "Normal") {
   // Normal list: single query for DonationIDs only; all display data fetched by flextable
   $sql = "SELECT d.DonationID FROM donation d".$where." ORDER BY d.DonationDate DESC";
   $result = sqlquery_checked($sql);
@@ -101,15 +98,14 @@ if ($type == "Normal" && !$summary) {
   if ($type=="DonationType") {
     $sql = "SELECT dt.DonationTypeID, dt.DonationType, d.PersonID, SUM(d.Amount) AS subtotal FROM donationtype dt ".
     "LEFT JOIN donation d ON d.DonationTypeID=dt.DonationTypeID".$where." OR d.DonationDate IS NULL";
-    $sql .= " GROUP BY dt.DonationTypeID".$having." ORDER BY ".
+    $sql .= " GROUP BY dt.DonationTypeID ORDER BY ".
       (($_REQUEST['subtotalsort'] ?? false) ? "subtotal DESC," : "")."dt.DonationType,d.DonationTypeID";
-  } else {  // PersonID (possibly with summary)
+  } else {  // PersonID
     $sql = "SELECT p.PersonID,p.FullName,p.Furigana,SUM(d.Amount) subtotal".
     " FROM donation d LEFT JOIN person p ON p.PersonID=d.PersonID ".
     "LEFT JOIN donationtype dt ON d.DonationTypeID=dt.DonationTypeID".$where;
-    $sql .= " GROUP BY p.PersonID".$having." ORDER BY ".
-    (($_REQUEST['subtotalsort'] ?? false) || ($summary && ($_REQUEST['limit'] ?? false)) ? "subtotal DESC," : "")."p.Furigana,p.PersonID";
-    if ($summary && $type=="PersonID" && $limit) $sql .= " LIMIT ".$limit;
+    $sql .= " GROUP BY p.PersonID ORDER BY ".
+    (($_REQUEST['subtotalsort'] ?? false) ? "subtotal DESC," : "")."p.Furigana,p.PersonID";
   }
   $result = sqlquery_checked($sql);
   if (mysqli_num_rows($result) == 0) {
@@ -125,48 +121,45 @@ if ($type == "Normal" && !$summary) {
   $pids = implode(",",$pidarray);
   if ($type=="DonationType") $dtids = implode(",",$dtidarray);
 
-  if (!$summary) {
-    // Second query for grouped modes: get donation details for grouping
-    $sql = "SELECT d.DonationID,d.PersonID,d.PledgeID,d.DonationDate,CAST(d.Amount AS DECIMAL(10,".
-    $_SESSION['currency_decimals'].")) Amount,d.Description,d.Processed,p.FullName,p.Furigana,".
-    "IF(d.PledgeID,pl.DonationTypeID,d.DonationTypeID) DonationTypeID,".
-    "IF(d.PledgeID,dt2.DonationType,dt.DonationType) DonationType,pl.PledgeDesc".
-    " FROM donation d LEFT JOIN person p ON p.PersonID=d.PersonID".
-    " LEFT JOIN donationtype dt ON d.DonationTypeID=dt.DonationTypeID".
-    " LEFT JOIN pledge pl ON d.PledgeID=pl.PledgeID".
-    " LEFT JOIN donationtype dt2 ON pl.DonationTypeID=dt2.DonationTypeID".$where;
-    if ($type == "PersonID") {
-      $sql .= " ORDER BY ".(($_REQUEST['subtotalsort'] ?? false) ? "FIND_IN_SET(d.PersonID, '".$pids."')" : "Furigana,d.PersonID").",d.DonationDate DESC";
-    } else { // DonationType
-      $sql .= " ORDER BY ".(($_REQUEST['subtotalsort'] ?? false) ? "FIND_IN_SET(d.DonationTypeID, '".$dtids."')" : "dt.DonationType").",d.DonationDate DESC";
-    }
-    $result = sqlquery_checked($sql);
+  // Second query for grouped modes: get donation details for grouping
+  $sql = "SELECT d.DonationID,d.PersonID,d.PledgeID,d.DonationDate,CAST(d.Amount AS DECIMAL(10,".
+  $_SESSION['currency_decimals'].")) Amount,d.Description,d.Processed,p.FullName,p.Furigana,".
+  "IF(d.PledgeID,pl.DonationTypeID,d.DonationTypeID) DonationTypeID,".
+  "IF(d.PledgeID,dt2.DonationType,dt.DonationType) DonationType,pl.PledgeDesc".
+  " FROM donation d LEFT JOIN person p ON p.PersonID=d.PersonID".
+  " LEFT JOIN donationtype dt ON d.DonationTypeID=dt.DonationTypeID".
+  " LEFT JOIN pledge pl ON d.PledgeID=pl.PledgeID".
+  " LEFT JOIN donationtype dt2 ON pl.DonationTypeID=dt2.DonationTypeID".$where;
+  if ($type == "PersonID") {
+    $sql .= " ORDER BY ".(($_REQUEST['subtotalsort'] ?? false) ? "FIND_IN_SET(d.PersonID, '".$pids."')" : "Furigana,d.PersonID").",d.DonationDate DESC";
+  } else { // DonationType
+    $sql .= " ORDER BY ".(($_REQUEST['subtotalsort'] ?? false) ? "FIND_IN_SET(d.DonationTypeID, '".$dtids."')" : "dt.DonationType").",d.DonationDate DESC";
+  }
+  $result = sqlquery_checked($sql);
 
-    // Collect donations by group
-    $groups = array();
-    while ($row = mysqli_fetch_object($result)) {
-      if ($type == "DonationType") {
-        $group_key = $row->DonationTypeID;
-        $group_name = $row->DonationType;
-      } else { // PersonID
-        $group_key = $row->PersonID;
-        $group_name = ''; // Name stored separately
-      }
-      if (!isset($groups[$group_key])) {
-        $groups[$group_key] = array(
-          'ids' => array(),
-          'name' => $group_name,
-          'fullname' => $row->FullName ?? '',
-          'furigana' => $row->Furigana ?? ''
-        );
-      }
-      $groups[$group_key]['ids'][] = $row->DonationID;
+  // Collect donations by group
+  $groups = array();
+  while ($row = mysqli_fetch_object($result)) {
+    if ($type == "DonationType") {
+      $group_key = $row->DonationTypeID;
+      $group_name = $row->DonationType;
+    } else { // PersonID
+      $group_key = $row->PersonID;
+      $group_name = ''; // Name stored separately
     }
+    if (!isset($groups[$group_key])) {
+      $groups[$group_key] = array(
+        'ids' => array(),
+        'name' => $group_name,
+        'fullname' => $row->FullName ?? '',
+        'furigana' => $row->Furigana ?? ''
+      );
+    }
+    $groups[$group_key]['ids'][] = $row->DonationID;
   }
 }
 
 // Display results count and criteria
-if (!$summary) {
   // Count total donations
   if ($type == "Normal") {
     $donation_count = count($donation_ids);
@@ -181,11 +174,9 @@ if (!$summary) {
   } else {
   echo "<h3>".sprintf(_("%d results (all records)"),$donation_count)."</h3>\n";
   }
-}
 
 // FLEXTABLE implementation for all list modes
-if (!$summary) {
-  require_once("flextable.php");
+require_once("flextable.php");
 
   $showcols = ',' . ($_SESSION['donationlist_showcols'] ?? 'ddate,name,dtype,pledge,amount,desc,proc') . ',';
 
@@ -212,7 +203,7 @@ if (!$summary) {
   $tableopt->cols[] = (object) [
     'key' => 'name',
     'sel' => 'person.Name',
-    'label' => _('Name'),
+    'label' => _('Name (display)'),
     'show' => ($type != "PersonID" && stripos($showcols, ',name,') !== FALSE),
     'colsel' => ($type != "PersonID")
   ];
@@ -228,7 +219,7 @@ if (!$summary) {
   $tableopt->cols[] = (object) [
     'key' => 'furigana',
     'sel' => 'person.Furigana',
-    'label' => ($_SESSION['furiganaisromaji']=='yes' ? _('Romaji') : _('Furigana')),
+    'label' => ($_SESSION['furiganaisromaji']=='yes' ? _('Romaji Name') : _('Furigana Name')),
     'show' => ($type != "PersonID" && stripos($showcols, ',furigana,') !== FALSE),
     'colsel' => ($type != "PersonID")
   ];
@@ -281,30 +272,30 @@ if (!$summary) {
   ];
 
   $tableopt->cols[] = (object) [
-      'key' => 'categories',
-      'sel' => "GROUP_CONCAT(Category ORDER BY Category SEPARATOR '\\n')",
-      'label' => _('Categories'),
-      'show' => ($type != "PersonID" && stripos($showcols, ',categories,') !== FALSE),
-      'join' => 'LEFT JOIN percat ON person.PersonID=percat.PersonID LEFT JOIN category ON percat.CategoryID=category.CategoryID',
-      'colsel' => ($type != "PersonID")
+    'key' => 'categories',
+    'sel' => "GROUP_CONCAT(Category ORDER BY Category SEPARATOR '\\n')",
+    'label' => _('Categories'),
+    'show' => ($type != "PersonID" && stripos($showcols, ',categories,') !== FALSE),
+    'join' => 'LEFT JOIN percat ON person.PersonID=percat.PersonID LEFT JOIN category ON percat.CategoryID=category.CategoryID',
+    'colsel' => ($type != "PersonID")
   ];
 
   $tableopt->cols[] = (object) [
-      'key' => 'events',
-      'sel' => "e.Events",
-      'label' => _('Events'),
-      'show' => ($type != "PersonID" && stripos($showcols, ',events,') !== FALSE),
-      'join' => "LEFT OUTER JOIN (SELECT aq.PersonID,GROUP_CONCAT(CONCAT(Event,' [',attqty,'x]') ORDER BY Event SEPARATOR '\\n') AS Events FROM (SELECT PersonID,Event,COUNT(*) AS attqty FROM attendance AS at INNER JOIN event ev ON ev.EventID = at.EventID GROUP BY at.PersonID,at.EventID) AS aq GROUP BY aq.PersonID) AS e ON e.PersonID = person.PersonID",
-      'colsel' => ($type != "PersonID")
+    'key' => 'events',
+    'sel' => "e.Events",
+    'label' => _('Events'),
+    'show' => ($type != "PersonID" && stripos($showcols, ',events,') !== FALSE),
+    'join' => "LEFT OUTER JOIN (SELECT aq.PersonID,GROUP_CONCAT(CONCAT(Event,' [',attqty,'x]') ORDER BY Event SEPARATOR '\\n') AS Events FROM (SELECT PersonID,Event,COUNT(*) AS attqty FROM attendance AS at INNER JOIN event ev ON ev.EventID = at.EventID GROUP BY at.PersonID,at.EventID) AS aq GROUP BY aq.PersonID) AS e ON e.PersonID = person.PersonID",
+    'colsel' => ($type != "PersonID")
   ];
 
   // Donation columns
   $tableopt->cols[] = (object) [
-      'key' => 'donationdate',
-      'sel' => 'donation.DonationDate',
-      'label' => _('Date'),
-      'show' => (stripos($showcols, ',ddate,') !== FALSE),
-      'sort' => -1
+    'key' => 'donationdate',
+    'sel' => 'donation.DonationDate',
+    'label' => _('Date'),
+    'show' => (stripos($showcols, ',ddate,') !== FALSE),
+    'sort' => -1
   ];
 
   // Donation Type (hidden in grouped DonationType mode)
@@ -377,7 +368,7 @@ if (!$summary) {
       // Display heading
       if ($type == "PersonID") {
         echo '<h3><a href="individual.php?pid=' . $group_key . '" target="_blank">' .
-             readable_name($group['fullname'], $group['furigana']) . '</a> (' .
+             ruby_name($group['fullname'], $group['furigana']) . '</a> (' .
              sprintf(_('%d donations'), $subtotal_row->count) . ', ' .
              _('total') . ' ' . $_SESSION['currency_mark'] .
              number_format($subtotal_row->total, $_SESSION['currency_decimals']) .
@@ -410,77 +401,3 @@ if (!$summary) {
 
   if (!$ajax) footer();
   exit;
-}
-
-// Summary mode - legacy table building
-if (!$ajax) {
-  ?>
-  <style>
-  td.amount-for-display { text-align:right; }
-  </style>
-  <?php
-}
-if ($type == "PersonID") {
-  $tableheads = "<th class=\"name-for-csv\" style=\"display:none\">"._("Name")."</th>\n";
-  $tableheads .= "<th class=\"furigana-for-csv\" style=\"display:none\">".
-  ($_SESSION['furiganaisromaji']=="yes" ? _("Romaji") : _("Furigana"))."</th>\n";
-  $tableheads .= "<th class=\"name-for-display\">"._("Name")." (".
-  ($_SESSION['furiganaisromaji']=="yes" ? _("Romaji") : _("Furigana")).")</th>\n";
-} else {
-  $tableheads = "<th class=\"dtype\">"._("Donation Type")."</th>\n";
-}
-$tableheads .= "<th class=\"amount-for-csv\" style=\"display:none\">"._("Amount")."</th>\n";
-$tableheads .= "<th class=\"amount-for-display\">"._("Amount")."</th>\n";
-
-echo "<h3>".sprintf(_("%d results of these criteria:"),mysqli_num_rows($result))."</h3>\n";
-echo $criteria;
-echo "<div id=\"actions\">";
-?>
-  <form action="download.php" method="post" target="_top">
-    <input type="hidden" id="csvtext" name="csvtext" value="">
-    <input type="submit" id="csvfile" name="csvfile" value="<?=_("Download a CSV file of this table")?>" onclick="getCSV();">
-  </form>
-<?php
-echo "</div>";
-
-echo "<table id=\"summarytable\" class=\"tablesorter\">\n<thead>\n<tr>".$tableheads."</tr>\n</thead><tbody>\n";
-$total = 0;
-mysqli_data_seek($result, 0);
-while ($row = mysqli_fetch_object($result)) {
-  if ($type == "PersonID") {
-    echo "<tr><td class=\"name-for-csv\" style=\"display:none\">".$row->FullName."</td>\n";
-    echo "<td class=\"furigana-for-csv\" style=\"display:none\">".$row->Furigana."</td>\n";
-    echo "<td class=\"name-for-display\"><span style=\"display:none\">".$row->Furigana."</span>";
-    echo "<a href=\"individual.php?pid=".$row->PersonID."\" target=\"_blank\">";
-    echo readable_name($row->FullName,$row->Furigana)."</a></td>\n";
-  } else {
-    echo "<tr><td class=\"dtype\">".$row->DonationType."</td>\n";
-  }
-  echo "<td class=\"amount-for-csv\" style=\"display:none\">".
-  number_format($row->subtotal,$_SESSION['currency_decimals'],".","")."</td>\n";
-  echo "<td class=\"amount-for-display\"><span style=\"display:none\">".sprintf("%015s",$row->subtotal)."</span>".
-  $_SESSION['currency_mark']." ".number_format($row->subtotal,$_SESSION['currency_decimals'])."</td>\n";
-  echo "</tr>\n";
-  $total += $row->subtotal;
-}
-echo "</tbody>\n</table>";
-echo "<h3>"._("Total").": ".$_SESSION['currency_mark']." ".number_format($total,$_SESSION['currency_decimals'])."</h3>\n";
-
-if (!$ajax) load_scripts(['jquery', 'tablesorter', 'table2csv']);
-?>
-<script>
-$(function() {
-  $("#summarytable").tablesorter({ sortList:[[<?=($type=="PersonID"?($limit?"1,1":"0,0"):"0,0")?>]] });
-});
-
-function getCSV() {
-  $(".name-for-display, .amount-for-display").hide();
-  $(".name-for-csv, .amount-for-csv, .furigana-for-csv").show();
-  $('#csvtext').val($('#summarytable').table2CSV({delivery:'value'}));
-  $(".name-for-csv, .amount-for-csv, .furigana-for-csv").hide();
-  $(".name-for-display, .amount-for-display").show();
-}
-</script>
-<?php
-if (!$ajax) footer();
-?>

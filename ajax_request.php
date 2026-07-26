@@ -205,53 +205,6 @@ case 'Event':
     }
   }
   break;
-case 'User':
-  if (isset($_REQUEST['userid']) && $_REQUEST['userid']!="") {
-    $sql = "SELECT user.*, YEAR(LoginTime) loginyear, MAX(LoginTime) loginlast, COUNT(LoginTime) loginnum ".
-           "FROM user LEFT JOIN loginlog ON user.UserID=loginlog.UserID ".
-           "WHERE user.UserID='".$_REQUEST['userid']."' ".
-           "GROUP BY user.UserID, YEAR(LoginTime) ORDER BY YEAR(LoginTime) DESC";
-    $result = sqlquery_checked($sql);
-    if (mysqli_num_rows($result)>0) {
-      $arr = null;
-      $totalLogins = 0;
-      $yearStats = [];
-      $lastLogin = null;
-
-      while ($row = mysqli_fetch_object($result)) {
-        if ($arr === null) {
-          // Get user data from first row
-          $arr = array('userid' => $row->UserID, 'new_userid' => $row->UserID, 'old_userid' => $row->UserID,
-              'username' => $row->UserName, 'email' => $row->Email, 'language' => $row->Language,
-              'new_pw1' => '', 'new_pw2' => '', 'dashboard' => $row->Dashboard);
-          $arr['admin'] = $row->Admin;
-          $arr['hidedonations'] = $row->HideDonations;
-          $lastLogin = $row->loginlast;
-        }
-        if ($row->loginyear !== null) {
-          $totalLogins += $row->loginnum;
-          $yearStats[] = $row->loginyear . ": " . $row->loginnum;
-        }
-      }
-
-      // Build login stats string
-      if ($lastLogin === null) {
-        $arr['loginstats'] = _("Never logged in");
-      } else {
-        $loginStats = sprintf(_("Last login: %s"), $lastLogin);
-        $loginStats .= " &bull; " . sprintf(_("Total: %d"), $totalLogins);
-        if (count($yearStats) > 1) {
-          $loginStats .= " (" . implode(", ", $yearStats) . ")";
-        }
-        $arr['loginstats'] = $loginStats;
-      }
-
-      die(json_encode($arr));
-    } else {
-      die(json_encode(array('alert' => 'Record not found.')));
-    }
-  }
-  break;
 case 'Unique':
   if (empty($_REQUEST['table'])) die(json_encode(array('alert' => 'Programming error: Table does not exist')));
   $sql = 'SELECT DonationTypeID FROM '.$_REQUEST['table'].' WHERE';

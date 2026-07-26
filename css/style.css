@@ -327,6 +327,12 @@ a.more { cursor:pointer; color:var(--link-more); text-decoration:underline; }
 .highlight { background-color:var(--highlight); }
 .validation { background-color:var(--validation); }
 
+/* Name reading shown as ruby by ruby_name(): larger than the tiny UA default (50%), and
+   aligned to the start of the name instead of justified/spread across its full width. */
+ruby { ruby-align: start; }
+rt { font-size: 0.8em; margin-bottom: 3px; }   /* a little breathing room above the name (spec-ruby: works in modern Firefox/Chromium) */
+rt.romaji { font-style: italic; }   /* romaji reading blends with a Latin name; italics set it apart */
+
 /* Readmore fadeout effect */
 td.readmore-wrapper, div.readmore {
   position: relative;

@@ -20,10 +20,10 @@ while($row = mysqli_fetch_object($result)) {
   for ($fieldindex=1; ${"field".sprintf("%02d",$fieldindex)}; $fieldindex++) {
     switch (${"field".sprintf("%02d",$fieldindex)}) {
     case "Name-Furigana":
-      echo "    <Name-Furigana>".readable_name($row->FullName,$row->Furigana,0,0,"",0)."</Name-Furigana>\n";
+      echo "    <Name-Furigana>".readable_name($row->FullName,$row->Furigana)."</Name-Furigana>\n";
       break;
     case "Furigana-Name":
-      echo "    <Furigana-Name>".readable_name($row->FullName,$row->Furigana,0,0,"",1)."</Furigana-Name>\n";
+      echo "    <Furigana-Name>".readable_name($row->Furigana,$row->FullName)."</Furigana-Name>\n";
       break;
     case "Address":
       if ($row->Address) {
@@ -140,10 +140,10 @@ while($row = mysqli_fetch_object($result)) {
         for ($mfindex=0; ${$selectvar}[$mfindex]; $mfindex++) {
           switch (${$selectvar}[$mfindex]) {
           case "Name-Furigana":
-            echo "      <Name-Furigana>".readable_name($tmp->FullName,$tmp->Furigana,0,0,"",0)."</Name-Furigana>\n";
+            echo "      <Name-Furigana>".readable_name($tmp->FullName,$tmp->Furigana)."</Name-Furigana>\n";
             break;
           case "Furigana-Name":
-            echo "      <Furigana-Name>".readable_name($tmp->FullName,$tmp->Furigana,0,0,"",1)."</Furigana-Name>\n";
+            echo "      <Furigana-Name>".readable_name($tmp->Furigana,$tmp->FullName)."</Furigana-Name>\n";
             break;
           case "Address":
             if ($tmp->Address) {
@@ -195,10 +195,10 @@ while($row = mysqli_fetch_object($result)) {
             echo "      <OrgID>".$tmp->PersonID."</OrgID>\n";
             break;
           case "Name-Furigana":
-            echo "      <Name-Furigana>".readable_name($tmp->FullName,$tmp->Furigana,0,0,"",0)."</Name-Furigana>\n";
+            echo "      <Name-Furigana>".readable_name($tmp->FullName,$tmp->Furigana)."</Name-Furigana>\n";
             break;
           case "Furigana-Name":
-            echo "      <Furigana-Name>".readable_name($tmp->FullName,$tmp->Furigana,0,0,"",1)."</Furigana-Name>\n";
+            echo "      <Furigana-Name>".readable_name($tmp->Furigana,$tmp->FullName)."</Furigana-Name>\n";
             break;
           case "Address":
             if ($tmp->Address) {

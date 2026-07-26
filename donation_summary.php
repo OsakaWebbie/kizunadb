@@ -126,8 +126,7 @@ if ($type == "PersonID") {
   $tableheads = "<th class=\"name-for-csv\" style=\"display:none\">" . _("Name") . "</th>\n";
   $tableheads .= "<th class=\"furigana-for-csv\" style=\"display:none\">" .
     ($_SESSION['furiganaisromaji'] == "yes" ? _("Romaji") : _("Furigana")) . "</th>\n";
-  $tableheads .= "<th class=\"name-for-display\">" . _("Name") . " (" .
-    ($_SESSION['furiganaisromaji'] == "yes" ? _("Romaji") : _("Furigana")) . ")</th>\n";
+  $tableheads .= "<th class=\"name-for-display\">" . _("Name") . "</th>\n";
 } else {
   $tableheads = "<th class=\"dtype\">" . _("Donation Type") . "</th>\n";
 }
@@ -145,7 +144,7 @@ while ($row = mysqli_fetch_object($result)) {
     echo "<td class=\"furigana-for-csv\" style=\"display:none\">" . htmlspecialchars($row->Furigana) . "</td>\n";
     echo "<td class=\"name-for-display\"><span style=\"display:none\">" . htmlspecialchars($row->Furigana) . "</span>";
     echo "<a href=\"individual.php?pid=" . $row->PersonID . "\" target=\"_blank\">";
-    echo readable_name($row->FullName, $row->Furigana) . "</a></td>\n";
+    echo ruby_name($row->FullName, $row->Furigana) . "</a></td>\n";
   } else {
     echo "<td class=\"dtype\">" . htmlspecialchars($row->DonationType) . "</td>\n";
   }

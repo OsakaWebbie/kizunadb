@@ -95,7 +95,7 @@ if ($listtype != 'Normal') {
       $group_name = $row->ActionType;
     } else { // PersonID
       $group_key = $row->PersonID;
-      $group_name = readable_name($row->FullName, $row->Furigana);
+      $group_name = ruby_name($row->FullName, $row->Furigana);
       $group_pid = $row->PersonID;
     }
 
@@ -159,7 +159,7 @@ if ($listtype == 'Normal') {
   $tableopt->cols[] = (object) [
     'key' => 'name',
     'sel' => 'person.Name',
-    'label' => _('Name'),
+    'label' => _('Name (display)'),
     'show' => (stripos($showcols, ',name,') !== FALSE),
     'table' => 'person'
   ];
@@ -175,7 +175,7 @@ if ($listtype == 'Normal') {
   $tableopt->cols[] = (object) [
     'key' => 'furigana',
     'sel' => 'person.Furigana',
-    'label' => ($_SESSION['furiganaisromaji']=='yes' ? _('Romaji') : _('Furigana')),
+    'label' => ($_SESSION['furiganaisromaji']=='yes' ? _('Romaji Name') : _('Furigana Name')),
     'show' => (stripos($showcols, ',furigana,') !== FALSE),
     'table' => 'person'
   ];
@@ -366,7 +366,7 @@ foreach ($groups as $group_key => $group) {
   $tableopt->cols[] = (object) [
     'key' => 'name',
     'sel' => 'person.Name',
-    'label' => _('Name'),
+    'label' => _('Name (display)'),
     'show' => ($listtype != 'PersonID' && stripos($showcols, ',name,') !== FALSE),
     'table' => 'person',
     'colsel' => ($listtype != 'PersonID')
@@ -384,7 +384,7 @@ foreach ($groups as $group_key => $group) {
   $tableopt->cols[] = (object) [
     'key' => 'furigana',
     'sel' => 'person.Furigana',
-    'label' => ($_SESSION['furiganaisromaji']=='yes' ? _('Romaji') : _('Furigana')),
+    'label' => ($_SESSION['furiganaisromaji']=='yes' ? _('Romaji Name') : _('Furigana Name')),
     'show' => ($listtype != 'PersonID' && stripos($showcols, ',furigana,') !== FALSE),
     'table' => 'person',
     'colsel' => ($listtype != 'PersonID')

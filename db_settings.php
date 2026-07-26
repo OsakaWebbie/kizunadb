@@ -148,103 +148,10 @@ while ($row = mysqli_fetch_object($result))  echo "    <option class=\"".$row->A
   &nbsp; &nbsp; <a href="labelprint_edit.php"><?=_('Edit Label Layouts')?></a></p>
 </fieldset>
 
-<?php
-if ($_SESSION['admin'] == 1) {
-?>
-<!-- QUICK SEARCH FIELDS -->
-
-<form name="qsform" id="qsform">
-  <fieldset><legend><?=_("Quick Search Fields")?></legend>
-  <p><?=_("Choose which fields the Quick Search box looks in. Searching fewer fields (especially Remarks) makes Quick Search faster.")?></p>
-  <div id="qsfields">
-<?php
-$qs_enabled = array_map('trim', explode(',', $_SESSION['quicksearch_fields'] ?? ''));
-foreach (quicksearch_field_defs() as $qs_key => $qs_def) {
-  echo '    <label class="label-n-input"><input type="checkbox" name="qsfield" value="'.$qs_key.'"'.
-    (in_array($qs_key, $qs_enabled, true) ? ' checked' : '').'>'.$qs_def[0]."</label>\n";
-}
-?>
-  </div>
-  <div class="submits"><button type="button" id="qs_save"><?=_("Save Changes")?></button></div>
-</fieldset></form>
-
-<!-- USERS -->
-
-<form name="userform" id="userform" autocomplete="off">
-  <fieldset><legend><?=_("User Management")?></legend>
-  <p><?=_("Fill in the information to add a new user.  Or select an existing user to make changes or delete.".
-  "NOTE: You cannot see the existing password, but you can enter a new one if the user forgot his/her password.")?></p>
-  <select id="userid" name="userid" size="1">
-    <option value="new"><?=_('New User...')?></option>
-<?php
-$result = sqlquery_checked("SELECT UserID,UserName FROM user ORDER BY UserName");
-while ($row = mysqli_fetch_object($result))  echo "    <option value=\"".$row->UserID."\">".$row->UserName."</option>\n";
-?>
-  </select>
-  <input type="hidden" id="old_userid" name="old_userid" value="">
-  <label class="label-n-input"><?=_('Name')?>: <input type="text"
-  id="username" name="username" style="width:10em" maxlength="30" autocomplete="off"></label>
-  <label class="label-n-input"><?=_('UserID (to log in)')?>: <input type="text"
-  id="new_userid" name="new_userid" style="width:5em" maxlength="16" autocomplete="off">
-  <span class="comment"><?=_('(max. 16 English characters, no spaces or punctuation)')?></span></label>
-  <label class="label-n-input"><?=_('Email')?>: <input type="email"
-  id="email" name="email" style="width:14em" maxlength="70">
-  <span class="comment"><?=_('(used for "forgot password" capability)')?></span></label>
-  <label class="label-n-input"><?=_('Language for Interface')?>: <select id="language" name="language" size="1">
-    <option value="en_US"<?php if($_SESSION['lang']=='en_US') echo ' selected'; ?>><?= _('English')?></option>
-    <option value="ja_JP"<?php if($_SESSION['lang']=='ja_JP') echo ' selected'; ?>><?=_('Japanese')?></option>
-  </select></label>
-  <label class="label-n-input"><input type="checkbox" id="admin" name="admin"><?=_('Admin Privileges')?></label>
-<?php if ($_SESSION['donations'] == 'yes') { ?>
-  <label class="label-n-input"><input type="checkbox" id="hidedonations" name="hidedonations"
-<?php if ($_SESSION['hidedonations_default'] == "yes") echo " checked"; ?>><?=_("Hide Donation Info")?></label>
-<?php } //if donations is on ?>
-  <label class="label-n-input"><input type="checkbox" id="send_setup_link" name="send_setup_link"><?=_('Email a setup link (instead of entering a password here; requires Email)')?></label>
-  <div id="pwfields">
-  <label class="label-n-input"><?=_('New Password')?>: <input type="password"
-  id="new_pw1" name="new_pw1" style="width:10em" autocomplete="new-password">
-  <span class="comment"><?=_('(leave blank if not changing password)')?></span></label>
-  <label class="label-n-input"><?=_('New Password again')?>: <input type="password"
-  id="new_pw2" name="new_pw2" style="width:10em" autocomplete="new-password"></label><br />
-  <?php include('passwordentry.php'); ?>
-  </div>
-  <label class="label-n-input"><?=_('Dashboard Files')?>: <textarea id="dashboard" name="dashboard" style="height:2em;width:80%"></textarea></label>
-  <div id="loginstats" class="comment"></div>
-  <br /><button type="button" id="user_add_upd"><?=_('Add or Update')?></button>
-  <button type="button" id="user_del" disabled><?=_('Delete')?></button>
-</fieldset></form>
-<?php
-} //end of if admin=1
-?>
 <?php load_scripts(array('jquery', 'jqueryui', 'datepicker-ja', 'functions')); ?>
 <script type="text/javascript" src="jscolor/jscolor.js"></script>
 <script type="text/javascript">
 
-function showStatus(msg) {
-  var $s = $('#status-msg');
-  if (!$s.length) $s = $('<div id="status-msg">').appendTo('body');
-  $s.text(msg).fadeIn(100).delay(1500).fadeOut(400);
-}
-function selectUpsertOption($select, id, text, extraAttrs) {
-  var $opt = $select.find('option[value="' + id + '"]');
-  if ($opt.length) $opt.text(text);
-  else $opt = $('<option>').val(id).text(text).appendTo($select);
-  if (extraAttrs) $opt.attr(extraAttrs);
-  selectSortOptions($select);
-  $select.val(id);
-}
-function selectRemoveOption($select, id) {
-  $select.find('option[value="' + id + '"]').remove();
-  $select.val('new');
-}
-function selectSortOptions($select) {
-  var $first = $select.find('option[value="new"]').detach();
-  var opts = $select.find('option').get().sort(function(a, b) {
-    return a.text.localeCompare(b.text);
-  });
-  $select.empty().append($first).append(opts);
-}
-function resetEntityForm($select) { $select.val('new').trigger('change'); }
 function cloneSelectExcept(sourceSel, excludeId, newName) {
   var $clone = $(sourceSel).clone().attr('id', newName).attr('name', newName);
   $clone.find('option[value="' + excludeId + '"], option[value="new"]').remove();
@@ -258,7 +165,7 @@ function stopRKey(evt) {
   // Only block Enter key for text inputs within this page's forms (not quick search or other forms)
   if ((evt.keyCode == 13) && (node.type=="text") && node.name!="textinput1") {
     var form = node.form || $(node).closest('form')[0];
-    if (form && ["pcform","catform","atform","dtform","eventform","userform"].includes(form.id)) {
+    if (form && ["pcform","catform","atform","dtform","eventform"].includes(form.id)) {
       return false;
     }
   }
@@ -449,47 +356,6 @@ $(document).ready(function(){
         }
       });
     }
-  });
-
-// AJAX call for Users
-  $("#userid").change(function(){
-    $("#send_setup_link").prop("checked", false);
-    $("#pwfields").show();
-    if ($("#userid").val() == "new") {
-      $("#username, #new_userid, #old_userid, #email, #new_pw1, #new_pw2, #dashboard").val("");
-      $("#language").val("<?=$_SESSION['lang']?>");
-      $("#admin").prop("checked", false);
-      $("#hidedonations").prop("checked", <?=($_SESSION['hidedonations_default']=="yes" ? "true" : "false")?>);
-      $("#user_del").prop('disabled', true);
-      $("#loginstats").html("");
-    } else {
-      $('#username').addClass('is-loading');
-      $.getJSON("ajax_request.php?req=User&userid="+$('#userid').val(), function(data) {
-        $('#username').removeClass('is-loading');
-        if (data.alert === "NOSESSION") {
-          alert("<?=_("Your login has timed out - please refresh the page.")?>");
-        } else {
-          $("#admin,#hidedonations").prop("checked", false);
-          $('#username').val(data.username);
-          $('#new_userid').val(data.userid);
-          $('#old_userid').val(data.userid);
-          $('#email').val(data.email);
-          $('#language').val(data.language);
-          if (data.admin == 1) $('#admin').prop('checked', true);
-          if (data.hidedonations == 1) $('#hidedonations').prop('checked', true);
-          $('#dashboard').val(data.dashboard);
-          $("#loginstats").html(data.loginstats);
-          $('#user_del').data('name', data.username).data('userid', data.userid);
-          $("#user_del").prop('disabled', data.userid == '<?=addslashes($_SESSION["userid"])?>');
-
-        }
-      });
-    }
-  });
-
-  $("#send_setup_link").change(function(){
-    if ($(this).is(":checked")) { $("#new_pw1, #new_pw2").val(""); $("#pwfields").hide(); }
-    else { $("#pwfields").show(); }
   });
 
   $('#cat_add_upd').click(function() {
@@ -862,87 +728,6 @@ $(document).ready(function(){
     $('#event_del_dialog').dialog('open');
   });
 
-  $('#user_add_upd').click(function() {
-    if (validate('user') === false) return;
-    var $username = $('#username');
-    $username.addClass('is-loading');
-    $.post('ajax_action.php', {
-      action:        'UserSave',
-      userid:        $('#userid').val(),
-      old_userid:    $('#old_userid').val(),
-      new_userid:    $('#new_userid').val(),
-      username:      $username.val(),
-      email:         $('#email').val(),
-      language:      $('#language').val(),
-      admin:         $('#admin').is(':checked') ? 1 : 0,
-      hidedonations: $('#hidedonations').length ? ($('#hidedonations').is(':checked') ? 1 : 0) : 0,
-      dashboard:     $('#dashboard').val(),
-      new_pw1:       $('#new_pw1').val(),
-      new_pw2:       $('#new_pw2').val(),
-      send_setup_link: $('#send_setup_link').is(':checked') ? 1 : 0
-    }, function(data) {
-      $username.removeClass('is-loading');
-      if (data.alert === 'NOSESSION') {
-        alert('<?=_("Your login has timed out - please refresh the page.")?>');
-        return;
-      }
-      if (data.alert || data.error) { alert(data.alert || data.error); return; }
-      var sentOldUserid = $('#old_userid').val();
-      selectUpsertOption($('#userid'), data.userid, data.username);
-      if (sentOldUserid && sentOldUserid !== data.userid) {
-        $('#userid').find('option[value="' + sentOldUserid + '"]').remove();
-      }
-      if (data.sessionUpdated) { window.location.reload(); return; }
-      resetEntityForm($('#userid'));
-      $('#new_pw1, #new_pw2').val('');
-      showStatus(data.message);
-    }, 'json').fail(function(jqxhr, textStatus, error) {
-      $username.removeClass('is-loading');
-    });
-  });
-
-  $('#user_del').click(function() {
-    var name = $(this).data('name'), uid = $(this).data('userid');
-    if (!confirm('<?=_('Are you sure you want to delete user "%1$s" (UserID: %2$s)?')?>'.replace('%1$s', name).replace('%2$s', uid))) return;
-    var $username = $('#username');
-    $username.addClass('is-loading');
-    $.post('ajax_action.php', {
-      action:     'UserDelete',
-      old_userid: uid
-    }, function(data) {
-      $username.removeClass('is-loading');
-      if (data.alert === 'NOSESSION') {
-        alert('<?=_("Your login has timed out - please refresh the page.")?>');
-        return;
-      }
-      if (data.alert || data.error) { alert(data.alert || data.error); return; }
-      selectRemoveOption($('#userid'), uid);
-      resetEntityForm($('#userid'));
-      showStatus(data.message);
-    }, 'json').fail(function(jqxhr, textStatus, error) {
-      $username.removeClass('is-loading');
-    });
-  });
-
-  $('#qs_save').click(function() {
-    var fields = $('#qsfields input:checked').map(function() { return this.value; }).get();
-    if (fields.length === 0) { alert('<?=_("Please choose at least one field for quick search.")?>'); return; }
-    var $btn = $('#qs_save').prop('disabled', true);
-    $.post('ajax_action.php', {
-      action: 'QuicksearchFieldsSave',
-      fields: fields.join(',')
-    }, function(data) {
-      $btn.prop('disabled', false);
-      if (data.alert === 'NOSESSION') {
-        alert('<?=_("Your login has timed out - please refresh the page.")?>');
-        return;
-      }
-      if (data.alert || data.error) { alert(data.alert || data.error); return; }
-      showStatus(data.message);
-    }, 'json').fail(function(jqxhr, textStatus, error) {
-      $btn.prop('disabled', false);
-    });
-  });
 });
 
 function validate(form) {
@@ -990,28 +775,6 @@ function validate(form) {
       alert("<?=_("Donation Type name cannot be blank.")?>");
       return false;
     }
-    break;
-  case "user":
-    if (document.userform.username.value == "") {
-      alert("<?=_("User Name cannot be blank.")?>");
-      return false;
-    }
-    if (document.userform.new_userid.value == "") {
-      alert("<?=_("UserID cannot be blank.")?>");
-      return false;
-    }
-    if (document.getElementById('send_setup_link').checked) {
-      if (document.userform.email.value.trim() == "") {
-        alert("<?=_('An email address is required to send a setup link.')?>");
-        return false;
-      }
-      break;
-    }
-    if (document.userform.userid.selectedIndex == 0 && document.userform.new_pw1.value == "") {
-      alert("<?=_("You must enter a password for a new user.")?>");
-      return false;
-    }
-    if (!pwEntryOK()) return false;
     break;
   }
 }

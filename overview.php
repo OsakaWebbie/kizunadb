@@ -19,6 +19,9 @@ div.maininfo img.photo { border:2px solid black; flex-shrink:0; }
 span.romajiaddr { font-style:italic; }
 p.cat { font-size:11pt; }
 span.label { font-weight:bold; }
+ruby { ruby-align:start; }
+rt { font-size:0.65em; margin-bottom:3px; }
+rt.romaji { font-style:italic; }
 <?php
 if ($_POST['break']=="line") {
   echo "div.personbreak { font-size:2px; line-height:2px; border-bottom:3px solid black;";
@@ -49,7 +52,7 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
     echo "<img class=\"photo\" src=\"photo.php?f=p".$person->PersonID."\" width='100' alt=''>\n";
   }
   echo "<div>";
-  echo "<h1 class=\"name\">".readable_name($person->FullName,$person->Furigana)."</h1>\n";
+  echo "<h1 class=\"name\">".ruby_name($person->FullName,$person->Furigana)."</h1>\n";
   $text = "";
   if ($person->Sex) {
     $text .= (($person->Sex=="F")?_("Female"):_("Male"));
@@ -124,7 +127,7 @@ for ($pid_index=0; $pid_index<$num_pids; $pid_index++) {
       echo "<th>"._("Sex")."</th>";
       echo "<th>"._("Birthday")." ("._("Age").")</th></tr>";
       while ($row = mysqli_fetch_object($result)) {
-        echo "<tr><td nowrap>".readable_name($row->FullName,$row->Furigana);
+        echo "<tr><td nowrap>".ruby_name($row->FullName,$row->Furigana);
         echo "</td>\n<td align=center>";
         if ($row->Photo == 1) echo "<img src=\"photo.php?f=p".$row->PersonID."\" width='40' alt=''>";
         echo "</td>\n<td align=center>";

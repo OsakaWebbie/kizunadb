@@ -15,7 +15,7 @@ if (mysqli_num_rows($result)==0) {
   while ($row = mysqli_fetch_object($result)) {
     echo "<div class=\"dup\">\n";
     echo "  <div class=\"name\"><a href=\"individual.php?pid=".$row->PersonID."\" target=\"_blank\">".
-    readable_name($row->FullName,$row->Furigana)."</a></div>\n";
+    ruby_name($row->FullName,$row->Furigana)."</a></div>\n";
     if ($row->Address) {
       echo "  <div class=\"address\">〒".$row->PostalCode.$row->Prefecture.$row->ShiKuCho." ".d2h($row->Address)."</div>\n";
     }

@@ -53,6 +53,8 @@ jQuery.fn.table2CSV = function(options) {
     function formatData(input) {
         // remove hidden spans (used for sort keys)
         var output = input.replace(/<span[^\<]+display:\s*none[^\<]*>.*?<\/span>/gi, "");
+        // drop the ruby reading (<rt>): the name, not its furigana/romaji, belongs in the CSV cell
+        output = output.replace(/<rt\b[^>]*>[\s\S]*?<\/rt>/gi, "");
         // replace straight quotes with smart quotes to avoid conflicts in CSV
         output = output.replace(/["]/g, "\u201C");
         // strip HTML tags
