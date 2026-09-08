@@ -14,7 +14,6 @@ body.sqlquery #mainTable tbody td { vertical-align:top; }
 <?php
 if (!empty($_POST['query'])) {
   $query = stripslashes($_POST['query']);
-  $result = mysqli_query($db, $query);
   try {
     $result = mysqli_query($db, $query);
   } catch (mysqli_sql_exception $e) {
