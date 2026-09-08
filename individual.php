@@ -135,7 +135,7 @@ if (!empty($_POST['newattendance'])) {
   if ($_POST['enddate'] != '') {  //need to do a range of dates
     if ($_POST['date'] > $_POST['enddate']) die('Error: End Date is earlier than Start Date.');
     for ($day=$_POST['date']; $day<=$_POST['enddate']; $day=date('Y-m-d', strtotime("$day +1 day"))) {
-      if ($_POST['dow'.date("w",strtotime($day))]) {
+      if (!empty($_POST['dow'.date("w",strtotime($day))])) {
         $datearray[] = $day;
       }
     }
@@ -144,16 +144,21 @@ if (!empty($_POST['newattendance'])) {
   }
   //insert for each date and pid (might be only one of each, but...)
   //not combined into a single "insert...select" query because the ON DUPLICATE KEY UPDATE won't add the non-dups in the list
+  $eid = (int)$_POST['eid'];
+  if ($_POST['starttime'] != '') {
+    $starttime = $_POST['starttime'].':00';
+    $endtime = $_POST['endtime'].':00';
+    $stmt = mysqli_prepare($db, "INSERT INTO attendance(PersonID,EventID,AttendDate,StartTime,EndTime) ".
+        "VALUES(?,?,?,?,?) ON DUPLICATE KEY UPDATE StartTime=VALUES(StartTime), EndTime=VALUES(EndTime)");
+    mysqli_stmt_bind_param($stmt, 'iisss', $eachpid, $eid, $eachdate, $starttime, $endtime);
+  } else {
+    $stmt = mysqli_prepare($db, "INSERT INTO attendance(PersonID,EventID,AttendDate) ".
+        "VALUES(?,?,?) ON DUPLICATE KEY UPDATE AttendDate=AttendDate");
+    mysqli_stmt_bind_param($stmt, 'iis', $eachpid, $eid, $eachdate);
+  }
   foreach ($datearray as $eachdate) {
     foreach ($pidarray as $eachpid) {
-      if ($_POST['starttime'] != '') {
-        sqlquery_checked("INSERT INTO attendance(PersonID,EventID,AttendDate,StartTime,EndTime) ".
-        "VALUES($eachpid,{$_POST['eid']},'$eachdate','{$_POST['starttime']}:00','{$_POST['endtime']}:00') ".
-        "ON DUPLICATE KEY UPDATE StartTime='{$_POST['starttime']}:00', EndTime='{$_POST['endtime']}:00'");
-      } else {
-        sqlquery_checked("INSERT INTO attendance(PersonID,EventID,AttendDate) ".
-        "VALUES($eachpid,{$_POST['eid']},'$eachdate') ON DUPLICATE KEY UPDATE AttendDate=AttendDate");
-      }
+      mysqli_stmt_execute($stmt);
     }
   }
   header("Location: individual.php?pid=".$_POST['pid']."#attendance");
@@ -244,17 +249,17 @@ pageheader("$per->FullName", 1);
     div#merge-link { clear:both; text-align:center; margin:2em 0 1em; }
 
     /* moved from style.php (page-specific; variables stay in style.css :root) */
-    body.individual div#photo { float:left; width:150px; text-align:center; }
-    body.individual div#photo img { width:150px; border:1px solid var(--photo-border);}
-    body.individual div#photo p { margin-top:60px; text-align:center; }
-    body.individual div#info-block { float:left; }
-    body.individual div#personal-info,div#household-info {
+    div#photo { float:left; width:150px; text-align:center; }
+    div#photo img { width:150px; border:1px solid var(--photo-border);}
+    div#photo p { margin-top:60px; text-align:center; }
+    div#info-block { float:left; }
+    div#personal-info, div#household-info {
       border:2px solid var(--person-info-border);
       float:left;
       margin-left: 8px;
       padding:5px;
     }
-    body.individual h3.info-title {
+    h3.info-title {
       margin:0 0 3px 0;
       padding:0;
       font-size:1.2em;
@@ -262,24 +267,24 @@ pageheader("$per->FullName", 1);
       font-style:italic;
       color: var(--person-info-title);
     }
-    body.individual div#cats-in {
+    div#cats-in {
       margin:5px 0;
       padding:5px 0;
       border-top: 2px solid var(--section-border);
       border-bottom: 2px solid var(--section-border);
     }
-    body.individual div#orgsection form.msform { margin-top:15px; }
-    body.individual tr.leader { background-color:var(--leader-bg); }
-    body.individual div.section h3 { margin:5px 0 0 0; }
-    body.individual form#orgform,
-    body.individual form#actionform,
-    body.individual form#donationform,
-    body.individual form#pledgeform,
-    body.individual form#attendform { margin:0 0 5px 30px; padding:5px; border:1px solid LightGray; }
-    body.individual form#actionform textarea { height:2em; }
-    body.individual td.categories, body.individual td.events { white-space:nowrap; }
-    body.individual #dayofweek, body.individual #attend-apply { display:block; }
-    body.individual #dayofweek label, body.individual #attend-apply label { margin-right:0.5em; }
+    div#orgsection form.msform { margin-top:15px; }
+    tr.leader { background-color:var(--leader-bg); }
+    div.section h3 { margin:5px 0 0 0; }
+    form#orgform,
+    form#actionform,
+    form#donationform,
+    form#pledgeform,
+    form#attendform { margin:0 0 5px 30px; padding:5px; border:1px solid LightGray; }
+    form#actionform textarea { height:2em; }
+    td.categories, td.events { white-space:nowrap; }
+    #dayofweek, #attend-apply { display:block; }
+    #dayofweek label, #attend-apply label { margin-right:0.5em; }
 
     /* Related Organizations search picker (replaces the old selectorg.php popup) */
     .org-picker { position:relative; display:inline-block; margin:0 0 5px 30px; }
@@ -311,6 +316,42 @@ pageheader("$per->FullName", 1);
       margin-top:4px; padding-top:4px;
       border-top:1px dotted var(--input-border);
       font-size:0.85em; color:Gray; cursor:default;
+    }
+    /* Description fields keep their desktop width but go fluid where space is tight.
+       min-width:0 is what lets a flex item shrink below its intrinsic width. */
+    .row-fill input { width:30em; max-width:100%; box-sizing:border-box; }
+    #uploadfile { width:20em; }
+    #uploaddesc { width:85%; }
+    /* The edit dialogs are narrow at any viewport, so their description always fills. */
+    #pledge-edit-form .row-fill,
+    #donation-edit-form .row-fill { display:flex; align-items:center; gap:0.4em; }
+    #pledge-edit-form .row-fill input,
+    #donation-edit-form .row-fill input { width:auto; flex:1 1 auto; min-width:0; }
+    #pledge-edit-form .comment,
+    #donation-edit-form .comment { white-space:normal; }
+    .table-scroll { overflow-x:auto; }
+    /* Where a control would otherwise overflow a phone, the label and its control share one
+       inline-flex line, so the control resizes instead of the label wrapping away from it.
+       row-fit keeps the control's own width and shrinks it only when it must; row-fill lets
+       it take the spare width, giving up the inter-field gutter to get all of it. */
+    @media (max-width:700px) {
+      .row-fit, .row-fill { align-items:center; gap:0.4em; }
+      /* fit shrink-wraps, so short rows can still sit side by side */
+      .row-fit { display:inline-flex; max-width:calc(100% - 2em); }
+      .row-fit > select, .row-fit > input { width:auto; flex:0 1 auto; min-width:0; }
+      /* fill takes the whole line — there has to be spare space for the field to grow into */
+      .row-fill { display:flex; margin-right:0; }
+      .row-fill > input { width:auto; flex:1 1 auto; min-width:0; }
+      /* a long category name is the one label that has to wrap; keep its checkbox alongside */
+      #cats-in label, #cats-out label {
+        display:inline-flex; align-items:flex-start; gap:0.3em;
+        max-width:calc(100% - 2em); white-space:normal;
+      }
+    }
+    /* reclaim the forms' indent once the nav has gone mobile (matches style.css) */
+    @media screen and (max-width:900px) {
+      form#orgform, form#actionform, form#donationform, form#pledgeform, form#attendform,
+      .org-picker { margin-left:0; }
     }
 </style>
 
@@ -861,7 +902,7 @@ if (!empty($_GET['editaction'])) {
 <?php if (!empty($_GET['editaction'])) echo "  <input type=\"hidden\" name=\"aid\" value=\"{$_GET['aid']}\">\n"; ?>
   <label class="label-n-input"><?=_("Date")?>: <input type="text" name="date" id="actiondate" style="width:6em"
     value="<?=(!empty($_GET['editaction']) ? $_GET['date'] : "")?>"></label>
-  <label class="label-n-input"><?=_("Type")?>: <select size="1" id="atype" name="atype"><option value="0"><?=_("Select...")?></option>
+  <label class="label-n-input row-fit"><?=_("Type")?>: <select size="1" id="atype" name="atype"><option value="0"><?=_("Select...")?></option>
 <?php
 $result = sqlquery_checked("SELECT * FROM actiontype ORDER BY ActionType");
 while ($row = mysqli_fetch_object($result)) {
@@ -997,7 +1038,7 @@ if ($_SESSION['donations'] == "yes") {   // covers both DONATIONS and PLEDGES se
       "LEFT JOIN donationtype dt ON pl.DonationTypeID=dt.DonationTypeID WHERE PersonID={$_REQUEST['pid']} ".
       "AND (EndDate='0000-00-00' OR EndDate>CURDATE()) ORDER BY PledgeDesc";
   $result = sqlquery_checked($sql);
-  echo "<label class=\"label-n-input pledges\">"._("Pledge").": ";
+  echo "<label class=\"label-n-input pledges row-fit\">"._("Pledge").": ";
   echo "<select size=\"1\" name=\"plid\" id=\"plid\">\n";
   echo "  <option value=\"0\">"._("Select if pledge...")."</option>\n";
   while ($row = mysqli_fetch_object($result)) {
@@ -1006,7 +1047,7 @@ if ($_SESSION['donations'] == "yes") {   // covers both DONATIONS and PLEDGES se
   }
   echo "</select></label>\n";
 $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
-  echo "<label class=\"label-n-input\">"._("Donation Type").": ";
+  echo "<label class=\"label-n-input row-fit\">"._("Donation Type").": ";
   echo "<select size=\"1\" name=\"dtype\" id=\"dtype\"".((!empty($_GET['editdonation']) && $_GET['plid']>0)?" disabled":"").">";
   echo "<option value=\"0\">"._("Select if not pledge...")."</option>";
   while ($row = mysqli_fetch_object($result)) {
@@ -1016,8 +1057,8 @@ $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
   echo "</select></label>\n";
   echo "<label class=\"label-n-input\">"._("Amount").": ".$_SESSION['currency_mark'];
   echo "<input type=\"text\" name=\"amount\" style=\"width:6em\" value=\"".(!empty($_GET['editdonation'])?$_GET['amount']:"")."\"></label>";
-  echo "<label class=\"label-n-input\">"._("Description").": ";
-  echo "<input type=\"text\" name=\"desc\" style=\"width:30em\" value=\"".(!empty($_GET['editdonation'])?$_GET['desc']:"")."\"></label>";
+  echo "<label class=\"label-n-input row-fill\">"._("Description").": ";
+  echo "<input type=\"text\" name=\"desc\" value=\"".(!empty($_GET['editdonation'])?$_GET['desc']:"")."\"></label>";
   echo "<label class=\"label-n-input\">";
   echo "<input type=\"checkbox\" name=\"proc\"".(!empty($_GET['editdonation'])?($_GET['proc']?" checked":""):"").">"._("Processed")."</label>";
   if (!empty($_GET['editdonation'])) {
@@ -1132,8 +1173,8 @@ $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
     <label><?=_("Amount")?>: <?=$_SESSION['currency_mark']?>
       <input type="text" name="Amount" id="donation-edit-Amount" style="width:6em" required>
     </label><br>
-    <label><?=_("Description")?>:
-      <input type="text" name="Description" id="donation-edit-Description" style="width:30em">
+    <label class="row-fill"><?=_("Description")?>:
+      <input type="text" name="Description" id="donation-edit-Description">
     </label><br>
     <label>
       <input type="checkbox" name="Processed" id="donation-edit-Processed"> <?=_("Processed")?>
@@ -1157,7 +1198,7 @@ $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
 
   // Donation Type
   $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
-  echo "<label class=\"label-n-input\">"._("Donation Type").": ";
+  echo "<label class=\"label-n-input row-fit\">"._("Donation Type").": ";
   echo "<select size=\"1\" name=\"dtype\" id=\"pledge-dtype\">";
   echo "<option value=\"0\">"._("Select...")."</option>";
   while ($row = mysqli_fetch_object($result)) {
@@ -1166,8 +1207,8 @@ $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
   echo "</select></label>\n";
 
   // Description
-  echo "<label class=\"label-n-input\">"._("Description").": ";
-  echo "<input type=\"text\" name=\"pledgedesc\" id=\"pledge-desc\" style=\"width:30em\" maxlength=\"150\"></label>\n";
+  echo "<label class=\"label-n-input row-fill\">"._("Description").": ";
+  echo "<input type=\"text\" name=\"pledgedesc\" id=\"pledge-desc\" maxlength=\"150\"></label>\n";
 
   // Start Date
   echo "<label class=\"label-n-input\">"._("Start Date").": ";
@@ -1293,8 +1334,8 @@ $result = sqlquery_checked("SELECT * FROM donationtype ORDER BY DonationType");
       </select>
     </label><br>
 
-    <label class="label-n-input"><?=_("Description")?>:
-      <input type="text" name="PledgeDesc" id="pledge-edit-PledgeDesc" style="width:30em" maxlength="150" required>
+    <label class="label-n-input row-fill"><?=_("Description")?>:
+      <input type="text" name="PledgeDesc" id="pledge-edit-PledgeDesc" maxlength="150" required>
     </label><br>
 
     <label class="label-n-input"><?=_("Start Date")?>:
@@ -1377,7 +1418,7 @@ $result = sqlquery_checked("SELECT e.Event, e.EventID, e.Remarks, min(a.AttendDa
 if (mysqli_num_rows($result) == 0) {
   echo "<p>"._("No attendance records. (You can add records here or in Batch Processing.)")."</p>";
 } else {
-  echo "<table id=\"attend-table\" class=\"tablesorter\"><thead><tr>";
+  echo "<div class=\"table-scroll\"><table id=\"attend-table\" class=\"tablesorter\"><thead><tr>";
   echo "<th>"._("Event")."</th><th class=\"sorter-text\">"._("Dates")."</th><th>"._("Event Description")."</th><th class=\"sorter-false\"></th>\n";
   echo "</tr></thead><tbody>\n";
   while ($row = mysqli_fetch_object($result)) {
@@ -1399,7 +1440,7 @@ if (mysqli_num_rows($result) == 0) {
     echo "<input type=\"submit\" name=\"delattendance\" value=\""._("Del")."\">";
     echo "</td>\n</form></tr>";
   }
-  echo "  </tbody></table>";
+  echo "  </tbody></table></div>";
   echo _("(Note: to remove records, use Event Attendance's Detail Chart.)");
 }
 ?>
@@ -1414,10 +1455,10 @@ echo "<h3 class=\"section-title\">"._("Uploaded Files")."</h3>\n";
 // FORM FOR UPLOADING FILES
 echo "<form name=\"uploadform\" method=\"post\" action=\"{$_SERVER['PHP_SELF']}?pid={$_GET['pid']}#uploads\" enctype=\"multipart/form-data\" onSubmit=\"return ValidateUpload()\">\n";
 echo "<input type=\"hidden\" name=\"pid\" value=\"{$_GET['pid']}\" />\n";
-echo "<label for=\"uploadfile\" class=\"label-n-input\">"._("File")._(" (max 8MB)").": ";
-echo "<input id=\"uploadfile\" name=\"uploadfile\" type=\"file\" style=\"width:20em\" /></label>\n";
-echo "<label for=\"uploaddesc\" class=\"label-n-input\">"._("Description").": ";
-echo "<input id=\"uploaddesc\" name=\"uploaddesc\" type=\"text\" style=\"width:85%\" /></label>\n";
+echo "<label for=\"uploadfile\" class=\"label-n-input row-fit\">"._("File")._(" (max 8MB)").": ";
+echo "<input id=\"uploadfile\" name=\"uploadfile\" type=\"file\" /></label>\n";
+echo "<label for=\"uploaddesc\" class=\"label-n-input row-fill\">"._("Description").": ";
+echo "<input id=\"uploaddesc\" name=\"uploaddesc\" type=\"text\" /></label>\n";
 echo "<input type=\"submit\" value=\""._("Upload File and Save Entry")."\" name=\"newupload\" />\n";
 echo "</form>\n";
 
@@ -1729,6 +1770,11 @@ if($_SESSION['lang']=="ja_JP") {
       alert('<?=_("You must enter a date.")?>');
       return false;
     }
+    try { $.datepicker.parseDate('yy-mm-dd', $('#action-edit-ActionDate').val()); }
+    catch(error) {
+      alert('<?=_("Date is invalid.")?>');
+      return false;
+    }
     if (!$('#action-edit-ActionTypeID').val()) {
       alert('<?=_("You must select an action type.")?>');
       return false;
@@ -1807,7 +1853,7 @@ if($_SESSION['lang']=="ja_JP") {
   $('#donation-edit-dialog').dialog({
     autoOpen: false,
     modal: true,
-    width: 550,
+    width: Math.min(550, $(window).width() - 30),
     title: '<?=_("Edit Donation")?>',
     buttons: [{
       text: '<?=_("Save")?>',
@@ -1929,6 +1975,11 @@ if($_SESSION['lang']=="ja_JP") {
       alert('<?=_("You must enter a date.")?>');
       return false;
     }
+    try { $.datepicker.parseDate('yy-mm-dd', $('#donation-edit-DonationDate').val()); }
+    catch(error) {
+      alert('<?=_("Date is invalid.")?>');
+      return false;
+    }
     if (!$('#donation-edit-Amount').val()) {
       alert('<?=_("You must enter an amount.")?>');
       return false;
@@ -2006,13 +2057,13 @@ if($_SESSION['lang']=="ja_JP") {
   $('#pledge-edit-dialog').dialog({
     autoOpen: false,
     modal: true,
-    width: 500,
+    width: Math.min(500, $(window).width() - 30),
     title: '<?=_("Edit Pledge")?>',
     buttons: [{
       text: '<?=_("Save Changes")?>',
       click: function() {
         if (validatePledgeEdit()) {
-          savePledge();
+          confirmPledgeTypeChange(savePledge);
         }
       }
     }, {
@@ -2026,6 +2077,8 @@ if($_SESSION['lang']=="ja_JP") {
   // Initialize datepickers for pledge edit dialog
   $('#pledge-edit-StartDate').datepicker({ dateFormat: 'yy-mm-dd' });
   $('#pledge-edit-EndDate').datepicker({ dateFormat: 'yy-mm-dd' });
+
+  var pledgeOrigTypeID = null;   // donation type the open pledge had when it was loaded
 
   // Edit button handler for pledges
   $(document).on('click', '.pledge-edit-btn', function() {
@@ -2041,6 +2094,7 @@ if($_SESSION['lang']=="ja_JP") {
       // Populate form
       $('#pledge-edit-id').val(data.PledgeID);
       $('#pledge-edit-DonationTypeID').val(data.DonationTypeID);
+      pledgeOrigTypeID = data.DonationTypeID;
       $('#pledge-edit-PledgeDesc').val(data.PledgeDesc);
       $('#pledge-edit-StartDate').val(data.StartDate);
       $('#pledge-edit-EndDate').val(data.EndDate == '0000-00-00' ? '' : data.EndDate);
@@ -2089,8 +2143,7 @@ if($_SESSION['lang']=="ja_JP") {
 
   // Validation for pledge edit
   function validatePledgeEdit() {
-    var date_regexp = /^\d\d\d\d-\d{1,2}-\d{1,2}$/;
-
+  
     if ($('#pledge-edit-DonationTypeID').val() == '0') {
       alert('<?=_("Please choose a Donation Type.")?>');
       return false;
@@ -2103,13 +2156,15 @@ if($_SESSION['lang']=="ja_JP") {
       alert('<?=_("Please fill in a Start Date.")?>');
       return false;
     }
-    if (!date_regexp.test($('#pledge-edit-StartDate').val())) {
-      alert('<?=_("Start Date must be in the form of YYYY-MM-DD.")?>');
+    try { $.datepicker.parseDate('yy-mm-dd', $('#pledge-edit-StartDate').val()); }
+    catch(error) {
+      alert('<?=sprintf(_('%s is an invalid date.'), _('Start Date'))?>');
       return false;
     }
     var endDate = $('#pledge-edit-EndDate').val();
-    if (endDate && !date_regexp.test(endDate)) {
-      alert('<?=_("End Date must be in the form of YYYY-MM-DD.")?>');
+    try { $.datepicker.parseDate('yy-mm-dd', endDate); }
+    catch(error) {
+      alert('<?=sprintf(_('%s is an invalid date.'), _('End Date'))?>');
       return false;
     }
     if (!$('#pledge-edit-Amount').val()) {
@@ -2117,6 +2172,26 @@ if($_SESSION['lang']=="ja_JP") {
       return false;
     }
     return true;
+  }
+
+  // Saving a changed donation type retypes the donations recorded against the pledge,
+  // so get the user's agreement first when there are any.
+  function confirmPledgeTypeChange(proceed) {
+    if ($('#pledge-edit-DonationTypeID').val() == pledgeOrigTypeID) {
+      proceed();
+      return;
+    }
+    $.post('ajax_request.php', {req: 'PledgeDonationCount', id: $('#pledge-edit-id').val()}, function(data) {
+      if (data.count > 0) {
+        var msg = <?=json_encode(_('Changing the Donation Type will also change the Donation Type for the %s donations recorded in fulfillment of this pledge (from %s to %s). Okay to do this?'))?>
+            .replace('%s', data.count).replace('%s', data.first).replace('%s', data.last);
+        if (!confirm(msg)) {
+          $('#pledge-edit-DonationTypeID').val(pledgeOrigTypeID);
+          return;
+        }
+      }
+      proceed();
+    }, 'json');
   }
 
   // Save function for pledges
@@ -2330,12 +2405,13 @@ function ValidateOrg(){
 function ValidateAction(){
   if ($('#actiondate').val() == '') {
     alert('<?=_("You must enter a date.")?>');
-    $('#actiondate').click();
+    $('#actiondate').focus();
     return false;
   }
   try { $.datepicker.parseDate('yy-mm-dd', $('#actiondate').val()); }
   catch(error) {
     alert('<?=_("Date is invalid.")?>');
+    $('#actiondate').focus();
     return false;
   }
   if (document.actionform.atype.selectedIndex == 0) {
@@ -2366,12 +2442,13 @@ function ValidateAction(){
 function ValidateDonation() {
   if ($('#donationdate').val() == '') {
     alert('<?=_("You must enter a date.")?>');
-    $('#donationdate').click();
+    $('#donationdate').focus();
     return false;
   }
   try { $.datepicker.parseDate('yy-mm-dd', $('#donationdate').val()); }
   catch(error) {
     alert('<?=_("Date is invalid.")?>');
+    $('#donationdate').focus();
     return false;
   }
   // I gave up for now - I can't get this to work, and it jumps past all other checks
@@ -2401,7 +2478,6 @@ function ValidateDonation() {
 }
 
 function ValidatePledge() {
-  var date_regexp = /^\d\d\d\d-\d{1,2}-\d{1,2}$/;
 
   if ($('#pledge-dtype').val() == '0') {
     alert('<?=_("Please choose a Donation Type.")?>');
@@ -2418,14 +2494,16 @@ function ValidatePledge() {
     $('#pledge-startdate').focus();
     return false;
   }
-  if (!date_regexp.test($('#pledge-startdate').val())) {
-    alert('<?=_("Start Date must be in the form of YYYY-MM-DD.")?>');
+  try { $.datepicker.parseDate('yy-mm-dd', $('#pledge-startdate').val()); }
+  catch(error) {
+    alert('<?=sprintf(_('%s is an invalid date.'), _('Start Date'))?>');
     $('#pledge-startdate').focus();
     return false;
   }
   var endDate = $('#pledge-enddate').val();
-  if (endDate && !date_regexp.test(endDate)) {
-    alert('<?=_("End Date must be in the form of YYYY-MM-DD.")?>');
+  try { $.datepicker.parseDate('yy-mm-dd', endDate); }
+  catch(error) {
+    alert('<?=sprintf(_('%s is an invalid date.'), _('End Date'))?>');
     $('#pledge-enddate').focus();
     return false;
   }
@@ -2444,19 +2522,19 @@ function ValidateAttendance(){
   }
   if ($('#attenddate').val() == '') {
     alert('<?=_("You must enter a date.")?>');
-    $('#attenddate').click();
+    $('#attenddate').focus();
     return false;
   }
   try { $.datepicker.parseDate('yy-mm-dd', $('#attenddate').val()); }
   catch(error) {
     alert('<?=_("Date is invalid.")?>');
-    $('#attenddate').click();
+    $('#attenddate').focus();
     return false;
   }
   try { $.datepicker.parseDate('yy-mm-dd', $('#attendenddate').val()); }
   catch(error) {
     alert('<?=_("Date is invalid.")?>');
-    $('#attendenddate').click();
+    $('#attendenddate').focus();
     return false;
   }
   // Validate times if event requires them

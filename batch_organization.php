@@ -9,10 +9,13 @@ if (!empty($_POST['newperorg'])) {
   if (mysqli_num_rows($result) == 0) die("This ID does not point to an organization record. Use Browse if you need help.");
   $pidarray = explode(",",$pid_list);
   $added = 0;
+  $orgid = (int)$_POST['orgid'];
+  $stmt = mysqli_prepare($db, "INSERT INTO perorg(PersonID, OrgID, Leader) ".
+      "VALUES(?,?,0) ON DUPLICATE KEY UPDATE Leader=Leader");
+  mysqli_stmt_bind_param($stmt, 'ii', $eachpid, $orgid);
   foreach($pidarray as $eachpid) {
-    sqlquery_checked("INSERT INTO perorg(PersonID, OrgID, Leader) ".
-    "VALUES($eachpid,{$_POST['orgid']},0) ON DUPLICATE KEY UPDATE Leader=Leader");
-    if (mysqli_affected_rows($db) == 1)  $added++;
+    mysqli_stmt_execute($stmt);
+    if (mysqli_stmt_affected_rows($stmt) == 1)  $added++;
   }
   if (!$ajax) pageheader(_("Connect All to an Organization"), 0);
   echo "<h3>".sprintf(_("%s organization association records added."),$added)."</h3>";
@@ -67,7 +70,7 @@ if (!$ajax) load_scripts(['jquery', 'jqueryui']);
 <script>
 $(document).ready(function(){
   $("input[type=submit]").button();
-  $(document).ajaxError(function(e, xhr, settings, exception) {
+  $(document).off('ajaxError.batchframe').on('ajaxError.batchframe', function(e, xhr, settings, exception) {
     alert('Error calling ' + settings.url + ': ' + exception);
   });
 

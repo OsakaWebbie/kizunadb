@@ -152,6 +152,10 @@ while ($row = mysqli_fetch_object($result))  echo "    <option class=\"".$row->A
 <script type="text/javascript" src="jscolor/jscolor.js"></script>
 <script type="text/javascript">
 
+function j2t(str) {
+  return (str+'').replace(/\\n/g,'\n');
+}
+
 function cloneSelectExcept(sourceSel, excludeId, newName) {
   var $clone = $(sourceSel).clone().attr('id', newName).attr('name', newName);
   $clone.find('option[value="' + excludeId + '"], option[value="new"]').remove();
@@ -343,7 +347,7 @@ $(document).ready(function(){
           $("#active,#usetimes").prop("checked", false);
           $('#event').val(data.event);
           $('#eventstartdate').val(data.eventstartdate);
-          $('#eventenddate').val(data.eventenddate);
+          $('#eventenddate').val(data.eventenddate == '0000-00-00' ? '' : data.eventenddate);
           if (data.usetimes == 1) $('#usetimes').prop('checked', true);
           $('#remarks').val(data.remarks);
           $('#event_del').data({
@@ -751,9 +755,14 @@ function validate(form) {
       alert("<?=_("Start date cannot be blank.")?>");
       return false;
     }
-    break;
-    if (document.eventform.eventenddate.value == "") {
-      alert("<?=_("End date cannot be blank.")?>");
+    try { $.datepicker.parseDate('yy-mm-dd', document.eventform.eventstartdate.value); }
+    catch(error) {
+      alert("<?=sprintf(_('%s is an invalid date.'), _('Start Date'))?>");
+      return false;
+    }
+    try { $.datepicker.parseDate('yy-mm-dd', document.eventform.eventenddate.value); }
+    catch(error) {
+      alert("<?=sprintf(_('%s is an invalid date.'), _('End Date'))?>");
       return false;
     }
     break;

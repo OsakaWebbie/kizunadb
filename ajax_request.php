@@ -333,9 +333,10 @@ case 'PledgeBalance':
 case 'PledgeDonationCount':
   if (isset($_REQUEST['id']) && $_REQUEST['id']!="") {
     $pledgeid = intval($_REQUEST['id']);
-    $result = sqlquery_checked("SELECT COUNT(DonationID) AS count FROM donation WHERE PledgeID=$pledgeid");
+    $result = sqlquery_checked("SELECT COUNT(DonationID) AS count, MIN(DonationDate) AS first, ".
+        "MAX(DonationDate) AS last FROM donation WHERE PledgeID=$pledgeid");
     $row = mysqli_fetch_assoc($result);
-    die(json_encode(array('count' => $row['count'])));
+    die(json_encode(array('count' => $row['count'], 'first' => $row['first'], 'last' => $row['last'])));
   }
   break;
 

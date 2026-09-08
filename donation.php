@@ -97,7 +97,7 @@ while ($row = mysqli_fetch_object($result)) {
 <div id="ResultFrame"></div>
 
 <?php
-$scripts = ['jquery', 'jqueryui', 'multiselect'];
+$scripts = ['jquery', 'jqueryui', 'multiselect', 'functions'];
 if ($_SESSION['lang']=="ja_JP") $scripts[] = 'datepicker-ja';
 load_scripts($scripts);
 ?>
@@ -115,8 +115,20 @@ load_scripts($scripts);
     $("#startdate").datepicker({ dateFormat: 'yy-mm-dd' });
     $("#enddate").datepicker({ dateFormat: 'yy-mm-dd' });
 
+    function datesOk() {
+      var bad = firstBadDate($('#dform'));
+      if (bad) {
+        alert('<?=_("Date is invalid.")?>');
+        $(bad).focus();
+        return false;
+      }
+      return true;
+    }
+    $('#dform').on('submit', function(){ return datesOk(); });
+
     // AJAX handlers for "below" buttons
     $("#show_don_frame").click(function(){
+      if (!datesOk()) return;
       var formData = $('#dform').serialize() + '&ajax=1';
       $('#ResultFrame').html('<p style="padding:1em;color:#888"><?=_("Loading...")?></p>');
       $.get('donation_list.php', formData, function(response) {
@@ -125,6 +137,7 @@ load_scripts($scripts);
     });
 
     $("#show_summary_frame").click(function(){
+      if (!datesOk()) return;
       var formData = $('#dform').serialize() + '&ajax=1';
       $('#ResultFrame').html('<p style="padding:1em;color:#888"><?=_("Loading...")?></p>');
       $.get('donation_summary.php', formData, function(response) {
@@ -133,6 +146,7 @@ load_scripts($scripts);
     });
 
     $("#show_pledges_frame").click(function(){
+      if (!datesOk()) return;
       var formData = $('#dform').serialize() + '&ajax=1';
       // For pledges, need to add dtgrouped if psubtotals is checked
       if ($('input[name=psubtotals]').is(':checked')) formData += '&dtgrouped=1';

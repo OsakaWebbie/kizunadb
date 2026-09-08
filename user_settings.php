@@ -69,7 +69,7 @@ pageheader(_("User Settings"), 1); ?>
   <input type="submit" id="pw_upd" name="pw_upd" value="<?=_("Change Password")?>">
 </fieldset></form>
 
-<?php load_scripts(['jquery', 'jqueryui', 'functions']); ?>
+<?php load_scripts(['jquery', 'jqueryui']); ?>
 <script type="text/javascript">
 function validate(form) {
   switch(form) {

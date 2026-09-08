@@ -251,6 +251,7 @@ $(document).ready(function(){
   $("#ResultFrame").on("submit", "form", function(e) {
     var target = $(this).attr("target") || "";
     if (target === "_blank" || target === "_top") return;
+    if (e.isDefaultPrevented()) return;   // the form's own onsubmit validator already refused
     e.preventDefault();
     var url = $(this).attr("action");
     var data = $(this).serialize();

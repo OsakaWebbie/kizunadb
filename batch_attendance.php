@@ -11,7 +11,7 @@ if (!empty($_POST['newattendance'])) {
   if (!empty($_POST['enddate'])) {  //need to do a range of dates
     if ($_POST['date'] > $_POST['enddate']) die("Error: End Date is earlier than Start Date.");
     for ($day=$_POST['date']; $day<=$_POST['enddate']; $day=date('Y-m-d', strtotime("$day +1 day"))) {
-      if ($_POST['dow'.date("w",strtotime($day))]) {
+      if (!empty($_POST['dow'.date("w",strtotime($day))])) {
         $datearray[] = $day;
       }
     }
@@ -22,17 +22,22 @@ if (!empty($_POST['newattendance'])) {
   //not combined into a single "insert...select" query because the ON DUPLICATE KEY UPDATE won't add the non-dups in the list
   $added = 0;
   $updated = 0;
+  $eid = (int)$_POST['eid'];
+  if (!empty($_POST['starttime'])) {
+    $starttime = $_POST['starttime'].':00';
+    $endtime = $_POST['endtime'].':00';
+    $stmt = mysqli_prepare($db, "INSERT INTO attendance(PersonID,EventID,AttendDate,StartTime,EndTime) ".
+        "VALUES(?,?,?,?,?) ON DUPLICATE KEY UPDATE StartTime=VALUES(StartTime), EndTime=VALUES(EndTime)");
+    mysqli_stmt_bind_param($stmt, 'iisss', $eachpid, $eid, $eachdate, $starttime, $endtime);
+  } else {
+    $stmt = mysqli_prepare($db, "INSERT INTO attendance(PersonID,EventID,AttendDate) ".
+        "VALUES(?,?,?) ON DUPLICATE KEY UPDATE AttendDate=AttendDate");
+    mysqli_stmt_bind_param($stmt, 'iis', $eachpid, $eid, $eachdate);
+  }
   foreach ($datearray as $eachdate) {
     foreach ($pidarray as $eachpid) {
-      if (!empty($_POST['starttime'])) {
-        sqlquery_checked("INSERT INTO attendance(PersonID,EventID,AttendDate,StartTime,EndTime) ".
-        "VALUES($eachpid,{$_POST['eid']},'$eachdate','{$_POST['starttime']}:00','{$_POST['endtime']}:00') ".
-        "ON DUPLICATE KEY UPDATE StartTime='{$_POST['starttime']}:00', EndTime='{$_POST['endtime']}:00'");
-      } else {
-        sqlquery_checked("INSERT INTO attendance(PersonID,EventID,AttendDate) ".
-        "VALUES($eachpid,{$_POST['eid']},'$eachdate') ON DUPLICATE KEY UPDATE AttendDate=AttendDate");
-      }
-      $affected = mysqli_affected_rows($db);
+      mysqli_stmt_execute($stmt);
+      $affected = mysqli_stmt_affected_rows($stmt);
       if ($affected == 2)  $updated++;
       elseif ($affected == 1)  $added++;
     }
@@ -107,7 +112,7 @@ if (!$ajax) load_scripts($scripts);
 <script>
 $(document).ready(function(){
   $("input[type=submit]").button();
-  $(document).ajaxError(function(e, xhr, settings, exception) {
+  $(document).off('ajaxError.batchframe').on('ajaxError.batchframe', function(e, xhr, settings, exception) {
     alert('Error calling ' + settings.url + ': ' + exception);
   });
 
@@ -139,19 +144,19 @@ function ValidateAttendance(){
   }
   if ($('#attenddate').val() == '') {
     alert('<?=_("You must enter a date.")?>');
-    $('#attenddate').click();
+    $('#attenddate').focus();
     return false;
   }
   try { $.datepicker.parseDate('yy-mm-dd', $('#attenddate').val()); }
   catch(error) {
     alert('<?=_("Date is invalid.")?>');
-    $('#attenddate').click();
+    $('#attenddate').focus();
     return false;
   }
   try { $.datepicker.parseDate('yy-mm-dd', $('#attendenddate').val()); }
   catch(error) {
     alert('<?=_("Date is invalid.")?>');
-    $('#attendenddate').click();
+    $('#attendenddate').focus();
     return false;
   }
   // Validate times if event requires them

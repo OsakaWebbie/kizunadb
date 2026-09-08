@@ -15,7 +15,8 @@ $unique = $partial = $perfect = [];      // PersonIDs by category
 
 if (!empty($_POST['process'])) {
   $adate    = h2d($adate_raw);
-  $desc_esc = h2d(str_replace("\r", "", $desc_raw));
+  $desc_clean = str_replace("\r", "", $desc_raw);
+  $desc_esc = h2d($desc_clean);
   $pid_array = array_values(array_filter(array_map('intval', explode(',', $pid_list))));
 
   // Categorize every selected person without adding anything yet:
@@ -61,9 +62,10 @@ if (!empty($_POST['process'])) {
     // Add per the user's choice (or, when there are no partials, just the uniques).
     // Exact duplicates are never added.
     $do_add  = ($mode === 'all') ? array_merge($unique, $partial) : $unique;
+    $stmt = mysqli_prepare($db, "INSERT INTO action (PersonID,ActionTypeID,ActionDate,Description) VALUES (?,?,?,?)");
+    mysqli_stmt_bind_param($stmt, 'iiss', $pid, $atid, $adate_raw, $desc_clean);
     foreach ($do_add as $pid) {
-      sqlquery_checked("INSERT INTO action (PersonID,ActionTypeID,ActionDate,Description) VALUES".
-                       " ($pid,$atid,'$adate','$desc_esc')");
+      mysqli_stmt_execute($stmt);
     }
     $added   = count($do_add);
     $skipped = count($pid_array) - $added;
@@ -138,7 +140,7 @@ if ($show_dialog) {
 <script>
 $(function(){
   $("#actionform input[type=submit]").button();
-  $(document).ajaxError(function(e, xhr, settings, exception) {
+  $(document).off('ajaxError.batchframe').on('ajaxError.batchframe', function(e, xhr, settings, exception) {
     alert('Error calling ' + settings.url + ': ' + exception);
   });
   $("#adate").datepicker({ dateFormat: 'yy-mm-dd' });
@@ -185,6 +187,17 @@ function batchConfirm(mode){
 function validate() {
   if (document.actionform.atid.value == "") {
     alert("<?=_("Please select an Action Type.")?>");
+    return false;
+  }
+  if ($('#adate').val() == "") {
+    alert("<?=_("You must enter a date.")?>");
+    $('#adate').focus();
+    return false;
+  }
+  try { $.datepicker.parseDate('yy-mm-dd', $('#adate').val()); }
+  catch(error) {
+    alert("<?=_("Date is invalid.")?>");
+    $('#adate').focus();
     return false;
   }
   return true;

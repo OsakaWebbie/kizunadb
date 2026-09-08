@@ -9,17 +9,6 @@ case "DonationProc":
   if ($_POST['unchecked_ids'] != "") sqlquery_checked("UPDATE donation set Processed=0 WHERE DonationID IN (".$_POST['unchecked_ids'].")");
   echo "*"._("Update successful.");
   break;
-case "AttendDelete":
-  if (!isset($_POST['ids']) || $_POST['ids']=="") die("Failed.");
-  $text = "";
-  $idarray = explode(",",$_POST['ids']);
-  foreach ($idarray as $id) {
-    $piddate = explode("_",$id);
-    sqlquery_checked("DELETE FROM attendance WHERE EventID=".$_POST['eid']." AND PersonID=".$piddate[0]." AND AttendDate='".$piddate[1]."'");
-    $text .= ",#".$id;
-  }
-  echo substr($text,1);
-  break;
 case "PerOrgDelete":
   if (!isset($_POST['memid']) || $_POST['orgid']=="") die("Failed.");
   sqlquery_checked("DELETE FROM perorg WHERE PersonID=".$_POST['memid']." AND OrgID=".$_POST['orgid']);
@@ -80,12 +69,20 @@ case "PledgeSave":
   $desc = h2d($_POST['PledgeDesc']);
 
   sqlquery_checked("UPDATE pledge SET PersonID=$pid, DonationTypeID=$ptype, StartDate='$start', EndDate='$end', Amount=$amount, TimesPerYear=$tpy, PledgeDesc='$desc' WHERE PledgeID=$pledgeid");
-  echo (mysqli_affected_rows($db) >= 0) ? "*"._("Changes saved.") : _("Failed to save.");
+  $saved = (mysqli_affected_rows($db) >= 0);
+  // donations fulfilling a pledge always carry the pledge's own donation type
+  sqlquery_checked("UPDATE donation SET DonationTypeID=$ptype WHERE PledgeID=$pledgeid");
+  echo $saved ? "*"._("Changes saved.") : _("Failed to save.");
   break;
 
 case "PledgeDelete":
   $pledgeid = intval($_POST['id']);
-  // Validation check is done in JavaScript before this is called
+  $result = sqlquery_checked("SELECT COUNT(DonationID) AS count FROM donation WHERE PledgeID=$pledgeid");
+  $donations = mysqli_fetch_object($result)->count;
+  if ($donations > 0) {
+    echo sprintf(_('There are %s donations applied to this pledge - please reassign the donations before deleting the pledge.'), $donations);
+    break;
+  }
   sqlquery_checked("DELETE FROM pledge WHERE PledgeID=$pledgeid");
   echo (mysqli_affected_rows($db) == 1) ? "*"._("Deleted.") : _("Not found.");
   break;

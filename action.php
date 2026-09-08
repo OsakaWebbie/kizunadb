@@ -41,7 +41,7 @@ while ($row = mysqli_fetch_object($result)) {
 <div id="ResultFrame"></div>
 
 <?php
-$scripts = ['jquery', 'jqueryui', 'multiselect'];
+$scripts = ['jquery', 'jqueryui', 'multiselect', 'functions'];
 if ($_SESSION['lang']=="ja_JP") $scripts[] = 'datepicker-ja';
 load_scripts($scripts);
 ?>
@@ -59,8 +59,20 @@ $(document).ready(function(){
   $("#startdate").datepicker({ dateFormat: 'yy-mm-dd' });
   $("#enddate").datepicker({ dateFormat: 'yy-mm-dd' });
 
+  function datesOk() {
+    var bad = firstBadDate($('#aform'));
+    if (bad) {
+      alert('<?=_("Date is invalid.")?>');
+      $(bad).focus();
+      return false;
+    }
+    return true;
+  }
+  $('#aform').on('submit', function(){ return datesOk(); });
+
   // AJAX handler for "below" button
   $("#show_actions_below").click(function(){
+    if (!datesOk()) return;
     var formData = $('#aform').serialize() + '&ajax=1';
     $('#ResultFrame').html('<p style="padding:1em;color:#888"><?=_("Loading...")?></p>');
     $.get('action_list.php', formData, function(response) {

@@ -54,7 +54,7 @@ printf(_('Optional Dates: after %s and/or before %s'),
 <div id="ResultFrame"></div>
 
 <?php
-$scripts = ['jquery', 'jqueryui', 'multiselect-classes'];
+$scripts = ['jquery', 'jqueryui', 'multiselect-classes', 'functions'];
 if ($_SESSION['lang']=='ja_JP') $scripts[] = 'datepicker-ja';
 load_scripts($scripts);
 ?>
@@ -82,8 +82,20 @@ load_scripts($scripts);
     $('#startdate').datepicker({ dateFormat: 'yy-mm-dd' });
     $('#enddate').datepicker({ dateFormat: 'yy-mm-dd' });
 
+    function datesOk() {
+      var bad = firstBadDate($('#eform'));
+      if (bad) {
+        alert('<?=_("Date is invalid.")?>');
+        $(bad).focus();
+        return false;
+      }
+      return true;
+    }
+    $('#eform').on('submit', function(){ return datesOk(); });
+
     // AJAX handlers for "below" buttons
     $('#show_detail_below').click(function(){
+      if (!datesOk()) return;
       if ($('#eid').val()=='') {
         alert("<?=_('Please select an event.')?>");
       } else {
@@ -96,6 +108,7 @@ load_scripts($scripts);
     });
 
     $('#show_aggregate_below').click(function(){
+      if (!datesOk()) return;
       if ($("form#eform option:selected").length < 2) {
         alert("<?=_("Please select at least one event.")?>");
       } else {
@@ -108,6 +121,7 @@ load_scripts($scripts);
     });
 
     $('#show_datesums_below').click(function(){
+      if (!datesOk()) return;
       if ($("form#eform option:selected").length < 2) {
         alert("<?=_("Please select at least one event.")?>");
       } else {

@@ -215,10 +215,20 @@ if ($_SESSION['admin'] == 1) {
 </div>
 </form>
 
-<?php load_scripts(['jquery', 'jqueryui', 'datepicker-ja', 'multiselect']); ?>
+<?php load_scripts(['jquery', 'jqueryui', 'datepicker-ja', 'multiselect', 'functions']); ?>
 
 <script type="text/JavaScript">
 $(document).ready(function(){
+  $('#searchform').on('submit', function(){
+    var bad = firstBadDate($(this));
+    if (bad) {
+      alert('<?=_("Date is invalid.")?>');
+      $(bad).focus();
+      return false;
+    }
+    return true;
+  });
+
   $("#ctstartdate1").datepicker({ dateFormat: 'yy-mm-dd' });
   $("#ctenddate1").datepicker({ dateFormat: 'yy-mm-dd' });
   $("#dtstartdate1").datepicker({ dateFormat: 'yy-mm-dd' });

@@ -2,6 +2,22 @@
 include("functions.php");
 include("accesscontrol.php");
 
+// AJAX REQUEST TO DELETE THE SELECTED ATTENDANCE CELLS
+if (!empty($_POST['action']) && $_POST['action'] == 'AttendDelete') {
+  if (empty($_POST['ids'])) die('Failed.');
+  $text = '';
+  $stmt = mysqli_prepare($db, 'DELETE FROM attendance WHERE EventID=? AND PersonID=? AND AttendDate=?');
+  mysqli_stmt_bind_param($stmt, 'iis', $del_eid, $del_pid, $del_date);
+  $del_eid = (int)$_POST['eid'];
+  foreach (explode(',', $_POST['ids']) as $id) {
+    list($del_pid, $del_date) = explode('_', $id);
+    mysqli_stmt_execute($stmt);
+    $text .= ',#'.$id;
+  }
+  echo substr($text, 1);
+  exit;
+}
+
 $ajax = !empty($_GET['ajax']);
 $date_repeat = 5;
 $name_repeat = 15;
@@ -236,7 +252,7 @@ $(document).ready(function(){
       if (confirm(text.replace('%d',IDs.length))) {
         $.ajax({
           type: "POST",
-          url: "attend_del.php",
+          url: "attend_detail.php",
           data: "action=AttendDelete&ids="+IDs+"&eid=<?=$eid?>",
           dataType: "text",
           success: function(deleted) {
