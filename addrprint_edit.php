@@ -202,7 +202,7 @@ function graphic_picker($id) {
 }
 ?>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,700;1,400&family=Noto+Sans+JP:wght@400;700&display=swap');
 .lp-top { margin-bottom:1em; }
 .lp-order-info { color:#666; }
 .lp-order-num { font-weight:bold; color:#222; }
@@ -248,8 +248,8 @@ function graphic_picker($id) {
 .lp-svg .lp-name { stroke: #006e00; }
 .lp-svg .lp-ret { stroke: #a600a6; }
 .lp-svg .lp-block.lp-overflow { stroke:Red; stroke-width:1; stroke-dasharray:none; }
-.lp-svg .lp-text { overflow:hidden; color:#222; line-height:1.15; font-family:'Source Sans 3', sans-serif; }
-.lp-svg .lp-pcdigit { fill:#000; font-family:'Source Sans 3', sans-serif; }
+.lp-svg .lp-text { overflow:hidden; color:#222; line-height:1.15; font-family:'Source Sans 3','Noto Sans JP', sans-serif; }
+.lp-svg .lp-pcdigit { fill:#000; font-family:'Source Sans 3','Noto Sans JP', sans-serif; }
 .lp-svg .lp-rettext { font-size:7px; white-space:pre-line; overflow:hidden; line-height:1.15; }
 .lp-hint { color:#666; font-size:0.85em; }
 .lp-graphic-tools { flex-wrap:wrap; gap:0.5em; }
@@ -485,11 +485,11 @@ $(function () {
       NJAddrPointSize:18,NJRecipX:70,NJRecipY:65,NJRecipWidth:140,NJRecipHeight:80,NJRetAddrX:15,NJRetAddrY:12,NJRetAddrWidth:80,NJRetAddrPointSize:11,DefaultStamp:'none'},
     hagaki:     {Tategaki:1,PaperHeight:148,PaperWidth:100,
       PCPointSize:20,PCX:44,PCY:19,PCSpacing:6.8,PCExtraSpace:0.9,StampX:5,StampY:10,
-      AddrPointSize:12,NamePointSize:20,RecipX:10,RecipY:28,RecipWidth:78,RecipHeight:105,NameIndent:12,NameGap:10,RetAddrX:6,RetAddrY:8,RetAddrWidth:55,RetAddrPointSize:8,
+      AddrPointSize:12,NamePointSize:20,RecipX:10,RecipY:28,RecipWidth:78,RecipHeight:100,NameIndent:12,NameGap:10,RetAddrX:6,RetAddrY:11,RetAddrWidth:50,RetAddrPointSize:8,
       NJAddrPointSize:15,NJRecipX:40,NJRecipY:38,NJRecipWidth:95,NJRecipHeight:50,NJRetAddrX:8,NJRetAddrY:8,NJRetAddrWidth:55,NJRetAddrPointSize:9,DefaultStamp:'none'},
     nenga:      {Tategaki:1,PaperHeight:148,PaperWidth:100,
       PCPointSize:20,PCX:44,PCY:19,PCSpacing:6.8,PCExtraSpace:0.9,StampX:5,StampY:10,
-      AddrPointSize:12,NamePointSize:19,RecipX:10,RecipY:28,RecipWidth:78,RecipHeight:105,NameIndent:12,NameGap:10,RetAddrX:6,RetAddrY:18,RetAddrWidth:55,RetAddrPointSize:8,
+      AddrPointSize:12,NamePointSize:19,RecipX:10,RecipY:28,RecipWidth:78,RecipHeight:83,NameIndent:12,NameGap:10,RetAddrX:6,RetAddrY:25,RetAddrWidth:50,RetAddrPointSize:8,
       NJAddrPointSize:15,NJRecipX:40,NJRecipY:38,NJRecipWidth:95,NJRecipHeight:50,NJRetAddrX:8,NJRetAddrY:8,NJRetAddrWidth:55,NJRetAddrPointSize:9,DefaultStamp:'none'}
   };
   function loadStarter(o) {
@@ -687,6 +687,7 @@ $(function () {
         FIELDS.forEach(function (k) { saved[k] = gv('f_' + k); });
         if (op === 'save' && origName && origName !== name) delete presets[origName];
         presets[name] = saved; origName = name;
+        $('#starterrow').hide();  // now editing a saved layout, not creating one
         order.forEach(function (nm, i) { if (presets[nm]) presets[nm].ListOrder = i + 1; });  // server renumbered from 1
         rebuildPresetOptions(name);
         rebuildOrderList();

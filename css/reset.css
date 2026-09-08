@@ -25,7 +25,8 @@ caption {
 
 body {
   line-height: 1.2;
-  font-family: Arial, Helvetica, "ＭＳ Ｐゴシック", sans-serif;
+  font-family: Arial, Helvetica, "Yu Gothic UI", "Hiragino Sans",
+               "Noto Sans CJK JP", Meiryo, sans-serif;
 }
 
 ol, ul {

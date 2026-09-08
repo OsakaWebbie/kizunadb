@@ -147,15 +147,18 @@ if (is_file("/usr/bin/uplatex")) {
 } else {
   die("Error: cannot find needed commands (uplatex and dvipdfmx) in /usr/bin/ or /usr/local/bin/.");
 }
-exec("cd $tmppath;{$commandpath}uplatex -interaction=batchmode --output-directory=$tmppath $fileroot", $output, $return);
+exec("cd $tmppath;{$commandpath}uplatex -interaction=batchmode --output-directory=$tmppath $fileroot 2>&1", $output, $return);
 if (!is_file("$tmppath$fileroot.dvi")) {
-  die("Error processing '$tmppath$fileroot.tex':<br /><br /><pre>".print_r($output,TRUE)."</pre>");
+  $loglines = explode("\n", (string)@file_get_contents("$tmppath$fileroot.log"));
+  $detail = implode("\n", $output)."\n\n--- log tail ---\n".implode("\n", array_slice($loglines, -40));
+  die("Error processing '$tmppath$fileroot.tex':<br /><br /><pre>".htmlspecialchars($detail, ENT_QUOTES, mb_internal_encoding())."</pre>");
 }
 //unlink("$tmppath$fileroot.tex");
-exec("cd $tmppath;{$commandpath}dvipdfmx $fileroot", $output, $return);
+$output = array();
+exec("cd $tmppath;{$commandpath}dvipdfmx $fileroot 2>&1", $output, $return);
 //unlink("$tmppath$fileroot.dvi");
 if (!is_file("$tmppath$fileroot.pdf")) {
-  die("Error processing '$tmppath$fileroot.dvi':<br /><br /><pre>".print_r($output,TRUE)."</pre>");
+  die("Error processing '$tmppath$fileroot.dvi':<br /><br /><pre>".htmlspecialchars(implode("\n", $output), ENT_QUOTES, mb_internal_encoding())."</pre>");
 }
 
 // DELIVER PDF CONTENT TO BROWSER

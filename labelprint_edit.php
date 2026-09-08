@@ -118,7 +118,7 @@ function lp_num($id, $label, $step = '0.1') {
 }
 ?>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,700;1,400&family=Noto+Sans+JP:wght@400;700&display=swap');
 .lp-top { margin-bottom:1em; }
 .lp-order-info { color:#666; }
 .lp-order-num { font-weight:bold; color:#222; }
@@ -162,7 +162,7 @@ function lp_num($id, $label, $step = '0.1') {
 .lp-svg .lp-paper { fill:#fff; stroke:#bbb; stroke-width:1; }
 .lp-svg .lp-label { fill:#f7fbff; stroke:#8ab4d8; stroke-width:0.75; }
 .lp-svg .lp-label.lp-overflow { fill:#fff0f0; stroke:#d64545; stroke-width:1.25; }
-.lp-svg .lp-text { overflow:hidden; color:#222; padding:0 1px; font-family:'Source Sans 3', sans-serif; }
+.lp-svg .lp-text { overflow:hidden; color:#222; padding:0 1px; font-family:'Source Sans 3','Noto Sans JP', sans-serif; }
 .lp-svg .lp-gap { height:0.45em; }
 .lp-hint { color:#666; font-size:0.85em; }
 #status-msg { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); padding:10px 16px;

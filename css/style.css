@@ -284,9 +284,6 @@ nav#nav-mobile a:hover, nav#nav-mobile a:active {
 
 /* general purpose typography */
 
-body { font-family:Arial,"ＭＳ Ｐゴシック",sans-serif; }
-textarea { font-family:Arial,"ＭＳ Ｐゴシック",sans-serif; } /* because inherit doesn't work in IE <8 */
-
 button,
 input[type=submit],
 input[type=button],
